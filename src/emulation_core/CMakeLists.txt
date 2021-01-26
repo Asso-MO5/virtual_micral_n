@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(micraln-emulation-core
+        DESCRIPTION "The emulation core for the Micral N emulation"
+        LANGUAGES CXX C)
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Emulation Core
+set(EMULATION_TEST_NAME ${EMULATION_LIB_NAME}_tests)
+
+set(EMULATION_CORE_FILES
+        src/Schedulable.h
+        src/Scheduling.h
+        src/Scheduler.h src/Scheduler.cpp)
+set(EMULATION_CORE_TEST_FILES tests/test_scheduler.cpp)
+
+add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
+
+add_executable(${EMULATION_TEST_NAME} ${EMULATION_CORE_TEST_FILES})
+set_target_properties(${EMULATION_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(${EMULATION_TEST_NAME} gtest gtest_main gmock ${EMULATION_LIB_NAME})
+target_include_directories(${EMULATION_TEST_NAME} PRIVATE src/)
+
+add_test(NAME ${EMULATION_TEST_NAME} COMMAND ${EMULATION_TEST_NAME})
