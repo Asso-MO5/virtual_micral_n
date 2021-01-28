@@ -1,3 +1,4 @@
+#include <devices/src/Clock.h>
 #include <emulation_core/src/Schedulable.h>
 #include <emulation_core/src/Scheduler.h>
 
@@ -23,8 +24,8 @@ int main(int argc, char** argv)
 #else
     loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
 #endif
-    loguru::set_fatal_handler([](const loguru::Message& message){
-      throw std::runtime_error(std::string(message.prefix) + message.message);
+    loguru::set_fatal_handler([](const loguru::Message& message) {
+        throw std::runtime_error(std::string(message.prefix) + message.message);
     });
 
     loguru::init(argc, argv);
@@ -41,6 +42,26 @@ int main(int argc, char** argv)
     }
 
     LOG_F(INFO, "Finished");
+
+    LOG_F(INFO, "Creates a Clock");
+    LOG_F(INFO, "Counting some rising edges...");
+
+    Clock clock{1'000'000_hz};
+
+    int counting = 0;
+    clock.register_trigger([&counting](Edge edge) {
+        if (edge == Edge::RISING)
+        {
+            counting += 1;
+        };
+    });
+
+    while(counting < 10) {
+        clock.step();
+    }
+
+    LOG_F(INFO, "Finished");
+    LOG_F(INFO, "Clock ran for %ld nanoseconds", clock.get_next_activation_time());
 
     return 0;
 }

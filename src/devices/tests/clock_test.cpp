@@ -29,3 +29,19 @@ TEST(Devices, clock_changes_state)
     clock.step();
     ASSERT_THAT(clock.get_state(), Eq(State::HIGH));
 }
+
+TEST(Devices, clock_triggers_on_edge)
+{
+    Clock clock{400'000_hz};
+
+    Edge received_edge;
+    clock.register_trigger([&received_edge](Edge edge) { received_edge = edge; });
+    clock.step();
+    ASSERT_THAT(received_edge, Eq(Edge::RISING));
+
+    clock.step();
+    ASSERT_THAT(received_edge, Eq(Edge::FALLING));
+
+    clock.step();
+    ASSERT_THAT(received_edge, Eq(Edge::RISING));
+}
