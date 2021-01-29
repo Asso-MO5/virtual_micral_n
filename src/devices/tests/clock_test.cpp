@@ -14,7 +14,7 @@ TEST(Devices, clock_steps_at_the_correct_frequency)
 {
     Clock clock{400'000_hz};
     clock.step();
-    ASSERT_THAT(clock.get_next_activation_time(), Eq(2500));
+    ASSERT_THAT(clock.get_next_activation_time(), Eq(2500 / 2));
 }
 
 TEST(Devices, clock_starts_low)

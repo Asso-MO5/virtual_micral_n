@@ -10,7 +10,7 @@
 #include <functional>
 #include <utility>
 
-class Clock : Schedulable
+class Clock : public Schedulable
 {
 public:
     explicit Clock(Frequency frequency);

@@ -5,7 +5,7 @@ Clock::Clock(Frequency frequency) : frequency(frequency) {
 
 void Clock::step()
 {
-    const uint64_t period_in_ns = frequency.get_period_as_ns();
+    const uint64_t period_in_ns = frequency.get_period_as_ns() / 2; // Two phases in a full cycle.
 
     auto before = state;
     state.invert();
