@@ -18,7 +18,7 @@ set(GUI_TEST_FILES tests/dummy_test.cpp)
 add_executable(${GUI_EXE_NAME} ${GUI_FILES})
 set_target_properties(${GUI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(${GUI_EXE_NAME} ${EMULATION_LIB_NAME} ${DEVICES_LIB_NAME} SDL2 OpenGL glfw ${DEARIMGUI_LIB_NAME})
+target_link_libraries(${GUI_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME}  SDL2 OpenGL glfw ${DEARIMGUI_LIB_NAME})
 target_include_directories(${GUI_EXE_NAME} PRIVATE ${SDL2_INCLUDE_DIRS}) # Because of the ImGui Backend uses #include <SDL.h> directly
 target_include_directories(${GUI_EXE_NAME} PRIVATE ../)
 
@@ -28,6 +28,6 @@ if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
 endif()
 
 add_executable(${GUI_TEST_EXE_NAME} ${GUI_TEST_FILES})
-target_link_libraries(${GUI_TEST_EXE_NAME} ${EMULATION_LIB_NAME} ${DEVICE_LIB_NAME} gtest gtest_main)
+target_link_libraries(${GUI_TEST_EXE_NAME} ${DEVICE_LIB_NAME} ${EMULATION_LIB_NAME}  gtest gtest_main)
 
 add_test(NAME ${GUI_TEST_EXE_NAME} COMMAND ${GUI_TEST_EXE_NAME})

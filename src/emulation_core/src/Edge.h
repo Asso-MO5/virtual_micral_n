@@ -2,6 +2,7 @@
 #define MICRALN_EDGE_H
 
 #include "State.h"
+
 #include <cstdint>
 
 struct Edge

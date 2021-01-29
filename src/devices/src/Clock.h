@@ -1,11 +1,10 @@
 #ifndef MICRALN_CLOCK_H
 #define MICRALN_CLOCK_H
 
-#include "Edge.h"
-#include "Frequency.h"
-#include "State.h"
-
-#include "emulation_core/src/Schedulable.h"
+#include <emulation_core/src/Edge.h>
+#include <emulation_core/src/Frequency.h>
+#include <emulation_core/src/State.h>
+#include <emulation_core/src/Schedulable.h>
 
 #include <functional>
 #include <utility>
