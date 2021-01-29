@@ -4,6 +4,10 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <array>
+
+#include <devices/src/Clock.h>
+#include <emulation_core/src/Scheduler.h>
 
 static const int WINDOW_WIDTH = 1280;
 static const int WINDOW_HEIGHT = 720;
@@ -121,6 +125,16 @@ private:
 
 int main(int, char**)
 {
+    uint64_t clock_pulse = 0;
+
+    // Simulation Setup
+    Scheduler scheduler;
+    auto clock = std::make_shared<Clock>(500'000_hz);
+    clock->register_trigger(
+            [&clock_pulse](Edge edge) { clock_pulse += (edge == Edge::RISING ? 1 : 0); });
+    scheduler.add(clock);
+
+    //
     auto context = ImGui_SDL_GL_Context{};
 
     bool show_demo_window = true;
@@ -128,6 +142,19 @@ int main(int, char**)
     bool done = false;
     while (!done)
     {
+        // Average frame time
+        auto average_frame_time = 1000.0f / ImGui::GetIO().Framerate;
+
+        // Update simulation
+        auto start_point = scheduler.get_counter();
+        auto end_point = start_point + (static_cast<uint64_t>(average_frame_time * 1000.f));
+
+        while (scheduler.get_counter() < end_point)
+        {
+            scheduler.step();
+        }
+
+        // Update frame
         done = context.process_events([](const SDL_Event& event) {
             // Handle custom events.
         });
@@ -144,8 +171,19 @@ int main(int, char**)
             ImGui::Begin("Hello, world!");
             ImGui::Checkbox("Demo Window", &show_demo_window);
             ImGui::ColorEdit3("clear color", (float*) &context.clear_color);
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", average_frame_time,
+                        ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+
+        {
+            ImGui::Begin("Scheduler");
+            ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000);
+            if (scheduler.get_counter() > 0)
+            {
+                ImGui::Text("Clock frequency %lu kHz", 1'000'000 * clock_pulse / scheduler.get_counter());
+
+            }
             ImGui::End();
         }
 
