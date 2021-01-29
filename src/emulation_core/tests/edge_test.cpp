@@ -1,4 +1,4 @@
-#include "emulation_core/src/Edge.h"
+#include "Edge.h"
 
 #include "gmock/gmock.h"
 
