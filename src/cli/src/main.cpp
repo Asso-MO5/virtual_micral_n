@@ -49,11 +49,11 @@ int main(int argc, char** argv)
     Clock clock{1'000'000_hz};
 
     int counting = 0;
-    clock.register_trigger([&counting](Edge edge) {
+    clock.register_trigger([&counting](Edge edge, Scheduling::counter_type) {
         if (edge == Edge::RISING)
         {
             counting += 1;
-        };
+        }
     });
 
     while(counting < 10) {

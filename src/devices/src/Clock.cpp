@@ -11,7 +11,7 @@ void Clock::step()
     state.invert();
 
     Edge edge{before, state};
-    edge_callback(edge);
+    edge_callback(edge, next_activation_time);
 
     next_activation_time += period_in_ns;
 }
@@ -20,7 +20,7 @@ Scheduling::counter_type Clock::get_next_activation_time() const { return next_a
 
 State Clock::get_state() const { return state; }
 
-void Clock::register_trigger(std::function<void(Edge)> callback)
+void Clock::register_trigger(std::function<void(Edge, Scheduling::counter_type)> callback)
 {
     edge_callback = std::move(callback);
 }

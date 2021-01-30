@@ -130,8 +130,9 @@ int main(int, char**)
     // Simulation Setup
     Scheduler scheduler;
     auto clock = std::make_shared<Clock>(500'000_hz);
-    clock->register_trigger(
-            [&clock_pulse](Edge edge) { clock_pulse += (edge == Edge::RISING ? 1 : 0); });
+    clock->register_trigger([&clock_pulse](Edge edge, Scheduling::counter_type) {
+        clock_pulse += (edge == Edge::RISING ? 1 : 0);
+    });
     scheduler.add(clock);
 
     //
@@ -181,8 +182,8 @@ int main(int, char**)
             ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000);
             if (scheduler.get_counter() > 0)
             {
-                ImGui::Text("Clock frequency %lu kHz", 1'000'000 * clock_pulse / scheduler.get_counter());
-
+                ImGui::Text("Clock frequency %lu kHz",
+                            1'000'000 * clock_pulse / scheduler.get_counter());
             }
             ImGui::End();
         }

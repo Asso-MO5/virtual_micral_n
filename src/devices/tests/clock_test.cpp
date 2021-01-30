@@ -35,7 +35,12 @@ TEST(Devices, clock_triggers_on_edge)
     Clock clock{400'000_hz};
 
     Edge received_edge;
-    clock.register_trigger([&received_edge](Edge edge) { received_edge = edge; });
+    Scheduling::counter_type received_time;
+    clock.register_trigger(
+            [&received_edge, &received_time](Edge edge, Scheduling::counter_type time) {
+                received_edge = edge;
+                received_time = time;
+            });
     clock.step();
     ASSERT_THAT(received_edge, Eq(Edge::RISING));
 
