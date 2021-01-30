@@ -1,6 +1,7 @@
 #ifndef MICRALN_CPU8008_H
 #define MICRALN_CPU8008_H
 
+#include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
 
 class CPU8008 : public Schedulable
@@ -21,16 +22,16 @@ public:
     struct OutputPins
     {
         State state;  // Would it be interesting to pack to 3 bits
-        uint8_t sync; // 1 bit
+        ::State sync; // 1 bit
     };
 
     struct InputPins
     {
-        uint8_t interrupt;
-        uint8_t ready;
-        uint8_t phase_1;
-        uint8_t phase_2;
-        uint8_t vdd;
+        ::State interrupt;
+        ::State ready;
+        ::State phase_1;
+        ::State phase_2;
+        ::State vdd;
     };
 
     struct DataPins
@@ -43,9 +44,18 @@ public:
     void step() override;
     [[nodiscard]] Scheduling::counter_type get_next_activation_time() const override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
+    [[nodiscard]] const DataPins& get_data_pins() const;
+
+    void signal_phase_1(Edge edge, Scheduling::counter_type time);
+    void signal_vdd(Edge edge, Scheduling::counter_type time);
+    void signal_interrupt(Edge edge, Scheduling::counter_type time);
 
 private:
+    uint64_t clock_1_count = 0;
+    Scheduling::counter_type next_activation_time = 0;
     OutputPins output_pins;
+    DataPins data_pins;
+    InputPins input_pins;
 };
 
 #endif //MICRALN_CPU8008_H

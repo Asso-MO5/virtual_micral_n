@@ -22,7 +22,7 @@ public:
 
 private:
     Frequency frequency;
-    uint64_t next_activation_time = 0;
+    Scheduling::counter_type next_activation_time = 0;
     std::function<void(Edge, Scheduling::counter_type)> edge_callback =
             [](Edge, Scheduling::counter_type) {};
     State state = State::LOW;

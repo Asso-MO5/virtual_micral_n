@@ -1,5 +1,7 @@
 #include "CPU8008.h"
 
+#include <emulation_core/src/Frequency.h>
+
 #include "gmock/gmock.h"
 
 using namespace testing;
@@ -12,22 +14,43 @@ TEST(CPU8008, starts_in_stop_state)
     ASSERT_THAT(outputs.state, Eq(CPU8008::State::STOPPED));
 }
 
-TEST(CPU8008, switches_to_t1i_after_start)
+TEST(CPU8008, switches_to_t1i_after_start_when_clocked)
 {
     CPU8008 cpu;
 
-    int step_timeout = 10;
-    while (step_timeout > 0)
+    Frequency freq{500'000_hz};
+
+    // The CPU needs 16 Clock Cycles to initialize, in STOPPED state.
+    // After that, the INTERRUPT must go to Logic 1 to exit the STOPPED state and go to TI1.
+    int START_UP_CYCLES = 16;
+    Scheduling::counter_type time_counter = 0; // Faking a clock for Phase 1.
+
+    cpu.signal_vdd(Edge::RISING, 0); // Power the CPU
+    cpu.signal_interrupt(Edge::FALLING, 0); // Interrupt in Logic 0
+
+    for (int clock_cycles = 0; clock_cycles < START_UP_CYCLES; ++clock_cycles)
     {
+        cpu.signal_phase_1(Edge::RISING, time_counter);
         cpu.step();
-        if (cpu.get_output_pins().state == CPU8008::State::T1I)
-        {
-            break;
-        }
-        step_timeout -= 1;
+
+        ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::State::STOPPED));
+
+        cpu.signal_phase_1(Edge::FALLING, time_counter + 1);
+        time_counter += freq.get_period_as_ns();
     }
-    ASSERT_NE(step_timeout, 0); // Timeout
+
+    cpu.signal_interrupt(Edge::RISING, time_counter);
+    cpu.signal_phase_1(Edge::RISING, time_counter);
+    cpu.step();
+    time_counter += freq.get_period_as_ns();
+    cpu.signal_phase_1(Edge::FALLING, time_counter);
+    cpu.signal_interrupt(Edge::FALLING, time_counter + 201);
+    cpu.step();
+
+    ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::State::T1I));
+    // ASSERT_THAT(cpu.get_data_pins().data, Eq(0x0000)); <- No, it has to wait phase_21
 }
+
 
 /*
  * Next Tests:
