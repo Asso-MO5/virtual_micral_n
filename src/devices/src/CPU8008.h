@@ -4,7 +4,7 @@
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
 
-class CPU8008 : public Schedulable
+class CPU8008 : public SchedulableImpl
 {
 public:
     enum class State : uint8_t
@@ -42,7 +42,6 @@ public:
     CPU8008();
 
     void step() override;
-    [[nodiscard]] Scheduling::counter_type get_next_activation_time() const override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
     [[nodiscard]] const DataPins& get_data_pins() const;
 
@@ -52,7 +51,6 @@ public:
 
 private:
     uint64_t clock_1_count = 0;
-    Scheduling::counter_type next_activation_time = 0;
     OutputPins output_pins;
     DataPins data_pins;
     InputPins input_pins;

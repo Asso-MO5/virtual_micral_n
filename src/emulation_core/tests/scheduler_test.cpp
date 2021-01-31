@@ -9,7 +9,7 @@ class MockSchedulable : public Schedulable
 {
 public:
     MOCK_METHOD(void, step, (), (override));
-    MOCK_METHOD(Scheduling::counter_type, get_next_activation_time, (), (const, override));
+    MOCK_METHOD(Scheduling::counter_type, get_next_activation_time, (), (const));
 };
 
 TEST(Scheduler, newly_instantiated_starts_with_counter_at_0)

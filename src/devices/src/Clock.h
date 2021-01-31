@@ -9,20 +9,18 @@
 #include <functional>
 #include <utility>
 
-class Clock : public Schedulable
+class Clock : public SchedulableImpl
 {
 public:
     explicit Clock(Frequency frequency);
 
     void step() override;
-    [[nodiscard]] Scheduling::counter_type get_next_activation_time() const override;
     [[nodiscard]] State get_state() const;
 
     void register_trigger(std::function<void(Edge, Scheduling::counter_type)> callback);
 
 private:
     Frequency frequency;
-    Scheduling::counter_type next_activation_time = 0;
     std::function<void(Edge, Scheduling::counter_type)> edge_callback =
             [](Edge, Scheduling::counter_type) {};
     State state = State::LOW;

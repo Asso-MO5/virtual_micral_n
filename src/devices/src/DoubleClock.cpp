@@ -13,6 +13,7 @@ DoubleClock::DoubleClock(Frequency frequency) : main_frequency(frequency) {}
 
 void DoubleClock::step()
 {
+    auto next_activation_time = get_next_activation_time();
     switch (phase_count)
     {
         case 0:
@@ -37,12 +38,8 @@ void DoubleClock::step()
             next_activation_time = next_phase_1;
             break;
     }
+    set_next_activation_time(next_activation_time);
     phase_count = (phase_count + 1) % 4;
-}
-
-Scheduling::counter_type DoubleClock::get_next_activation_time() const
-{
-    return next_activation_time;
 }
 
 State DoubleClock::get_phase_1_state() const { return phase_1; }

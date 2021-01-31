@@ -4,17 +4,10 @@
 
 #include <loguru.hpp>
 
-class DummySchedulable : public Schedulable
+class DummySchedulable : public SchedulableImpl
 {
 public:
-    void step() override { next_actions += 10; }
-    [[nodiscard]] Scheduling::counter_type get_next_activation_time() const override
-    {
-        return next_actions;
-    }
-
-private:
-    Scheduling::counter_type next_actions = 0;
+    void step() override { set_next_activation_time(get_next_activation_time() + 10); }
 };
 
 int main(int argc, char** argv)
@@ -56,7 +49,8 @@ int main(int argc, char** argv)
         }
     });
 
-    while(counting < 10) {
+    while (counting < 10)
+    {
         clock.step();
     }
 

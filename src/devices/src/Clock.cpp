@@ -11,12 +11,12 @@ void Clock::step()
     state.invert();
 
     Edge edge{before, state};
+
+    auto next_activation_time = get_next_activation_time();
     edge_callback(edge, next_activation_time);
 
-    next_activation_time += period_in_ns;
+    set_next_activation_time(next_activation_time + period_in_ns);
 }
-
-Scheduling::counter_type Clock::get_next_activation_time() const { return next_activation_time; }
 
 State Clock::get_state() const { return state; }
 

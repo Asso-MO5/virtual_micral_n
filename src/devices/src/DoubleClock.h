@@ -8,13 +8,12 @@
 
 #include <functional>
 
-class DoubleClock : public Schedulable
+class DoubleClock : public SchedulableImpl
 {
 public:
     explicit DoubleClock(Frequency frequency);
 
     void step() override;
-    [[nodiscard]] Scheduling::counter_type get_next_activation_time() const override;
     [[nodiscard]] State get_phase_1_state() const;
     [[nodiscard]] State get_phase_2_state() const;
 
@@ -23,7 +22,6 @@ public:
 
 private:
     Frequency main_frequency;
-    Scheduling::counter_type next_activation_time = 0;
     Scheduling::counter_type next_phase_1 = 0;
 
     State phase_1 = State::LOW;
