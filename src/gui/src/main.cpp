@@ -1,6 +1,7 @@
 #include "imgui.h"
 #include "imgui_impl_opengl2.h"
 #include "imgui_impl_sdl.h"
+#include "imgui_plot.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -127,14 +128,30 @@ private:
 
 int main(int, char**)
 {
+    std::array<float, 100> clock_values{};
+    static int MAX_RECORD_CLOCK = 1;
+    static float previous_time_value = 0.f;
+
     uint64_t clock_pulse = 0;
 
     // Simulation Setup
     Scheduler scheduler;
     auto clock = std::make_shared<Clock>(500'000_hz);
-    clock->register_trigger([&clock_pulse](Edge edge, Scheduling::counter_type) {
-        clock_pulse += (edge == Edge::RISING ? 1 : 0);
-    });
+    clock->register_trigger(
+            [&clock_pulse, &clock_values](Edge edge, Scheduling::counter_type time) {
+                clock_pulse += (edge == Edge::RISING ? 1 : 0);
+
+                auto advance = time;
+                auto previous = clock_values.back();
+                while (advance - previous_time_value > 0)
+                {
+                    clock_values.back() = previous;
+                    std::copy(clock_values.begin() + 1, clock_values.end(), clock_values.begin());
+                    advance -= 50;
+                }
+                clock_values.back() = (edge == Edge::RISING) ? 1.f : 0.f;
+                previous_time_value = time;
+            });
     scheduler.add(clock);
 
     //
@@ -183,7 +200,6 @@ int main(int, char**)
                         ImGui::GetIO().Framerate);
             ImGui::End();
         }
-
         {
             ImGui::Begin("Scheduler");
             ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000);
@@ -192,6 +208,20 @@ int main(int, char**)
                 ImGui::Text("Clock frequency %lu kHz",
                             1'000'000 * clock_pulse / scheduler.get_counter());
             }
+            ImGui::PlotConfig config;
+            config.values.xs = nullptr;
+            config.values.ys = clock_values.data();
+            config.values.count = clock_values.size();
+            config.scale.min = 0.f;
+            config.scale.max = 1.f;
+            config.tooltip.show = false;
+            config.grid_x.show = false;
+            config.grid_x.size = 10;
+            config.grid_x.subticks = 10;
+            config.grid_y.show = false;
+            config.frame_size = ImVec2(200, 40);
+            config.line_thickness = 2.f;
+            ImGui::Plot("Clock", config);
             ImGui::End();
         }
 

@@ -19,7 +19,7 @@ set(GUI_TEST_FILES tests/dummy_test.cpp)
 add_executable(${GUI_EXE_NAME} ${GUI_FILES})
 set_target_properties(${GUI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(${GUI_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME}  SDL2 OpenGL glfw ${DEARIMGUI_LIB_NAME})
+target_link_libraries(${GUI_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME}  SDL2 OpenGL glfw ${DEARIMGUI_LIB_NAME} imgui_plot)
 target_include_directories(${GUI_EXE_NAME} PRIVATE ${SDL2_INCLUDE_DIRS}) # Because of the ImGui Backend uses #include <SDL.h> directly
 target_include_directories(${GUI_EXE_NAME} PRIVATE ../)
 

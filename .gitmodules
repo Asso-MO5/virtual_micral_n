@@ -7,3 +7,6 @@
 [submodule "extern/loguru"]
 	path = extern/loguru
 	url = https://github.com/emilk/loguru.git
+[submodule "extern/imgui-plot"]
+	path = extern/imgui-plot
+	url = https://github.com/soulthreads/imgui-plot.git
