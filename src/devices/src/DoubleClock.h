@@ -24,13 +24,17 @@ public:
 private:
     Frequency main_frequency;
     Scheduling::counter_type next_activation_time = 0;
+    Scheduling::counter_type next_phase_1 = 0;
+
+    State phase_1 = State::LOW;
+    State phase_2 = State::LOW;
+
     std::function<void(Edge, Scheduling::counter_type)> edge_1_callback =
             [](Edge, Scheduling::counter_type) {};
     std::function<void(Edge, Scheduling::counter_type)> edge_2_callback =
             [](Edge, Scheduling::counter_type) {};
 
-    State phase_1 = State::LOW;
-    State phase_2 = State::LOW;
+
     uint8_t phase_count = 0;
 };
 
