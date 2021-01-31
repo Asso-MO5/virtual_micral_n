@@ -12,7 +12,8 @@ set(GUI_TEST_EXE_NAME ${GUI_EXE_NAME}_tests)
 
 set(GUI_FILES src/main.cpp
         ../../extern/imgui/backends/imgui_impl_opengl2.cpp
-        ../../extern/imgui/backends/imgui_impl_sdl.cpp)
+        ../../extern/imgui/backends/imgui_impl_sdl.cpp
+        src/ControllerWidget.cpp src/ControllerWidget.h)
 set(GUI_TEST_FILES tests/dummy_test.cpp)
 
 add_executable(${GUI_EXE_NAME} ${GUI_FILES})

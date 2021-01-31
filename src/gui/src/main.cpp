@@ -6,6 +6,8 @@
 #include <SDL2/SDL_opengl.h>
 #include <array>
 
+#include "ControllerWidget.h"
+
 #include <devices/src/Clock.h>
 #include <emulation_core/src/Scheduler.h>
 
@@ -139,20 +141,25 @@ int main(int, char**)
     auto context = ImGui_SDL_GL_Context{};
 
     bool show_demo_window = true;
+    bool running = true;
+
+    ControllerWidget controller(running);
 
     bool done = false;
     while (!done)
     {
         // Average frame time
         auto average_frame_time = 1000.0f / ImGui::GetIO().Framerate;
-
-        // Update simulation
-        auto start_point = scheduler.get_counter();
-        auto end_point = start_point + (static_cast<uint64_t>(average_frame_time * 1000.f));
-
-        while (scheduler.get_counter() < end_point)
+        if (running)
         {
-            scheduler.step();
+            // Update simulation
+            auto start_point = scheduler.get_counter();
+            auto end_point = start_point + (static_cast<uint64_t>(average_frame_time * 1000.f));
+
+            while (scheduler.get_counter() < end_point)
+            {
+                scheduler.step();
+            }
         }
 
         // Update frame
@@ -187,6 +194,8 @@ int main(int, char**)
             }
             ImGui::End();
         }
+
+        controller.update();
 
         context.render_frame();
     }
