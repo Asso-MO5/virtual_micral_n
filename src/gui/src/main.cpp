@@ -9,8 +9,9 @@
 #include "ControllerWidget.h"
 #include "SignalPlot.h"
 
-#include <devices/src/Clock.h>
+#include <devices/src/DoubleClock.h>
 #include <emulation_core/src/Scheduler.h>
+#include <gui/src/lib/ClockRecorder.h>
 
 static const int WINDOW_WIDTH = 1280;
 static const int WINDOW_HEIGHT = 720;
@@ -128,28 +129,24 @@ private:
 
 int main(int, char**)
 {
-    std::array<float, 20> clock_state_values{};
-    std::array<float, 20> clock_time_values{};
+    ClockRecorder phase_1_recorder(40);
+    ClockRecorder phase_2_recorder(40);
 
     uint64_t clock_pulse = 0;
 
     // Simulation Setup
     Scheduler scheduler;
-    auto clock = std::make_shared<Clock>(500'000_hz);
-    clock->register_trigger([&clock_pulse, &clock_state_values,
-                             &clock_time_values](Edge edge, Scheduling::counter_type time) {
-        clock_pulse += (edge == Edge::RISING ? 1 : 0);
+    auto clock = std::make_shared<DoubleClock>(500'000_hz);
+    clock->register_phase_1_trigger(
+            [&clock_pulse, &phase_1_recorder](Edge edge, Scheduling::counter_type time) {
+                clock_pulse += (edge == Edge::RISING ? 1 : 0);
 
-        std::copy(clock_state_values.begin() + 2, clock_state_values.end(),
-                  clock_state_values.begin());
-        std::copy(clock_time_values.begin() + 2, clock_time_values.end(),
-                  clock_time_values.begin());
-        clock_state_values[clock_state_values.size() - 2] = (edge == Edge::RISING) ? 0.f : 1.f;
-        clock_time_values[clock_time_values.size() - 2] = time - 1;
-
-        clock_state_values[clock_state_values.size() - 1] = (edge == Edge::RISING) ? 1.f : 0.f;
-        clock_time_values[clock_time_values.size() - 1] = time;
-    });
+                phase_1_recorder.add(time, edge);
+            });
+    clock->register_phase_2_trigger(
+            [&phase_2_recorder](Edge edge, Scheduling::counter_type time) {
+                phase_2_recorder.add(time, edge);
+            });
     scheduler.add(clock);
 
     //
@@ -165,7 +162,10 @@ int main(int, char**)
     {
         // Average frame time
         auto average_frame_time = 1000.0f / ImGui::GetIO().Framerate;
-        if (running)
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "ConstantConditionsOC"
+        if (running) // Controller by the ControllerWidget
         {
             // Update simulation
             auto start_point = scheduler.get_counter();
@@ -176,6 +176,7 @@ int main(int, char**)
                 scheduler.step();
             }
         }
+#pragma clang diagnostic pop
 
         // Update frame
         done = context.process_events([](const SDL_Event& event) {
@@ -207,15 +208,29 @@ int main(int, char**)
                             1'000'000 * clock_pulse / scheduler.get_counter());
             }
 
+            const float first_time =
+                    std::min(phase_1_recorder.time_series()[0], phase_2_recorder.time_series()[0]);
+            const size_t last_index = phase_1_recorder.size() - 1;
+            const float last_time = std::max(phase_1_recorder.time_series()[last_index],
+                                             phase_2_recorder.time_series()[last_index]);
+
             ImGui::PlotSignalConfig config;
-            config.values.x_series = clock_time_values.data();
-            config.values.y_series = clock_state_values.data();
-            config.values.count = clock_state_values.size();
-            config.scale.min = 0.f;
-            config.scale.max = 1.f;
-            config.frame_size = ImVec2(200, 25);
+            config.values.x_series = phase_1_recorder.time_series();
+            config.values.y_series = phase_1_recorder.state_series();
+            config.values.count = phase_1_recorder.size();
+            config.scale.x_scaled = true;
+            config.scale.x_min = first_time;
+            config.scale.x_max = last_time;
+            config.scale.y_min = 0.f;
+            config.scale.y_max = 1.f;
+            config.frame_size = ImVec2(400, 25);
             config.line_thickness = 1.f;
             ImGui::PlotSignal(config);
+
+            config.values.x_series = phase_2_recorder.time_series();
+            config.values.y_series = phase_2_recorder.state_series();
+            ImGui::PlotSignal(config);
+
             ImGui::End();
         }
 
