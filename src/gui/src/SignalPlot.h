@@ -24,8 +24,11 @@ namespace ImGui
         } values;
         struct Scale
         {
-            float min{};
-            float max{};
+            float x_min{};
+            float x_max{};
+            float y_min{};
+            float y_max{};
+            bool x_scaled = false;
         } scale;
         ImVec2 frame_size = ImVec2(0.f, 0.f);
         float line_thickness = 1.f;
