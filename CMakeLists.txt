@@ -104,7 +104,6 @@ if(${SDL2_FOUND} AND ${OPENGL_FOUND})
     message(STATUS "Compiling GUI")
 
     set(IMGUI_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/extern/imgui")
-    add_subdirectory(extern/imgui-plot)
     add_subdirectory(src/gui)
 else()
     message(STATUS "Missing dependencies for GUI. Excluding it.")
