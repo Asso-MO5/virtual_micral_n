@@ -45,6 +45,11 @@ void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
         }
     }
 }
+
+void CPU8008::signal_phase_2(Edge edge, Scheduling::counter_type time) {
+
+}
+
 void CPU8008::signal_vdd(Edge edge, Scheduling::counter_type time)
 {
     if (edge == Edge::RISING)

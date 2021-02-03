@@ -46,6 +46,7 @@ public:
     [[nodiscard]] const DataPins& get_data_pins() const;
 
     void signal_phase_1(Edge edge, Scheduling::counter_type time);
+    void signal_phase_2(Edge edge, Scheduling::counter_type time);
     void signal_vdd(Edge edge, Scheduling::counter_type time);
     void signal_interrupt(Edge edge, Scheduling::counter_type time);
 
