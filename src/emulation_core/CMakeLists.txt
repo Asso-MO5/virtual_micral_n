@@ -17,7 +17,10 @@ set(EMULATION_CORE_FILES
         src/Frequency.h
         src/State.h src/State.cpp
         )
-set(EMULATION_CORE_TEST_FILES tests/scheduler_test.cpp tests/edge_test.cpp)
+set(EMULATION_CORE_TEST_FILES
+        tests/scheduler_test.cpp
+        tests/edge_test.cpp
+        tests/state_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 

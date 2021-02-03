@@ -55,7 +55,7 @@ int main(int argc, char** argv)
             cpu->signal_interrupt(State::LOW, clock->get_next_activation_time());
         }
         scheduler.step();
-        LOG_F(INFO, "8008 sync: %i, state: %s", cpu->get_output_pins().sync,
+        LOG_F(INFO, "8008 sync: %i, state: %s", static_cast<State::Type>(cpu->get_output_pins().sync),
               STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)]);
     }
 

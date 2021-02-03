@@ -5,17 +5,17 @@ Clock::Clock(Frequency frequency) : frequency(frequency) {
 
 void Clock::step()
 {
+    auto activation_time = get_next_activation_time();
+
     const uint64_t period_in_ns = frequency.get_period_as_ns() / 2; // Two phases in a full cycle.
 
     auto before = state;
-    state.invert();
+    state.invert(activation_time);
 
     Edge edge{before, state};
+    edge_callback(edge, activation_time);
 
-    auto next_activation_time = get_next_activation_time();
-    edge_callback(edge, next_activation_time);
-
-    set_next_activation_time(next_activation_time + period_in_ns);
+    set_next_activation_time(activation_time + period_in_ns);
 }
 
 State Clock::get_state() const { return state; }
