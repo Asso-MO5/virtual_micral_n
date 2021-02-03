@@ -2,6 +2,7 @@
 #include "Schedulable.h"
 
 #include <algorithm>
+#include <cassert>
 
 Scheduling::counter_type Scheduler::get_counter() const { return counter; }
 
@@ -24,6 +25,9 @@ void Scheduler::step()
 
     schedulable->step();
     time = schedulable->get_next_activation_time();
+
+    assert(time >= executed_time);
+
     sort_everything();
 }
 
@@ -52,4 +56,6 @@ void Scheduler::sort_everything()
 {
     std::sort(begin(schedulable_pool), end(schedulable_pool),
               [](const auto& a, const auto& b) { return std::get<0>(a) < std::get<0>(b); });
+
+    assert(std::get<0>(schedulable_pool.front()) >= executed_time);
 }
