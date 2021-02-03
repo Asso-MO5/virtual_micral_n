@@ -59,10 +59,6 @@ int main(int argc, char** argv)
 
         scheduler.step();
 
-        // Force rescheduling... temporary
-        scheduler.change_schedule(clock);
-        scheduler.change_schedule(cpu);
-
         LOG_F(INFO, "8008 sync: %i, state: %s",
               static_cast<State::Type>(cpu->get_output_pins().sync),
               STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)]);

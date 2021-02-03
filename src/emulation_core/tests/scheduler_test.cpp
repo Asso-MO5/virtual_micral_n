@@ -10,6 +10,10 @@ class MockSchedulable : public Schedulable
 public:
     MOCK_METHOD(void, step, (), (override));
     MOCK_METHOD(Scheduling::counter_type, get_next_activation_time, (), (const));
+
+    void set_id(Scheduling::schedulable_id new_id) override { id = new_id; };
+    Scheduling::schedulable_id get_id() const override { return id; };
+    Scheduling::schedulable_id id{};
 };
 
 TEST(Scheduler, newly_instantiated_starts_with_counter_at_0)
@@ -169,7 +173,7 @@ TEST(Scheduler, calls_step_is_interrupted_when_signaled)
         EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(100));
     }
     // Signal the schedule changed.
-    scheduler.change_schedule(schedulable_B);
+    scheduler.change_schedule(schedulable_B->get_id());
     scheduler.step();
     scheduler.step();
 }
@@ -199,7 +203,6 @@ TEST(Scheduler, cannot_go_back_in_time)
         InSequence sequence;
         EXPECT_CALL(*schedulable_A, step);
         EXPECT_CALL(*schedulable_B, step);
-
     }
 
     scheduler.step();
@@ -212,5 +215,5 @@ TEST(Scheduler, cannot_go_back_in_time)
         EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(19));
     }
     // Signal the schedule changed.
-    ASSERT_THROW(scheduler.change_schedule(schedulable_B), std::runtime_error);
+    ASSERT_THROW(scheduler.change_schedule(schedulable_B->get_id()), std::runtime_error);
 }

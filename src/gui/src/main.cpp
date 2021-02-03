@@ -186,10 +186,6 @@ int main(int, char**)
             while (scheduler.get_counter() < end_point)
             {
                 scheduler.step();
-
-                // Force rescheduling... temporary
-                scheduler.change_schedule(clock);
-                scheduler.change_schedule(cpu);
             }
         }
 #pragma clang diagnostic pop

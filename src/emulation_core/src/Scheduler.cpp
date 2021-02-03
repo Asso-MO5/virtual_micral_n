@@ -4,11 +4,19 @@
 #include <algorithm>
 #include <cassert>
 
+namespace
+{
+    uint64_t schedulable_id_counter{};
+
+}
 Scheduling::counter_type Scheduler::get_counter() const { return counter; }
 
 void Scheduler::add(const Scheduler::schedulable_ptr& schedulable)
 {
-    schedulable_pool.emplace_back(schedulable->get_next_activation_time(), schedulable);
+    schedulable_pool.emplace_back(schedulable->get_next_activation_time(), schedulable_id_counter,
+                                  schedulable);
+    schedulable->set_id(schedulable_id_counter);
+    schedulable_id_counter += 1;
     sort_everything();
 }
 
@@ -18,7 +26,7 @@ void Scheduler::step()
     {
         return;
     }
-    auto& [time, schedulable] = schedulable_pool.front();
+    auto& [time, id, schedulable] = schedulable_pool.front();
 
     counter = time;
     executed_time = time;
@@ -30,23 +38,23 @@ void Scheduler::step()
     sort_everything();
 }
 
-void Scheduler::change_schedule(schedulable_ptr schedulable)
+void Scheduler::change_schedule(Scheduling::schedulable_id schedulable)
 {
     auto find_schedulable = std::find_if(begin(schedulable_pool), end(schedulable_pool),
                                          [&schedulable](const auto& element) {
-                                             const auto& [time, s] = element;
-                                             return s.get() == schedulable.get();
+                                             const auto& [time, id, s] = element;
+                                             return id == schedulable;
                                          });
 
     if (find_schedulable != end(schedulable_pool))
     {
-        auto time = schedulable->get_next_activation_time();
-        if (time < executed_time)
+        auto& [time, id, s] = *find_schedulable;
+        auto new_time = s->get_next_activation_time();
+        if (new_time < executed_time)
         {
             throw std::runtime_error("The scheduler cannot go back in time.");
         }
-
-        std::get<0>(*find_schedulable) = time;
+        time = new_time;
         sort_everything();
     }
 }
