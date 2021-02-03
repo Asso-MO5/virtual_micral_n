@@ -34,7 +34,7 @@ void CPU8008::step()
 const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
 const CPU8008::DataPins& CPU8008::get_data_pins() const { return data_pins; }
 
-void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
+void CPU8008::signal_phase_1(Edge edge)
 {
     if (input_pins.vdd == ::State::LOW)
     {
@@ -42,7 +42,8 @@ void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
         return;
     }
 
-    set_next_activation_time(time);
+    auto edge_time = edge.time();
+    set_next_activation_time(edge_time);
 
     if (edge == Edge::Front::RISING)
     {
@@ -56,7 +57,7 @@ void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
                     // TODO: acknowledge the interruption with correct timing
                     // (by timestamping the state change for example)
 
-                    if ((time - clock_1_count) < BOOT_UP_TIME)
+                    if ((edge_time - clock_1_count) < BOOT_UP_TIME)
                     {
                         // TODO: set garbage in the CPU state. It's too early
                     }
@@ -110,9 +111,9 @@ void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
     }
 }
 
-void CPU8008::signal_phase_2(Edge edge, Scheduling::counter_type time) {}
+void CPU8008::signal_phase_2(Edge edge) {}
 
-void CPU8008::signal_vdd(Edge edge, Scheduling::counter_type time)
+void CPU8008::signal_vdd(Edge edge)
 {
     if (edge == Edge::Front::RISING)
     {
@@ -120,7 +121,7 @@ void CPU8008::signal_vdd(Edge edge, Scheduling::counter_type time)
         input_pins.vdd = ::State::HIGH;
     }
 }
-void CPU8008::signal_interrupt(Edge edge, Scheduling::counter_type time)
+void CPU8008::signal_interrupt(Edge edge)
 {
     if (edge == Edge::Front::RISING)
     {

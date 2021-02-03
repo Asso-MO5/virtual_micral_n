@@ -16,7 +16,7 @@ public:
     [[nodiscard]] const float* time_series() const;
     [[nodiscard]] const float* state_series() const;
 
-    void add(Scheduling::counter_type time, Edge edge);
+    void add(Edge edge);
 
 private:
     std::vector<float> time_values;

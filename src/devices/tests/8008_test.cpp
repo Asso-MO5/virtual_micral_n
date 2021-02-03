@@ -25,26 +25,26 @@ TEST(CPU8008, switches_to_t1i_after_start_when_clocked)
     int START_UP_CYCLES = 16;
     Scheduling::counter_type time_counter = 0; // Faking a clock for Phase 1.
 
-    cpu.signal_vdd(Edge::Front::RISING, 0); // Power the CPU
-    cpu.signal_interrupt(Edge::Front::FALLING, 0); // Interrupt in Logic 0
+    cpu.signal_vdd(Edge::Front::RISING); // Power the CPU
+    cpu.signal_interrupt(Edge::Front::FALLING); // Interrupt in Logic 0
 
     for (int clock_cycles = 0; clock_cycles < START_UP_CYCLES; ++clock_cycles)
     {
-        cpu.signal_phase_1(Edge::Front::RISING, time_counter);
+        cpu.signal_phase_1(Edge{Edge::Front::RISING, time_counter});
         cpu.step();
 
         ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::CpuState::STOPPED));
 
-        cpu.signal_phase_1(Edge::Front::FALLING, time_counter + 1);
+        cpu.signal_phase_1(Edge{Edge::Front::FALLING, time_counter + 1});
         time_counter += freq.get_period_as_ns();
     }
 
-    cpu.signal_interrupt(Edge::Front::RISING, time_counter);
-    cpu.signal_phase_1(Edge::Front::RISING, time_counter);
+    cpu.signal_interrupt(Edge{Edge::Front::RISING, time_counter});
+    cpu.signal_phase_1(Edge{Edge::Front::RISING, time_counter});
     cpu.step();
     time_counter += freq.get_period_as_ns();
-    cpu.signal_phase_1(Edge::Front::FALLING, time_counter);
-    cpu.signal_interrupt(Edge::Front::FALLING, time_counter + 201);
+    cpu.signal_phase_1(Edge{Edge::Front::FALLING, time_counter});
+    cpu.signal_interrupt(Edge{Edge::Front::FALLING, time_counter + 201});
     cpu.step();
 
     ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::CpuState::T1I));

@@ -17,12 +17,11 @@ public:
     void step() override;
     [[nodiscard]] State get_state() const;
 
-    void register_trigger(std::function<void(Edge, Scheduling::counter_type)> callback);
+    void register_trigger(std::function<void(Edge)> callback);
 
 private:
     Frequency frequency;
-    std::function<void(Edge, Scheduling::counter_type)> edge_callback =
-            [](Edge, Scheduling::counter_type) {};
+    std::function<void(Edge)> edge_callback = [](Edge) {};
     State state = State::LOW;
 };
 

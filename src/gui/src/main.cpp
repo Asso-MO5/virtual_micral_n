@@ -137,16 +137,12 @@ int main(int, char**)
     // Simulation Setup
     Scheduler scheduler;
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
-    clock->register_phase_1_trigger(
-            [&clock_pulse, &phase_1_recorder](Edge edge, Scheduling::counter_type time) {
-                clock_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+    clock->register_phase_1_trigger([&clock_pulse, &phase_1_recorder](Edge edge) {
+        clock_pulse += (edge == Edge::Front::RISING ? 1 : 0);
 
-                phase_1_recorder.add(time, edge);
-            });
-    clock->register_phase_2_trigger(
-            [&phase_2_recorder](Edge edge, Scheduling::counter_type time) {
-                phase_2_recorder.add(time, edge);
-            });
+        phase_1_recorder.add(edge);
+    });
+    clock->register_phase_2_trigger([&phase_2_recorder](Edge edge) { phase_2_recorder.add(edge); });
     scheduler.add(clock);
 
     //

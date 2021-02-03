@@ -27,15 +27,14 @@ int main(int argc, char** argv)
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
 
     int counting = 0;
-    clock->register_phase_1_trigger([&counting, &cpu](Edge edge, Scheduling::counter_type time) {
+    clock->register_phase_1_trigger([&counting, &cpu](Edge edge) {
         if (edge == Edge::Front::RISING)
         {
             counting += 1;
         }
-        cpu->signal_phase_1(edge, time);
+        cpu->signal_phase_1(edge);
     });
-    clock->register_phase_2_trigger(
-            [&cpu](Edge edge, Scheduling::counter_type time) { cpu->signal_phase_2(edge, time); });
+    clock->register_phase_2_trigger([&cpu](Edge edge) { cpu->signal_phase_2(edge); });
 
     LOG_F(INFO, "Creates the scheduler");
     Scheduler scheduler;
@@ -43,8 +42,8 @@ int main(int argc, char** argv)
     scheduler.add(cpu);
 
     LOG_F(INFO, "Starts the CPU");
-    cpu->signal_vdd(Edge::Front::RISING, 0.f);
-    cpu->signal_interrupt(Edge::Front::RISING, 0.f);
+    cpu->signal_vdd(Edge::Front::RISING);
+    cpu->signal_interrupt(Edge::Front::RISING);
 
     LOG_F(INFO, "Running a bit...");
 
@@ -52,8 +51,7 @@ int main(int argc, char** argv)
     {
         if (counting == 20)
         {
-            cpu->signal_interrupt(Edge{Edge::Front::FALLING, clock->get_next_activation_time()},
-                                  clock->get_next_activation_time());
+            cpu->signal_interrupt(Edge{Edge::Front::FALLING, clock->get_next_activation_time()});
         }
         scheduler.step();
         LOG_F(INFO, "8008 sync: %i, state: %s",

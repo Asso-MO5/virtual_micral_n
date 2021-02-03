@@ -13,14 +13,14 @@ void Clock::step()
     state.invert(activation_time);
 
     Edge edge{before, state, activation_time};
-    edge_callback(edge, activation_time);
+    edge_callback(edge);
 
     set_next_activation_time(activation_time + period_in_ns);
 }
 
 State Clock::get_state() const { return state; }
 
-void Clock::register_trigger(std::function<void(Edge, Scheduling::counter_type)> callback)
+void Clock::register_trigger(std::function<void(Edge)> callback)
 {
     edge_callback = std::move(callback);
 }

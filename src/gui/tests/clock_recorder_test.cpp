@@ -19,9 +19,9 @@ TEST(ClockRecorder, gets_timed_values)
     const size_t SIZE = 6;
     auto clock_recorder = ClockRecorder{SIZE};
 
-    clock_recorder.add(100.f, Edge::Front::RISING);
-    clock_recorder.add(200.f, Edge::Front::FALLING);
-    clock_recorder.add(300.f, Edge::Front::RISING);
+    clock_recorder.add(Edge{Edge::Front::RISING, Scheduling::counter_type{100}});
+    clock_recorder.add(Edge{Edge::Front::FALLING, Scheduling::counter_type{200}});
+    clock_recorder.add(Edge{Edge::Front::RISING, Scheduling::counter_type{300}});
 
     ASSERT_THAT(clock_recorder.time_series(), NotNull());
     ASSERT_THAT(clock_recorder.state_series(), NotNull());
@@ -43,5 +43,4 @@ TEST(ClockRecorder, gets_timed_values)
 
     ASSERT_THAT(clock_recorder.time_series()[5], Eq(300.f));
     ASSERT_THAT(clock_recorder.state_series()[5], Eq(1.f));
-
 }

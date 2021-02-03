@@ -33,14 +33,10 @@ TEST(DoubleClock, has_a_phase_1_phase_2_cycle)
 struct EdgeTester
 {
     Edge received_phase_1_edge{Edge::Front::NONE};
-    Scheduling::counter_type received_phase_1_time = 0;
     Edge received_phase_2_edge{Edge::Front::NONE};
-    Scheduling::counter_type received_phase_2_time = 0;
 
     void reset()
     {
-        received_phase_1_time = 0;
-        received_phase_2_time = 0;
         received_phase_1_edge = Edge::Front::NONE;
         received_phase_2_edge = Edge::Front::NONE;
     }
@@ -49,9 +45,9 @@ struct EdgeTester
               Scheduling::counter_type time_2) const
     {
         ASSERT_THAT(received_phase_1_edge, Eq(edge_1));
-        ASSERT_THAT(received_phase_1_time, Eq(time_1));
+        ASSERT_THAT(received_phase_1_edge.time(), Eq(time_1));
         ASSERT_THAT(received_phase_2_edge, Eq(edge_2));
-        ASSERT_THAT(received_phase_2_time, Eq(time_2));
+        ASSERT_THAT(received_phase_2_edge.time(), Eq(time_2));
     }
 };
 
@@ -61,14 +57,12 @@ TEST(DoubleClock, signals_edges_with_timings)
 
     EdgeTester tester;
 
-    clock.register_phase_1_trigger([&tester](Edge edge, Scheduling::counter_type time) {
+    clock.register_phase_1_trigger([&tester](Edge edge) {
         tester.received_phase_1_edge = edge;
-        tester.received_phase_1_time = time;
     });
 
-    clock.register_phase_2_trigger([&tester](Edge edge, Scheduling::counter_type time) {
+    clock.register_phase_2_trigger([&tester](Edge edge) {
         tester.received_phase_2_edge = edge;
-        tester.received_phase_2_time = time;
     });
 
     clock.step();

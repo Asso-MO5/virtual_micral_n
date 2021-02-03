@@ -45,10 +45,10 @@ public:
     [[nodiscard]] const OutputPins& get_output_pins() const;
     [[nodiscard]] const DataPins& get_data_pins() const;
 
-    void signal_phase_1(Edge edge, Scheduling::counter_type time);
-    void signal_phase_2(Edge edge, Scheduling::counter_type time);
-    void signal_vdd(Edge edge, Scheduling::counter_type time);
-    void signal_interrupt(Edge edge, Scheduling::counter_type time);
+    void signal_phase_1(Edge edge);
+    void signal_phase_2(Edge edge);
+    void signal_vdd(Edge edge);
+    void signal_interrupt(Edge edge);
 
 private:
     uint64_t clock_1_count = 0;

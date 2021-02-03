@@ -17,8 +17,8 @@ public:
     [[nodiscard]] State get_phase_1_state() const;
     [[nodiscard]] State get_phase_2_state() const;
 
-    void register_phase_1_trigger(std::function<void(Edge, Scheduling::counter_type)> callback);
-    void register_phase_2_trigger(std::function<void(Edge, Scheduling::counter_type)> callback);
+    void register_phase_1_trigger(std::function<void(Edge)> callback);
+    void register_phase_2_trigger(std::function<void(Edge)> callback);
 
 private:
     Frequency main_frequency;
@@ -27,11 +27,8 @@ private:
     State phase_1 = State::LOW;
     State phase_2 = State::LOW;
 
-    std::function<void(Edge, Scheduling::counter_type)> edge_1_callback =
-            [](Edge, Scheduling::counter_type) {};
-    std::function<void(Edge, Scheduling::counter_type)> edge_2_callback =
-            [](Edge, Scheduling::counter_type) {};
-
+    std::function<void(Edge)> edge_1_callback = [](Edge) {};
+    std::function<void(Edge)> edge_2_callback = [](Edge) {};
 
     uint8_t phase_count = 0;
 };
