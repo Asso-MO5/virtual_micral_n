@@ -7,7 +7,7 @@
 class CPU8008 : public SchedulableImpl
 {
 public:
-    enum class State : uint8_t
+    enum class CpuState : uint8_t
     {
         WAIT = 0,
         T3 = 1,
@@ -21,7 +21,7 @@ public:
 
     struct OutputPins
     {
-        State state;  // Would it be interesting to pack to 3 bits
+        CpuState state;  // Would it be interesting to pack to 3 bits
         ::State sync; // 1 bit
     };
 

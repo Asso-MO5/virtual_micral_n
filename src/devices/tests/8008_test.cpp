@@ -11,7 +11,7 @@ TEST(CPU8008, starts_in_stop_state)
     CPU8008 cpu;
 
     auto outputs = cpu.get_output_pins();
-    ASSERT_THAT(outputs.state, Eq(CPU8008::State::STOPPED));
+    ASSERT_THAT(outputs.state, Eq(CPU8008::CpuState::STOPPED));
 }
 
 TEST(CPU8008, switches_to_t1i_after_start_when_clocked)
@@ -33,7 +33,7 @@ TEST(CPU8008, switches_to_t1i_after_start_when_clocked)
         cpu.signal_phase_1(Edge::RISING, time_counter);
         cpu.step();
 
-        ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::State::STOPPED));
+        ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::CpuState::STOPPED));
 
         cpu.signal_phase_1(Edge::FALLING, time_counter + 1);
         time_counter += freq.get_period_as_ns();
@@ -47,7 +47,7 @@ TEST(CPU8008, switches_to_t1i_after_start_when_clocked)
     cpu.signal_interrupt(Edge::FALLING, time_counter + 201);
     cpu.step();
 
-    ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::State::T1I));
+    ASSERT_THAT(cpu.get_output_pins().state, Eq(CPU8008::CpuState::T1I));
     // ASSERT_THAT(cpu.get_data_pins().data, Eq(0x0000)); <- No, it has to wait phase_21
 }
 

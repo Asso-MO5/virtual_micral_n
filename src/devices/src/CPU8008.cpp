@@ -19,9 +19,17 @@ namespace
 
 } // namespace
 
-CPU8008::CPU8008() { output_pins.state = State::STOPPED; }
+CPU8008::CPU8008()
+{
+    output_pins.state = CpuState::STOPPED;
+    output_pins.sync = ::State::LOW;
+}
 
-void CPU8008::step() {}
+void CPU8008::step()
+{
+    set_next_activation_time(get_next_activation_time() +
+                             Timings::MIN_CLOCK_PERIOD); // Doing nothing at the monent.
+}
 
 const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
 const CPU8008::DataPins& CPU8008::get_data_pins() const { return data_pins; }
@@ -38,17 +46,71 @@ void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
 
     if (edge == Edge::RISING)
     {
-        if ((time - clock_1_count) > BOOT_UP_TIME && input_pins.vdd == ::State::HIGH &&
-            input_pins.interrupt == ::State::HIGH)
+        switch (output_pins.state)
         {
-            output_pins.state = State::T1I;
+            case CpuState::STOPPED:
+                // Halted and boot up state.
+
+                if (input_pins.interrupt == ::State::HIGH)
+                {
+                    // TODO: acknowledge the interruption with correct timing
+                    // (by timestamping the state change for example)
+
+                    if ((time - clock_1_count) < BOOT_UP_TIME)
+                    {
+                        // TODO: set garbage in the CPU state. It's too early
+                    }
+
+                    output_pins.state = CpuState::T1I;
+                }
+                break;
+            case CpuState::T1:
+                // Memory address emission step 1
+                // TODO: advance PC
+                [[fallthrough]];
+            case CpuState::T1I:
+                // TODO: set PC low address on BUS (with good timing)
+                // The step() function will process the instruction and switch to T2 state
+                break;
+            case CpuState::T2:
+                // Memory address emission step 2
+                // TODO: set PC high address on BUS (with good timing)
+                // The step() function will process the instruction and switch to WAIT or T3 state
+                // depending on the READY signal.
+                break;
+            case CpuState::T3:
+                // Data Fetch
+                // TODO: schedule the DATA fetch and decode the instruction.
+                // The step() function will process the instruction and switch to
+                // STOPPED if HALT
+                // T4 is instruction asks
+                // STOPPED if interrupted at instruction cycle end
+                // T1 if finished
+                // T1I if long instruction jammed
+                break;
+            case CpuState::WAIT:
+                // Waiting state
+                // TODO: wait until READY is not asserted anymore.
+                break;
+            case CpuState::T4:
+                // Instruction execution step 1
+                // The step() function will process the instruction and switch to
+                // T5 is instruction asks
+                // STOPPED if interrupted at instruction cycle end
+                // T1 if finished
+                // T1I if long instruction jammed
+                break;
+            case CpuState::T5:
+                // Instruction execution step 2
+                // The step() function will process the instruction and switch to
+                // STOPPED if interrupted at instruction cycle end
+                // T1 if finished
+                break;
         }
     }
 }
 
-void CPU8008::signal_phase_2(Edge edge, Scheduling::counter_type time) {
-
-}
+void CPU8008::signal_phase_2(Edge edge, Scheduling::counter_type time) {}
 
 void CPU8008::signal_vdd(Edge edge, Scheduling::counter_type time)
 {
