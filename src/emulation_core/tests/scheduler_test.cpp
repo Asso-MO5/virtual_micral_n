@@ -129,3 +129,88 @@ TEST(Scheduler, calls_step_in_order_A_A_B_A_B)
 
     ASSERT_THAT(scheduler.get_counter(), Eq(30LL));
 }
+
+TEST(Scheduler, calls_step_is_interrupted_when_signaled)
+{
+    Scheduler scheduler;
+    auto schedulable_A = std::make_shared<NiceMock<MockSchedulable>>();
+    auto schedulable_B = std::make_shared<NiceMock<MockSchedulable>>();
+
+    {
+        InSequence sequence;
+        EXPECT_CALL(*schedulable_A, get_next_activation_time()).WillOnce(Return(10));
+        EXPECT_CALL(*schedulable_A, get_next_activation_time()).WillOnce(Return(40));
+        EXPECT_CALL(*schedulable_A, get_next_activation_time()).WillRepeatedly(Return(100));
+    }
+    {
+        InSequence sequence;
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(20));
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillRepeatedly(Return(100));
+    }
+
+    scheduler.add(schedulable_A);
+    scheduler.add(schedulable_B);
+
+    {
+        InSequence sequence;
+        EXPECT_CALL(*schedulable_A, step);
+        EXPECT_CALL(*schedulable_B, step);
+        EXPECT_CALL(*schedulable_B, step);
+        EXPECT_CALL(*schedulable_A, step);
+    }
+
+    scheduler.step();
+    scheduler.step();
+    {
+        // New expected sequence
+        InSequence sequence;
+
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(35));
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(100));
+    }
+    // Signal the schedule changed.
+    scheduler.change_schedule(schedulable_B);
+    scheduler.step();
+    scheduler.step();
+}
+
+TEST(Scheduler, cannot_go_back_in_time)
+{
+    Scheduler scheduler;
+    auto schedulable_A = std::make_shared<NiceMock<MockSchedulable>>();
+    auto schedulable_B = std::make_shared<NiceMock<MockSchedulable>>();
+
+    {
+        InSequence sequence;
+        EXPECT_CALL(*schedulable_A, get_next_activation_time()).WillOnce(Return(10));
+        EXPECT_CALL(*schedulable_A, get_next_activation_time()).WillOnce(Return(40));
+        EXPECT_CALL(*schedulable_A, get_next_activation_time()).WillRepeatedly(Return(100));
+    }
+    {
+        InSequence sequence;
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(20));
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillRepeatedly(Return(100));
+    }
+
+    scheduler.add(schedulable_A);
+    scheduler.add(schedulable_B);
+
+    {
+        InSequence sequence;
+        EXPECT_CALL(*schedulable_A, step);
+        EXPECT_CALL(*schedulable_B, step);
+
+    }
+
+    scheduler.step();
+    scheduler.step();
+
+    {
+        // New expected sequence trying to go back in time (earlier than the previous step)
+        InSequence sequence;
+
+        EXPECT_CALL(*schedulable_B, get_next_activation_time()).WillOnce(Return(19));
+    }
+    // Signal the schedule changed.
+    ASSERT_THROW(scheduler.change_schedule(schedulable_B), std::runtime_error);
+}
