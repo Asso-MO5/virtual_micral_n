@@ -77,8 +77,6 @@ void CPU8008::step()
     }
     /*
      * Events
-     * SYNC (RAISE/FALL), RAISE by ø11, LOW by ø12 (+ a bit ?)
-
      * DATA_OUT (DATA) : Change by ø11
         *  Constraint : tDD max (1.0) after ø11 RAISE
         *  Constraint : tOH min (.10) after
@@ -203,7 +201,7 @@ void CPU8008::signal_interrupt(Edge edge)
             // TODO: set garbage in the CPU state. It's too early
         }
 
-        // TODO: aknowledge of interrupt should be immediate.
+        // TODO: acknowledge of interrupt should be immediate.
         next_state = CpuState::T1I;
     }
 }

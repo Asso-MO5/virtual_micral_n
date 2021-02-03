@@ -9,7 +9,7 @@ public:
     virtual ~Schedulable() = default;
     virtual void step() = 0;
     virtual void set_id(Scheduling::schedulable_id) = 0;
-    virtual Scheduling::schedulable_id get_id() const = 0;
+    [[nodiscard]] virtual Scheduling::schedulable_id get_id() const = 0;
     [[nodiscard]] virtual Scheduling::counter_type get_next_activation_time() const = 0;
 };
 
@@ -24,7 +24,7 @@ public:
 protected:
     void set_next_activation_time(Scheduling::counter_type time) { next_activation_time = time; }
     void set_id(Scheduling::schedulable_id new_id) override { id = new_id; };
-    Scheduling::schedulable_id get_id() const override { return id; };
+    [[nodiscard]] Scheduling::schedulable_id get_id() const override { return id; };
 
 private:
     Scheduling::counter_type next_activation_time{};
