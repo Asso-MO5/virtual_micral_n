@@ -57,7 +57,7 @@ void CPU8008::signal_phase_1(Edge edge)
                     // TODO: acknowledge the interruption with correct timing
                     // (by timestamping the state change for example)
 
-                    if ((edge_time - clock_1_count) < BOOT_UP_TIME)
+                    if ((edge_time - input_pins.vdd.last_change()) < BOOT_UP_TIME)
                     {
                         // TODO: set garbage in the CPU state. It's too early
                     }
@@ -113,22 +113,5 @@ void CPU8008::signal_phase_1(Edge edge)
 
 void CPU8008::signal_phase_2(Edge edge) {}
 
-void CPU8008::signal_vdd(Edge edge)
-{
-    if (edge == Edge::Front::RISING)
-    {
-        clock_1_count = 0;
-        input_pins.vdd = ::State::HIGH;
-    }
-}
-void CPU8008::signal_interrupt(Edge edge)
-{
-    if (edge == Edge::Front::RISING)
-    {
-        input_pins.interrupt = ::State::HIGH;
-    }
-    else
-    {
-        input_pins.interrupt = ::State::LOW;
-    }
-}
+void CPU8008::signal_vdd(Edge edge) { input_pins.vdd = edge.apply(); }
+void CPU8008::signal_interrupt(Edge edge) { input_pins.interrupt = edge.apply(); }

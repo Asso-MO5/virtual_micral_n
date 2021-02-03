@@ -51,7 +51,6 @@ public:
     void signal_interrupt(Edge edge);
 
 private:
-    uint64_t clock_1_count = 0;
     OutputPins output_pins;
     DataPins data_pins;
     InputPins input_pins;
