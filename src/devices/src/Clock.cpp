@@ -12,7 +12,7 @@ void Clock::step()
     auto before = state;
     state.invert(activation_time);
 
-    Edge edge{before, state};
+    Edge edge{before, state, activation_time};
     edge_callback(edge, activation_time);
 
     set_next_activation_time(activation_time + period_in_ns);

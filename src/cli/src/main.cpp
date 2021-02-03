@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
     int counting = 0;
     clock->register_phase_1_trigger([&counting, &cpu](Edge edge, Scheduling::counter_type time) {
-        if (edge == Edge::RISING)
+        if (edge == Edge::Front::RISING)
         {
             counting += 1;
         }
@@ -43,8 +43,8 @@ int main(int argc, char** argv)
     scheduler.add(cpu);
 
     LOG_F(INFO, "Starts the CPU");
-    cpu->signal_vdd(Edge::RISING, 0.f);
-    cpu->signal_interrupt(Edge::RISING, 0.f);
+    cpu->signal_vdd(Edge::Front::RISING, 0.f);
+    cpu->signal_interrupt(Edge::Front::RISING, 0.f);
 
     LOG_F(INFO, "Running a bit...");
 
@@ -52,10 +52,12 @@ int main(int argc, char** argv)
     {
         if (counting == 20)
         {
-            cpu->signal_interrupt(State::LOW, clock->get_next_activation_time());
+            cpu->signal_interrupt(Edge{Edge::Front::FALLING, clock->get_next_activation_time()},
+                                  clock->get_next_activation_time());
         }
         scheduler.step();
-        LOG_F(INFO, "8008 sync: %i, state: %s", static_cast<State::Type>(cpu->get_output_pins().sync),
+        LOG_F(INFO, "8008 sync: %i, state: %s",
+              static_cast<State::Type>(cpu->get_output_pins().sync),
               STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)]);
     }
 

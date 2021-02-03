@@ -3,12 +3,13 @@
 
 #include "State.h"
 
+#include <cassert>
 #include <cstdint>
 
 struct Edge
 {
     using Type = uint8_t;
-    enum : Type
+    enum class Front : Type
     {
         NONE,
         RISING,
@@ -16,32 +17,51 @@ struct Edge
     };
 
     Edge() = default;
-    Edge(State before, State after)
+    Edge(State before, State after, Scheduling::counter_type time) : timestamp(time)
     {
         if (before == after)
         {
-            value = NONE;
+            value = Front::NONE;
         }
         else if (before == State::LOW)
         {
-            value = RISING;
+            value = Front::RISING;
         }
         else
         {
-            value = FALLING;
+            value = Front::FALLING;
         }
     }
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
-    constexpr Edge(Type value) : value(value) {}
+    constexpr Edge(Front value, Scheduling::counter_type time = Scheduling::counter_type{})
+        : value(value), timestamp(time)
+    {}
 #pragma clang diagnostic pop
+
+    [[nodiscard]] Scheduling::counter_type time() const { return timestamp; };
 
     constexpr bool operator==(Edge other) const { return value == other.value; }
     constexpr bool operator!=(Edge other) const { return value != other.value; }
 
+    State apply()
+    {
+        switch (value)
+        {
+            case Front::RISING:
+                return State{State::HIGH, time()};
+            case Front::FALLING:
+                return State{State::LOW, time()};
+            default:
+                assert(value != Front::NONE && "Applying a non edge to a State is an error.");
+                return State{};
+        }
+    }
+
 private:
-    Type value{};
+    Front value{};
+    Scheduling::counter_type timestamp{};
 };
 
 #endif //MICRALN_EDGE_H

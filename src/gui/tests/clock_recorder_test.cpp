@@ -19,9 +19,9 @@ TEST(ClockRecorder, gets_timed_values)
     const size_t SIZE = 6;
     auto clock_recorder = ClockRecorder{SIZE};
 
-    clock_recorder.add(100.f, Edge::RISING);
-    clock_recorder.add(200.f, Edge::FALLING);
-    clock_recorder.add(300.f, Edge::RISING);
+    clock_recorder.add(100.f, Edge::Front::RISING);
+    clock_recorder.add(200.f, Edge::Front::FALLING);
+    clock_recorder.add(300.f, Edge::Front::RISING);
 
     ASSERT_THAT(clock_recorder.time_series(), NotNull());
     ASSERT_THAT(clock_recorder.state_series(), NotNull());

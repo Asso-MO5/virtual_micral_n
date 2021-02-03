@@ -44,7 +44,7 @@ void CPU8008::signal_phase_1(Edge edge, Scheduling::counter_type time)
 
     set_next_activation_time(time);
 
-    if (edge == Edge::RISING)
+    if (edge == Edge::Front::RISING)
     {
         switch (output_pins.state)
         {
@@ -114,7 +114,7 @@ void CPU8008::signal_phase_2(Edge edge, Scheduling::counter_type time) {}
 
 void CPU8008::signal_vdd(Edge edge, Scheduling::counter_type time)
 {
-    if (edge == Edge::RISING)
+    if (edge == Edge::Front::RISING)
     {
         clock_1_count = 0;
         input_pins.vdd = ::State::HIGH;
@@ -122,7 +122,7 @@ void CPU8008::signal_vdd(Edge edge, Scheduling::counter_type time)
 }
 void CPU8008::signal_interrupt(Edge edge, Scheduling::counter_type time)
 {
-    if (edge == Edge::RISING)
+    if (edge == Edge::Front::RISING)
     {
         input_pins.interrupt = ::State::HIGH;
     }

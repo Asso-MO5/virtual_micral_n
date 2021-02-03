@@ -42,11 +42,11 @@ TEST(Clock, clock_triggers_on_edge)
                 received_time = time;
             });
     clock.step();
-    ASSERT_THAT(received_edge, Eq(Edge::RISING));
+    ASSERT_THAT(received_edge, Eq(Edge::Front::RISING));
 
     clock.step();
-    ASSERT_THAT(received_edge, Eq(Edge::FALLING));
+    ASSERT_THAT(received_edge, Eq(Edge::Front::FALLING));
 
     clock.step();
-    ASSERT_THAT(received_edge, Eq(Edge::RISING));
+    ASSERT_THAT(received_edge, Eq(Edge::Front::RISING));
 }

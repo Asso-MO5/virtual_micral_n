@@ -32,17 +32,17 @@ TEST(DoubleClock, has_a_phase_1_phase_2_cycle)
 
 struct EdgeTester
 {
-    Edge received_phase_1_edge{Edge::NONE};
+    Edge received_phase_1_edge{Edge::Front::NONE};
     Scheduling::counter_type received_phase_1_time = 0;
-    Edge received_phase_2_edge{Edge::NONE};
+    Edge received_phase_2_edge{Edge::Front::NONE};
     Scheduling::counter_type received_phase_2_time = 0;
 
     void reset()
     {
         received_phase_1_time = 0;
         received_phase_2_time = 0;
-        received_phase_1_edge = Edge::NONE;
-        received_phase_2_edge = Edge::NONE;
+        received_phase_1_edge = Edge::Front::NONE;
+        received_phase_2_edge = Edge::Front::NONE;
     }
 
     void test(Edge edge_1, Scheduling::counter_type time_1, Edge edge_2,
@@ -72,21 +72,21 @@ TEST(DoubleClock, signals_edges_with_timings)
     });
 
     clock.step();
-    tester.test(Edge::RISING, 0, Edge::NONE, 0);
+    tester.test(Edge::Front::RISING, 0, Edge::Front::NONE, 0);
     tester.reset();
 
     clock.step();
-    tester.test(Edge::FALLING, 700, Edge::NONE, 0);
+    tester.test(Edge::Front::FALLING, 700, Edge::Front::NONE, 0);
     tester.reset();
 
     clock.step();
-    tester.test(Edge::NONE, 0, Edge::RISING, 900);
+    tester.test(Edge::Front::NONE, 0, Edge::Front::RISING, 900);
     tester.reset();
 
     clock.step();
-    tester.test(Edge::NONE, 0, Edge::FALLING, 1450);
+    tester.test(Edge::Front::NONE, 0, Edge::Front::FALLING, 1450);
     tester.reset();
 
     clock.step();
-    tester.test(Edge::RISING, 2000, Edge::NONE, 0);
+    tester.test(Edge::Front::RISING, 2000, Edge::Front::NONE, 0);
 }

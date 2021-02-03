@@ -139,7 +139,7 @@ int main(int, char**)
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     clock->register_phase_1_trigger(
             [&clock_pulse, &phase_1_recorder](Edge edge, Scheduling::counter_type time) {
-                clock_pulse += (edge == Edge::RISING ? 1 : 0);
+                clock_pulse += (edge == Edge::Front::RISING ? 1 : 0);
 
                 phase_1_recorder.add(time, edge);
             });

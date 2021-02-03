@@ -22,9 +22,9 @@ void ClockRecorder::add(Scheduling::counter_type time, Edge edge)
 {
     std::copy(state_values.begin() + 2, state_values.end(), state_values.begin());
     std::copy(time_values.begin() + 2, time_values.end(), time_values.begin());
-    state_values[state_values.size() - 2] = (edge == Edge::RISING) ? 0.f : 1.f;
+    state_values[state_values.size() - 2] = (edge == Edge::Front::RISING) ? 0.f : 1.f;
     time_values[time_values.size() - 2] = time - 1;
 
-    state_values[state_values.size() - 1] = (edge == Edge::RISING) ? 1.f : 0.f;
+    state_values[state_values.size() - 1] = (edge == Edge::Front::RISING) ? 1.f : 0.f;
     time_values[time_values.size() - 1] = time;
 }
