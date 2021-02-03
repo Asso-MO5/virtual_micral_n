@@ -19,7 +19,12 @@ namespace
 
 } // namespace
 
-CPU8008::CPU8008()
+bool operator<(const CPU8008::NextEventType& a, const CPU8008::NextEventType& b)
+{
+    return std::get<0>(a) > std::get<0>(b);
+}
+
+CPU8008::CPU8008() : next_state(CpuState::STOPPED), is_first_phase_cycle(true)
 {
     output_pins.state = CpuState::STOPPED;
     output_pins.sync = ::State::LOW;
@@ -27,8 +32,58 @@ CPU8008::CPU8008()
 
 void CPU8008::step()
 {
-    set_next_activation_time(get_next_activation_time() +
-                             Timings::MIN_CLOCK_PERIOD); // Doing nothing at the monent.
+    assert((input_pins.vdd == ::State::HIGH) && "CPU without power should not be scheduled");
+
+    if (next_events.empty())
+    {
+        set_next_activation_time(Scheduling::unscheduled());
+        return;
+    }
+
+    auto [time, event, param] = next_events.top();
+    next_events.pop();
+
+    switch (event)
+    {
+        case SYNC: {
+            auto sync_edge =
+                    param ? Edge{Edge::Front::RISING, time} : Edge{Edge::Front::FALLING, time};
+            output_pins.sync = sync_edge.apply();
+            sync_callback(sync_edge);
+            // TODO : Constraint :  tSD max (.70) after ø21 FALL
+            break;
+        }
+        case STATE: {
+            // TODO: Constraint : tS2 max (1.0) after ø11 RAISE (for T1/TI1)
+            // TODO: Constraint : tS1 max (1.1) after ø11 RAISE (for others)
+            output_pins.state = static_cast<CpuState>(param);
+
+            break;
+        }
+        case DATA_OUT:
+            break;
+        case DATA_INT:
+            break;
+    }
+
+    if (next_events.empty())
+    {
+        set_next_activation_time(Scheduling::unscheduled());
+    }
+    else
+    {
+        auto& next_event = next_events.top();
+        set_next_activation_time(std::get<0>(next_event));
+    }
+    /*
+     * Events
+     * SYNC (RAISE/FALL), RAISE by ø11, LOW by ø12 (+ a bit ?)
+
+     * DATA_OUT (DATA) : Change by ø11
+        *  Constraint : tDD max (1.0) after ø11 RAISE
+        *  Constraint : tOH min (.10) after
+     * DATA_IN // SAMPLING : After DATA OUT
+     */
 }
 
 const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
@@ -43,116 +98,116 @@ void CPU8008::signal_phase_1(Edge edge)
     }
 
     auto edge_time = edge.time();
-    set_next_activation_time(edge_time);
 
     if (edge == Edge::Front::RISING)
     {
-        switch (output_pins.state)
+        if (is_first_phase_cycle)
         {
-            case CpuState::STOPPED:
-                // Halted and boot up state.
+            switch (output_pins.state)
+            {
+                case CpuState::STOPPED:
+                case CpuState::WAIT:
+                    output_pins.state = next_state; // Shortcut
+                    break;
+                case CpuState::T1:
+                case CpuState::T1I:
+                case CpuState::T2:
+                case CpuState::T3:
+                case CpuState::T4:
+                case CpuState::T5:
+                    next_events.push(std::make_tuple(edge_time + 20, SYNC, 1));
+                    break;
+            }
+            switch (output_pins.state)
+            {
+                case CpuState::STOPPED:
+                case CpuState::WAIT:
+                    output_pins.state = next_state; // Shortcut
+                    break;
+                case CpuState::T1:
+                case CpuState::T1I:
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T2)));
+                    break;
+                case CpuState::T2:
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T3)));
+                    break;
+                case CpuState::T3:
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T4)));
+                    break;
+                case CpuState::T4:
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T5)));
+                    break;
+                case CpuState::T5:
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
 
-                if (input_pins.interrupt == ::State::HIGH)
-                {
-                    // TODO: acknowledge the interruption with correct timing
-                    // (by timestamping the state change for example)
-
-                    if ((edge_time - input_pins.vdd.last_change()) < BOOT_UP_TIME)
-                    {
-                        // TODO: set garbage in the CPU state. It's too early
-                    }
-
-                    output_pins.state = CpuState::T1I;
-                }
-                break;
-            case CpuState::T1:
-                // Memory address emission step 1
-                // TODO: advance PC
-                [[fallthrough]];
-            case CpuState::T1I:
-                // TODO: set PC low address on BUS (with good timing)
-                // The step() function will process the instruction and switch to T2 state
-                break;
-            case CpuState::T2:
-                // Memory address emission step 2
-                // TODO: set PC high address on BUS (with good timing)
-                // The step() function will process the instruction and switch to WAIT or T3 state
-                // depending on the READY signal.
-                break;
-            case CpuState::T3:
-                // Data Fetch
-                // TODO: schedule the DATA fetch and decode the instruction.
-                // The step() function will process the instruction and switch to
-                // STOPPED if HALT
-                // T4 is instruction asks
-                // STOPPED if interrupted at instruction cycle end
-                // T1 if finished
-                // T1I if long instruction jammed
-                break;
-            case CpuState::WAIT:
-                // Waiting state
-                // TODO: wait until READY is not asserted anymore.
-                break;
-            case CpuState::T4:
-                // Instruction execution step 1
-                // The step() function will process the instruction and switch to
-                // T5 is instruction asks
-                // STOPPED if interrupted at instruction cycle end
-                // T1 if finished
-                // T1I if long instruction jammed
-                break;
-            case CpuState::T5:
-                // Instruction execution step 2
-                // The step() function will process the instruction and switch to
-                // STOPPED if interrupted at instruction cycle end
-                // T1 if finished
-                break;
+                    break;
+            }
         }
+        else
+        {
+            switch (output_pins.state)
+            {
+                case CpuState::STOPPED:
+                case CpuState::WAIT:
+                    output_pins.state = next_state; // Shortcut
+                    break;
+                case CpuState::T1:
+                case CpuState::T1I:
+                case CpuState::T2:
+                case CpuState::T3:
+                case CpuState::T4:
+                case CpuState::T5:
+                    next_events.push(std::make_tuple(edge_time + 20, SYNC, 0));
+                    break;
+            }
+        }
+        is_first_phase_cycle = !is_first_phase_cycle;
+    }
+
+    if (next_events.empty())
+    {
+        set_next_activation_time(edge_time);
+    }
+    else
+    {
+        auto& next_event = next_events.top();
+        set_next_activation_time(std::get<0>(next_event));
     }
 }
 
 void CPU8008::signal_phase_2(Edge edge) {}
 
-void CPU8008::signal_vdd(Edge edge) { input_pins.vdd = edge.apply(); }
-void CPU8008::signal_interrupt(Edge edge) { input_pins.interrupt = edge.apply(); }
-
-AddressStack::AddressStack() { clear_stack(); }
-AddressStack::AddressStack(uint16_t pc)
+void CPU8008::signal_vdd(Edge edge)
 {
-    clear_stack();
-    stack[stack_index] = pc;
-}
-
-void AddressStack::clear_stack()
-{
-    std::fill(begin(stack), end(stack), 0);
-    stack_index = 0;
-}
-
-uint16_t AddressStack::get_pc() const { return stack[stack_index]; }
-
-uint16_t AddressStack::get_low_pc_and_inc()
-{
-    // Note: the 8008 normally waits T2 to increment the 6 high bits part of the PC
-    // It's done directly in the simulation, as T1 and T2 are not supposed to be interrupted.
-    auto& pc = stack[stack_index];
-    emitted_pc = pc;
-    pc = (pc + 1) & 0x3fff;
-    return emitted_pc & 0xff;
-}
-
-uint16_t AddressStack::get_high_pc_and_inc() const { return (emitted_pc & 0x3f00) >> 8; }
-
-void AddressStack::push(uint16_t address)
-{
-    stack_index = (stack_index + 1) % stack.size();
-    stack[stack_index] = address;
-}
-void AddressStack::pop()
-{
-    stack_index = (stack_index - 1);
-    if (stack_index < 0)
+    input_pins.vdd = edge.apply();
+    if (input_pins.vdd == State::LOW)
     {
-        stack_index = stack.size() - 1;
+        set_next_activation_time(Scheduling::unscheduled());
     }
+}
+void CPU8008::signal_interrupt(Edge edge)
+{
+    input_pins.interrupt = edge.apply();
+    if (input_pins.interrupt == ::State::HIGH)
+    {
+        // TODO: acknowledge the interruption with correct timing
+        // (by timestamping the state change for example)
+
+        if ((edge.time() - input_pins.vdd.last_change()) < BOOT_UP_TIME)
+        {
+            // TODO: set garbage in the CPU state. It's too early
+        }
+
+        // TODO: aknowledge of interrupt should be immediate.
+        next_state = CpuState::T1I;
+    }
+}
+void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
+{
+    sync_callback = std::move(callback);
 }

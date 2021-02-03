@@ -43,17 +43,26 @@ int main(int argc, char** argv)
 
     LOG_F(INFO, "Starts the CPU");
     cpu->signal_vdd(Edge::Front::RISING);
-    cpu->signal_interrupt(Edge::Front::RISING);
 
     LOG_F(INFO, "Running a bit...");
 
-    while (counting < 100)
+    while (clock->get_next_activation_time() < 300000)
     {
         if (counting == 20)
         {
+            cpu->signal_interrupt({Edge::Front::RISING, clock->get_next_activation_time()});
+        }
+        if (counting == 21)
+        {
             cpu->signal_interrupt(Edge{Edge::Front::FALLING, clock->get_next_activation_time()});
         }
+
         scheduler.step();
+
+        // Force rescheduling... temporary
+        scheduler.change_schedule(clock);
+        scheduler.change_schedule(cpu);
+
         LOG_F(INFO, "8008 sync: %i, state: %s",
               static_cast<State::Type>(cpu->get_output_pins().sync),
               STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)]);

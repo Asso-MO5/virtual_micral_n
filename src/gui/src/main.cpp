@@ -9,6 +9,7 @@
 #include "ControllerWidget.h"
 #include "SignalPlot.h"
 
+#include <devices/src/CPU8008.h>
 #include <devices/src/DoubleClock.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/ClockRecorder.h>
@@ -131,18 +132,33 @@ int main(int, char**)
 {
     ClockRecorder phase_1_recorder(40);
     ClockRecorder phase_2_recorder(40);
+    ClockRecorder sync_recorder(40);
 
     uint64_t clock_pulse = 0;
 
     // Simulation Setup
     Scheduler scheduler;
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
-    clock->register_phase_1_trigger([&clock_pulse, &phase_1_recorder](Edge edge) {
+    auto cpu = std::make_shared<CPU8008>();
+
+    clock->register_phase_1_trigger([&clock_pulse, &cpu, &phase_1_recorder](Edge edge) {
         clock_pulse += (edge == Edge::Front::RISING ? 1 : 0);
 
         phase_1_recorder.add(edge);
+        cpu->signal_phase_1(edge);
     });
-    clock->register_phase_2_trigger([&phase_2_recorder](Edge edge) { phase_2_recorder.add(edge); });
+    clock->register_phase_2_trigger([&phase_2_recorder, &cpu](Edge edge) {
+        phase_2_recorder.add(edge);
+        cpu->signal_phase_2(edge);
+    });
+
+    cpu->register_sync_trigger([&sync_recorder](Edge edge) { sync_recorder.add(edge); });
+
+    // Starts the CPU
+    cpu->signal_vdd(Edge::Front::RISING);
+    cpu->signal_interrupt(Edge::Front::RISING);
+
+    scheduler.add(cpu);
     scheduler.add(clock);
 
     //
@@ -170,6 +186,10 @@ int main(int, char**)
             while (scheduler.get_counter() < end_point)
             {
                 scheduler.step();
+
+                // Force rescheduling... temporary
+                scheduler.change_schedule(clock);
+                scheduler.change_schedule(cpu);
             }
         }
 #pragma clang diagnostic pop
@@ -227,6 +247,9 @@ int main(int, char**)
             config.values.y_series = phase_2_recorder.state_series();
             ImGui::PlotSignal(config);
 
+            config.values.x_series = sync_recorder.time_series();
+            config.values.y_series = sync_recorder.state_series();
+            ImGui::PlotSignal(config);
             ImGui::End();
         }
 

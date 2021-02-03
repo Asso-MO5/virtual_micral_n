@@ -1,31 +1,13 @@
 #ifndef MICRALN_CPU8008_H
 #define MICRALN_CPU8008_H
 
+#include "AddressStack.h"
+
 #include <array>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
-
-const size_t ADDRESS_STACK_LEVELS = 8;
-
-class AddressStack
-{
-public:
-    AddressStack();
-    explicit AddressStack(uint16_t pc);
-    [[nodiscard]] uint16_t get_pc() const;
-    [[nodiscard]] uint16_t get_low_pc_and_inc();
-    [[nodiscard]] uint16_t get_high_pc_and_inc() const;
-
-    void push(uint16_t address);
-    void pop();
-
-private:
-    std::array<uint16_t, ADDRESS_STACK_LEVELS> stack{};
-    size_t stack_index{};
-    uint16_t emitted_pc{};
-
-    void clear_stack();
-};
+#include <functional>
+#include <queue>
 
 class CPU8008 : public SchedulableImpl
 {
@@ -73,12 +55,29 @@ public:
     void signal_vdd(Edge edge);
     void signal_interrupt(Edge edge);
 
+    void register_sync_trigger(std::function<void(Edge)> callback);
+
+    enum Event
+    {
+        SYNC,
+        STATE,
+        DATA_OUT,
+        DATA_INT
+    };
+    using NextEventType = std::tuple<Scheduling::counter_type, Event, uint8_t>;
+
 private:
-    OutputPins output_pins;
-    DataPins data_pins;
-    InputPins input_pins;
+    OutputPins output_pins{};
+    DataPins data_pins{};
+    InputPins input_pins{};
 
     AddressStack address_stack;
+    CpuState next_state;
+    bool is_first_phase_cycle; // Complete cycle
+
+    std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
+
+    std::function<void(Edge)> sync_callback = [](Edge) {};
 };
 
 #endif //MICRALN_CPU8008_H

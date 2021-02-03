@@ -25,7 +25,6 @@ void Scheduler::step()
 
     schedulable->step();
     time = schedulable->get_next_activation_time();
-
     assert(time >= executed_time);
 
     sort_everything();
