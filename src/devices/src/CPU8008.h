@@ -1,8 +1,31 @@
 #ifndef MICRALN_CPU8008_H
 #define MICRALN_CPU8008_H
 
+#include <array>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
+
+const size_t ADDRESS_STACK_LEVELS = 8;
+
+class AddressStack
+{
+public:
+    AddressStack();
+    explicit AddressStack(uint16_t pc);
+    [[nodiscard]] uint16_t get_pc() const;
+    [[nodiscard]] uint16_t get_low_pc_and_inc();
+    [[nodiscard]] uint16_t get_high_pc_and_inc() const;
+
+    void push(uint16_t address);
+    void pop();
+
+private:
+    std::array<uint16_t, ADDRESS_STACK_LEVELS> stack{};
+    size_t stack_index{};
+    uint16_t emitted_pc{};
+
+    void clear_stack();
+};
 
 class CPU8008 : public SchedulableImpl
 {
@@ -21,8 +44,8 @@ public:
 
     struct OutputPins
     {
-        CpuState state;  // Would it be interesting to pack to 3 bits
-        ::State sync; // 1 bit
+        CpuState state; // Would it be interesting to pack to 3 bits
+        ::State sync;   // 1 bit
     };
 
     struct InputPins
@@ -54,6 +77,8 @@ private:
     OutputPins output_pins;
     DataPins data_pins;
     InputPins input_pins;
+
+    AddressStack address_stack;
 };
 
 #endif //MICRALN_CPU8008_H
