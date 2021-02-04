@@ -8,7 +8,7 @@
 
 class Schedulable;
 
-class Scheduler : SignalReceiver
+class Scheduler : public SignalReceiver
 {
 public:
     using schedulable_ptr = std::shared_ptr<Schedulable>;

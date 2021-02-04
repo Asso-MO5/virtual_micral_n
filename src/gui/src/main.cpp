@@ -139,7 +139,7 @@ int main(int, char**)
     // Simulation Setup
     Scheduler scheduler;
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
-    auto cpu = std::make_shared<CPU8008>();
+    auto cpu = std::make_shared<CPU8008>(scheduler);
 
     clock->register_phase_1_trigger([&clock_pulse, &cpu, &phase_1_recorder](Edge edge) {
         clock_pulse += (edge == Edge::Front::RISING ? 1 : 0);

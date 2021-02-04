@@ -24,7 +24,8 @@ bool operator<(const CPU8008::NextEventType& a, const CPU8008::NextEventType& b)
     return std::get<0>(a) > std::get<0>(b);
 }
 
-CPU8008::CPU8008() : next_state(CpuState::STOPPED), is_first_phase_cycle(true)
+CPU8008::CPU8008(SignalReceiver& scheduler)
+    : scheduler(scheduler), next_state(CpuState::STOPPED), is_first_phase_cycle(true)
 {
     output_pins.state = CpuState::STOPPED;
     output_pins.sync = ::State::LOW;
@@ -176,6 +177,7 @@ void CPU8008::signal_phase_1(Edge edge)
         auto& next_event = next_events.top();
         set_next_activation_time(std::get<0>(next_event));
     }
+    scheduler.change_schedule(get_id());
 }
 
 void CPU8008::signal_phase_2(Edge edge) {}

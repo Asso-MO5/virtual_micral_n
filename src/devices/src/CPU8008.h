@@ -44,7 +44,7 @@ public:
         uint8_t data; // Maybe no need ? (or to force typing ?)
     };
 
-    CPU8008();
+    CPU8008(SignalReceiver & scheduler);
 
     void step() override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
@@ -67,6 +67,7 @@ public:
     using NextEventType = std::tuple<Scheduling::counter_type, Event, uint8_t>;
 
 private:
+    SignalReceiver & scheduler;
     OutputPins output_pins{};
     DataPins data_pins{};
     InputPins input_pins{};

@@ -20,8 +20,11 @@ int main(int argc, char** argv)
 
     loguru::init(argc, argv);
 
+    LOG_F(INFO, "Creates the scheduler");
+    Scheduler scheduler;
+
     LOG_F(INFO, "Creates the 8008");
-    auto cpu = std::make_shared<CPU8008>();
+    auto cpu = std::make_shared<CPU8008>(scheduler);
 
     LOG_F(INFO, "Creates the Clock");
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
@@ -36,8 +39,7 @@ int main(int argc, char** argv)
     });
     clock->register_phase_2_trigger([&cpu](Edge edge) { cpu->signal_phase_2(edge); });
 
-    LOG_F(INFO, "Creates the scheduler");
-    Scheduler scheduler;
+    LOG_F(INFO, "Adds devices to the scheduler");
     scheduler.add(clock);
     scheduler.add(cpu);
 
