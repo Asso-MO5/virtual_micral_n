@@ -25,9 +25,13 @@ uint16_t AddressStack::get_low_pc_and_inc()
     return emitted_pc & 0xff;
 }
 
-uint16_t AddressStack::get_high_pc_and_inc() const { return (emitted_pc & 0x3f00) >> 8; }
-uint16_t AddressStack::get_low_pc_no_inc() const { return stack[stack_index] & 0xff; }
-uint16_t AddressStack::get_high_pc_no_inc() const { return (stack[stack_index] & 0x3f00) >> 8; }
+uint16_t AddressStack::get_low_pc_no_inc()
+{
+    emitted_pc = stack[stack_index];
+    return emitted_pc & 0xff;
+}
+
+uint16_t AddressStack::get_high_pc() const { return (emitted_pc & 0x3f00) >> 8; }
 
 void AddressStack::push(uint16_t address)
 {
