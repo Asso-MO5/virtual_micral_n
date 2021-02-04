@@ -4,12 +4,20 @@
 class ControllerWidget
 {
 public:
-    explicit ControllerWidget(bool& running);
+    enum State {
+        RUNNING,
+        PAUSED,
+        STEP_ONE_FRAME,
+        STEP_ONE_CLOCK,
+        STEP_ONE_STATE,
+    };
+
     void update();
 
+    [[nodiscard]] State get_state() const;
+
 private:
-    bool& running;
-    bool step = false;
+    State state{RUNNING};
 };
 
 #endif //MICRALN_CONTROLLERWIDGET_H

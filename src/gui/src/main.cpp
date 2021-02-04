@@ -128,26 +128,36 @@ private:
     SDL_GLContext gl_context{};
 };
 
+const char* STATE_NAMES[] = {
+        "WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4",
+
+};
+
+const char* state_to_name(uint state) { return STATE_NAMES[state]; }
+
 int main(int, char**)
 {
     ClockRecorder phase_1_recorder(40);
     ClockRecorder phase_2_recorder(40);
     ClockRecorder sync_recorder(40);
 
-    uint64_t clock_pulse = 0;
+    uint64_t clock_1_pulse = 0;
+    uint64_t clock_2_pulse = 0;
 
     // Simulation Setup
     Scheduler scheduler;
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     auto cpu = std::make_shared<CPU8008>(scheduler);
 
-    clock->register_phase_1_trigger([&clock_pulse, &cpu, &phase_1_recorder](Edge edge) {
-        clock_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+    clock->register_phase_1_trigger([&clock_1_pulse, &cpu, &phase_1_recorder](Edge edge) {
+        clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
 
         phase_1_recorder.add(edge);
         cpu->signal_phase_1(edge);
     });
-    clock->register_phase_2_trigger([&phase_2_recorder, &cpu](Edge edge) {
+    clock->register_phase_2_trigger([&clock_2_pulse, &phase_2_recorder, &cpu](Edge edge) {
+        clock_2_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+
         phase_2_recorder.add(edge);
         cpu->signal_phase_2(edge);
     });
@@ -165,9 +175,8 @@ int main(int, char**)
     auto context = ImGui_SDL_GL_Context{};
 
     bool show_demo_window = true;
-    bool running = true;
 
-    ControllerWidget controller(running);
+    ControllerWidget controller;
 
     bool done = false;
     while (!done)
@@ -177,15 +186,42 @@ int main(int, char**)
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "ConstantConditionsOC"
-        if (running) // Controller by the ControllerWidget
+        auto controller_state = controller.get_state();
+
+        if (controller_state != ControllerWidget::PAUSED)
         {
             // Update simulation
-            auto start_point = scheduler.get_counter();
-            auto end_point = start_point + (static_cast<uint64_t>(average_frame_time * 1000.f));
 
-            while (scheduler.get_counter() < end_point)
+            if (controller_state == ControllerWidget::RUNNING ||
+                controller_state == ControllerWidget::STEP_ONE_FRAME)
             {
-                scheduler.step();
+                auto start_point = scheduler.get_counter();
+                uint64_t end_point =
+                        start_point + (static_cast<uint64_t>(average_frame_time * 1000.f));
+
+                while (scheduler.get_counter() < end_point)
+                {
+                    scheduler.step();
+                }
+            }
+            else if (controller_state == ControllerWidget::STEP_ONE_STATE)
+            {
+                auto initial_state = cpu->get_output_pins().state;
+
+                while (cpu->get_output_pins().state == initial_state)
+                {
+                    scheduler.step();
+                }
+            }
+            else if (controller_state == ControllerWidget::STEP_ONE_CLOCK)
+            {
+                auto initial_clock_1 = clock_1_pulse;
+                auto initial_clock_2 = clock_2_pulse;
+
+                while (initial_clock_1 == clock_1_pulse && initial_clock_2 == clock_2_pulse)
+                {
+                    scheduler.step();
+                }
             }
         }
 #pragma clang diagnostic pop
@@ -217,7 +253,7 @@ int main(int, char**)
             if (scheduler.get_counter() > 0)
             {
                 ImGui::Text("Clock frequency %lu kHz",
-                            1'000'000 * clock_pulse / scheduler.get_counter());
+                            1'000'000 * clock_1_pulse / scheduler.get_counter());
             }
 
             const float first_time =
@@ -246,6 +282,13 @@ int main(int, char**)
             config.values.x_series = sync_recorder.time_series();
             config.values.y_series = sync_recorder.state_series();
             ImGui::PlotSignal(config);
+
+            ImGui::Text("Data Bus %02x ", cpu->get_data_pins().data);
+
+            auto state = static_cast<uint>(cpu->get_output_pins().state);
+            ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,
+                        (state >> 0) & 1, state_to_name(state));
+
             ImGui::End();
         }
 

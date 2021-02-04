@@ -2,13 +2,11 @@
 
 #include "imgui.h"
 
-ControllerWidget::ControllerWidget(bool& running) : running(running) {}
-
 void ControllerWidget::update()
 {
     ImGui::Begin("Control");
 
-    if (running)
+    if (state == RUNNING)
     {
         ImGui::Text("Running");
     }
@@ -17,26 +15,33 @@ void ControllerWidget::update()
         ImGui::Text("Paused");
     }
 
-    if (step && running) {
-        step = false;
-        running = false;
+    if (state != RUNNING && state != PAUSED)
+    {
+        state = PAUSED;
     }
 
     if (ImGui::Button("Run"))
     {
-        running = true;
+        state = RUNNING;
     }
     if (ImGui::Button("Pause"))
     {
-        running = false;
+        state = PAUSED;
+    }
+    if (ImGui::Button("Step one clock"))
+    {
+        state = STEP_ONE_CLOCK;
+    }
+    if (ImGui::Button("Step one state"))
+    {
+        state = STEP_ONE_STATE;
     }
     if (ImGui::Button("Step one frame"))
     {
-        // At the moment, the Step button advances one full render frame.
-        // Probably not what we want.
-        running = true;
-        step = true;
+        state = STEP_ONE_FRAME;
     }
 
     ImGui::End();
 }
+
+ControllerWidget::State ControllerWidget::get_state() const { return state; }
