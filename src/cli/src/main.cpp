@@ -1,4 +1,3 @@
-#include <emulation_core/src/Schedulable.h>
 #include <emulation_core/src/Scheduler.h>
 
 #include <devices/src/CPU8008.h>
@@ -60,10 +59,12 @@ int main(int argc, char** argv)
         }
 
         scheduler.step();
+        scheduler.step();
 
-        LOG_F(INFO, "8008 sync: %i, state: %s",
+        LOG_F(INFO, "8008 sync: %i, state: %s, data bus: %02x",
               static_cast<State::Type>(cpu->get_output_pins().sync),
-              STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)]);
+              STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)],
+              cpu->get_data_pins().data);
     }
 
     LOG_F(INFO, "Finished");
