@@ -1,4 +1,4 @@
-#include "ClockRecorder.h"
+#include "SignalRecorder.h"
 
 #include <emulation_core/src/Edge.h>
 
@@ -9,7 +9,7 @@ using namespace testing;
 TEST(ClockRecorder, starts_with_a_size)
 {
     const size_t SIZE = 5;
-    auto clock_recorder = ClockRecorder{SIZE};
+    auto clock_recorder = SignalRecorder{SIZE};
 
     ASSERT_THAT(clock_recorder.size(), Eq(SIZE));
 }
@@ -17,7 +17,7 @@ TEST(ClockRecorder, starts_with_a_size)
 TEST(ClockRecorder, gets_timed_values)
 {
     const size_t SIZE = 6;
-    auto clock_recorder = ClockRecorder{SIZE};
+    auto clock_recorder = SignalRecorder{SIZE};
 
     clock_recorder.add(Edge{Edge::Front::RISING, Scheduling::counter_type{100}});
     clock_recorder.add(Edge{Edge::Front::FALLING, Scheduling::counter_type{200}});

@@ -1,5 +1,5 @@
-#ifndef MICRALN_CLOCKRECORDER_H
-#define MICRALN_CLOCKRECORDER_H
+#ifndef MICRALN_SIGNALRECORDER_H
+#define MICRALN_SIGNALRECORDER_H
 
 #include <emulation_core/src/Scheduling.h>
 #include <emulation_core/src/Edge.h>
@@ -7,10 +7,10 @@
 #include <cstdint>
 #include <vector>
 
-class ClockRecorder
+class SignalRecorder
 {
 public:
-    explicit ClockRecorder(std::size_t size);
+    explicit SignalRecorder(std::size_t size);
 
     [[nodiscard]] std::size_t size() const;
     [[nodiscard]] const float* time_series() const;
@@ -23,4 +23,4 @@ private:
     std::vector<float> state_values;
 };
 
-#endif //MICRALN_CLOCKRECORDER_H
+#endif //MICRALN_SIGNALRECORDER_H

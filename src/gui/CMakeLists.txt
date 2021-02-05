@@ -14,13 +14,15 @@ set(GUI_TEST_EXE_NAME ${GUI_EXE_NAME}_tests)
 set(GUI_FILES src/main.cpp
         ../../extern/imgui/backends/imgui_impl_opengl2.cpp
         ../../extern/imgui/backends/imgui_impl_sdl.cpp
+        src/ImGuiSDLGLContext.cpp src/ImGuiSDLGLContext.h
         src/ControllerWidget.cpp src/ControllerWidget.h
-        src/SignalPlot.cpp src/SignalPlot.h)
+        src/SignalPlot.cpp src/SignalPlot.h
+        src/Simulator.cpp src/Simulator.h)
 
 set(GUI_FILES_LIB
-        src/lib/ClockRecorder.cpp src/lib/ClockRecorder.h)
+        src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h)
 
-set(GUI_TEST_FILES tests/clock_recorder_test.cpp)
+set(GUI_TEST_FILES tests/signal_recorder_test.cpp)
 
 add_library(${GUI_LIB_NAME} ${GUI_FILES_LIB})
 target_include_directories(${GUI_LIB_NAME} PRIVATE ../)
