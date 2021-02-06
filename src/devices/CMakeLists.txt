@@ -14,13 +14,14 @@ set(DEVICES_FILES
         src/CPU8008.cpp src/CPU8008.h
         src/DoubleClock.cpp src/DoubleClock.h
         src/AddressStack.cpp src/AddressStack.h
-        )
+        src/SimpleROM.cpp src/SimpleROM.h)
+
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
         tests/8008_test.cpp
         tests/double_clock_test.cpp
         tests/address_stack_test.cpp
-        )
+        tests/simple_rom_test.cpp)
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
 target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)

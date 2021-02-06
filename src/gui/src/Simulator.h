@@ -17,7 +17,7 @@ public:
     [[nodiscard]] const Scheduler & get_scheduler() const;
     [[nodiscard]] const CPU8008 & get_cpu() const;
 
-    // To be extracted
+    // To be extracted nicely.
     const size_t SIGNAL_RECORDER_WINDOW = 40;
     SignalRecorder phase_1_recorder{SIGNAL_RECORDER_WINDOW};
     SignalRecorder phase_2_recorder{SIGNAL_RECORDER_WINDOW};
