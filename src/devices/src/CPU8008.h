@@ -82,6 +82,7 @@ private:
     InputPins input_pins{};
     AddressStack address_stack;
     uint8_t io_data_latch{};
+    uint8_t instruction_register{};
 
     CycleControl cycle_control{CycleControl::PCI};
     bool is_first_phase_cycle{true};
@@ -94,6 +95,7 @@ private:
     void on_signal_11_raising(Scheduling::counter_type edge_time);
     void on_signal_12_raising(Scheduling::counter_type edge_time);
     void on_signal_21_raising(Scheduling::counter_type edge_time);
+    void on_signal_21_falling(Scheduling::counter_type edge_time);
     void on_signal_22_falling(Scheduling::counter_type edge_time);
 
     void schedule_next_event(Scheduling::counter_type edge_time);

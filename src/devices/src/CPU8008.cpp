@@ -19,6 +19,7 @@ namespace
         const counter_type DELAY_FROM_PHASE_1_TO_2 = 200;
         const counter_type DELAY_FROM_PHASE_2_TO_1 = 400;
         const counter_type DATA_OUT_HOLD_TIME = 100;
+        const counter_type DATA_IN_HOLD_TIME = 100;
     } // namespace Timings
 
 } // namespace
@@ -87,6 +88,9 @@ void CPU8008::step()
             break;
         }
         case DATA_OUT:
+            // TODO: Constraint : tDD max (1.0) after ø11 FALLING
+            // TODO: Constraint : tOH min (.10) after ø22 FALLING
+
             if (param)
             {
                 assert(data_pins.taken == false);
@@ -100,6 +104,11 @@ void CPU8008::step()
             }
             break;
         case DATA_IN:
+            if (cycle_control == CycleControl::PCI)
+            {
+                assert(data_pins.taken == false);
+                instruction_register = data_pins.data;
+            }
             break;
     }
 
@@ -112,13 +121,6 @@ void CPU8008::step()
         auto& next_event = next_events.top();
         set_next_activation_time(std::get<0>(next_event));
     }
-    /*
-     * Events
-     * DATA_OUT (DATA) : Change by ø11
-        *  Constraint : tDD max (1.0) after ø11 FALLING
-        *  Constraint : tOH min (.10) after ø22 FALLING
-     * DATA_IN // SAMPLING : After DATA OUT
-     */
 }
 
 const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
@@ -190,6 +192,14 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
     }
 }
 
+void CPU8008::on_signal_21_falling(Scheduling::counter_type edge_time)
+{
+    if (output_pins.state == CpuState::T3)
+    {
+        next_events.push(std::make_tuple(edge_time + Timings::DATA_IN_HOLD_TIME, DATA_IN, 1));
+    }
+}
+
 void CPU8008::on_signal_22_falling(Scheduling::counter_type edge_time)
 {
     switch (output_pins.state)
@@ -257,7 +267,11 @@ void CPU8008::signal_phase_2(Edge edge)
     }
     else
     {
-        if (!is_first_phase_cycle)
+        if (is_first_phase_cycle)
+        {
+            on_signal_21_falling(edge_time);
+        }
+        else
         {
             on_signal_22_falling(edge_time);
         }
