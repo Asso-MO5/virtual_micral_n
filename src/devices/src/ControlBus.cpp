@@ -43,26 +43,26 @@ void ControlBus::read_address_from_cpu()
     if (cpu->get_output_pins().sync == State::LOW &&
         cpu->get_output_pins().state == CPU8008::CpuState::T1)
     {
-        rom_address_bus |= cpu->get_data_pins().data;
+        // TODO: Should be replaced by a decoder
+        rom_address_bus |= cpu->get_data_pins().read();
     }
     if (cpu->get_output_pins().sync == State::LOW &&
         cpu->get_output_pins().state == CPU8008::CpuState::T2)
     {
-        rom_address_bus |= (cpu->get_data_pins().data & 0x3f) << 8;
+        // TODO: Should be replaced by a decoder
+        rom_address_bus |= (cpu->get_data_pins().read() & 0x3f) << 8;
         rom->set_address(rom_address_bus);
     }
 }
 
 void ControlBus::rom_output_enable(const Edge& edge)
 {
-    assert(cpu->get_data_pins().taken == false);
     rom->signal_chip_select(Edge{Edge::Front::RISING, edge.time()});
     rom->signal_output_enable(Edge{Edge::Front::RISING, edge.time()});
 }
 
 void ControlBus::rom_output_disable(const Edge& edge)
 {
-    assert(cpu->get_data_pins().taken == false);
     rom->signal_output_enable(Edge{Edge::Front::FALLING, edge.time()});
     rom->signal_chip_select(Edge{Edge::Front::FALLING, edge.time()});
 }

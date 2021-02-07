@@ -4,6 +4,7 @@
 #include "AddressStack.h"
 
 #include <array>
+#include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
 #include <functional>
@@ -48,17 +49,13 @@ public:
         ::State vdd;
     };
 
-    struct DataPins
-    {
-        uint8_t data; // Maybe no need ? (or to force typing ?)
-        bool taken{}; // True if the CPU is applying output
-    };
+    ConnectedData data;
 
-    explicit CPU8008(SignalReceiver & scheduler);
+    explicit CPU8008(SignalReceiver& scheduler);
 
     void step() override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
-    [[nodiscard]] const DataPins& get_data_pins() const;
+    [[nodiscard]] const ConnectedData& get_data_pins() const;
 
     void signal_phase_1(Edge edge);
     void signal_phase_2(Edge edge);
@@ -78,7 +75,7 @@ public:
 
 private:
     OutputPins output_pins{};
-    DataPins data_pins{};
+    ConnectedData data_pins{};
     InputPins input_pins{};
     AddressStack address_stack;
     uint8_t io_data_latch{};
@@ -88,7 +85,7 @@ private:
     bool is_first_phase_cycle{true};
     bool interrupt_pending{};
 
-    SignalReceiver & scheduler;
+    SignalReceiver& scheduler;
     std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
     std::function<void(Edge)> sync_callback = [](Edge) {};
 
@@ -99,7 +96,6 @@ private:
     void on_signal_22_falling(Scheduling::counter_type edge_time);
 
     void schedule_next_event(Scheduling::counter_type edge_time);
-
 };
 
 #endif //MICRALN_CPU8008_H

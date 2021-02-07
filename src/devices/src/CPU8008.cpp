@@ -93,21 +93,18 @@ void CPU8008::step()
 
             if (param)
             {
-                assert(data_pins.taken == false);
-                data_pins.data = io_data_latch;
-                data_pins.taken = true;
+                data_pins.take_bus();
+                data_pins.write(io_data_latch);
             }
             else
             {
-                assert(data_pins.taken == true);
-                data_pins.taken = false;
+                data_pins.release_bus();
             }
             break;
         case DATA_IN:
             if (cycle_control == CycleControl::PCI)
             {
-                assert(data_pins.taken == false);
-                instruction_register = data_pins.data;
+                instruction_register = data_pins.read();
             }
             break;
     }
@@ -124,7 +121,7 @@ void CPU8008::step()
 }
 
 const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
-const CPU8008::DataPins& CPU8008::get_data_pins() const { return data_pins; }
+const ConnectedData& CPU8008::get_data_pins() const { return data_pins; }
 
 void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
 {
