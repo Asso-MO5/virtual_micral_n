@@ -49,8 +49,6 @@ int main(int argc, char** argv)
         control_bus.signal_phase_2(edge);
     });
 
-    // What I would like to write:
-    // connect(&DoubleClock::register_phase_1_trigger, &CPU8008::signal_phase_1);
 
     LOG_F(INFO, "Adds devices to the scheduler");
     scheduler.add(clock);
