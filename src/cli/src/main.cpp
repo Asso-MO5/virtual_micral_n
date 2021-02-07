@@ -65,10 +65,10 @@ int main(int argc, char** argv)
         scheduler.step();
         scheduler.step();
 
-        LOG_F(INFO, "8008 sync: %i, state: %s, data bus: %02x, rom output: %01i/%02x",
+        LOG_F(INFO, "8008 sync: %i, state: %s, data bus: %02x, rom output: %02x",
               static_cast<State::Type>(cpu->get_output_pins().sync),
               STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)],
-              cpu->get_data_pins().read(), rom->get_data_pins().taken, rom->get_data_pins().data);
+              cpu->get_data_pins().read(), rom->get_data_pins().read()); // Replace by the BUS State
     }
 
     LOG_F(INFO, "Finished");
