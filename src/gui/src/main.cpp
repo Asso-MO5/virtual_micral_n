@@ -3,6 +3,8 @@
 #include "SignalPlot.h"
 #include "Simulator.h"
 
+#include <devices/src/CPU8008.h>
+
 #include <array>
 #include <imgui.h>
 

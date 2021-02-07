@@ -2,33 +2,38 @@
 #include "Simulator.h"
 #include "ControllerWidget.h"
 
+#include <devices/src/CPU8008.h>
+#include <devices/src/ControlBus.h>
+#include <devices/src/InterruptAtStart.h>
+#include <devices/src/SimpleROM.h>
+
 Simulator::Simulator()
 {
+    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
+    rom = std::make_shared<SimpleROM>(rom_data);
+    interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
+    control_bus = std::make_shared<ControlBus>(cpu, rom);
 
-    auto& captured_cpu = cpu;
+    clock->register_phase_1_trigger([this](Edge edge) {
+        clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
 
-    auto& captured_phase_1_recorder = phase_1_recorder;
-    auto& captured_clock_1_pulse = clock_1_pulse;
-    clock->register_phase_1_trigger(
-            [&captured_clock_1_pulse, &captured_cpu, &captured_phase_1_recorder](Edge edge) {
-                captured_clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+        phase_1_recorder.add(edge);
+        cpu->signal_phase_1(edge);
+        interrupt_at_start->signal_phase_1(edge);
+        control_bus->signal_phase_1(edge);
+    });
 
-                captured_phase_1_recorder.add(edge);
-                captured_cpu->signal_phase_1(edge);
-            });
+    clock->register_phase_2_trigger([this](Edge edge) {
+        clock_2_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+        phase_2_recorder.add(edge);
 
-    auto& captured_phase_2_recorder = phase_2_recorder;
-    auto& captured_clock_2_pulse = clock_2_pulse;
-    clock->register_phase_2_trigger(
-            [&captured_clock_2_pulse, &captured_phase_2_recorder, &captured_cpu](Edge edge) {
-                captured_clock_2_pulse += (edge == Edge::Front::RISING ? 1 : 0);
-
-                captured_phase_2_recorder.add(edge);
-                captured_cpu->signal_phase_2(edge);
-            });
+        cpu->signal_phase_2(edge);
+        control_bus->signal_phase_2(edge);
+    });
 
     auto& captured_sync_recorder = sync_recorder;
     cpu->register_sync_trigger(
@@ -36,7 +41,7 @@ Simulator::Simulator()
 
     // Starts the CPU (normally should wait some cycle before triggering the interrupt)
     cpu->signal_vdd(Edge::Front::RISING);
-    cpu->signal_interrupt(Edge::Front::RISING);
+    interrupt_at_start->signal_vdd(Edge::Front::RISING);
 
     scheduler.add(cpu);
     scheduler.add(clock);

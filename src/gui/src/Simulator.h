@@ -3,10 +3,15 @@
 #define MICRALN_SIMULATOR_H
 
 #include "ControllerWidget.h"
-#include <devices/src/CPU8008.h>
+
 #include <devices/src/DoubleClock.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
+
+class SimpleROM;
+class CPU8008;
+class ControlBus;
+class InterruptAtStart;
 
 class Simulator
 {
@@ -29,7 +34,9 @@ private:
     Scheduler scheduler{};
 
     std::shared_ptr<CPU8008> cpu{};
-
+    std::shared_ptr<SimpleROM> rom{};
+    std::shared_ptr<ControlBus> control_bus{};
+    std::shared_ptr<InterruptAtStart> interrupt_at_start;
 };
 
 #endif //MICRALN_SIMULATOR_H
