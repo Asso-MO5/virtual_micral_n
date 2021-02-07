@@ -36,3 +36,5 @@ void ConnectedData::release_bus()
     }
     owns_bus = false;
 }
+
+bool ConnectedData::is_owning_bus() const { return owns_bus; }

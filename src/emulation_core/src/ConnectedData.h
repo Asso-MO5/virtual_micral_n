@@ -16,6 +16,7 @@ public:
 
     void take_bus();
     void release_bus();
+    [[nodiscard]] bool is_owning_bus() const;
 
 private:
     std::shared_ptr<DataBus> data_bus;
