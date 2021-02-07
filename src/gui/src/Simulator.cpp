@@ -34,7 +34,7 @@ Simulator::Simulator()
     cpu->register_sync_trigger(
             [&captured_sync_recorder](Edge edge) { captured_sync_recorder.add(edge); });
 
-    // Starts the CPU
+    // Starts the CPU (normally should wait some cycle before triggering the interrupt)
     cpu->signal_vdd(Edge::Front::RISING);
     cpu->signal_interrupt(Edge::Front::RISING);
 
