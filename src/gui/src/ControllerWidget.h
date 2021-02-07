@@ -17,7 +17,7 @@ public:
     [[nodiscard]] State get_state() const;
 
 private:
-    State state{RUNNING};
+    State state{PAUSED};
 };
 
 #endif //MICRALN_CONTROLLERWIDGET_H
