@@ -49,11 +49,19 @@ public:
         ::State vdd;
     };
 
+    struct DebugData
+    {
+        uint16_t pc;
+        uint8_t instruction_register;
+    };
+
     ConnectedData data;
 
     explicit CPU8008(SignalReceiver& scheduler);
 
     void connect_data_bus(std::shared_ptr<DataBus> bus);
+
+    [[nodiscard]] DebugData get_debug_data() const;
 
     void step() override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
@@ -73,6 +81,7 @@ public:
         DATA_OUT,
         DATA_IN
     };
+
     using NextEventType = std::tuple<Scheduling::counter_type, Event, uint8_t>;
 
 private:

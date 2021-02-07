@@ -76,6 +76,7 @@ void CPU8008::step()
                 case CpuState::WAIT:
                     break;
                 case CpuState::T3:
+                    instruction_register = 0x00;
                     break;
                 case CpuState::STOPPED:
                     break;
@@ -83,8 +84,10 @@ void CPU8008::step()
                     io_data_latch = address_stack.get_high_pc();
                     break;
                 case CpuState::T5:
+                    instruction_register = 0x00;
                     break;
                 case CpuState::T4:
+                    instruction_register = 0x00;
                     break;
             }
 
@@ -320,4 +323,9 @@ void CPU8008::signal_interrupt(Edge edge)
 void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 {
     sync_callback = std::move(callback);
+}
+
+CPU8008::DebugData CPU8008::get_debug_data() const
+{
+    return {.pc = address_stack.get_pc(), .instruction_register = instruction_register};
 }
