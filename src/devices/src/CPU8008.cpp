@@ -2,6 +2,7 @@
 #include <emulation_core/src/Edge.h>
 
 #include <iostream>
+#include <utility>
 
 namespace
 {
@@ -33,6 +34,8 @@ CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
 {
     output_pins.sync = ::State::LOW;
 }
+
+void CPU8008::connect_data_bus(std::shared_ptr<DataBus> bus) { data_pins.connect(std::move(bus)); }
 
 void CPU8008::step()
 {

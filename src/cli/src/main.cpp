@@ -5,6 +5,7 @@
 #include <devices/src/SimpleROM.h>
 #include <emulation_core/src/Scheduler.h>
 
+#include <emulation_core/src/DataBus.h>
 #include <loguru.hpp>
 
 const char* STATE_STRINGS[] = {"WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4"};
@@ -32,6 +33,10 @@ int main(int argc, char** argv)
     LOG_F(INFO, "Creates the 8008");
     auto cpu = std::make_shared<CPU8008>(scheduler);
 
+    auto data_bus = std::make_shared<DataBus>();
+    cpu->connect_data_bus(data_bus);
+    rom->connect_data_bus(data_bus);
+
     LOG_F(INFO, "Creates the Clock");
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
 
@@ -49,7 +54,6 @@ int main(int argc, char** argv)
         control_bus.signal_phase_2(edge);
     });
 
-
     LOG_F(INFO, "Adds devices to the scheduler");
     scheduler.add(clock);
     scheduler.add(cpu);
@@ -65,10 +69,9 @@ int main(int argc, char** argv)
         scheduler.step();
         scheduler.step();
 
-        LOG_F(INFO, "8008 sync: %i, state: %s, data bus: %02x, rom output: %02x",
+        LOG_F(INFO, "8008 sync: %i, state: %s, data bus: %02x",
               static_cast<State::Type>(cpu->get_output_pins().sync),
-              STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)],
-              cpu->get_data_pins().read(), rom->get_data_pins().read()); // Replace by the BUS State
+              STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)], data_bus->read());
     }
 
     LOG_F(INFO, "Finished");

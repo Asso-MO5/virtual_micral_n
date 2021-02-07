@@ -20,6 +20,8 @@ public:
 
     explicit SimpleROM(std::vector<uint8_t> data);
 
+    void connect_data_bus(std::shared_ptr<DataBus> bus);
+
     void step() override;
 
     [[nodiscard]] const ConnectedData& get_data_pins() const;

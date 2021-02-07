@@ -53,6 +53,8 @@ public:
 
     explicit CPU8008(SignalReceiver& scheduler);
 
+    void connect_data_bus(std::shared_ptr<DataBus> bus);
+
     void step() override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
     [[nodiscard]] const ConnectedData& get_data_pins() const;

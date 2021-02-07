@@ -3,8 +3,14 @@
 
 #include <utility>
 
-SimpleROM::SimpleROM(std::vector<uint8_t> data) : data{std::move(data)} {
+SimpleROM::SimpleROM(std::vector<uint8_t> data) : data{std::move(data)}
+{
     set_next_activation_time(Scheduling::unscheduled()); // The device is passive and immediate.
+}
+
+void SimpleROM::connect_data_bus(std::shared_ptr<DataBus> bus)
+{
+    data_pins.connect(std::move(bus));
 }
 
 void SimpleROM::step() {}
@@ -31,7 +37,10 @@ void SimpleROM::set_data_when_read_selected()
     }
     else
     {
-        data_pins.release_bus();
+        if (data_pins.is_owning_bus())
+        {
+            data_pins.release_bus();
+        }
     }
 }
 
