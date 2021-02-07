@@ -14,7 +14,9 @@ set(DEVICES_FILES
         src/CPU8008.cpp src/CPU8008.h
         src/DoubleClock.cpp src/DoubleClock.h
         src/AddressStack.cpp src/AddressStack.h
-        src/SimpleROM.cpp src/SimpleROM.h)
+        src/SimpleROM.cpp src/SimpleROM.h
+        src/ControlBus.cpp src/ControlBus.h
+        src/InterruptAtStart.cpp src/InterruptAtStart.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
