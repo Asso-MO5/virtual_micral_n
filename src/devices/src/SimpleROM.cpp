@@ -48,4 +48,4 @@ uint8_t SimpleROM::get_direct_data(uint16_t address) { return data[address]; }
 
 const ConnectedData& SimpleROM::get_data_pins() const { return data_pins; }
 
-void SimpleROM::set_address(uint16_t address) { input_pins.address = address; }
+void SimpleROM::set_address(uint16_t address) { input_pins.address = address % data.size(); }
