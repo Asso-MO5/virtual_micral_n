@@ -101,7 +101,7 @@ int main(int, char**)
                 ImGui::PlotSignal(config);
             }
 
-            ImGui::Text("Data Bus %02x ", cpu.get_data_pins().data);
+            ImGui::Text("Data Bus %02x ", simulator.get_data_bus().read());
 
             auto state = static_cast<uint>(cpu.get_output_pins().state);
             ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,

@@ -15,8 +15,12 @@ Simulator::Simulator()
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
     rom = std::make_shared<SimpleROM>(rom_data);
+    data_bus = std::make_shared<DataBus>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
     control_bus = std::make_shared<ControlBus>(cpu, rom);
+
+    cpu->connect_data_bus(data_bus);
+    rom->connect_data_bus(data_bus);
 
     clock->register_phase_1_trigger([this](Edge edge) {
         clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
@@ -86,3 +90,4 @@ void Simulator::step(float average_frame_time, ControllerWidget::State controlle
 
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 const CPU8008& Simulator::get_cpu() const { return *cpu; }
+const DataBus& Simulator::get_data_bus() const { return *data_bus; }
