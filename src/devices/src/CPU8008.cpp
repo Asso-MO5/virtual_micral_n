@@ -1,6 +1,7 @@
 #include "CPU8008.h"
 #include <emulation_core/src/Edge.h>
 
+#include <cstring>
 #include <iostream>
 #include <utility>
 
@@ -174,8 +175,11 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                     std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T5)));
             break;
         case CpuState::T5:
+            assert(cycle_ended);
+            // TODO: Test Interruption
             next_events.push(
                     std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+            cycle_control = CycleControl::PCI;
 
             break;
     }
@@ -337,9 +341,14 @@ void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 
 CPU8008::DebugData CPU8008::get_debug_data() const
 {
-    return {.pc = address_stack.get_pc(),
+    auto debug = CPU8008::DebugData{
+            .pc = address_stack.get_pc(),
             .instruction_register = instruction_register,
-            .hidden_registers = hidden_registers};
+            .hidden_registers = hidden_registers,
+    };
+
+    std::memcpy(debug.registers, scratch_pad_memory, sizeof(uint8_t) * SCRATCH_PAD_SIZE);
+    return debug;
 }
 
 namespace Instruction
@@ -352,17 +361,42 @@ namespace Instruction
 
     bool is_Lrr(uint8_t instruction_register)
     {
-        return (instruction_register & 0b11000000) == 0b11000000;
+        return (instruction_register & 0b11000000) == 0b11000000 &&
+               (instruction_register & 0b00000111) != 0b111 &&
+               (instruction_register & 0b00111000) != 0b111000;
+    }
+
+    bool is_LrM(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b11000000 &&
+               (instruction_register & 0b00000111) == 0b111 &&
+               (instruction_register & 0b00111000) != 0b111000;
+    }
+
+    bool is_JMP(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b01000000 &&
+               (instruction_register & 0b00000111) == 0b100;
     }
 
 } // namespace Instruction
 
 void CPU8008::execute_t1i()
 {
+    if (cycle_control == CycleControl::PCI)
+    {
+        memory_cycle = 0;
+    }
+    else
+    {
+        memory_cycle = memory_cycle + 1;
+    }
+
     switch (cycle_control)
     {
         case CycleControl::PCI:
             io_data_latch = address_stack.get_low_pc_no_inc();
+
             break;
         case CycleControl::PCR:
             if (Instruction::is_LrI(instruction_register))
@@ -380,15 +414,29 @@ void CPU8008::execute_t1i()
 
 void CPU8008::execute_t1()
 {
+    if (cycle_control == CycleControl::PCI)
+    {
+        memory_cycle = 0;
+    }
+    else
+    {
+        memory_cycle = memory_cycle + 1;
+    }
+
     switch (cycle_control)
     {
         case CycleControl::PCI:
             io_data_latch = address_stack.get_low_pc_and_inc();
             break;
         case CycleControl::PCR: {
-            if (Instruction::is_LrI(instruction_register))
+            if (Instruction::is_LrI(instruction_register) ||
+                Instruction::is_JMP(instruction_register))
             {
                 io_data_latch = address_stack.get_low_pc_and_inc();
+            }
+            else if (Instruction::is_LrM(instruction_register))
+            {
+                io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
             }
         }
         break;
@@ -407,9 +455,14 @@ void CPU8008::execute_t2()
             io_data_latch = address_stack.get_high_pc();
             break;
         case CycleControl::PCR: {
-            if (Instruction::is_LrI(instruction_register))
+            if (Instruction::is_LrI(instruction_register) ||
+                Instruction::is_JMP(instruction_register))
             {
                 io_data_latch = address_stack.get_high_pc();
+            }
+            else if (Instruction::is_LrM(instruction_register))
+            {
+                io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::H)];
             }
         }
         break;
@@ -425,7 +478,15 @@ void CPU8008::execute_t3()
     if (cycle_control == CycleControl::PCI | cycle_control == CycleControl::PCR)
     {
         hidden_registers.a = 0x00; // only on RST? (but is it important?)
-        hidden_registers.b = data_pins.read();
+
+        if (memory_cycle < 2)
+        {
+            hidden_registers.b = data_pins.read();
+        }
+        else
+        {
+            hidden_registers.a = data_pins.read();
+        }
     }
 
     switch (cycle_control)
@@ -433,7 +494,9 @@ void CPU8008::execute_t3()
         case CycleControl::PCI: {
             instruction_register = hidden_registers.b;
 
-            if (Instruction::is_LrI(instruction_register))
+            if (Instruction::is_LrI(instruction_register) ||
+                Instruction::is_LrM(instruction_register) ||
+                Instruction::is_JMP(instruction_register))
             {
                 cycle_ended = true;
                 cycle_control = CycleControl::PCR;
@@ -442,6 +505,15 @@ void CPU8008::execute_t3()
         break;
         case CycleControl::PCR:
             // LrI : Nothing to do. DATA is in reg.b
+            // LrM : Nothing to do. DATA is in reg.b
+            if (Instruction::is_JMP(instruction_register))
+            {
+                if (memory_cycle == 1)
+                {
+                    cycle_ended = true;
+                }
+            }
+
             break;
         case CycleControl::PCC:
             break;
@@ -458,19 +530,18 @@ void CPU8008::execute_t4()
             if (Instruction::is_Lrr(instruction_register))
             {
                 auto source_register = instruction_register & 0b111;
-                if (source_register == 0b111)
-                {
-                    // TODO: LrM
-                }
-                else
-                {
-                    hidden_registers.b = source_register;
-                }
+                assert(source_register != 0b111); // It would be LrM
+                hidden_registers.b = source_register;
             }
         }
         break;
         case CycleControl::PCR:
             // LrI -> nothing to do. Cycle skipped.
+            // LrM -> nothing to do. Cycle skipped.
+            if (Instruction::is_JMP(instruction_register))
+            {
+                address_stack.set_high_pc(hidden_registers.a);
+            }
             break;
         case CycleControl::PCC:
             break;
@@ -503,6 +574,17 @@ void CPU8008::execute_t5()
 
                 scratch_pad_memory[destination_register] = hidden_registers.b;
             }
+            else if (Instruction::is_LrM(instruction_register))
+            {
+                auto destination_register = (instruction_register & 0b111000) >> 3;
+                assert(destination_register != 0b111);
+
+                scratch_pad_memory[destination_register] = hidden_registers.b;
+            }
+            else if (Instruction::is_JMP(instruction_register))
+            {
+                address_stack.set_low_pc(hidden_registers.b);
+            }
         }
         break;
         case CycleControl::PCC:
@@ -510,4 +592,6 @@ void CPU8008::execute_t5()
         case CycleControl::PCW:
             break;
     }
+
+    cycle_ended = true;
 }

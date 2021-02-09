@@ -74,6 +74,7 @@ public:
         uint16_t pc;
         uint8_t instruction_register;
         HiddenRegisters hidden_registers;
+        uint8_t registers[SCRATCH_PAD_SIZE];
     };
 
     ConnectedData data;
@@ -116,6 +117,7 @@ private:
     uint8_t instruction_register{};
 
     CycleControl cycle_control{CycleControl::PCI};
+    uint8_t memory_cycle{}; // Can be reduced to distinguished between the second and third cycle?
     bool is_first_phase_cycle{true};
     bool interrupt_pending{};
     bool cycle_ended{};
