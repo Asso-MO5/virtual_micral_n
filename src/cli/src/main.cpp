@@ -7,6 +7,7 @@
 
 #include <emulation_core/src/DataBus.h>
 #include <loguru.hpp>
+#include <stdexcept>
 
 const char* STATE_STRINGS[] = {"WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4"};
 
