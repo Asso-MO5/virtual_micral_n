@@ -29,18 +29,18 @@ TEST(ClockRecorder, gets_timed_values)
     ASSERT_THAT(clock_recorder.time_series()[0], Le(100.f));
     ASSERT_THAT(clock_recorder.state_series()[0], Eq(0.f));
 
-    ASSERT_THAT(clock_recorder.time_series()[1], Eq(100.f));
+    ASSERT_THAT(clock_recorder.time_series()[1], Ge(100.f));
     ASSERT_THAT(clock_recorder.state_series()[1], Eq(1.f));
 
     ASSERT_THAT(clock_recorder.time_series()[2], Le(200.f));
     ASSERT_THAT(clock_recorder.state_series()[2], Eq(1.f));
 
-    ASSERT_THAT(clock_recorder.time_series()[3], Eq(200.f));
+    ASSERT_THAT(clock_recorder.time_series()[3], Ge(200.f));
     ASSERT_THAT(clock_recorder.state_series()[3], Eq(0.f));
 
     ASSERT_THAT(clock_recorder.time_series()[4], Le(300.f));
     ASSERT_THAT(clock_recorder.state_series()[4], Eq(0.f));
 
-    ASSERT_THAT(clock_recorder.time_series()[5], Eq(300.f));
+    ASSERT_THAT(clock_recorder.time_series()[5], Ge(300.f));
     ASSERT_THAT(clock_recorder.state_series()[5], Eq(1.f));
 }

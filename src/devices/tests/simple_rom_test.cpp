@@ -21,7 +21,7 @@ TEST(SimpleRom, doesnt_apply_data_at_start)
     rom.set_address(0x0000);
 
     auto & data_pins = rom.get_data_pins();
-    ASSERT_FALSE(data_pins.taken);
+    ASSERT_FALSE(data_pins.is_owning_bus());
 }
 
 TEST(SimpleRom, contains_data_after_select_and_read)
@@ -37,7 +37,7 @@ TEST(SimpleRom, contains_data_after_select_and_read)
     // rom.step(); -> no need, the device is passive and immediate.
 
     auto & data_pins = rom.get_data_pins();
-    ASSERT_THAT(data_pins.data, Eq(data[0]));
+    ASSERT_TRUE(data_pins.is_owning_bus());
 }
 
 TEST(SimpleRom, doesnt_apply_data_when_not_selected)
@@ -54,7 +54,7 @@ TEST(SimpleRom, doesnt_apply_data_when_not_selected)
     rom.signal_chip_select(Edge{Edge::Front::FALLING, 100});
 
     auto & data_pins = rom.get_data_pins();
-    ASSERT_FALSE(data_pins.taken);
+    ASSERT_FALSE(data_pins.is_owning_bus());
 }
 
 TEST(SimpleRom, contains_other_data_when_changing_address)
@@ -76,5 +76,5 @@ TEST(SimpleRom, contains_other_data_when_changing_address)
     // rom.step(); -> no need, the device is passive and immediate.
 
     auto & data_pins = rom.get_data_pins();
-    ASSERT_THAT(data_pins.data, Eq(data[1]));
+    ASSERT_TRUE(data_pins.is_owning_bus());
 }
