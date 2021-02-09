@@ -7,14 +7,41 @@
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/SimpleROM.h>
 
+#include <fstream>
+
+class ReadRomData
+{
+public:
+    explicit ReadRomData(const char* file_path)
+    {
+        std::fstream file;
+        file.open(file_path, std::ios::in | std::ios::binary);
+        if (file)
+        {
+            file.seekg(0, std::ios::end);
+            auto file_size = file.tellg();
+            file.seekg(0, std::ios::beg);
+
+            data.resize(file_size);
+            file.read(reinterpret_cast<char*>(&data[0]), file_size);
+        }
+        else
+        {
+            throw std::runtime_error("Cannot open ROM file");
+        }
+    }
+
+    std::vector<uint8_t> data;
+};
+
 Simulator::Simulator()
 {
-    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    ReadRomData rom_data("data/8008-hello-world.bin");
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
-    rom = std::make_shared<SimpleROM>(rom_data);
+    rom = std::make_shared<SimpleROM>(rom_data.data);
     data_bus = std::make_shared<DataBus>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
     control_bus = std::make_shared<ControlBus>(cpu, rom);

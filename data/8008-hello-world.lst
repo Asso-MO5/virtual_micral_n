@@ -1,0 +1,66 @@
+AS8 assembler for intel 8008, t.e.jones Version 1.0
+Options: listfile=1 debug=0 binaryout=1 singlelist=0
+octalnums=0 markascii=0
+Infile=8008-test.asm
+Assembly Performed: Tue Feb  9 22:47:57 2021
+
+
+Line Addr.  CodeBytes   Source Line
+---- ------ ----------- ----------------------------------
+   1                    RAM: EQU 0x1000
+   2                    
+   3                    START:
+   4                        ORG 0x0000
+   5 00-000 300             LAA ; Starts with a NOP
+   6                        ; DE points to text message
+   7 00-001 036 000         LDI \HB\TEST_MSG-1
+   8 00-003 046 044         LEI \LB\TEST_MSG-1
+   9                    
+  10                        ; BC points to RAM
+  11 00-005 016 017         LBI \HB\RAM-1
+  12 00-007 026 377         LCI \LB\RAM-1
+  13                    
+  14                    LOOP:
+  15                        ; Advances read pointer
+  16 00-011 353             LHD
+  17 00-012 364             LLE
+  18 00-013 106 041 000     CAL ADVANCE_HL
+  19 00-016 335             LDH 
+  20 00-017 346             LEL
+  21                    
+  22 00-020 307             LAM ; Read Byte
+  23                    
+  24                        ; Write byte to RAM and advances pointer
+  25 00-021 351             LHB
+  26 00-022 352             LHC
+  27 00-023 106 041 000     CAL ADVANCE_HL
+  28 00-026 315             LBH
+  29 00-027 325             LCH
+  30                    
+  31 00-030 370             LMA ; Write BYTE
+  32                    
+  33 00-031 260             ORA
+  34 00-032 110 011 000     JFZ LOOP
+  35 00-035 001             HLT
+  36 00-036 104 000 000     JMP START
+  37                    
+  38                    ADVANCE_HL:
+  39 00-041 060             INL
+  40 00-042 013             RFZ
+  41 00-043 050             INH
+  42 00-044 007             RET
+  43                    
+  44                    TEST_MSG:
+  45 00-045 110 105 114      DATA "HELLO WORLD"
+     00-050 114 117 040
+     00-053 127 117 122
+     00-056 114 104 
+  46 00-060 000              DATA 0
+Symbol Count: 5
+    Symbol  Oct Val  DecVal
+    ------  -------  ------
+       RAM   20 000   4096
+     START      000      0
+      LOOP      011      9
+ADVANCE_HL      041     33
+  TEST_MSG      045     37
