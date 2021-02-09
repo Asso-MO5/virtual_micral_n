@@ -2,6 +2,7 @@
 #define MICRALN_DATABUS_H
 
 #include <unordered_set>
+#include <string>
 
 struct bus_error : public std::exception
 {
