@@ -67,3 +67,13 @@ TEST(AddressStack, can_pop_an_address)
     ASSERT_THAT(address_stack.get_low_pc_and_inc(), Eq(0x00));
     ASSERT_THAT(address_stack.get_high_pc(), Eq(0x10));
 }
+
+TEST(AddressStack, can_change_current_pc_high_and_low)
+{
+    AddressStack address_stack{0x1000};
+
+    address_stack.set_high_pc(0x15);
+    address_stack.set_low_pc(0x20);
+
+    ASSERT_THAT(address_stack.get_pc(), Eq(0x1520));
+}

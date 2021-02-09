@@ -38,6 +38,7 @@ void AddressStack::push(uint16_t address)
     stack_index = (stack_index + 1) % stack.size();
     stack[stack_index] = address;
 }
+
 void AddressStack::pop()
 {
     stack_index = (stack_index - 1);
@@ -46,3 +47,14 @@ void AddressStack::pop()
         stack_index = stack.size() - 1;
     }
 }
+
+void AddressStack::set_low_pc(uint8_t value) {
+    stack[stack_index] &= 0xff00;
+    stack[stack_index] |= value;
+}
+
+void AddressStack::set_high_pc(uint8_t  value) {
+    stack[stack_index] &= 0x00ff;
+    stack[stack_index] |= value << 8;
+}
+

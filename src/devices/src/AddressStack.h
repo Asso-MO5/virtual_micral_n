@@ -19,6 +19,9 @@ public:
     void push(uint16_t address);
     void pop();
 
+    void set_high_pc(uint8_t value);
+    void set_low_pc(uint8_t value);
+
 private:
     std::array<uint16_t, ADDRESS_STACK_LEVELS> stack{};
     std::size_t stack_index{};
