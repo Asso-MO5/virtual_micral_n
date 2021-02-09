@@ -72,11 +72,18 @@ int main(int argc, char** argv)
         auto cpu_debug_data = cpu->get_debug_data();
         LOG_F(INFO,
               "8008 sync: %i, state: %s, data bus: %02x, (CPU PC: %04x, IR: %02x, reg.a: %02x, "
-              "reg.b: %02x)",
+              "reg.b: %02x, A(%02x) B(%02x) C(%02x) D(%02x) E(%02x) H(%02x) L(%02x))",
               static_cast<State::Type>(cpu->get_output_pins().sync),
               STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)], data_bus->read(),
               cpu_debug_data.pc, cpu_debug_data.instruction_register,
-              cpu_debug_data.hidden_registers.a, cpu_debug_data.hidden_registers.b);
+              cpu_debug_data.hidden_registers.a, cpu_debug_data.hidden_registers.b,
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::A)],
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::B)],
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::C)],
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::D)],
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::E)],
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::H)],
+              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::L)]);
     }
 
     LOG_F(INFO, "Finished");

@@ -11,9 +11,9 @@
 static const int WINDOW_WIDTH = 1280;
 static const int WINDOW_HEIGHT = 720;
 
-const char* STATE_NAMES[] = {
-        "WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4",
-};
+const char* STATE_NAMES[] = {"WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4"};
+
+const char* REGISTER_NAMES[] = {"A", "B", "C", "D", "E", "H", "L"};
 
 const char* state_to_name(uint state) { return STATE_NAMES[state]; }
 
@@ -106,6 +106,15 @@ int main(int, char**)
             auto state = static_cast<uint>(cpu.get_output_pins().state);
             ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,
                         (state >> 0) & 1, state_to_name(state));
+
+            auto cpu_debug_data = cpu.get_debug_data();
+            ImGui::Text("PC: %04x", cpu_debug_data.pc);
+            ImGui::Text("REG.a: %02x", cpu_debug_data.hidden_registers.a);
+            ImGui::Text("REG.b: %02x", cpu_debug_data.hidden_registers.b);
+            for (uint8_t r = 0; r < CPU8008::SCRATCH_PAD_SIZE; r++)
+            {
+                ImGui::Text("%s: %02x", REGISTER_NAMES[r], cpu_debug_data.registers[r]);
+            }
 
             ImGui::End();
         }
