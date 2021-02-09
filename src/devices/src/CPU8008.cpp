@@ -68,26 +68,29 @@ void CPU8008::step()
             switch (output_pins.state)
             {
                 case CpuState::T1I:
-                    io_data_latch = address_stack.get_low_pc_no_inc();
+                    cycle_ended = false;
+                    execute_t1i();
                     break;
                 case CpuState::T1:
-                    io_data_latch = address_stack.get_low_pc_and_inc();
+                    cycle_ended = false;
+                    execute_t1();
+                    break;
+                case CpuState::T2:
+                    execute_t2();
                     break;
                 case CpuState::WAIT:
                     break;
                 case CpuState::T3:
-                    instruction_register = 0x00;
+                    // Too early to execute T3.
+                    // It is executed on the DATA_IN signal.
                     break;
                 case CpuState::STOPPED:
                     break;
-                case CpuState::T2:
-                    io_data_latch = address_stack.get_high_pc();
+                case CpuState::T4:
+                    execute_t4();
                     break;
                 case CpuState::T5:
-                    instruction_register = 0x00;
-                    break;
-                case CpuState::T4:
-                    instruction_register = 0x00;
+                    execute_t5();
                     break;
             }
 
@@ -108,10 +111,7 @@ void CPU8008::step()
             }
             break;
         case DATA_IN:
-            if (cycle_control == CycleControl::PCI)
-            {
-                instruction_register = data_pins.read();
-            }
+            execute_t3();
             break;
     }
 
@@ -156,8 +156,18 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                     std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T3)));
             break;
         case CpuState::T3:
-            next_events.push(
-                    std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+            if (cycle_ended)
+            {
+                // TODO: Test Interruption
+                // TODO: Instruction Jammed goes to TI1
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+            }
+            else
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T4)));
+            }
             break;
         case CpuState::T4:
             next_events.push(
@@ -327,5 +337,177 @@ void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 
 CPU8008::DebugData CPU8008::get_debug_data() const
 {
-    return {.pc = address_stack.get_pc(), .instruction_register = instruction_register};
+    return {.pc = address_stack.get_pc(),
+            .instruction_register = instruction_register,
+            .hidden_registers = hidden_registers};
+}
+
+namespace Instruction
+{
+    bool is_LrI(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b00000000 &&
+               (instruction_register & 0b00000111) == 0b110;
+    }
+
+    bool is_Lrr(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b11000000;
+    }
+
+} // namespace Instruction
+
+void CPU8008::execute_t1i()
+{
+    switch (cycle_control)
+    {
+        case CycleControl::PCI:
+            io_data_latch = address_stack.get_low_pc_no_inc();
+            break;
+        case CycleControl::PCR:
+            if (Instruction::is_LrI(instruction_register))
+            {
+                io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
+            }
+
+            break;
+        case CycleControl::PCC:
+            break;
+        case CycleControl::PCW:
+            break;
+    }
+}
+
+void CPU8008::execute_t1()
+{
+    switch (cycle_control)
+    {
+        case CycleControl::PCI:
+            io_data_latch = address_stack.get_low_pc_and_inc();
+            break;
+        case CycleControl::PCR: {
+            if (Instruction::is_LrI(instruction_register))
+            {
+                io_data_latch = address_stack.get_low_pc_and_inc();
+            }
+        }
+        break;
+        case CycleControl::PCC:
+            break;
+        case CycleControl::PCW:
+            break;
+    }
+}
+
+void CPU8008::execute_t2()
+{
+    switch (cycle_control)
+    {
+        case CycleControl::PCI:
+            io_data_latch = address_stack.get_high_pc();
+            break;
+        case CycleControl::PCR: {
+            if (Instruction::is_LrI(instruction_register))
+            {
+                io_data_latch = address_stack.get_high_pc();
+            }
+        }
+        break;
+        case CycleControl::PCC:
+            break;
+        case CycleControl::PCW:
+            break;
+    }
+}
+
+void CPU8008::execute_t3()
+{
+    if (cycle_control == CycleControl::PCI | cycle_control == CycleControl::PCR)
+    {
+        hidden_registers.a = 0x00; // only on RST? (but is it important?)
+        hidden_registers.b = data_pins.read();
+    }
+
+    switch (cycle_control)
+    {
+        case CycleControl::PCI: {
+            instruction_register = hidden_registers.b;
+
+            if (Instruction::is_LrI(instruction_register))
+            {
+                cycle_ended = true;
+                cycle_control = CycleControl::PCR;
+            }
+        }
+        break;
+        case CycleControl::PCR:
+            // LrI : Nothing to do. DATA is in reg.b
+            break;
+        case CycleControl::PCC:
+            break;
+        case CycleControl::PCW:
+            break;
+    }
+}
+
+void CPU8008::execute_t4()
+{
+    switch (cycle_control)
+    {
+        case CycleControl::PCI: {
+            if (Instruction::is_Lrr(instruction_register))
+            {
+                auto source_register = instruction_register & 0b111;
+                if (source_register == 0b111)
+                {
+                    // TODO: LrM
+                }
+                else
+                {
+                    hidden_registers.b = source_register;
+                }
+            }
+        }
+        break;
+        case CycleControl::PCR:
+            // LrI -> nothing to do. Cycle skipped.
+            break;
+        case CycleControl::PCC:
+            break;
+        case CycleControl::PCW:
+            break;
+    }
+}
+
+void CPU8008::execute_t5()
+{
+    switch (cycle_control)
+    {
+        case CycleControl::PCI: {
+            if (cycle_control == CycleControl::PCI)
+            {
+                if (Instruction::is_Lrr(instruction_register))
+                {
+                    assert(hidden_registers.b != 0b111);
+                    auto destination_register = (instruction_register & 0b111000) >> 3;
+                    scratch_pad_memory[destination_register] = hidden_registers.b;
+                }
+            }
+        }
+        break;
+        case CycleControl::PCR: {
+            if (Instruction::is_LrI(instruction_register))
+            {
+                auto destination_register = (instruction_register & 0b111000) >> 3;
+                assert(destination_register != 0b111);
+
+                scratch_pad_memory[destination_register] = hidden_registers.b;
+            }
+        }
+        break;
+        case CycleControl::PCC:
+            break;
+        case CycleControl::PCW:
+            break;
+    }
 }

@@ -34,6 +34,18 @@ public:
         PCW = 0b11000000, // Memory write for data
     };
 
+    enum class Register : uint8_t
+    {
+        A = 0b000,
+        B = 0b001,
+        C = 0b010,
+        D = 0b011,
+        E = 0b100,
+        H = 0b101,
+        L = 0b110,
+        Memory = 0b111,
+    };
+
     struct OutputPins
     {
         CpuState state{CpuState::STOPPED};
@@ -49,10 +61,19 @@ public:
         ::State vdd;
     };
 
+    struct HiddenRegisters
+    {
+        uint8_t a;
+        uint8_t b;
+    };
+
+    static const size_t SCRATCH_PAD_SIZE = 7;
+
     struct DebugData
     {
         uint16_t pc;
         uint8_t instruction_register;
+        HiddenRegisters hidden_registers;
     };
 
     ConnectedData data;
@@ -89,12 +110,15 @@ private:
     ConnectedData data_pins{};
     InputPins input_pins{};
     AddressStack address_stack;
+    HiddenRegisters hidden_registers{};
+    uint8_t scratch_pad_memory[SCRATCH_PAD_SIZE]; //A, B, C, D, E, H, L registers
     uint8_t io_data_latch{};
     uint8_t instruction_register{};
 
     CycleControl cycle_control{CycleControl::PCI};
     bool is_first_phase_cycle{true};
     bool interrupt_pending{};
+    bool cycle_ended{};
 
     SignalReceiver& scheduler;
     std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
@@ -107,6 +131,13 @@ private:
     void on_signal_22_falling(Scheduling::counter_type edge_time);
 
     void schedule_next_event(Scheduling::counter_type edge_time);
+
+    void execute_t1i();
+    void execute_t1();
+    void execute_t2();
+    void execute_t3();
+    void execute_t4();
+    void execute_t5();
 };
 
 #endif //MICRALN_CPU8008_H
