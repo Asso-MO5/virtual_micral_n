@@ -44,14 +44,14 @@ void ControlBus::read_address_from_cpu()
         cpu->get_output_pins().state == CPU8008::CpuState::T1)
     {
         // TODO: Should be replaced by a decoder
-        rom_address_bus &= 0xf0;
+        rom_address_bus &= 0xff00;
         rom_address_bus |= cpu->get_data_pins().read();
     }
     if (cpu->get_output_pins().sync == State::LOW &&
         cpu->get_output_pins().state == CPU8008::CpuState::T2)
     {
         // TODO: Should be replaced by a decoder
-        rom_address_bus &= 0x0f;
+        rom_address_bus &= 0x00ff;
         rom_address_bus |= (cpu->get_data_pins().read() & 0x3f) << 8;
         rom->set_address(rom_address_bus);
     }
