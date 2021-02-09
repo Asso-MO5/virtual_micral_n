@@ -17,18 +17,16 @@ const char* REGISTER_NAMES[] = {"A", "B", "C", "D", "E", "H", "L"};
 
 const char* state_to_name(uint state) { return STATE_NAMES[state]; }
 
-void ImGuiBaseWindows(float average_frame_time, float* clear_color, bool show_demo_window)
+void ImGuiBaseWindows(float average_frame_time, bool &show_demo_window)
 {
     if (show_demo_window)
     {
         ImGui::ShowDemoWindow(&show_demo_window);
     }
 
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
     {
-        ImGui::Begin("Hello, world!");
+        ImGui::Begin("Information");
         ImGui::Checkbox("Demo Window", &show_demo_window);
-        ImGui::ColorEdit3("clear color", clear_color);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", average_frame_time,
                     ImGui::GetIO().Framerate);
         ImGui::End();
@@ -39,7 +37,7 @@ int main(int, char**)
 {
     auto context = ImGui_SDL_GL_Context{{WINDOW_WIDTH, WINDOW_HEIGHT}};
 
-    bool show_demo_window = true;
+    bool show_demo_window = false;
 
     Simulator simulator;
     ControllerWidget controller;
@@ -56,8 +54,7 @@ int main(int, char**)
 
         context.start_imgui_frame();
 
-        ImGuiBaseWindows(average_frame_time, static_cast<float*>(&context.clear_color.x),
-                         show_demo_window);
+        ImGuiBaseWindows(average_frame_time, show_demo_window);
 
         {
             const auto& scheduler = simulator.get_scheduler();
