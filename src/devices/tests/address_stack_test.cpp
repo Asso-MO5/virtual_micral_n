@@ -47,21 +47,21 @@ TEST(AddressStack, pc_is_14_bit_wide)
     ASSERT_THAT(address_stack_2.get_high_pc(), Eq(0x3f));
 }
 
-TEST(AddressStack, can_push_an_address)
+TEST(AddressStack, can_push_down_the_stack_an_address)
 {
     AddressStack address_stack{0x1000};
 
-    address_stack.push(0x2000);
+    address_stack.push();
 
-    ASSERT_THAT(address_stack.get_low_pc_and_inc(), Eq(0x00));
-    ASSERT_THAT(address_stack.get_high_pc(), Eq(0x20));
+    ASSERT_THAT(address_stack.get_low_pc_no_inc(), Eq(0x00));
+    ASSERT_THAT(address_stack.get_high_pc(), Eq(0x00));
 }
 
 TEST(AddressStack, can_pop_an_address)
 {
     AddressStack address_stack{0x1000};
 
-    address_stack.push(0x2000);
+    address_stack.push();
     address_stack.pop();
 
     ASSERT_THAT(address_stack.get_low_pc_and_inc(), Eq(0x00));

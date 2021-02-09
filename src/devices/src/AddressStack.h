@@ -16,7 +16,7 @@ public:
     [[nodiscard]] uint16_t get_low_pc_no_inc();
     [[nodiscard]] uint16_t get_high_pc() const;
 
-    void push(uint16_t address);
+    void push();
     void pop();
 
     void set_high_pc(uint8_t value);

@@ -67,6 +67,15 @@ public:
         uint8_t b;
     };
 
+    enum class Flags : uint8_t
+    {
+        Carry,
+        Zero,
+        Sign,
+        Parity,
+        MAX
+    };
+
     static const size_t SCRATCH_PAD_SIZE = 7;
 
     struct DebugData
@@ -112,6 +121,7 @@ private:
     InputPins input_pins{};
     AddressStack address_stack;
     HiddenRegisters hidden_registers{};
+    uint8_t flags[static_cast<size_t>(Flags::MAX)];
     uint8_t scratch_pad_memory[SCRATCH_PAD_SIZE]; //A, B, C, D, E, H, L registers
     uint8_t io_data_latch{};
     uint8_t instruction_register{};

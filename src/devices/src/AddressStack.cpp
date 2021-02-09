@@ -33,10 +33,9 @@ uint16_t AddressStack::get_low_pc_no_inc()
 
 uint16_t AddressStack::get_high_pc() const { return (emitted_pc & 0x3f00) >> 8; }
 
-void AddressStack::push(uint16_t address)
+void AddressStack::push()
 {
     stack_index = (stack_index + 1) % stack.size();
-    stack[stack_index] = address;
 }
 
 void AddressStack::pop()

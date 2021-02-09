@@ -379,6 +379,24 @@ namespace Instruction
                (instruction_register & 0b00000111) == 0b100;
     }
 
+    bool is_CAL(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b01000000 &&
+               (instruction_register & 0b00000111) == 0b110;
+    }
+
+    bool is_INr(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b00000000 &&
+               (instruction_register & 0b00000111) == 0b000;
+    }
+
+    bool is_RTc_or_RFc(uint8_t instruction_register)
+    {
+        return (instruction_register & 0b11000000) == 0b00000000 &&
+               (instruction_register & 0b00000111) == 0b011;
+    }
+
 } // namespace Instruction
 
 void CPU8008::execute_t1i()
@@ -399,7 +417,9 @@ void CPU8008::execute_t1i()
 
             break;
         case CycleControl::PCR:
-            if (Instruction::is_LrI(instruction_register))
+            if (Instruction::is_LrI(instruction_register) ||
+                Instruction::is_JMP(instruction_register) ||
+                Instruction::is_CAL(instruction_register))
             {
                 io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
             }
@@ -430,7 +450,8 @@ void CPU8008::execute_t1()
             break;
         case CycleControl::PCR: {
             if (Instruction::is_LrI(instruction_register) ||
-                Instruction::is_JMP(instruction_register))
+                Instruction::is_JMP(instruction_register) ||
+                Instruction::is_CAL(instruction_register))
             {
                 io_data_latch = address_stack.get_low_pc_and_inc();
             }
@@ -456,7 +477,8 @@ void CPU8008::execute_t2()
             break;
         case CycleControl::PCR: {
             if (Instruction::is_LrI(instruction_register) ||
-                Instruction::is_JMP(instruction_register))
+                Instruction::is_JMP(instruction_register) ||
+                Instruction::is_CAL(instruction_register))
             {
                 io_data_latch = address_stack.get_high_pc();
             }
@@ -496,17 +518,42 @@ void CPU8008::execute_t3()
 
             if (Instruction::is_LrI(instruction_register) ||
                 Instruction::is_LrM(instruction_register) ||
-                Instruction::is_JMP(instruction_register))
+                Instruction::is_JMP(instruction_register) ||
+                Instruction::is_CAL(instruction_register))
             {
                 cycle_ended = true;
                 cycle_control = CycleControl::PCR;
+            }
+            else if (Instruction::is_RTc_or_RFc(instruction_register))
+            {
+                auto condition = (instruction_register & 0b111000) >> 3;
+                bool condition_verified = flags[condition & 0b11];
+                if (!(condition_verified & 0b100))
+                {
+                    condition_verified = !condition_verified;
+                }
+
+                if (!condition_verified)
+                {
+                    cycle_ended = true;
+                }
+            }
+            else if (Instruction::is_Lrr(instruction_register) ||
+                     Instruction::is_INr(instruction_register))
+            {
+                // next...
+            }
+            else
+            {
+                throw std::runtime_error("Unknown instruction");
             }
         }
         break;
         case CycleControl::PCR:
             // LrI : Nothing to do. DATA is in reg.b
             // LrM : Nothing to do. DATA is in reg.b
-            if (Instruction::is_JMP(instruction_register))
+            if (Instruction::is_JMP(instruction_register) ||
+                Instruction::is_CAL(instruction_register))
             {
                 if (memory_cycle == 1)
                 {
@@ -531,14 +578,25 @@ void CPU8008::execute_t4()
             {
                 auto source_register = instruction_register & 0b111;
                 assert(source_register != 0b111); // It would be LrM
-                hidden_registers.b = source_register;
+                hidden_registers.b = scratch_pad_memory[source_register];
+            }
+            else if (Instruction::is_RTc_or_RFc(instruction_register))
+            {
+                address_stack.pop();
+                cycle_ended = true;
             }
         }
         break;
         case CycleControl::PCR:
             // LrI -> nothing to do. Cycle skipped.
             // LrM -> nothing to do. Cycle skipped.
-            if (Instruction::is_JMP(instruction_register))
+            // INr -> nothing to do. Cycle skipped.
+            if (Instruction::is_CAL(instruction_register))
+            {
+                address_stack.push();
+            }
+            if (Instruction::is_JMP(instruction_register) ||
+                Instruction::is_CAL(instruction_register))
             {
                 address_stack.set_high_pc(hidden_registers.a);
             }
@@ -555,14 +613,26 @@ void CPU8008::execute_t5()
     switch (cycle_control)
     {
         case CycleControl::PCI: {
-            if (cycle_control == CycleControl::PCI)
+            if (Instruction::is_Lrr(instruction_register))
             {
-                if (Instruction::is_Lrr(instruction_register))
-                {
-                    assert(hidden_registers.b != 0b111);
-                    auto destination_register = (instruction_register & 0b111000) >> 3;
-                    scratch_pad_memory[destination_register] = hidden_registers.b;
-                }
+                assert(hidden_registers.b != 0b111);
+                auto destination_register = (instruction_register & 0b111000) >> 3;
+                scratch_pad_memory[destination_register] = hidden_registers.b;
+            }
+            else if (Instruction::is_INr(instruction_register))
+            {
+
+                auto destination_register = (instruction_register & 0b111000) >> 3;
+                assert(destination_register != 000); // This is HLT, cannot INA
+                assert(destination_register != 111); // Cannot increase Memory with INr
+
+                auto& reg = scratch_pad_memory[destination_register];
+                reg += 1;
+
+                flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
+                flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
+                flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
+                // Carry is not updated by INr
             }
         }
         break;
@@ -581,7 +651,8 @@ void CPU8008::execute_t5()
 
                 scratch_pad_memory[destination_register] = hidden_registers.b;
             }
-            else if (Instruction::is_JMP(instruction_register))
+            else if (Instruction::is_JMP(instruction_register) ||
+                     Instruction::is_CAL(instruction_register))
             {
                 address_stack.set_low_pc(hidden_registers.b);
             }
