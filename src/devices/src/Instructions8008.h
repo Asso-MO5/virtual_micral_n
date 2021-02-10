@@ -49,7 +49,8 @@ namespace InstructionNameFor8008
 
 namespace CycleActionsFor8008
 {
-    const uint8_t IDLE = 64;
+    const uint8_t IDLE = 32;
+    const uint8_t CONDITIONAL_END = 64;
     const uint8_t CYCLE_END = 128;
 
     enum T1_Action : std::uint8_t
@@ -68,15 +69,17 @@ namespace CycleActionsFor8008
     {
         Fetch_IR_And_RegB = 1,
         Fetch_Data_to_RegB = 2,
-        Push_Stack = 4,
-        Condition = 8,
-        Out_RegB = 16,
-        Halt = 32,
+        Fetch_Data_to_RegA = 4,
+        Out_RegB = 8,
+        Halt = 16,
     };
 
     enum T4_Action : std::uint8_t
     {
-        Source_to_RegB
+        Source_to_RegB,
+        RegA_to_PC_H,
+        Push_And_RegA_to_PC_H,
+        Pop_Stack,
     };
 
     enum T5_Action : std::uint8_t
@@ -86,6 +89,8 @@ namespace CycleActionsFor8008
         Dec_Destination,
         ALU_Operation_With_RegB,
         Rotate_A,
+        RegB_to_PC_L,
+        RegB_to_PC_L_3_to_5,
     };
 
 } // namespace CycleActionsFor8008
