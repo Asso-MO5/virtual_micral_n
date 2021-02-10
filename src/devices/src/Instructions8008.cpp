@@ -44,115 +44,130 @@ InstructionTableFor8008::InstructionTableFor8008()
     /* Comments are there to force clang format to a more readable format */
     instruction_table = {
             // Index Register Instructions
-            {Lrr,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(Source_to_RegB), T5(RegB_to_Destination)}, //
-             OtherCycle{}, OtherCycle{}, "Lrr"},                                             //
-            {LrM,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                  //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_Reg_L), T2(Out_Reg_H),            //
-                        T3(Fetch_Data_to_RegB), T4(IDLE), T5(RegB_to_Destination)},          //
-             OtherCycle{}, "LrM"},                                                           //
-            {LMr,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(Source_to_RegB | CYCLE_END)},              //
-             OtherCycle{CPU8008::CycleControl::PCW, T1(Out_Reg_L), T2(Out_Reg_H),            //
-                        T3(Out_RegB | CYCLE_END)},                                           //
-             OtherCycle{}, "LMr"},                                                           //
-            {LrI,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                  //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),              //
-                        T3(Fetch_Data_to_RegB), T4(IDLE), T5(RegB_to_Destination)},          //
-             OtherCycle{}, "LrI"},                                                           //
-            {LMI,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                  //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),              //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                 //
-             OtherCycle{CPU8008::CycleControl::PCW, T1(Out_Reg_L), T2(Out_Reg_H),            //
-                        T3(Out_RegB | CYCLE_END)},                                           //
-             "LMI"},                                                                         //
-            {INr,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(IDLE), T5(Inc_Destination)},               //
-             OtherCycle{}, OtherCycle{}, "INr"},                                             //
-            {DCr,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(IDLE), T5(Dec_Destination)},               //
-             OtherCycle{}, OtherCycle{}, "DCr"},                                             //
+            {Lrr,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(Source_to_Reg_b), T5(Reg_b_to_Destination)}, //
+             OtherCycle{}, OtherCycle{}, "Lrr"},                                                //
+            {LrM,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                    //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_Reg_L), T2(Out_Reg_H),               //
+                        T3(Fetch_Data_to_Reg_b), T4(IDLE), T5(Reg_b_to_Destination)},           //
+             OtherCycle{}, "LrM"},                                                              //
+            {LMr,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(Source_to_Reg_b | CYCLE_END)},               //
+             OtherCycle{CPU8008::CycleControl::PCW, T1(Out_Reg_L), T2(Out_Reg_H),               //
+                        T3(Out_Reg_b | CYCLE_END)},                                             //
+             OtherCycle{}, "LMr"},                                                              //
+            {LrI,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                    //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
+                        T3(Fetch_Data_to_Reg_b), T4(IDLE), T5(Reg_b_to_Destination)},           //
+             OtherCycle{}, "LrI"},                                                              //
+            {LMI,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                    //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                   //
+             OtherCycle{CPU8008::CycleControl::PCW, T1(Out_Reg_L), T2(Out_Reg_H),               //
+                        T3(Out_Reg_b | CYCLE_END)},                                             //
+             "LMI"},                                                                            //
+            {INr,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(IDLE), T5(Inc_Destination)},                 //
+             OtherCycle{}, OtherCycle{}, "INr"},                                                //
+            {DCr,                                                                               //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(IDLE), T5(Dec_Destination)},                 //
+             OtherCycle{}, OtherCycle{}, "DCr"},                                                //
 
             // Accumulator Group Instructions
-            {ALU_OPr,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(Source_to_RegB), T5(ALU_Operation_With_RegB)}, //
-             OtherCycle{}, OtherCycle{}, "ppr"},                                                 //
-            {ALU_OPM,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                      //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_Reg_L), T2(Out_Reg_H),                //
-                        T3(Fetch_Data_to_RegB), T4(IDLE), T5(ALU_Operation_With_RegB)},          //
-             OtherCycle{}, "ppM"},                                                               //
-            {ALU_OPI,                                                                            //
-             FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                      //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                  //
-                        T3(Fetch_Data_to_RegB), T4(IDLE), T5(ALU_Operation_With_RegB)},          //
-             OtherCycle{}, "ppI"},                                                               //
-            {RLC,                                                                                //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(IDLE), T5(Rotate_A)},                          //
-             OtherCycle{}, OtherCycle{}, "RLC"},                                                 //
-            {RRC,                                                                                //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(IDLE), T5(Rotate_A)},                          //
-             OtherCycle{}, OtherCycle{}, "RRC"},                                                 //
-            {RAL,                                                                                //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(IDLE), T5(Rotate_A)},                          //
-             OtherCycle{}, OtherCycle{}, "RAL"},                                                 //
-            {RAR,                                                                                //
-             FirstCycle{T3(Fetch_IR_And_RegB), T4(IDLE), T5(Rotate_A)},                          //
-             OtherCycle{}, OtherCycle{}, "RAC"},                                                 //
+            {ALU_OPr, //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(Source_to_Reg_b),
+                        T5(ALU_Operation_With_RegB)},                                    //
+             OtherCycle{}, OtherCycle{}, "ppr"},                                         //
+            {ALU_OPM,                                                                    //
+             FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                             //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_Reg_L), T2(Out_Reg_H),        //
+                        T3(Fetch_Data_to_Reg_b), T4(IDLE), T5(ALU_Operation_With_RegB)}, //
+             OtherCycle{}, "ppM"},                                                       //
+            {ALU_OPI,                                                                    //
+             FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                             //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),          //
+                        T3(Fetch_Data_to_Reg_b), T4(IDLE), T5(ALU_Operation_With_RegB)}, //
+             OtherCycle{}, "ppI"},                                                       //
+            {RLC,                                                                        //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(IDLE), T5(Rotate_A)},                 //
+             OtherCycle{}, OtherCycle{}, "RLC"},                                         //
+            {RRC,                                                                        //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(IDLE), T5(Rotate_A)},                 //
+             OtherCycle{}, OtherCycle{}, "RRC"},                                         //
+            {RAL,                                                                        //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(IDLE), T5(Rotate_A)},                 //
+             OtherCycle{}, OtherCycle{}, "RAL"},                                         //
+            {RAR,                                                                        //
+             FirstCycle{T3(Fetch_IR_And_Reg_b), T4(IDLE), T5(Rotate_A)},                 //
+             OtherCycle{}, OtherCycle{}, "RAC"},                                         //
 
             // Program Counter and Stack Control Instructions
-            {JMP, FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                    //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegA), T4(RegA_to_PC_H), T5(RegB_to_PC_L)},            //
-             "JMP"},                                                                            //
-            {JFc, FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                    //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegA | CONDITIONAL_END), T4(RegA_to_PC_H),             //
-                        T5(RegB_to_PC_L)},                                                      //
-             "JFc"},                                                                            //
-            {JTc, FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                    //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegA | CONDITIONAL_END), T4(RegA_to_PC_H),             //
-                        T5(RegB_to_PC_L)},                                                      //
-             "JTc"},                                                                            //
-            {CAL, FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                    //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegA), T4(Push_And_RegA_to_PC_H),                      //
-                        T5(RegB_to_PC_L)},                                                      //
-             "CAL"},                                                                            //
-            {CFc, FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                    //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegA), T4(Push_And_RegA_to_PC_H),                      //
-                        T5(RegB_to_PC_L)},                                                      //
-             "CFc"},                                                                            //
-            {CTc, FirstCycle{T3(Fetch_IR_And_RegB | CYCLE_END)},                                //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegB | CYCLE_END)},                                    //
-             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                 //
-                        T3(Fetch_Data_to_RegA), T4(Push_And_RegA_to_PC_H),                      //
-                        T5(RegB_to_PC_L)},                                                      //
-             "CTc"},                                                                            //
-            {RET, FirstCycle{T3(Fetch_IR_And_RegB), T4(Pop_Stack), T5(IDLE)},                   //
-             OtherCycle{}, OtherCycle{}, "RET"},                                                //
-            {RFc, FirstCycle{T3(Fetch_IR_And_RegB | CONDITIONAL_END), T4(Pop_Stack), T5(IDLE)}, //
-             OtherCycle{}, OtherCycle{}, "RFc"},                                                //
-            {RTc, FirstCycle{T3(Fetch_IR_And_RegB | CONDITIONAL_END), T4(Pop_Stack), T5(IDLE)}, //
-             OtherCycle{}, OtherCycle{}, "RTc"},                                                //
-            {RST, FirstCycle{T3(Fetch_IR_And_RegB), T4(RegA_to_PC_H), T5(RegB_to_PC_L_3_to_5)}, //
-             OtherCycle{}, OtherCycle{}, "RST"},                                                //
+            {JMP, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_a), T4(RegA_to_PC_H), T5(Reg_b_to_PC_L)},            //
+             "JMP"},                                                                              //
+            {JFc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_a | CONDITIONAL_END), T4(RegA_to_PC_H),              //
+                        T5(Reg_b_to_PC_L)},                                                       //
+             "JFc"},                                                                              //
+            {JTc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_a | CONDITIONAL_END), T4(RegA_to_PC_H),              //
+                        T5(Reg_b_to_PC_L)},                                                       //
+             "JTc"},                                                                              //
+            {CAL, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_a), T4(Push_And_RegA_to_PC_H),                       //
+                        T5(Reg_b_to_PC_L)},                                                       //
+             "CAL"},                                                                              //
+            {CFc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_a), T4(Push_And_RegA_to_PC_H),                       //
+                        T5(Reg_b_to_PC_L)},                                                       //
+             "CFc"},                                                                              //
+            {CTc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
+             OtherCycle{CPU8008::CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                   //
+                        T3(Fetch_Data_to_Reg_a), T4(Push_And_RegA_to_PC_H),                       //
+                        T5(Reg_b_to_PC_L)},                                                       //
+             "CTc"},                                                                              //
+            {RET, FirstCycle{T3(Fetch_IR_And_Reg_b), T4(Pop_Stack), T5(IDLE)},                    //
+             OtherCycle{}, OtherCycle{}, "RET"},                                                  //
+            {RFc, FirstCycle{T3(Fetch_IR_And_Reg_b | CONDITIONAL_END), T4(Pop_Stack), T5(IDLE)},  //
+             OtherCycle{}, OtherCycle{}, "RFc"},                                                  //
+            {RTc, FirstCycle{T3(Fetch_IR_And_Reg_b | CONDITIONAL_END), T4(Pop_Stack), T5(IDLE)},  //
+             OtherCycle{}, OtherCycle{}, "RTc"},                                                  //
+            {RST, FirstCycle{T3(Fetch_IR_And_Reg_b), T4(RegA_to_PC_H), T5(Reg_b_to_PC_L_3_to_5)}, //
+             OtherCycle{}, OtherCycle{}, "RST"},                                                  //
+
+            // I/O Instructions
+            {INP, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                           //
+             OtherCycle{CPU8008::CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b_At_T2),     //
+                        T3(Fetch_Data_to_Reg_b), T4(Out_Conditions_Flags), T5(Reg_b_to_A)}, //
+             OtherCycle{}, "INP"},                                                          //
+            {OUT, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                           //
+             OtherCycle{CPU8008::CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b),
+                        T3(IDLE | CYCLE_END)}, //
+             OtherCycle{}, "OUT"},             //
+
+            // HALT
+            {HLT, FirstCycle{static_cast<T3_Action>(Fetch_IR_And_Reg_b | Halt | CYCLE_END)}, //
+             OtherCycle{}, OtherCycle{}, "HLT"}                                              //
 
     };
 
@@ -164,6 +179,10 @@ InstructionTableFor8008::InstructionTableFor8008()
      * - 0b111'101 means the part must be equal to b'101
      */
     decoding_table = {
+            // HALT
+            {HLT, 0b00, 0b111'000, 0b110'000}, // Must be before INr to capture the illegal INA
+            {HLT, 0b11, 0b111'111, 0b111'111}, //
+
             // Index Register Instructions
             {LrM, 0b11, 0b000'000, 0b111'111}, // Must be before Lrr to capture M
             {LMr, 0b11, 0b111'111, 0b000'000}, // Must be before Lrr to capture M
@@ -193,6 +212,10 @@ InstructionTableFor8008::InstructionTableFor8008()
             {RFc, 0b00, 0b100'000, 0b111'011}, //
             {RTc, 0b00, 0b100'100, 0b111'011}, //
             {RST, 0b00, 0b000'000, 0b111'101}, //
+
+            // I/O Instructions
+            {INP, 0b01, 0b110'000, 0b001'001}, //
+            {OUT, 0b01, 0b000'000, 0b001'001}, //
     };
 }
 constexpr CycleActionsFor8008::T1_Action InstructionTableFor8008::T1(uint8_t actions)

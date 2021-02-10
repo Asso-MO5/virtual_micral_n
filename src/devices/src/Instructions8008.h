@@ -57,40 +57,44 @@ namespace CycleActionsFor8008
     {
         Out_Reg_L,
         Out_PC_L,
+        Out_Reg_A,
     };
 
     enum T2_Action : std::uint8_t
     {
         Out_Reg_H,
         Out_PC_H,
+        Out_Reg_b_At_T2,
     };
 
     enum T3_Action : std::uint8_t
     {
-        Fetch_IR_And_RegB = 1,
-        Fetch_Data_to_RegB = 2,
-        Fetch_Data_to_RegA = 4,
-        Out_RegB = 8,
+        Fetch_IR_And_Reg_b = 1,
+        Fetch_Data_to_Reg_b = 2,
+        Fetch_Data_to_Reg_a = 4,
+        Out_Reg_b = 8,
         Halt = 16,
     };
 
     enum T4_Action : std::uint8_t
     {
-        Source_to_RegB,
+        Source_to_Reg_b,
         RegA_to_PC_H,
         Push_And_RegA_to_PC_H,
         Pop_Stack,
+        Out_Conditions_Flags,
     };
 
     enum T5_Action : std::uint8_t
     {
-        RegB_to_Destination,
+        Reg_b_to_Destination,
         Inc_Destination,
         Dec_Destination,
         ALU_Operation_With_RegB,
         Rotate_A,
-        RegB_to_PC_L,
-        RegB_to_PC_L_3_to_5,
+        Reg_b_to_PC_L,
+        Reg_b_to_PC_L_3_to_5,
+        Reg_b_to_A,
     };
 
 } // namespace CycleActionsFor8008
@@ -133,9 +137,9 @@ struct InstructionTableFor8008
     struct Decoding
     {
         InstructionNameFor8008::InstructionName name{};
-        uint8_t high_part;
-        uint8_t medium_part;
-        uint8_t low_part;
+        uint8_t high_part{};
+        uint8_t medium_part{};
+        uint8_t low_part{};
     };
 
     InstructionTableFor8008();

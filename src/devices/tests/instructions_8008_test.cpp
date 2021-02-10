@@ -50,3 +50,20 @@ TEST(Instruction8008, can_decode_pc_and_stack_control_instructions)
     ASSERT_THAT(decode(table, 0b00'100'011), Eq(InstructionNameFor8008::RTc));
     ASSERT_THAT(decode(table, 0b00'000'101), Eq(InstructionNameFor8008::RST));
 }
+
+TEST(Instruction8008, can_decode_io_instructions)
+{
+    InstructionTableFor8008 table;
+
+    ASSERT_THAT(decode(table, 0b01'000'001), Eq(InstructionNameFor8008::INP));
+    ASSERT_THAT(decode(table, 0b01'110'001), Eq(InstructionNameFor8008::OUT));
+}
+
+TEST(Instruction8008, can_decode_halt_instructions)
+{
+    InstructionTableFor8008 table;
+
+    ASSERT_THAT(decode(table, 0b00'000'000), Eq(InstructionNameFor8008::HLT));
+    ASSERT_THAT(decode(table, 0b00'000'001), Eq(InstructionNameFor8008::HLT));
+    ASSERT_THAT(decode(table, 0b11'111'111), Eq(InstructionNameFor8008::HLT));
+}
