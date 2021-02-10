@@ -21,3 +21,16 @@ TEST(Instruction8008, can_decode_index_register_instructions)
     ASSERT_THAT(decode(table, 0b00'000'000), Eq(InstructionNameFor8008::INr));
     ASSERT_THAT(decode(table, 0b00'000'001), Eq(InstructionNameFor8008::DCr));
 }
+
+TEST(Instruction8008, can_decode_accumulator_group_instructions)
+{
+    InstructionTableFor8008 table;
+
+    ASSERT_THAT(decode(table, 0b10'000'000), Eq(InstructionNameFor8008::ALU_OPr));
+    ASSERT_THAT(decode(table, 0b10'000'111), Eq(InstructionNameFor8008::ALU_OPM));
+    ASSERT_THAT(decode(table, 0b00'000'100), Eq(InstructionNameFor8008::ALU_OPI));
+    ASSERT_THAT(decode(table, 0b00'000'010), Eq(InstructionNameFor8008::RLC));
+    ASSERT_THAT(decode(table, 0b00'001'010), Eq(InstructionNameFor8008::RRC));
+    ASSERT_THAT(decode(table, 0b00'010'010), Eq(InstructionNameFor8008::RAL));
+    ASSERT_THAT(decode(table, 0b00'011'010), Eq(InstructionNameFor8008::RAR));
+}

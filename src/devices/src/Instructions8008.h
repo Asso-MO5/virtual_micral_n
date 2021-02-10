@@ -84,6 +84,8 @@ namespace CycleActionsFor8008
         RegB_to_Destination,
         Inc_Destination,
         Dec_Destination,
+        ALU_Operation_With_RegB,
+        Rotate_A,
     };
 
 } // namespace CycleActionsFor8008
