@@ -1,4 +1,3 @@
-* Pass the sample initial code to tests and tests the timings and results
 * Implement Simple RAM
 * Add the copy string example as loadable ROM + RAM
 * Extract the definition of the machine from the Simulator
