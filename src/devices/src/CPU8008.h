@@ -140,6 +140,8 @@ private:
 
     void schedule_next_event(Scheduling::counter_type edge_time);
 
+    void update_memory_cycle();
+    void execute_common_ti1_ti();
     void execute_t1i();
     void execute_t1();
     void execute_t2();

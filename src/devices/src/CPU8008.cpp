@@ -401,7 +401,7 @@ namespace Instruction
 
 } // namespace Instruction
 
-void CPU8008::execute_t1i()
+void CPU8008::update_memory_cycle()
 {
     if (cycle_control == CycleControl::PCI)
     {
@@ -410,47 +410,14 @@ void CPU8008::execute_t1i()
     else
     {
         memory_cycle = memory_cycle + 1;
-    }
-
-    switch (cycle_control)
-    {
-        case CycleControl::PCI:
-            io_data_latch = address_stack.get_low_pc_no_inc();
-
-            break;
-        case CycleControl::PCR:
-            if (Instruction::is_LrI(instruction_register) ||
-                Instruction::is_JMP(instruction_register) ||
-                Instruction::is_CAL(instruction_register))
-            {
-                io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
-            }
-
-            break;
-        case CycleControl::PCC:
-            break;
-        case CycleControl::PCW:
-            break;
     }
 }
 
-void CPU8008::execute_t1()
+void CPU8008::execute_common_ti1_ti()
 {
-    if (cycle_control == CycleControl::PCI)
-    {
-        memory_cycle = 0;
-    }
-    else
-    {
-        memory_cycle = memory_cycle + 1;
-    }
-
     switch (cycle_control)
     {
-        case CycleControl::PCI:
-            io_data_latch = address_stack.get_low_pc_and_inc();
-            break;
-        case CycleControl::PCR: {
+        case CycleControl::PCR:
             if (Instruction::is_LrI(instruction_register) ||
                 Instruction::is_JMP(instruction_register) ||
                 Instruction::is_CAL(instruction_register))
@@ -461,12 +428,41 @@ void CPU8008::execute_t1()
             {
                 io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
             }
-        }
-        break;
+            break;
         case CycleControl::PCC:
             break;
         case CycleControl::PCW:
             break;
+        default:
+            assert(cycle_control != CycleControl::PCI);
+    }
+}
+
+void CPU8008::execute_t1i()
+{
+    update_memory_cycle();
+
+    if (cycle_control == CycleControl::PCI)
+    {
+        io_data_latch = address_stack.get_low_pc_no_inc();
+    }
+    else
+    {
+        execute_common_ti1_ti();
+    }
+}
+
+void CPU8008::execute_t1()
+{
+    update_memory_cycle();
+
+    if (cycle_control == CycleControl::PCI)
+    {
+        io_data_latch = address_stack.get_low_pc_and_inc();
+    }
+    else
+    {
+        execute_common_ti1_ti();
     }
 }
 
