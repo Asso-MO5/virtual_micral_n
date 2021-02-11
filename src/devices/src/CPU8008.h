@@ -2,6 +2,8 @@
 #define MICRALN_CPU8008_H
 
 #include "AddressStack.h"
+#include "Instructions8008.h"
+#include "Constants8008.h"
 
 #include <array>
 #include <emulation_core/src/ConnectedData.h>
@@ -25,14 +27,6 @@ public:
         T4 = 0b111,
     };
 
-    // All values are shifted to high bits so they can be easily OR'd with address on T2.
-    enum class CycleControl : uint8_t
-    {
-        PCI = 0b00000000, // Memory read for the first byte of instruction
-        PCR = 0b01000000, // Memory read for data or additional bytes of instruction
-        PCC = 0b10000000, // Data is a command for I/O operation
-        PCW = 0b11000000, // Memory write for data
-    };
 
     enum class Register : uint8_t
     {
@@ -126,7 +120,7 @@ private:
     uint8_t io_data_latch{};
     uint8_t instruction_register{};
 
-    CycleControl cycle_control{CycleControl::PCI};
+    Constants8008::CycleControl cycle_control{Constants8008::CycleControl::PCI};
     uint8_t memory_cycle{}; // Can be reduced to distinguished between the second and third cycle?
     bool is_first_phase_cycle{true};
     bool interrupt_pending{};
@@ -135,6 +129,8 @@ private:
     SignalReceiver& scheduler;
     std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
     std::function<void(Edge)> sync_callback = [](Edge) {};
+
+    InstructionTableFor8008 instruction_table;
 
     void on_signal_11_raising(Scheduling::counter_type edge_time);
     void on_signal_12_raising(Scheduling::counter_type edge_time);

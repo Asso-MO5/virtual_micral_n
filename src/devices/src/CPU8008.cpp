@@ -5,6 +5,8 @@
 #include <iostream>
 #include <utility>
 
+using namespace Constants8008;
+
 namespace
 {
     const Scheduling::counter_type BOOT_UP_TIME = 16'000;

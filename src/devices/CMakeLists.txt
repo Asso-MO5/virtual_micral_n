@@ -17,7 +17,8 @@ set(DEVICES_FILES
         src/SimpleROM.cpp src/SimpleROM.h
         src/ControlBus.cpp src/ControlBus.h
         src/InterruptAtStart.cpp src/InterruptAtStart.h
-        src/Instructions8008.cpp src/Instructions8008.h)
+        src/Instructions8008.cpp src/Instructions8008.h
+        src/Constants8008.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp

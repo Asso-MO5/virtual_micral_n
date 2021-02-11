@@ -1,7 +1,8 @@
 #ifndef MICRALN_INSTRUCTIONS8008_H
 #define MICRALN_INSTRUCTIONS8008_H
 
-#include "CPU8008.h"
+#include "Constants8008.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -110,7 +111,7 @@ struct InstructionTableFor8008
 
     struct OtherCycle
     {
-        CPU8008::CycleControl cycle_control;
+        Constants8008::CycleControl cycle_control;
         CycleActionsFor8008::T1_Action t1_action;
         CycleActionsFor8008::T2_Action t2_action;
         CycleActionsFor8008::T3_Action t3_action;
