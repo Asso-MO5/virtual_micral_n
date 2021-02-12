@@ -80,8 +80,8 @@ namespace CycleActionsFor8008
     enum T4_Action : std::uint8_t
     {
         Source_to_Reg_b,
-        RegA_to_PC_H,
-        Push_And_RegA_to_PC_H,
+        Reg_a_to_PC_H,
+        Push_And_Reg_a_to_PC_H,
         Pop_Stack,
         Out_Conditions_Flags,
     };
@@ -130,7 +130,7 @@ struct InstructionTableFor8008
 
     struct DecodedInstruction
     {
-        const Instruction& instruction;
+        const Instruction* instruction;
         uint8_t medium;
         uint8_t low;
     };

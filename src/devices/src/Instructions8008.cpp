@@ -35,9 +35,9 @@ InstructionTableFor8008::decode_instruction(uint8_t opcode)
         auto& found = instruction_table[candidate];
         assert(found.name == candidate); // Both table must be synchronized
 
-        return {found, medium_part, low_part};
+        return {&found, medium_part, low_part};
     }
-    return {unknown_instruction, 0, 0};
+    return {&unknown_instruction, 0, 0};
 }
 
 InstructionTableFor8008::InstructionTableFor8008()
@@ -113,39 +113,39 @@ InstructionTableFor8008::InstructionTableFor8008()
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
                         T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
-                        T3(Fetch_Data_to_Reg_a), T4(RegA_to_PC_H), T5(Reg_b_to_PC_L)},            //
+                        T3(Fetch_Data_to_Reg_a), T4(Reg_a_to_PC_H), T5(Reg_b_to_PC_L)},            //
              "JMP"},                                                                              //
             {JFc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
                         T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
-                        T3(Fetch_Data_to_Reg_a | CONDITIONAL_END), T4(RegA_to_PC_H),              //
+                        T3(Fetch_Data_to_Reg_a | CONDITIONAL_END), T4(Reg_a_to_PC_H),              //
                         T5(Reg_b_to_PC_L)},                                                       //
              "JFc"},                                                                              //
             {JTc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
                         T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
-                        T3(Fetch_Data_to_Reg_a | CONDITIONAL_END), T4(RegA_to_PC_H),              //
+                        T3(Fetch_Data_to_Reg_a | CONDITIONAL_END), T4(Reg_a_to_PC_H),              //
                         T5(Reg_b_to_PC_L)},                                                       //
              "JTc"},                                                                              //
             {CAL, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
                         T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
-                        T3(Fetch_Data_to_Reg_a), T4(Push_And_RegA_to_PC_H), T5(Reg_b_to_PC_L)},   //
+                        T3(Fetch_Data_to_Reg_a), T4(Push_And_Reg_a_to_PC_H), T5(Reg_b_to_PC_L)},   //
              "CAL"},                                                                              //
             {CFc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
                         T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
-                        T3(Fetch_Data_to_Reg_a), T4(Push_And_RegA_to_PC_H), T5(Reg_b_to_PC_L)},   //
+                        T3(Fetch_Data_to_Reg_a), T4(Push_And_Reg_a_to_PC_H), T5(Reg_b_to_PC_L)},   //
              "CFc"},                                                                              //
             {CTc, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                                 //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
                         T3(Fetch_Data_to_Reg_b | CYCLE_END)},                                     //
              OtherCycle{CycleControl::PCR, T1(Out_PC_L), T2(Out_PC_H),                            //
-                        T3(Fetch_Data_to_Reg_a), T4(Push_And_RegA_to_PC_H), T5(Reg_b_to_PC_L)},   //
+                        T3(Fetch_Data_to_Reg_a), T4(Push_And_Reg_a_to_PC_H), T5(Reg_b_to_PC_L)},   //
              "CTc"},                                                                              //
             {RET, FirstCycle{T3(Fetch_IR_And_Reg_b), T4(Pop_Stack), T5(IDLE)},                    //
              OtherCycle{}, OtherCycle{}, "RET"},                                                  //
@@ -153,7 +153,7 @@ InstructionTableFor8008::InstructionTableFor8008()
              OtherCycle{}, OtherCycle{}, "RFc"},                                                  //
             {RTc, FirstCycle{T3(Fetch_IR_And_Reg_b | CONDITIONAL_END), T4(Pop_Stack), T5(IDLE)},  //
              OtherCycle{}, OtherCycle{}, "RTc"},                                                  //
-            {RST, FirstCycle{T3(Fetch_IR_And_Reg_b), T4(RegA_to_PC_H), T5(Reg_b_to_PC_L_3_to_5)}, //
+            {RST, FirstCycle{T3(Fetch_IR_And_Reg_b), T4(Reg_a_to_PC_H), T5(Reg_b_to_PC_L_3_to_5)}, //
              OtherCycle{}, OtherCycle{}, "RST"},                                                  //
 
             // I/O Instructions

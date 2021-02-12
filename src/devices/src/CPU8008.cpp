@@ -353,54 +353,6 @@ CPU8008::DebugData CPU8008::get_debug_data() const
     return debug;
 }
 
-namespace Instruction
-{
-    bool is_LrI(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b00000000 &&
-               (instruction_register & 0b00000111) == 0b110;
-    }
-
-    bool is_Lrr(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b11000000 &&
-               (instruction_register & 0b00000111) != 0b111 &&
-               (instruction_register & 0b00111000) != 0b111000;
-    }
-
-    bool is_LrM(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b11000000 &&
-               (instruction_register & 0b00000111) == 0b111 &&
-               (instruction_register & 0b00111000) != 0b111000;
-    }
-
-    bool is_JMP(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b01000000 &&
-               (instruction_register & 0b00000111) == 0b100;
-    }
-
-    bool is_CAL(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b01000000 &&
-               (instruction_register & 0b00000111) == 0b110;
-    }
-
-    bool is_INr(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b00000000 &&
-               (instruction_register & 0b00000111) == 0b000;
-    }
-
-    bool is_RTc_or_RFc(uint8_t instruction_register)
-    {
-        return (instruction_register & 0b11000000) == 0b00000000 &&
-               (instruction_register & 0b00000111) == 0b011;
-    }
-
-} // namespace Instruction
-
 void CPU8008::update_memory_cycle()
 {
     if (cycle_control == CycleControl::PCI)
@@ -415,26 +367,21 @@ void CPU8008::update_memory_cycle()
 
 void CPU8008::execute_common_ti1_ti()
 {
-    switch (cycle_control)
+    assert(cycle_control != CycleControl::PCI);
+    CycleActionsFor8008::T1_Action action =
+            memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t1_action
+                              : decoded_instruction.instruction->cycle_3.t1_action;
+
+    switch (action)
     {
-        case CycleControl::PCR:
-            if (Instruction::is_LrI(instruction_register) ||
-                Instruction::is_JMP(instruction_register) ||
-                Instruction::is_CAL(instruction_register))
-            {
-                io_data_latch = address_stack.get_low_pc_and_inc();
-            }
-            else if (Instruction::is_LrM(instruction_register))
-            {
-                io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
-            }
+        case CycleActionsFor8008::Out_Reg_L:
+            io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::L)];
             break;
-        case CycleControl::PCC:
+        case CycleActionsFor8008::Out_PC_L:
+            io_data_latch = address_stack.get_low_pc_and_inc();
             break;
-        case CycleControl::PCW:
-            break;
-        default:
-            assert(cycle_control != CycleControl::PCI);
+        case CycleActionsFor8008::Out_Reg_A:
+            assert(false && "Not done yet");
     }
 }
 
@@ -468,199 +415,214 @@ void CPU8008::execute_t1()
 
 void CPU8008::execute_t2()
 {
-    switch (cycle_control)
+    if (cycle_control == CycleControl::PCI)
     {
-        case CycleControl::PCI:
-            io_data_latch = address_stack.get_high_pc();
-            break;
-        case CycleControl::PCR: {
-            if (Instruction::is_LrI(instruction_register) ||
-                Instruction::is_JMP(instruction_register) ||
-                Instruction::is_CAL(instruction_register))
-            {
-                io_data_latch = address_stack.get_high_pc();
-            }
-            else if (Instruction::is_LrM(instruction_register))
-            {
+        io_data_latch = address_stack.get_high_pc();
+    }
+    else
+    {
+        CycleActionsFor8008::T2_Action action =
+                memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t2_action
+                                  : decoded_instruction.instruction->cycle_3.t2_action;
+
+        switch (action)
+        {
+            case CycleActionsFor8008::Out_Reg_H:
                 io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::H)];
-            }
+                break;
+            case CycleActionsFor8008::Out_PC_H:
+                io_data_latch = address_stack.get_high_pc();
+                break;
+            case CycleActionsFor8008::Out_Reg_b_At_T2:
+                assert(false && "Not done yet");
         }
-        break;
-        case CycleControl::PCC:
-            break;
-        case CycleControl::PCW:
-            break;
     }
 }
 
 void CPU8008::execute_t3()
 {
-    if (cycle_control == CycleControl::PCI | cycle_control == CycleControl::PCR)
+    if (cycle_control == CycleControl::PCI)
     {
         hidden_registers.a = 0x00; // only on RST? (but is it important?)
+        hidden_registers.b = data_pins.read();
+    }
+    else if (cycle_control == CycleControl::PCR)
+    {
+        auto& cycle = (memory_cycle == 1) ? decoded_instruction.instruction->cycle_2
+                                          : decoded_instruction.instruction->cycle_3;
 
-        if (memory_cycle < 2)
+        switch (cycle.t3_action & 15)
         {
-            hidden_registers.b = data_pins.read();
-        }
-        else
-        {
-            hidden_registers.a = data_pins.read();
+            case CycleActionsFor8008::T3_Action::Fetch_Data_to_Reg_b:
+                hidden_registers.b = data_pins.read();
+                break;
+            case CycleActionsFor8008::T3_Action::Fetch_Data_to_Reg_a:
+                hidden_registers.a = data_pins.read();
+                break;
+            default:
+                assert(false && "Invalid situation");
         }
     }
 
-    switch (cycle_control)
+    if (cycle_control == CycleControl::PCI)
     {
-        case CycleControl::PCI: {
-            instruction_register = hidden_registers.b;
+        assert(memory_cycle == 0);
+        instruction_register = hidden_registers.b;
+        decoded_instruction = instruction_table.decode_instruction(hidden_registers.b);
 
-            if (Instruction::is_LrI(instruction_register) ||
-                Instruction::is_LrM(instruction_register) ||
-                Instruction::is_JMP(instruction_register) ||
-                Instruction::is_CAL(instruction_register))
+        CycleActionsFor8008::T3_Action action = decoded_instruction.instruction->cycle_1.t3_action;
+        assert(action & CycleActionsFor8008::T3_Action::Fetch_IR_And_Reg_b);
+
+        checks_cycle_end(static_cast<uint8_t>(action));
+
+        auto conditionally_ended = action & CycleActionsFor8008::CONDITIONAL_END;
+        if (conditionally_ended)
+        {
+            auto condition = (instruction_register & 0b111000) >> 3;
+            bool condition_verified = flags[condition & 0b11];
+            if (!(condition_verified & 0b100))
+            {
+                condition_verified = !condition_verified;
+            }
+
+            if (!condition_verified)
             {
                 cycle_ended = true;
-                cycle_control = CycleControl::PCR;
-            }
-            else if (Instruction::is_RTc_or_RFc(instruction_register))
-            {
-                auto condition = (instruction_register & 0b111000) >> 3;
-                bool condition_verified = flags[condition & 0b11];
-                if (!(condition_verified & 0b100))
-                {
-                    condition_verified = !condition_verified;
-                }
-
-                if (!condition_verified)
-                {
-                    cycle_ended = true;
-                }
-            }
-            else if (Instruction::is_Lrr(instruction_register) ||
-                     Instruction::is_INr(instruction_register))
-            {
-                // next...
-            }
-            else
-            {
-                throw std::runtime_error("Unknown instruction");
+                // And stays in PCI
             }
         }
-        break;
-        case CycleControl::PCR:
-            // LrI : Nothing to do. DATA is in reg.b
-            // LrM : Nothing to do. DATA is in reg.b
-            if (Instruction::is_JMP(instruction_register) ||
-                Instruction::is_CAL(instruction_register))
-            {
-                if (memory_cycle == 1)
-                {
-                    cycle_ended = true;
-                }
-            }
+    }
+    else
+    {
+        assert(memory_cycle > 0);
+        CycleActionsFor8008::T3_Action action =
+                memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t3_action
+                                  : decoded_instruction.instruction->cycle_3.t3_action;
 
-            break;
-        case CycleControl::PCC:
-            break;
-        case CycleControl::PCW:
-            break;
+        switch (action)
+        {
+            case CycleActionsFor8008::Fetch_Data_to_Reg_b:
+                hidden_registers.b = data_pins.read();
+                break;
+            case CycleActionsFor8008::Fetch_Data_to_Reg_a:
+                hidden_registers.a = data_pins.read();
+                break;
+            case CycleActionsFor8008::Out_Reg_b:
+                assert(false && "Not done yet");
+                break;
+            case CycleActionsFor8008::Fetch_IR_And_Reg_b:
+            case CycleActionsFor8008::Halt:
+                assert(false && "Invalid case");
+        }
+
+        checks_cycle_end(static_cast<uint8_t>(action));
     }
 }
 
 void CPU8008::execute_t4()
 {
-    switch (cycle_control)
+    CycleActionsFor8008::T4_Action action =
+            memory_cycle == 0
+                    ? decoded_instruction.instruction->cycle_1.t4_action
+                    : (memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t4_action
+                                         : decoded_instruction.instruction->cycle_3.t4_action);
+
+    switch (action)
     {
-        case CycleControl::PCI: {
-            if (Instruction::is_Lrr(instruction_register))
-            {
-                auto source_register = instruction_register & 0b111;
-                assert(source_register != 0b111); // It would be LrM
-                hidden_registers.b = scratch_pad_memory[source_register];
-            }
-            else if (Instruction::is_RTc_or_RFc(instruction_register))
-            {
-                address_stack.pop();
-                cycle_ended = true;
-            }
+        case CycleActionsFor8008::Source_to_Reg_b: {
+            auto source_register = instruction_register & 0b111;
+            assert(source_register != 0b111); // Memory is not a register
+            hidden_registers.b = scratch_pad_memory[source_register];
         }
         break;
-        case CycleControl::PCR:
-            // LrI -> nothing to do. Cycle skipped.
-            // LrM -> nothing to do. Cycle skipped.
-            // INr -> nothing to do. Cycle skipped.
-            if (Instruction::is_CAL(instruction_register))
-            {
-                address_stack.push();
-            }
-            if (Instruction::is_JMP(instruction_register) ||
-                Instruction::is_CAL(instruction_register))
-            {
-                address_stack.set_high_pc(hidden_registers.a);
-            }
+        case CycleActionsFor8008::Reg_a_to_PC_H:
+            assert(cycle_control == CycleControl::PCR);
+            address_stack.set_high_pc(hidden_registers.a);
             break;
-        case CycleControl::PCC:
+        case CycleActionsFor8008::Push_And_Reg_a_to_PC_H:
+            assert(cycle_control == CycleControl::PCR);
+            address_stack.push();
+            address_stack.set_high_pc(hidden_registers.a);
             break;
-        case CycleControl::PCW:
+        case CycleActionsFor8008::Pop_Stack:
+            address_stack.pop();
             break;
+        case CycleActionsFor8008::Out_Conditions_Flags:
+            assert(false && "Not done yet");
     }
+
+    checks_cycle_end(static_cast<uint8_t>(action));
 }
 
 void CPU8008::execute_t5()
 {
-    switch (cycle_control)
+    CycleActionsFor8008::T5_Action action =
+            memory_cycle == 0
+                    ? decoded_instruction.instruction->cycle_1.t5_action
+                    : (memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t5_action
+                                         : decoded_instruction.instruction->cycle_3.t5_action);
+
+    switch (action)
     {
-        case CycleControl::PCI: {
-            if (Instruction::is_Lrr(instruction_register))
-            {
-                assert(hidden_registers.b != 0b111);
-                auto destination_register = (instruction_register & 0b111000) >> 3;
-                scratch_pad_memory[destination_register] = hidden_registers.b;
-            }
-            else if (Instruction::is_INr(instruction_register))
-            {
-
-                auto destination_register = (instruction_register & 0b111000) >> 3;
-                assert(destination_register != 000); // This is HLT, cannot INA
-                assert(destination_register != 111); // Cannot increase Memory with INr
-
-                auto& reg = scratch_pad_memory[destination_register];
-                reg += 1;
-
-                flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
-                flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
-                flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
-                // Carry is not updated by INr
-            }
+        case CycleActionsFor8008::Reg_b_to_Destination: {
+            assert(hidden_registers.b != 0b111); // Memory is not a register
+            auto destination_register = (instruction_register & 0b111000) >> 3;
+            scratch_pad_memory[destination_register] = hidden_registers.b;
         }
         break;
-        case CycleControl::PCR: {
-            if (Instruction::is_LrI(instruction_register))
-            {
-                auto destination_register = (instruction_register & 0b111000) >> 3;
-                assert(destination_register != 0b111);
+        case CycleActionsFor8008::Inc_Destination: {
+            auto destination_register = (instruction_register & 0b111000) >> 3;
+            assert(destination_register != 000); // This is HLT, cannot INA
+            assert(destination_register != 111); // Cannot increase Memory with INr
 
-                scratch_pad_memory[destination_register] = hidden_registers.b;
-            }
-            else if (Instruction::is_LrM(instruction_register))
-            {
-                auto destination_register = (instruction_register & 0b111000) >> 3;
-                assert(destination_register != 0b111);
+            auto& reg = scratch_pad_memory[destination_register];
+            reg += 1;
 
-                scratch_pad_memory[destination_register] = hidden_registers.b;
-            }
-            else if (Instruction::is_JMP(instruction_register) ||
-                     Instruction::is_CAL(instruction_register))
-            {
-                address_stack.set_low_pc(hidden_registers.b);
-            }
+            flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
+            flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
+            flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
+            // Carry is not updated by INr
         }
         break;
-        case CycleControl::PCC:
+        case CycleActionsFor8008::Dec_Destination:
+            assert(false && "Not done yet");
             break;
-        case CycleControl::PCW:
+        case CycleActionsFor8008::ALU_Operation_With_RegB:
+            assert(false && "Not done yet");
+            break;
+        case CycleActionsFor8008::Rotate_A:
+            assert(false && "Not done yet");
+            break;
+        case CycleActionsFor8008::Reg_b_to_PC_L:
+            address_stack.set_low_pc(hidden_registers.b);
+            break;
+        case CycleActionsFor8008::Reg_b_to_PC_L_3_to_5:
+            assert(false && "Not done yet");
+            break;
+        case CycleActionsFor8008::Reg_b_to_A:
+            assert(false && "Not done yet");
             break;
     }
 
     cycle_ended = true;
+}
+
+void CPU8008::checks_cycle_end(uint8_t action)
+{
+    cycle_ended = action & CycleActionsFor8008::CYCLE_END;
+
+    if (cycle_ended)
+    {
+        if (memory_cycle == 0)
+        {
+            auto& next_cycle = decoded_instruction.instruction->cycle_2;
+            cycle_control = next_cycle.cycle_control;
+        }
+        else
+        {
+            assert(memory_cycle == 1);
+            auto& next_cycle = decoded_instruction.instruction->cycle_3;
+            cycle_control = next_cycle.cycle_control;
+        }
+    }
 }

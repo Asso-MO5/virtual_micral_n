@@ -6,7 +6,7 @@ using namespace testing;
 
 InstructionNameFor8008::InstructionName decode(InstructionTableFor8008& table, uint8_t opcode)
 {
-    return table.decode_instruction(opcode).instruction.name;
+    return table.decode_instruction(opcode).instruction->name;
 }
 
 TEST(Instruction8008, can_decode_index_register_instructions)

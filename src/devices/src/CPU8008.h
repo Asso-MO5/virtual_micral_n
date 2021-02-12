@@ -131,6 +131,7 @@ private:
     std::function<void(Edge)> sync_callback = [](Edge) {};
 
     InstructionTableFor8008 instruction_table;
+    InstructionTableFor8008::DecodedInstruction decoded_instruction;
 
     void on_signal_11_raising(Scheduling::counter_type edge_time);
     void on_signal_12_raising(Scheduling::counter_type edge_time);
@@ -148,6 +149,7 @@ private:
     void execute_t3();
     void execute_t4();
     void execute_t5();
+    void checks_cycle_end(uint8_t action);
 };
 
 #endif //MICRALN_CPU8008_H
