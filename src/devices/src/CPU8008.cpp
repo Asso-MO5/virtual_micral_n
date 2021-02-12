@@ -602,18 +602,90 @@ void CPU8008::execute_t5()
             auto& reg = scratch_pad_memory[destination_register];
             reg += 1;
 
-            flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
-            flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
-            flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
+            update_flags(reg);
             // Carry is not updated by INr
         }
         break;
         case CycleActionsFor8008::Dec_Destination:
             assert(false && "Not done yet");
             break;
-        case CycleActionsFor8008::ALU_Operation_With_RegB:
-            assert(false && "Not done yet");
-            break;
+        case CycleActionsFor8008::ALU_Operation_With_RegB: {
+            auto operation = decoded_instruction.medium;
+            auto& register_A = scratch_pad_memory[static_cast<size_t>(Register::A)];
+
+            switch (operation)
+            {
+                case 0b000: // ADD
+                {
+                    uint16_t intermediate = static_cast<uint16_t>(register_A) +
+                                            static_cast<uint16_t>(hidden_registers.b);
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate > 255;
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] =
+                            static_cast<uint8_t>(intermediate);
+                    update_flags(register_A);
+                }
+                break;
+                case 0b001: // ADD with Carry
+                {
+                    uint16_t intermediate = static_cast<uint16_t>(register_A) +
+                                            static_cast<uint16_t>(hidden_registers.b) +
+                                            flags[static_cast<size_t>(Flags::Carry)];
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate > 255;
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] =
+                            static_cast<uint8_t>(intermediate);
+                    update_flags(register_A);
+                }
+                break;
+                case 0b010: // SUB
+                {
+                    int16_t intermediate = static_cast<int16_t>(register_A) -
+                                           static_cast<int16_t>(hidden_registers.b);
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] =
+                            static_cast<uint8_t>(intermediate);
+                    update_flags(register_A);
+                }
+                break;
+                case 0b011: // SUB with Carry
+                {
+                    int16_t intermediate = static_cast<int16_t>(register_A) -
+                                           static_cast<int16_t>(hidden_registers.b) -
+                                           flags[static_cast<size_t>(Flags::Carry)];
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] =
+                            static_cast<uint8_t>(intermediate);
+                    update_flags(register_A);
+                }
+
+                break;
+                case 0b100: // AND
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] &=
+                            static_cast<uint8_t>(hidden_registers.b);
+                    update_flags(register_A);
+                    break;
+                case 0b101: // XOR
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] ^=
+                            static_cast<uint8_t>(hidden_registers.b);
+                    update_flags(register_A);
+                    break;
+                case 0b110: // OR
+                    scratch_pad_memory[static_cast<size_t>(Register::A)] |=
+                            static_cast<uint8_t>(hidden_registers.b);
+                    update_flags(register_A);
+                    break;
+                case 0b111: // CP (Compare)
+                {
+                    int16_t intermediate = static_cast<int16_t>(register_A) -
+                                           static_cast<int16_t>(hidden_registers.b);
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
+                    flags[static_cast<size_t>(Flags::Zero)] = intermediate == 0;
+                }
+                break;
+                default:
+                    assert(false && "This operation is not supposed to exist.");
+            }
+        }
+        break;
         case CycleActionsFor8008::Rotate_A:
             assert(false && "Not done yet");
             break;
@@ -629,4 +701,12 @@ void CPU8008::execute_t5()
     }
 
     cycle_ended = true;
+}
+
+void CPU8008::update_flags(const uint8_t& reg)
+{
+    // Updates each flags except Carry
+    flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
+    flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
+    flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
 }

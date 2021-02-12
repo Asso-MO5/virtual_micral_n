@@ -151,6 +151,7 @@ private:
     void execute_t4();
     void checks_cycle_end(uint8_t action);
     void execute_t5();
+    void update_flags(const uint8_t& reg);
 };
 
 #endif //MICRALN_CPU8008_H
