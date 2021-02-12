@@ -147,9 +147,10 @@ private:
     void execute_t1();
     void execute_t2();
     void execute_t3();
+    void checks_conditional_cycle_end(const CycleActionsFor8008::T3_Action& action);
     void execute_t4();
-    void execute_t5();
     void checks_cycle_end(uint8_t action);
+    void execute_t5();
 };
 
 #endif //MICRALN_CPU8008_H

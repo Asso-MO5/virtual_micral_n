@@ -474,23 +474,7 @@ void CPU8008::execute_t3()
         assert(action & CycleActionsFor8008::T3_Action::Fetch_IR_And_Reg_b);
 
         checks_cycle_end(static_cast<uint8_t>(action));
-
-        auto conditionally_ended = action & CycleActionsFor8008::CONDITIONAL_END;
-        if (conditionally_ended)
-        {
-            auto condition = (instruction_register & 0b111000) >> 3;
-            bool condition_verified = flags[condition & 0b11];
-            if (!(condition_verified & 0b100))
-            {
-                condition_verified = !condition_verified;
-            }
-
-            if (!condition_verified)
-            {
-                cycle_ended = true;
-                // And stays in PCI
-            }
-        }
+        checks_conditional_cycle_end(action);
     }
     else
     {
@@ -519,6 +503,26 @@ void CPU8008::execute_t3()
     }
 }
 
+void CPU8008::checks_conditional_cycle_end(const CycleActionsFor8008::T3_Action& action)
+{
+    auto conditionally_ended = action & CycleActionsFor8008::CONDITIONAL_END;
+    if (conditionally_ended)
+    {
+        auto condition = decoded_instruction.medium;
+        bool condition_verified = flags[condition & 0b11];
+        if (!(condition_verified & 0b100))
+        {
+            condition_verified = !condition_verified;
+        }
+
+        if (!condition_verified)
+        {
+            cycle_ended = true;
+            // And stays in PCI
+        }
+    }
+}
+
 void CPU8008::execute_t4()
 {
     CycleActionsFor8008::T4_Action action =
@@ -530,7 +534,7 @@ void CPU8008::execute_t4()
     switch (action)
     {
         case CycleActionsFor8008::Source_to_Reg_b: {
-            auto source_register = instruction_register & 0b111;
+            auto source_register = decoded_instruction.low;
             assert(source_register != 0b111); // Memory is not a register
             hidden_registers.b = scratch_pad_memory[source_register];
         }
@@ -554,6 +558,26 @@ void CPU8008::execute_t4()
     checks_cycle_end(static_cast<uint8_t>(action));
 }
 
+void CPU8008::checks_cycle_end(uint8_t action)
+{
+    cycle_ended = action & CycleActionsFor8008::CYCLE_END;
+
+    if (cycle_ended)
+    {
+        if (memory_cycle == 0)
+        {
+            auto& next_cycle = decoded_instruction.instruction->cycle_2;
+            cycle_control = next_cycle.cycle_control;
+        }
+        else
+        {
+            assert(memory_cycle == 1);
+            auto& next_cycle = decoded_instruction.instruction->cycle_3;
+            cycle_control = next_cycle.cycle_control;
+        }
+    }
+}
+
 void CPU8008::execute_t5()
 {
     CycleActionsFor8008::T5_Action action =
@@ -566,12 +590,12 @@ void CPU8008::execute_t5()
     {
         case CycleActionsFor8008::Reg_b_to_Destination: {
             assert(hidden_registers.b != 0b111); // Memory is not a register
-            auto destination_register = (instruction_register & 0b111000) >> 3;
+            auto destination_register = decoded_instruction.medium;
             scratch_pad_memory[destination_register] = hidden_registers.b;
         }
         break;
         case CycleActionsFor8008::Inc_Destination: {
-            auto destination_register = (instruction_register & 0b111000) >> 3;
+            auto destination_register = decoded_instruction.medium;
             assert(destination_register != 000); // This is HLT, cannot INA
             assert(destination_register != 111); // Cannot increase Memory with INr
 
@@ -605,24 +629,4 @@ void CPU8008::execute_t5()
     }
 
     cycle_ended = true;
-}
-
-void CPU8008::checks_cycle_end(uint8_t action)
-{
-    cycle_ended = action & CycleActionsFor8008::CYCLE_END;
-
-    if (cycle_ended)
-    {
-        if (memory_cycle == 0)
-        {
-            auto& next_cycle = decoded_instruction.instruction->cycle_2;
-            cycle_control = next_cycle.cycle_control;
-        }
-        else
-        {
-            assert(memory_cycle == 1);
-            auto& next_cycle = decoded_instruction.instruction->cycle_3;
-            cycle_control = next_cycle.cycle_control;
-        }
-    }
 }
