@@ -381,7 +381,8 @@ void CPU8008::execute_common_ti1_ti()
             io_data_latch = address_stack.get_low_pc_and_inc();
             break;
         case CycleActionsFor8008::Out_Reg_A:
-            assert(false && "Not done yet");
+            io_data_latch = scratch_pad_memory[static_cast<size_t>(Register::A)];
+            break;
     }
 }
 
@@ -434,7 +435,7 @@ void CPU8008::execute_t2()
                 io_data_latch = address_stack.get_high_pc();
                 break;
             case CycleActionsFor8008::Out_Reg_b_At_T2:
-                assert(false && "Not done yet");
+                io_data_latch = hidden_registers.b;
         }
     }
 }
@@ -737,12 +738,16 @@ void CPU8008::execute_t5()
         case CycleActionsFor8008::Reg_b_to_PC_L:
             address_stack.set_low_pc(hidden_registers.b);
             break;
-        case CycleActionsFor8008::Reg_b_to_PC_L_3_to_5:
-            assert(false && "Not done yet");
-            break;
-        case CycleActionsFor8008::Reg_b_to_A:
-            assert(false && "Not done yet");
-            break;
+        case CycleActionsFor8008::Reg_b_to_PC_L_3_to_5: {
+            uint8_t rst_address = decoded_instruction.medium << 3;
+            address_stack.set_low_pc(rst_address);
+        }
+        break;
+        case CycleActionsFor8008::Reg_b_to_A: {
+            auto& register_A = scratch_pad_memory[static_cast<size_t>(Register::A)];
+            register_A = hidden_registers.b;
+        }
+        break;
     }
 
     cycle_ended = true;
