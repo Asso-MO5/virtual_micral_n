@@ -492,7 +492,9 @@ void CPU8008::execute_t3()
                 hidden_registers.a = data_pins.read();
                 break;
             case CycleActionsFor8008::Out_Reg_b:
+                assert(cycle_control == CycleControl::PCW);
                 assert(false && "Not done yet");
+                io_data_latch = hidden_registers.b;
                 break;
             case CycleActionsFor8008::Fetch_IR_And_Reg_b:
             case CycleActionsFor8008::Halt:
@@ -606,9 +608,18 @@ void CPU8008::execute_t5()
             // Carry is not updated by INr
         }
         break;
-        case CycleActionsFor8008::Dec_Destination:
-            assert(false && "Not done yet");
-            break;
+        case CycleActionsFor8008::Dec_Destination: {
+            auto destination_register = decoded_instruction.medium;
+            assert(destination_register != 000); // This is HLT, cannot DCA
+            assert(destination_register != 111); // Cannot decrease Memory with DCr
+
+            auto& reg = scratch_pad_memory[destination_register];
+            reg -= 1;
+
+            update_flags(reg);
+            // Carry is not updated by DCr
+        }
+        break;
         case CycleActionsFor8008::ALU_Operation_With_RegB: {
             auto operation = decoded_instruction.medium;
             auto& register_A = scratch_pad_memory[static_cast<size_t>(Register::A)];
@@ -686,9 +697,43 @@ void CPU8008::execute_t5()
             }
         }
         break;
-        case CycleActionsFor8008::Rotate_A:
-            assert(false && "Not done yet");
-            break;
+        case CycleActionsFor8008::Rotate_A: {
+            auto rotate_op = decoded_instruction.medium & 0b11;
+            auto& register_A = scratch_pad_memory[static_cast<size_t>(Register::A)];
+
+            switch (rotate_op)
+            {
+                case 0b00: // RLC
+                    flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b10000000) >> 7;
+                    register_A = (register_A << 1) & 0b11111110;
+                    register_A |= flags[static_cast<size_t>(Flags::Carry)];
+                    break;
+                case 0b01: // RRC
+                    flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b00000001);
+                    register_A = (register_A >> 1) & 0b01111111;
+                    register_A |= flags[static_cast<size_t>(Flags::Carry)] << 7;
+                    break;
+                case 0b10: // RAL
+                {
+                    auto previous_carry = flags[static_cast<size_t>(Flags::Carry)];
+                    flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b10000000) >> 7;
+                    register_A = (register_A << 1) & 0b11111110;
+                    register_A |= previous_carry;
+                }
+                break;
+                case 0b11: // RAR
+                {
+                    auto previous_carry = flags[static_cast<size_t>(Flags::Carry)];
+                    flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b00000001);
+                    register_A = (register_A >> 1) & 0b01111111;
+                    register_A |= previous_carry << 7;
+                }
+                break;
+                default:
+                    assert(false && "This operation is not supposed to exist.");
+            }
+        }
+        break;
         case CycleActionsFor8008::Reg_b_to_PC_L:
             address_stack.set_low_pc(hidden_registers.b);
             break;
