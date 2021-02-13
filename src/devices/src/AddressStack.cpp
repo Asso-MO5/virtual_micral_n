@@ -33,10 +33,7 @@ uint16_t AddressStack::get_low_pc_no_inc()
 
 uint16_t AddressStack::get_high_pc() const { return (emitted_pc & 0x3f00) >> 8; }
 
-void AddressStack::push()
-{
-    stack_index = (stack_index + 1) % stack.size();
-}
+void AddressStack::push() { stack_index = (stack_index + 1) % stack.size(); }
 
 void AddressStack::pop()
 {
@@ -47,13 +44,19 @@ void AddressStack::pop()
     }
 }
 
-void AddressStack::set_low_pc(uint8_t value) {
+void AddressStack::set_low_pc(uint8_t value)
+{
     stack[stack_index] &= 0xff00;
     stack[stack_index] |= value;
 }
 
-void AddressStack::set_high_pc(uint8_t  value) {
+void AddressStack::set_high_pc(uint8_t value)
+{
     stack[stack_index] &= 0x00ff;
     stack[stack_index] |= value << 8;
 }
 
+AddressStack::DebugData AddressStack::get_debut_data() const
+{
+    return {.stack = stack, .stack_index = stack_index};
+}

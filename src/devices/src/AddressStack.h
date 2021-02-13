@@ -1,8 +1,8 @@
 #ifndef MICRALN_ADDRESSSTACK_H
 #define MICRALN_ADDRESSSTACK_H
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
 const std::size_t ADDRESS_STACK_LEVELS = 8;
 
@@ -21,6 +21,14 @@ public:
 
     void set_high_pc(uint8_t value);
     void set_low_pc(uint8_t value);
+
+    struct DebugData
+    {
+        std::array<uint16_t, ADDRESS_STACK_LEVELS> stack{};
+        std::size_t stack_index{};
+    };
+
+    [[nodiscard]] DebugData get_debut_data() const;
 
 private:
     std::array<uint16_t, ADDRESS_STACK_LEVELS> stack{};
