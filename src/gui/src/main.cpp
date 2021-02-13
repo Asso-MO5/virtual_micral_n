@@ -17,7 +17,7 @@ const char* REGISTER_NAMES[] = {"A", "B", "C", "D", "E", "H", "L"};
 
 const char* state_to_name(uint state) { return STATE_NAMES[state]; }
 
-void ImGuiBaseWindows(float average_frame_time, bool &show_demo_window)
+void ImGuiBaseWindows(float average_frame_time, bool& show_demo_window)
 {
     if (show_demo_window)
     {
@@ -98,19 +98,52 @@ int main(int, char**)
                 ImGui::PlotSignal(config);
             }
 
-            ImGui::Text("Data Bus %02x ", simulator.get_data_bus().read());
-
-            auto state = static_cast<uint>(cpu.get_output_pins().state);
-            ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,
-                        (state >> 0) & 1, state_to_name(state));
-
             auto cpu_debug_data = cpu.get_debug_data();
-            ImGui::Text("PC: %04x", cpu_debug_data.pc);
-            ImGui::Text("REG.a: %02x", cpu_debug_data.hidden_registers.a);
-            ImGui::Text("REG.b: %02x", cpu_debug_data.hidden_registers.b);
-            for (uint8_t r = 0; r < CPU8008::SCRATCH_PAD_SIZE; r++)
+
+            ImGui::Text("Data Bus: %02x ", simulator.get_data_bus().read());
+
             {
-                ImGui::Text("%s: %02x", REGISTER_NAMES[r], cpu_debug_data.registers[r]);
+                ImGui::BeginChild("ChildLeft-Internal",
+                                  ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 160), true);
+
+                auto state = static_cast<uint>(cpu.get_output_pins().state);
+                ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,
+                            (state >> 0) & 1, state_to_name(state));
+
+                ImGui::Text("REG.a: %02x", cpu_debug_data.hidden_registers.a);
+                ImGui::Text("REG.b: %02x", cpu_debug_data.hidden_registers.b);
+
+                ImGui::EndChild();
+            }
+
+            ImGui::SameLine();
+            {
+                ImGui::BeginChild("ChildRight", ImVec2(0.f, 160), true);
+
+                ImGui::Text("Registers");
+
+                for (uint8_t r = 0; r < CPU8008::SCRATCH_PAD_SIZE; r++)
+                {
+                    ImGui::Text("%s: %02x", REGISTER_NAMES[r], cpu_debug_data.registers[r]);
+                }
+                ImGui::EndChild();
+            }
+
+            {
+                ImGui::BeginChild("ChildLeft-Stack",
+                                  ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 180), true);
+
+                ImGui::Text("Address Stack");
+                size_t stack_index = 0;
+                for (auto& address : cpu_debug_data.address_stack.stack)
+                {
+                    ImGui::Text("%04x %s", cpu_debug_data.address_stack.stack[stack_index],
+                                stack_index == cpu_debug_data.address_stack.stack_index ? "<-"
+                                                                                        : "");
+                    stack_index += 1;
+                }
+
+                ImGui::EndChild();
             }
 
             ImGui::End();

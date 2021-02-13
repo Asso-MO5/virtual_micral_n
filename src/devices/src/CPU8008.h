@@ -78,6 +78,7 @@ public:
         uint8_t instruction_register;
         HiddenRegisters hidden_registers;
         uint8_t registers[SCRATCH_PAD_SIZE];
+        AddressStack::DebugData address_stack;
     };
 
     ConnectedData data;

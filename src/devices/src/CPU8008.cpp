@@ -347,6 +347,7 @@ CPU8008::DebugData CPU8008::get_debug_data() const
             .pc = address_stack.get_pc(),
             .instruction_register = instruction_register,
             .hidden_registers = hidden_registers,
+            .address_stack = address_stack.get_debut_data(),
     };
 
     std::memcpy(debug.registers, scratch_pad_memory, sizeof(uint8_t) * SCRATCH_PAD_SIZE);
