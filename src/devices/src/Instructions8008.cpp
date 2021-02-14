@@ -236,6 +236,16 @@ std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& i
     {
         base_string[2] = REGISTER_NAMES[instruction.low][0];
     }
+    if (base_string[2] == 'c')
+    {
+        base_string[2] = FLAG_NAMES[instruction.medium][0];
+    }
+    if (base_string[0] == 'p' && base_string[1] == 'p')
+    {
+        static const char* OPERATION_NAMES[] = {"AD", "AC", "SU", "SB", "ND", "XR", "OR", "CP"};
+        base_string[0] = OPERATION_NAMES[instruction.medium][0];
+        base_string[1] = OPERATION_NAMES[instruction.medium][1];
+    }
 
     return base_string;
 }
