@@ -351,6 +351,7 @@ CPU8008::DebugData CPU8008::get_debug_data() const
     };
 
     std::memcpy(debug.registers, scratch_pad_memory, sizeof(uint8_t) * SCRATCH_PAD_SIZE);
+    std::memcpy(debug.flags, flags, sizeof(uint8_t) * static_cast<size_t>(Flags::MAX));
     return debug;
 }
 

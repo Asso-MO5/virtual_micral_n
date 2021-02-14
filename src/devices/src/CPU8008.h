@@ -74,10 +74,11 @@ public:
 
     struct DebugData
     {
-        uint16_t pc;
-        uint8_t instruction_register;
-        HiddenRegisters hidden_registers;
-        uint8_t registers[SCRATCH_PAD_SIZE];
+        uint16_t pc{};
+        uint8_t instruction_register{};
+        HiddenRegisters hidden_registers{};
+        uint8_t registers[SCRATCH_PAD_SIZE]{};
+        uint8_t flags[static_cast<size_t>(Flags::MAX)];
         AddressStack::DebugData address_stack;
     };
 
