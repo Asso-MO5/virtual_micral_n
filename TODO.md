@@ -1,5 +1,5 @@
-* Set the real Frequency measurement in the Simulator
-    * Have a tool for rolling averaging numbers 
+* Change the sort everything into a forward only sort. Or a dump selection.
+* Fix the Signal Display
 * Implement Simple RAM
 * PCW and PCC
     * On a PCW cycle, T3 must be a DATA OUT

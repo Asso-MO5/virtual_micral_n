@@ -6,6 +6,7 @@
 #include <devices/src/CPU8008.h>
 
 #include <array>
+#include <gui/src/lib/Averager.h>
 #include <imgui.h>
 
 static const int WINDOW_WIDTH = 1280;
@@ -43,6 +44,8 @@ int main(int, char**)
 
     Simulator simulator;
     ControllerWidget controller;
+
+    Averager<uint64_t, 8> frequency_averager{};
 
     bool done = false;
     while (!done)
@@ -96,9 +99,10 @@ int main(int, char**)
                             static_cast<uint64_t>(average_frame_time_in_ms * 1000.f * 1000.f);
                 }
 
+                frequency_averager.push(immediate_frequency);
                 ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
                             1'000'000 * clock_1_pulse / scheduler.get_counter(),
-                            immediate_frequency);
+                            frequency_averager.average());
 
                 previous_pulse_count = clock_1_pulse;
             }

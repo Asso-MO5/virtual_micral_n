@@ -20,9 +20,12 @@ set(GUI_FILES src/main.cpp
         src/Simulator.cpp src/Simulator.h)
 
 set(GUI_FILES_LIB
-        src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h)
+        src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h
+        src/lib/Averager.cpp src/lib/Averager.h)
 
-set(GUI_TEST_FILES tests/signal_recorder_test.cpp)
+set(GUI_TEST_FILES
+        tests/signal_recorder_test.cpp
+        tests/averager_test.cpp)
 
 add_library(${GUI_LIB_NAME} ${GUI_FILES_LIB})
 target_include_directories(${GUI_LIB_NAME} PRIVATE ../)
