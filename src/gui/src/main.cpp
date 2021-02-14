@@ -45,8 +45,13 @@ int main(int, char**)
     bool done = false;
     while (!done)
     {
-        auto average_frame_time = 1000.0f / ImGui::GetIO().Framerate;
-        simulator.step(average_frame_time, controller.get_state());
+        auto average_frame_time_in_ms = 1000.0f / ImGui::GetIO().Framerate;
+        /* Another method is to get the immediate Delta Time value
+        ImGuiIO& io = ImGui::GetIO();
+        auto average_frame_time = io.DeltaTime * 1000.f;
+         */
+
+        simulator.step(average_frame_time_in_ms, controller.get_state());
 
         done = context.process_events([](const SDL_Event& event) {
             // Handle custom events.
@@ -54,7 +59,7 @@ int main(int, char**)
 
         context.start_imgui_frame();
 
-        ImGuiBaseWindows(average_frame_time, show_demo_window);
+        ImGuiBaseWindows(average_frame_time_in_ms, show_demo_window);
 
         {
             const auto& scheduler = simulator.get_scheduler();
@@ -68,11 +73,24 @@ int main(int, char**)
             const auto& cpu = simulator.get_cpu();
 
             ImGui::Begin("Scheduler");
-            ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000);
+            ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000 / 1000);
             if (scheduler.get_counter() > 0)
             {
-                ImGui::Text("Clock frequency %lu kHz",
-                            1'000'000 * clock_1_pulse / scheduler.get_counter());
+                static uint64_t previous_pulse_count = 0;
+
+                uint64_t immediate_frequency = 0;
+                if (average_frame_time_in_ms > 0)
+                {
+                    immediate_frequency =
+                            1'000'000 * (clock_1_pulse - previous_pulse_count) /
+                            static_cast<uint64_t>(average_frame_time_in_ms * 1000.f * 1000.f);
+                }
+
+                ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
+                            1'000'000 * clock_1_pulse / scheduler.get_counter(),
+                            immediate_frequency);
+
+                previous_pulse_count = clock_1_pulse;
             }
 
             const float first_time =
@@ -113,6 +131,12 @@ int main(int, char**)
                 ImGui::Text("REG.a: %02x", cpu_debug_data.hidden_registers.a);
                 ImGui::Text("REG.b: %02x", cpu_debug_data.hidden_registers.b);
 
+                static const char* flag_names[] = {"Carry ", "Zero  ", "Sign  ", "Parity"};
+                for (auto flag_index = 0; flag_index < IM_ARRAYSIZE(flag_names); flag_index += 1)
+                {
+                    ImGui::Text("%s: %s", flag_names[flag_index],
+                                cpu_debug_data.flags[flag_index] ? "X" : "_");
+                }
                 ImGui::EndChild();
             }
 
