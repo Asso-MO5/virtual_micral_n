@@ -12,10 +12,6 @@
 static const int WINDOW_WIDTH = 1280;
 static const int WINDOW_HEIGHT = 720;
 
-const char* STATE_NAMES[] = {"WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4"};
-
-const char* REGISTER_NAMES[] = {"A", "B", "C", "D", "E", "H", "L"};
-
 const char* state_to_name(uint state) { return STATE_NAMES[state]; }
 
 void ImGuiBaseWindows(float average_frame_time, bool& show_demo_window)
@@ -110,10 +106,10 @@ int main(int, char**)
             if (running_update)
             {
                 const double first_time = std::min(phase_1_recorder.time_series()[0],
-                                                  phase_2_recorder.time_series()[0]);
+                                                   phase_2_recorder.time_series()[0]);
                 const size_t last_index = phase_1_recorder.size() - 1;
                 const double last_time = std::max(phase_1_recorder.time_series()[last_index],
-                                                 phase_2_recorder.time_series()[last_index]);
+                                                  phase_2_recorder.time_series()[last_index]);
 
                 ImGui::PlotSignalConfig config;
                 config.values.count = phase_1_recorder.size();
@@ -148,13 +144,20 @@ int main(int, char**)
                     ImGui::Text("REG.a: %02x", cpu_debug_data.hidden_registers.a);
                     ImGui::Text("REG.b: %02x", cpu_debug_data.hidden_registers.b);
 
-                    static const char* flag_names[] = {"Carry ", "Zero  ", "Sign  ", "Parity"};
-                    for (auto flag_index = 0; flag_index < IM_ARRAYSIZE(flag_names);
+                    for (auto flag_index = 0; flag_index < IM_ARRAYSIZE(FLAG_NAMES);
                          flag_index += 1)
                     {
-                        ImGui::Text("%s: %s", flag_names[flag_index],
+                        ImGui::Text("%s: %s", FLAG_NAMES[flag_index],
                                     cpu_debug_data.flags[flag_index] ? "X" : "_");
                     }
+
+                    ImGui::Text("%s @ %04x",
+                                cpu_debug_data.instruction_register == 0
+                                        ? "---"
+                                        : instruction_to_string(cpu_debug_data.decoded_instruction)
+                                                  .c_str(),
+                                cpu_debug_data.latest_emitted_pci);
+
                     ImGui::EndChild();
                 }
 

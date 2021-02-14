@@ -2,7 +2,6 @@
 #include <emulation_core/src/Edge.h>
 
 #include <cstring>
-#include <iostream>
 #include <utility>
 
 using namespace Constants8008;
@@ -14,14 +13,14 @@ namespace
     namespace Timings
     {
         using namespace Scheduling;
-        const counter_type MIN_CLOCK_PERIOD = 2000;
-        const counter_type MAX_CLOCK_PERIOD = 3000;
+        //const counter_type MIN_CLOCK_PERIOD = 2000;
+        //const counter_type MAX_CLOCK_PERIOD = 3000;
         const counter_type PULSE_WIDTH_PHASE_1 = 700;
         const counter_type PULSE_WIDTH_PHASE_2 = 550;
-        const counter_type FALLING_1_TO_FALLING_2_EDGE_MIN = 900;
-        const counter_type FALLING_1_TO_FALLING_2_EDGE_MAX = 1100;
+        //const counter_type FALLING_1_TO_FALLING_2_EDGE_MIN = 900;
+        //const counter_type FALLING_1_TO_FALLING_2_EDGE_MAX = 1100;
         const counter_type DELAY_FROM_PHASE_1_TO_2 = 200;
-        const counter_type DELAY_FROM_PHASE_2_TO_1 = 400;
+        //const counter_type DELAY_FROM_PHASE_2_TO_1 = 400;
         const counter_type DATA_OUT_HOLD_TIME = 100;
         const counter_type DATA_IN_HOLD_TIME = 100;
     } // namespace Timings
@@ -346,7 +345,9 @@ CPU8008::DebugData CPU8008::get_debug_data() const
     auto debug = CPU8008::DebugData{
             .instruction_register = instruction_register,
             .hidden_registers = hidden_registers,
+            .latest_emitted_pci = latest_emitted_pci,
             .address_stack = address_stack.get_debut_data(),
+            .decoded_instruction = decoded_instruction,
     };
 
     std::memcpy(debug.registers, scratch_pad_memory, sizeof(uint8_t) * SCRATCH_PAD_SIZE);
@@ -393,6 +394,8 @@ void CPU8008::execute_t1i()
 
     if (cycle_control == CycleControl::PCI)
     {
+        instruction_register = 0;
+        latest_emitted_pci = address_stack.get_pc();
         io_data_latch = address_stack.get_low_pc_no_inc();
     }
     else
@@ -407,6 +410,8 @@ void CPU8008::execute_t1()
 
     if (cycle_control == CycleControl::PCI)
     {
+        instruction_register = 0;
+        latest_emitted_pci = address_stack.get_pc();
         io_data_latch = address_stack.get_low_pc_and_inc();
     }
     else

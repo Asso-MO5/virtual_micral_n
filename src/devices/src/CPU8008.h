@@ -78,7 +78,9 @@ public:
         HiddenRegisters hidden_registers{};
         uint8_t registers[SCRATCH_PAD_SIZE]{};
         uint8_t flags[static_cast<size_t>(Flags::MAX)];
+        uint16_t latest_emitted_pci;
         AddressStack::DebugData address_stack;
+        InstructionTableFor8008::DecodedInstruction decoded_instruction;
     };
 
     ConnectedData data;
@@ -120,6 +122,7 @@ private:
     uint8_t scratch_pad_memory[SCRATCH_PAD_SIZE]; //A, B, C, D, E, H, L registers
     uint8_t io_data_latch{};
     uint8_t instruction_register{};
+    uint16_t latest_emitted_pci{};
 
     Constants8008::CycleControl cycle_control{Constants8008::CycleControl::PCI};
     uint8_t memory_cycle{}; // Can be reduced to distinguished between the second and third cycle?

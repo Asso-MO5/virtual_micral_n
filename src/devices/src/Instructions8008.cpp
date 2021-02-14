@@ -219,6 +219,27 @@ InstructionTableFor8008::InstructionTableFor8008()
             {OUT, 0b01, 0b000'000, 0b001'001}, //
     };
 }
+
+std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& instruction)
+{
+    if (instruction.instruction == nullptr)
+    {
+        return {"---"};
+    }
+    std::string base_string{instruction.instruction->opcode_template};
+
+    if (base_string[1] == 'r')
+    {
+        base_string[1] = REGISTER_NAMES[instruction.medium][0];
+    }
+    if (base_string[2] == 'r')
+    {
+        base_string[2] = REGISTER_NAMES[instruction.low][0];
+    }
+
+    return base_string;
+}
+
 constexpr CycleActionsFor8008::T1_Action InstructionTableFor8008::T1(uint8_t actions)
 {
     return static_cast<CycleActionsFor8008::T1_Action>(actions);

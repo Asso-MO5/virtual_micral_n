@@ -1,4 +1,4 @@
-* Implement GUI the current instruction at the current PC
+* execute_t3 has duplicated code? 
 * Implement Simple RAM
 * PCW and PCC
     * On a PCW cycle, T3 must be a DATA OUT
