@@ -109,10 +109,10 @@ int main(int, char**)
 
             if (running_update)
             {
-                const float first_time = std::min(phase_1_recorder.time_series()[0],
+                const double first_time = std::min(phase_1_recorder.time_series()[0],
                                                   phase_2_recorder.time_series()[0]);
                 const size_t last_index = phase_1_recorder.size() - 1;
-                const float last_time = std::max(phase_1_recorder.time_series()[last_index],
+                const double last_time = std::max(phase_1_recorder.time_series()[last_index],
                                                  phase_2_recorder.time_series()[last_index]);
 
                 ImGui::PlotSignalConfig config;

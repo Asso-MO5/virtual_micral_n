@@ -17,17 +17,17 @@ namespace ImGui
     {
         struct Values
         {
-            const float* x_series = nullptr;
-            const float* y_series = nullptr;
+            const double* x_series = nullptr;
+            const double* y_series = nullptr;
             int count{};
             int offset = 0;
         } values;
         struct Scale
         {
-            float x_min{};
-            float x_max{};
-            float y_min{};
-            float y_max{};
+            double x_min{};
+            double x_max{};
+            double y_min{};
+            double y_max{};
             bool x_scaled = false;
         } scale;
         ImVec2 frame_size = ImVec2(0.f, 0.f);
