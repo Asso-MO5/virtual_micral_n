@@ -41,8 +41,6 @@ private:
     std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<DataBus> data_bus{};
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
-
-    float throttle = 1.f;
 };
 
 #endif //MICRALN_SIMULATOR_H

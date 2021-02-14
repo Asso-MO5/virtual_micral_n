@@ -39,9 +39,9 @@ Simulator::Simulator()
     /*
     ReadRomData rom_data_file("data/8008-hello-world.bin");
     auto & rom_data = rom_data_file.data;
-     */
+*/
 
-    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
@@ -91,17 +91,13 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
             controller_state == ControllerWidget::STEP_ONE_FRAME)
         {
             auto start_point = scheduler.get_counter();
-            auto time_in_ns = average_frame_time_in_ms * 1000.f * 1000.f;
 
-            if (average_frame_time_in_ms > 18.f)
+            float time_to_simulation = average_frame_time_in_ms;
+            if (average_frame_time_in_ms > 17.f)
             {
-                throttle = std::max(0.05f, throttle - 0.1f);
+                time_to_simulation = (16.6f / average_frame_time_in_ms) * 16.f;
             }
-            else if (average_frame_time_in_ms < 16.f)
-            {
-                throttle = std::max(1.f, throttle + 0.1f);
-            }
-            time_in_ns = static_cast<uint64_t>(time_in_ns * throttle);
+            auto time_in_ns = time_to_simulation * 1000.f * 1000.f;
 
             uint64_t end_point = start_point + (static_cast<uint64_t>(time_in_ns));
 
