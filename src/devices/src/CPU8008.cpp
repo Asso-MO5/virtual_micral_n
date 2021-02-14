@@ -344,7 +344,6 @@ void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 CPU8008::DebugData CPU8008::get_debug_data() const
 {
     auto debug = CPU8008::DebugData{
-            .pc = address_stack.get_pc(),
             .instruction_register = instruction_register,
             .hidden_registers = hidden_registers,
             .address_stack = address_stack.get_debut_data(),

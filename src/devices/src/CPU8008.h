@@ -74,7 +74,6 @@ public:
 
     struct DebugData
     {
-        uint16_t pc{};
         uint8_t instruction_register{};
         HiddenRegisters hidden_registers{};
         uint8_t registers[SCRATCH_PAD_SIZE]{};
