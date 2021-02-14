@@ -96,8 +96,13 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
             if (average_frame_time_in_ms > 18.f)
             {
                 throttle = std::max(0.05f, throttle - 0.1f);
-                time_in_ns = static_cast<uint64_t>(time_in_ns * throttle);
             }
+            else if (average_frame_time_in_ms < 16.f)
+            {
+                throttle = std::max(1.f, throttle + 0.1f);
+            }
+            time_in_ns = static_cast<uint64_t>(time_in_ns * throttle);
+
             uint64_t end_point = start_point + (static_cast<uint64_t>(time_in_ns));
 
             while (scheduler.get_counter() < end_point)
