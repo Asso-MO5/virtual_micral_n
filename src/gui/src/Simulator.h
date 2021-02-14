@@ -18,7 +18,7 @@ class Simulator
 {
 public:
     Simulator();
-    void step(float average_frame_time, ControllerWidget::State controller_state);
+    void step(float average_frame_time_in_ms, ControllerWidget::State controller_state);
 
     [[nodiscard]] const Scheduler& get_scheduler() const;
     [[nodiscard]] const CPU8008& get_cpu() const;
@@ -41,6 +41,8 @@ private:
     std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<DataBus> data_bus{};
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
+
+    float throttle = 1.f;
 };
 
 #endif //MICRALN_SIMULATOR_H

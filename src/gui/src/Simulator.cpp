@@ -36,12 +36,17 @@ public:
 
 Simulator::Simulator()
 {
-    ReadRomData rom_data("data/8008-hello-world.bin");
+    /*
+    ReadRomData rom_data_file("data/8008-hello-world.bin");
+    auto & rom_data = rom_data_file.data;
+     */
+
+    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
-    rom = std::make_shared<SimpleROM>(rom_data.data);
+    rom = std::make_shared<SimpleROM>(rom_data);
     data_bus = std::make_shared<DataBus>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
     control_bus = std::make_shared<ControlBus>(cpu, rom);
@@ -78,7 +83,7 @@ Simulator::Simulator()
     scheduler.add(clock);
 }
 
-void Simulator::step(float average_frame_time, ControllerWidget::State controller_state)
+void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
 {
     if (controller_state != ControllerWidget::PAUSED)
     {
@@ -86,7 +91,14 @@ void Simulator::step(float average_frame_time, ControllerWidget::State controlle
             controller_state == ControllerWidget::STEP_ONE_FRAME)
         {
             auto start_point = scheduler.get_counter();
-            uint64_t end_point = start_point + (static_cast<uint64_t>(average_frame_time * 1000.f));
+            auto time_in_ns = average_frame_time_in_ms * 1000.f * 1000.f;
+
+            if (average_frame_time_in_ms > 18.f)
+            {
+                throttle = std::max(0.05f, throttle - 0.1f);
+                time_in_ns = static_cast<uint64_t>(time_in_ns * throttle);
+            }
+            uint64_t end_point = start_point + (static_cast<uint64_t>(time_in_ns));
 
             while (scheduler.get_counter() < end_point)
             {
