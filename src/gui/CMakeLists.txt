@@ -17,7 +17,8 @@ set(GUI_FILES src/main.cpp
         src/ImGuiSDLGLContext.cpp src/ImGuiSDLGLContext.h
         src/ControllerWidget.cpp src/ControllerWidget.h
         src/SignalPlot.cpp src/SignalPlot.h
-        src/Simulator.cpp src/Simulator.h)
+        src/Simulator.cpp src/Simulator.h
+        src/Panel8008.cpp src/Panel8008.h)
 
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h

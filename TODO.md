@@ -1,3 +1,4 @@
+* Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * execute_t3 has duplicated code?
 * Advance one instruction (go to next PCI state)
 * Implement Simple RAM
