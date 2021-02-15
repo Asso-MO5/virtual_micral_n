@@ -20,13 +20,13 @@ namespace
 
 Disassemble8008::Disassemble8008(const std::span<std::uint8_t>& data) : data(data) {}
 
-std::string Disassemble8008::get(uint16_t address)
+std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
 {
     auto decoded = instruction_table.decode_instruction(data[address]);
 
     if (decoded.instruction->name == InstructionNameFor8008::UNKNOWN)
     {
-        return DECODING_ERROR;
+        return {DECODING_ERROR, 1};
     }
 
     auto text_opcode = instruction_to_string(decoded);
@@ -39,13 +39,13 @@ std::string Disassemble8008::get(uint16_t address)
             auto value_address = address + 1;
             if (value_address >= data.size())
             {
-                return DECODING_ERROR;
+                return {DECODING_ERROR, 1};
             }
             auto immediate_value = data[value_address];
 
             text_opcode.append(to_hex<int, 2>(immediate_value));
 
-            return text_opcode;
+            return {text_opcode, 2};
         }
         default:;
     }
@@ -61,13 +61,13 @@ std::string Disassemble8008::get(uint16_t address)
             auto value_address = address + 2;
             if (value_address >= data.size())
             {
-                return DECODING_ERROR;
+                return {DECODING_ERROR, 1};
             }
             auto immediate_value = data[value_address] << 8 | data[value_address - 1];
 
             text_opcode.append(to_hex<int, 4>(immediate_value));
 
-            return text_opcode;
+            return {text_opcode, 3};
         }
         default:;
     }
@@ -89,5 +89,5 @@ std::string Disassemble8008::get(uint16_t address)
         text_opcode.append(to_hex<int, 1>(device_address));
     }
 
-    return text_opcode;
+    return {text_opcode, 1};
 }

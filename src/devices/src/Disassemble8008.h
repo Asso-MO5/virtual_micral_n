@@ -10,8 +10,8 @@
 class Disassemble8008
 {
 public:
-    Disassemble8008(const std::span<std::uint8_t>& data);
-    std::string get(uint16_t address);
+    explicit Disassemble8008(const std::span<std::uint8_t>& data);
+    std::tuple<std::string, size_t> get(uint16_t address);
 
 private:
     InstructionTableFor8008 instruction_table;
