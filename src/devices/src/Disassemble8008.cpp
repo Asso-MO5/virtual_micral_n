@@ -77,6 +77,17 @@ std::string Disassemble8008::get(uint16_t address)
         int rst_address = (decoded.medium << 3);
         text_opcode.append(to_hex<int, 2>(rst_address));
     }
+    else if (decoded.instruction->name == InstructionNameFor8008::INP)
+    {
+        int device_address = (data[address] & 0b00001110) >> 1;
+        text_opcode.append(to_hex<int, 1>(device_address));
+    }
+
+    else if (decoded.instruction->name == InstructionNameFor8008::OUT)
+    {
+        int device_address = ((data[address] & 0b00111110) >> 1) - 8;
+        text_opcode.append(to_hex<int, 1>(device_address));
+    }
 
     return text_opcode;
 }
