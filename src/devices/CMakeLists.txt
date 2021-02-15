@@ -4,7 +4,7 @@ project(micraln-devices
         DESCRIPTION "The devices for the Micral N emulation"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Devices
 set(DEVICES_TEST_NAME ${DEVICES_LIB_NAME}_tests)
@@ -18,7 +18,8 @@ set(DEVICES_FILES
         src/ControlBus.cpp src/ControlBus.h
         src/InterruptAtStart.cpp src/InterruptAtStart.h
         src/Instructions8008.cpp src/Instructions8008.h
-        src/Constants8008.h)
+        src/Constants8008.h
+        src/Disassemble8008.cpp src/Disassemble8008.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
@@ -26,7 +27,8 @@ set(DEVICES_TEST_FILES
         tests/double_clock_test.cpp
         tests/address_stack_test.cpp
         tests/simple_rom_test.cpp
-        tests/instructions_8008_test.cpp)
+        tests/instructions_8008_test.cpp
+        tests/disassemble_8008_test.cpp)
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
 target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)

@@ -1,4 +1,5 @@
-* execute_t3 has duplicated code? 
+* execute_t3 has duplicated code?
+* Advance one instruction (go to next PCI state)
 * Implement Simple RAM
 * PCW and PCC
     * On a PCW cycle, T3 must be a DATA OUT
@@ -14,3 +15,5 @@
   * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
   * 8008: probably the priority queue is overkill too.
   * SignalRecorder makes a lot of costly memcpy.
+  * InstructionTableFor8008 for the disassembly and for the 8008 decoding are ducplicated in memory.
+  
