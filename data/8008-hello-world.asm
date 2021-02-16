@@ -23,10 +23,10 @@ LOOP:
 
     ; Write byte to RAM and advances pointer
     LHB
-    LHC
+    LLC
     CAL ADVANCE_HL
     LBH
-    LCH
+    LCL
 
     LMA ; Write BYTE
 

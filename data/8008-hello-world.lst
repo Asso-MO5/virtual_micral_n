@@ -1,8 +1,8 @@
 AS8 assembler for intel 8008, t.e.jones Version 1.0
 Options: listfile=1 debug=0 binaryout=1 singlelist=0
 octalnums=0 markascii=0
-Infile=8008-test.asm
-Assembly Performed: Tue Feb  9 22:47:57 2021
+Infile=8008-hello-world.asm
+Assembly Performed: Tue Feb 16 23:30:27 2021
 
 
 Line Addr.  CodeBytes   Source Line
@@ -32,10 +32,10 @@ Line Addr.  CodeBytes   Source Line
   23                    
   24                        ; Write byte to RAM and advances pointer
   25 00-021 351             LHB
-  26 00-022 352             LHC
+  26 00-022 362             LLC
   27 00-023 106 041 000     CAL ADVANCE_HL
   28 00-026 315             LBH
-  29 00-027 325             LCH
+  29 00-027 326             LCL
   30                    
   31 00-030 370             LMA ; Write BYTE
   32                    
