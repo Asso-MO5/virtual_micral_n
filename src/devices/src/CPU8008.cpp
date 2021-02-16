@@ -348,6 +348,7 @@ CPU8008::DebugData CPU8008::get_debug_data() const
             .latest_emitted_pci = latest_emitted_pci,
             .address_stack = address_stack.get_debut_data(),
             .decoded_instruction = decoded_instruction,
+            .cycle_control = cycle_control,
     };
 
     std::memcpy(debug.registers, scratch_pad_memory, sizeof(uint8_t) * SCRATCH_PAD_SIZE);

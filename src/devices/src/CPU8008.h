@@ -81,6 +81,7 @@ public:
         uint16_t latest_emitted_pci;
         AddressStack::DebugData address_stack;
         InstructionTableFor8008::DecodedInstruction decoded_instruction;
+        Constants8008::CycleControl cycle_control;
     };
 
     ConnectedData data;
