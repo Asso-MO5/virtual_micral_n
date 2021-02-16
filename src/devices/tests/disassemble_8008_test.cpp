@@ -86,6 +86,17 @@ TEST(Disassemble8008, decodes_out)
     ASSERT_THAT(instruction, Eq("OUT $17"));
 }
 
+TEST(Disassemble8008, decodes_increment)
+{
+    std::vector<std::uint8_t> data{0x30};
+    OwningMemoryView memory_view{data};
+    Disassemble8008 disassemble{memory_view};
+
+    auto [instruction, size] = disassemble.get(0x0000);
+
+    ASSERT_THAT(instruction, Eq("INL"));
+}
+
 TEST(Disassemble8008, decodes_a_series_of_instructions)
 {
     std::vector<std::uint8_t> data{0x00, 0x2e, 0xf0, 0x44, 0x00, 0x20, 0x25};

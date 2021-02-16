@@ -53,6 +53,7 @@ namespace CycleActionsFor8008
     const uint8_t IDLE = 32;
     const uint8_t CONDITIONAL_END = 64;
     const uint8_t CYCLE_END = 128;
+    const uint8_t ACTION_MASK = 0b00111111; // Excludes CONDITIONAL_END and CYCLE_END
 
     enum T1_Action : std::uint8_t
     {

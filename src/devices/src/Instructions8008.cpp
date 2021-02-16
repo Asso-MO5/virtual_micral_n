@@ -234,7 +234,16 @@ std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& i
     }
     if (base_string[2] == 'r')
     {
-        base_string[2] = REGISTER_NAMES[instruction.low][0];
+        if (instruction.instruction->name == InstructionNameFor8008::InstructionName::INr ||
+            instruction.instruction->name == InstructionNameFor8008::InstructionName::DCr)
+        {
+
+            base_string[2] = REGISTER_NAMES[instruction.medium][0];
+        }
+        else
+        {
+            base_string[2] = REGISTER_NAMES[instruction.low][0];
+        }
     }
     if (base_string[2] == 'c')
     {
