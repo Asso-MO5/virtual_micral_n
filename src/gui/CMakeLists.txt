@@ -18,7 +18,8 @@ set(GUI_FILES src/main.cpp
         src/ControllerWidget.cpp src/ControllerWidget.h
         src/SignalPlot.cpp src/SignalPlot.h
         src/Simulator.cpp src/Simulator.h
-        src/Panel8008.cpp src/Panel8008.h)
+        src/Panel8008.cpp src/Panel8008.h
+        src/PanelDisassembly.cpp src/PanelDisassembly.h)
 
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h

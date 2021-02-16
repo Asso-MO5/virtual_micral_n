@@ -1,10 +1,12 @@
 #include "ControllerWidget.h"
 #include "ImGuiSDLGLContext.h"
 #include "Panel8008.h"
+#include "PanelDisassembly.h"
 #include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
 
+#include <devices/src/Disassemble8008.h>
 #include <gui/src/lib/Averager.h>
 #include <imgui.h>
 
@@ -62,9 +64,11 @@ int main(int, char**)
 
     bool show_demo_window = false;
     bool toggle_display_8008_panel = true;
+    bool toggle_disassembly_panel = true;
 
     Simulator simulator;
     ControllerWidget controller;
+    Disassemble8008 disassemble{simulator.get_memory_view()};
 
     Averager<uint64_t, 8> frequency_averager{};
 
@@ -90,6 +94,7 @@ int main(int, char**)
         {
             ImGui::Begin("Panels");
             ImGui::Checkbox("8008", &toggle_display_8008_panel);
+            ImGui::Checkbox("Disassembly", &toggle_disassembly_panel);
             ImGui::End();
         }
 
@@ -99,6 +104,11 @@ int main(int, char**)
         if (toggle_display_8008_panel)
         {
             display_8008_panel(simulator, average_frequency);
+        }
+
+        if (toggle_disassembly_panel)
+        {
+            display_disassembly_panel(simulator, disassemble);
         }
 
         controller.update();
