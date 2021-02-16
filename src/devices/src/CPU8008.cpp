@@ -463,27 +463,7 @@ void CPU8008::execute_t3()
     {
         hidden_registers.a = 0x00; // only on RST? (but is it important?)
         hidden_registers.b = data_pins.read();
-    }
-    else if (cycle_control == CycleControl::PCR)
-    {
-        auto& cycle = (memory_cycle == 1) ? decoded_instruction.instruction->cycle_2
-                                          : decoded_instruction.instruction->cycle_3;
 
-        switch (cycle.t3_action & CycleActionsFor8008::ACTION_MASK)
-        {
-            case CycleActionsFor8008::T3_Action::Fetch_Data_to_Reg_b:
-                hidden_registers.b = data_pins.read();
-                break;
-            case CycleActionsFor8008::T3_Action::Fetch_Data_to_Reg_a:
-                hidden_registers.a = data_pins.read();
-                break;
-            default:
-                assert(false && "Invalid situation");
-        }
-    }
-
-    if (cycle_control == CycleControl::PCI)
-    {
         assert(memory_cycle == 0);
         instruction_register = hidden_registers.b;
         decoded_instruction = instruction_table.decode_instruction(hidden_registers.b);

@@ -1,8 +1,7 @@
-* execute_t3 has duplicated code?
-* Implement Simple RAM
 * PCW and PCC
     * On a PCW cycle, T3 must be a DATA OUT
     * There is also a Write Cycle on T4 for the Conditions with PCC 
+* Implement Simple RAM
 * Implement a disassembly window
 * Implement a RAM inspector window
 * Add the copy string example as loadable ROM + RAM
