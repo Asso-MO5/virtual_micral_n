@@ -1,6 +1,4 @@
-* Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * execute_t3 has duplicated code?
-* Advance one instruction (go to next PCI state)
 * Implement Simple RAM
 * PCW and PCC
     * On a PCW cycle, T3 must be a DATA OUT
@@ -12,6 +10,7 @@
 * Clean: extract Recorders from the Simulator
 * Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
+* Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * Possible optimization  
   * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
   * 8008: probably the priority queue is overkill too.

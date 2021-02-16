@@ -172,8 +172,18 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
             }
             break;
         case CpuState::T4:
-            next_events.push(
-                    std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T5)));
+            if (cycle_ended)
+            {
+                // TODO: Test Interruption
+                // TODO: Instruction Jammed goes to TI1
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+            }
+            else
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T5)));
+            }
             break;
         case CpuState::T5:
             assert(cycle_ended);
@@ -459,7 +469,7 @@ void CPU8008::execute_t3()
         auto& cycle = (memory_cycle == 1) ? decoded_instruction.instruction->cycle_2
                                           : decoded_instruction.instruction->cycle_3;
 
-        switch (cycle.t3_action & 15)
+        switch (cycle.t3_action & CycleActionsFor8008::ACTION_MASK)
         {
             case CycleActionsFor8008::T3_Action::Fetch_Data_to_Reg_b:
                 hidden_registers.b = data_pins.read();
@@ -491,7 +501,7 @@ void CPU8008::execute_t3()
                 memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t3_action
                                   : decoded_instruction.instruction->cycle_3.t3_action;
 
-        switch (action)
+        switch (action & CycleActionsFor8008::ACTION_MASK)
         {
             case CycleActionsFor8008::Fetch_Data_to_Reg_b:
                 hidden_registers.b = data_pins.read();
@@ -541,7 +551,7 @@ void CPU8008::execute_t4()
                     : (memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t4_action
                                          : decoded_instruction.instruction->cycle_3.t4_action);
 
-    switch (action)
+    switch (action & CycleActionsFor8008::ACTION_MASK)
     {
         case CycleActionsFor8008::Source_to_Reg_b: {
             auto source_register = decoded_instruction.low;
@@ -596,11 +606,11 @@ void CPU8008::execute_t5()
                     : (memory_cycle == 1 ? decoded_instruction.instruction->cycle_2.t5_action
                                          : decoded_instruction.instruction->cycle_3.t5_action);
 
-    switch (action)
+    switch (action & CycleActionsFor8008::ACTION_MASK)
     {
         case CycleActionsFor8008::Reg_b_to_Destination: {
-            assert(hidden_registers.b != 0b111); // Memory is not a register
             auto destination_register = decoded_instruction.medium;
+            assert(destination_register != 0b111); // Memory is not a register
             scratch_pad_memory[destination_register] = hidden_registers.b;
         }
         break;
