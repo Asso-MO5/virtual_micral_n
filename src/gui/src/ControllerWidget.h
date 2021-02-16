@@ -10,6 +10,7 @@ public:
         STEP_ONE_FRAME,
         STEP_ONE_CLOCK,
         STEP_ONE_STATE,
+        STEP_ONE_INSTRUCTION,
     };
 
     void update();

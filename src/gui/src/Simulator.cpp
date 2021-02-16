@@ -45,7 +45,6 @@ Simulator::Simulator()
     std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
                                   0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
-
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
@@ -113,9 +112,9 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         }
         else if (controller_state == ControllerWidget::STEP_ONE_STATE)
         {
-            auto initial_state = cpu->get_output_pins().state;
+            auto initial_state = get_cpu().get_output_pins().state;
 
-            while (cpu->get_output_pins().state == initial_state)
+            while (get_cpu().get_output_pins().state == initial_state)
             {
                 scheduler.step();
             }
@@ -126,6 +125,21 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
             auto initial_clock_2 = clock_2_pulse;
 
             while (initial_clock_1 == clock_1_pulse && initial_clock_2 == clock_2_pulse)
+            {
+                scheduler.step();
+            }
+        }
+        else if (controller_state == ControllerWidget::STEP_ONE_INSTRUCTION)
+        {
+            while (get_cpu().get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
+                   (get_cpu().get_output_pins().state == CPU8008::CpuState::T1))
+            {
+                scheduler.step();
+            }
+
+            while (!((get_cpu().get_debug_data().cycle_control ==
+                      Constants8008::CycleControl::PCI) &&
+                     (get_cpu().get_output_pins().state == CPU8008::CpuState::T1)))
             {
                 scheduler.step();
             }

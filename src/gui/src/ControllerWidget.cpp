@@ -41,6 +41,11 @@ void ControllerWidget::update()
         state = STEP_ONE_FRAME;
     }
 
+    if (ImGui::Button("Step one instruction"))
+    {
+        state = STEP_ONE_INSTRUCTION;
+    }
+
     ImGui::End();
 }
 
