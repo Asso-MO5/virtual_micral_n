@@ -8,6 +8,7 @@
 #include <devices/src/SimpleROM.h>
 
 #include <fstream>
+#include <utility>
 
 class ReadRomData
 {
@@ -41,7 +42,9 @@ Simulator::Simulator()
     auto & rom_data = rom_data_file.data;
 */
 
-    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
+                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
@@ -81,6 +84,8 @@ Simulator::Simulator()
 
     scheduler.add(cpu);
     scheduler.add(clock);
+
+    memory_view.set_rom(rom, rom_data.size());
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
@@ -131,3 +136,17 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 const CPU8008& Simulator::get_cpu() const { return *cpu; }
 const DataBus& Simulator::get_data_bus() const { return *data_bus; }
+const MemoryView& Simulator::get_memory_view() { return memory_view; }
+
+void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size)
+{
+    this->rom = std::move(rom);
+    rom_size = size;
+}
+
+uint8_t SimulatorMemoryView::get(std::uint16_t address) const
+{
+    return rom->get_direct_data(address);
+}
+
+size_t SimulatorMemoryView::size() const { return rom_size; }

@@ -5,14 +5,29 @@
 #include "ControllerWidget.h"
 
 #include <devices/src/DoubleClock.h>
+#include <devices/src/MemoryView.h>
 #include <emulation_core/src/DataBus.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
+#include <span>
 
 class SimpleROM;
 class CPU8008;
 class ControlBus;
 class InterruptAtStart;
+
+class SimulatorMemoryView : public MemoryView
+{
+public:
+    void set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size);
+
+    [[nodiscard]] uint8_t get(std::uint16_t address) const override;
+    [[nodiscard]] size_t size() const override;
+
+private:
+    std::shared_ptr<SimpleROM> rom{};
+    std::size_t rom_size;
+};
 
 class Simulator
 {
@@ -33,6 +48,8 @@ public:
     uint64_t clock_1_pulse{};
     uint64_t clock_2_pulse{};
 
+    const MemoryView& get_memory_view();
+
 private:
     Scheduler scheduler{};
 
@@ -41,6 +58,8 @@ private:
     std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<DataBus> data_bus{};
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
+
+    SimulatorMemoryView memory_view;
 };
 
 #endif //MICRALN_SIMULATOR_H
