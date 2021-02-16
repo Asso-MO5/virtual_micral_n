@@ -1,4 +1,5 @@
 #include "Disassemble8008.h"
+#include "MemoryView.h"
 
 #include <iomanip>
 
@@ -18,11 +19,11 @@ namespace
 
 } // namespace
 
-Disassemble8008::Disassemble8008(const std::span<std::uint8_t>& data) : data(data) {}
+Disassemble8008::Disassemble8008(const MemoryView& memory_view) : memory_view(memory_view) {}
 
 std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
 {
-    auto decoded = instruction_table.decode_instruction(data[address]);
+    auto decoded = instruction_table.decode_instruction(memory_view.get(address));
 
     if (decoded.instruction->name == InstructionNameFor8008::UNKNOWN)
     {
@@ -37,11 +38,11 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
         case InstructionNameFor8008::LMI:
         case InstructionNameFor8008::ALU_OPI: {
             auto value_address = address + 1;
-            if (value_address >= data.size())
+            if (value_address >= memory_view.size())
             {
                 return {DECODING_ERROR, 1};
             }
-            auto immediate_value = data[value_address];
+            auto immediate_value = memory_view.get(value_address);
 
             text_opcode.append(to_hex<int, 2>(immediate_value));
 
@@ -59,11 +60,12 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
         case InstructionNameFor8008::CFc:
         case InstructionNameFor8008::CTc: {
             auto value_address = address + 2;
-            if (value_address >= data.size())
+            if (value_address >= memory_view.size())
             {
                 return {DECODING_ERROR, 1};
             }
-            auto immediate_value = data[value_address] << 8 | data[value_address - 1];
+            auto immediate_value =
+                    memory_view.get(value_address) << 8 | memory_view.get(value_address - 1);
 
             text_opcode.append(to_hex<int, 4>(immediate_value));
 
@@ -79,13 +81,13 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
     }
     else if (decoded.instruction->name == InstructionNameFor8008::INP)
     {
-        int device_address = (data[address] & 0b00001110) >> 1;
+        int device_address = (memory_view.get(address) & 0b00001110) >> 1;
         text_opcode.append(to_hex<int, 1>(device_address));
     }
 
     else if (decoded.instruction->name == InstructionNameFor8008::OUT)
     {
-        int device_address = ((data[address] & 0b00111110) >> 1) - 8;
+        int device_address = ((memory_view.get(address) & 0b00111110) >> 1) - 8;
         text_opcode.append(to_hex<int, 1>(device_address));
     }
 
