@@ -19,7 +19,8 @@ set(DEVICES_FILES
         src/InterruptAtStart.cpp src/InterruptAtStart.h
         src/Instructions8008.cpp src/Instructions8008.h
         src/Constants8008.h
-        src/Disassemble8008.cpp src/Disassemble8008.h)
+        src/Disassemble8008.cpp src/Disassemble8008.h
+        src/MemoryView.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
