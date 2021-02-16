@@ -1,7 +1,7 @@
 #include "Panel8008.h"
 
-#include "Simulator.h"
 #include "SignalPlot.h"
+#include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
 #include <imgui.h>
@@ -26,17 +26,16 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000 / 1000);
 
     ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
-                scheduler.get_counter() > 0
-                        ? 1'000'000 * clock_1_pulse / scheduler.get_counter()
-                        : 0,
+                scheduler.get_counter() > 0 ? 1'000'000 * clock_1_pulse / scheduler.get_counter()
+                                            : 0,
                 average_frequency);
 
     ImGui::Checkbox("Update while running", &running_update);
 
     if (running_update)
     {
-        const double first_time = std::min(phase_1_recorder.time_series()[0],
-                                           phase_2_recorder.time_series()[0]);
+        const double first_time =
+                std::min(phase_1_recorder.time_series()[0], phase_2_recorder.time_series()[0]);
         const size_t last_index = phase_1_recorder.size() - 1;
         const double last_time = std::max(phase_1_recorder.time_series()[last_index],
                                           phase_2_recorder.time_series()[last_index]);
@@ -64,18 +63,20 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
 
         {
             ImGui::BeginChild("ChildLeft-Internal",
-                              ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 160),
-                              true);
+                              ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 160), true);
 
             auto state = static_cast<uint>(cpu.get_output_pins().state);
             ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,
                         (state >> 0) & 1, state_to_name(state));
 
+            auto cycle_control = static_cast<uint>(cpu.get_debug_data().cycle_control);
+            ImGui::Text("Cycle Control: %s",
+                        CYCLE_CONTROL_NAMES[static_cast<size_t>(cycle_control >> 6)]);
+
             ImGui::Text("REG.a: %02x", cpu_debug_data.hidden_registers.a);
             ImGui::Text("REG.b: %02x", cpu_debug_data.hidden_registers.b);
 
-            for (auto flag_index = 0; flag_index < IM_ARRAYSIZE(FLAG_NAMES);
-                 flag_index += 1)
+            for (auto flag_index = 0; flag_index < IM_ARRAYSIZE(FLAG_NAMES); flag_index += 1)
             {
                 ImGui::Text("%s: %s", FLAG_NAMES[flag_index],
                             cpu_debug_data.flags[flag_index] ? "X" : "_");
@@ -84,8 +85,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
             ImGui::Text("%s @ %04x",
                         cpu_debug_data.instruction_register == 0
                                 ? "---"
-                                : instruction_to_string(cpu_debug_data.decoded_instruction)
-                                          .c_str(),
+                                : instruction_to_string(cpu_debug_data.decoded_instruction).c_str(),
                         cpu_debug_data.latest_emitted_pci);
 
             ImGui::EndChild();
@@ -106,16 +106,14 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
 
         {
             ImGui::BeginChild("ChildLeft-Stack",
-                              ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 180),
-                              true);
+                              ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 180), true);
 
             ImGui::Text("Address Stack");
             size_t stack_index = 0;
             for (auto& address : cpu_debug_data.address_stack.stack)
             {
                 ImGui::Text("%04x %s", cpu_debug_data.address_stack.stack[stack_index],
-                            stack_index == cpu_debug_data.address_stack.stack_index ? "<-"
-                                                                                    : "");
+                            stack_index == cpu_debug_data.address_stack.stack_index ? "<-" : "");
                 stack_index += 1;
             }
 
