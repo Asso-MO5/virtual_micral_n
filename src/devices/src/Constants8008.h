@@ -17,9 +17,8 @@ namespace Constants8008
 } // namespace Constants8008
 
 static const char* STATE_NAMES[] = {"WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4"};
-
 static const char* REGISTER_NAMES[] = {"A", "B", "C", "D", "E", "H", "L"};
-
 static const char* FLAG_NAMES[] = {"Carry ", "Zero  ", "Sign  ", "Parity"};
+static const char* CYCLE_CONTROL_NAMES[] = {"PCI ", "PCR", "PCC", "PCW"};
 
 #endif //MICRALN_CONSTANTS8008_H
