@@ -534,6 +534,7 @@ void CPU8008::execute_t3()
         }
 
         checks_cycle_end(static_cast<uint8_t>(action));
+        checks_conditional_cycle_end(action);
     }
 }
 
