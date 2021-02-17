@@ -37,11 +37,11 @@ public:
 
 Simulator::Simulator()
 {
-    ReadRomData rom_data_file("data/8008-hello-world.bin");
-    auto & rom_data = rom_data_file.data;
+    //    ReadRomData rom_data_file("data/8008-hello-world.bin");
+    //    auto & rom_data = rom_data_file.data;
 
-//    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
-//                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
+                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
@@ -71,9 +71,10 @@ Simulator::Simulator()
         control_bus->signal_phase_2(edge);
     });
 
-    auto& captured_sync_recorder = sync_recorder;
-    cpu->register_sync_trigger(
-            [&captured_sync_recorder](Edge edge) { captured_sync_recorder.add(edge); });
+    cpu->register_sync_trigger([this](Edge edge) {
+        sync_recorder.add(edge);
+        control_bus->signal_sync(edge);
+    });
 
     // Starts the CPU (normally should wait some cycle before triggering the interrupt)
     cpu->signal_vdd(Edge::Front::RISING);

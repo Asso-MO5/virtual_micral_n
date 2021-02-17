@@ -1,6 +1,7 @@
 * PCW and PCC
     * On a PCW cycle, T3 must be a DATA OUT
-    * There is also a Write Cycle on T4 for the Conditions with PCC 
+    * There is also a Write Cycle on T4 for the Conditions with PCC
+* Wait for READY on T3 of Cycle 2 of OUT
 * Implement Simple RAM
 * Implement a disassembly window
 * Implement a RAM inspector window

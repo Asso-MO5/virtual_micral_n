@@ -104,8 +104,16 @@ void CPU8008::step()
 
             if (param)
             {
+                uint8_t data_to_send = io_data_latch;
+
+                if (output_pins.state == CpuState::T2)
+                {
+                    data_to_send &= 0b00111111;
+                    data_to_send |= static_cast<uint8_t>(cycle_control);
+                }
+
                 data_pins.take_bus();
-                data_pins.write(io_data_latch);
+                data_pins.write(data_to_send);
             }
             else
             {
@@ -214,6 +222,11 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
             next_events.push(std::make_tuple(edge_time + 20, DATA_OUT, 1));
             break;
         case CpuState::T3:
+            if (cycle_control == Constants8008::CycleControl::PCW)
+            {
+                next_events.push(std::make_tuple(edge_time + 20, DATA_OUT, 1));
+            }
+            break;
         case CpuState::T4:
         case CpuState::T5:
             break;
@@ -242,6 +255,12 @@ void CPU8008::on_signal_22_falling(Scheduling::counter_type edge_time)
                     std::make_tuple(edge_time + Timings::DATA_OUT_HOLD_TIME + 20, DATA_OUT, 0));
             break;
         case CpuState::T3:
+            if (cycle_control == Constants8008::CycleControl::PCW)
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + Timings::DATA_OUT_HOLD_TIME + 20, DATA_OUT, 0));
+            }
+            break;
         case CpuState::T4:
         case CpuState::T5:
             break;
@@ -491,6 +510,7 @@ void CPU8008::execute_t3()
                 break;
             case CycleActionsFor8008::Out_Reg_b:
                 assert(cycle_control == CycleControl::PCW);
+                assert(data_pins.is_owning_bus());
                 assert(false && "Not done yet");
                 io_data_latch = hidden_registers.b;
                 break;
@@ -671,16 +691,19 @@ void CPU8008::execute_t5()
                     scratch_pad_memory[static_cast<size_t>(Register::A)] &=
                             static_cast<uint8_t>(hidden_registers.b);
                     update_flags(register_A);
+                    flags[static_cast<size_t>(Flags::Carry)] = 0;
                     break;
                 case 0b101: // XOR
                     scratch_pad_memory[static_cast<size_t>(Register::A)] ^=
                             static_cast<uint8_t>(hidden_registers.b);
                     update_flags(register_A);
+                    flags[static_cast<size_t>(Flags::Carry)] = 0;
                     break;
                 case 0b110: // OR
                     scratch_pad_memory[static_cast<size_t>(Register::A)] |=
                             static_cast<uint8_t>(hidden_registers.b);
                     update_flags(register_A);
+                    flags[static_cast<size_t>(Flags::Carry)] = 0;
                     break;
                 case 0b111: // CP (Compare)
                 {
@@ -688,6 +711,7 @@ void CPU8008::execute_t5()
                                            static_cast<int16_t>(hidden_registers.b);
                     flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
                     flags[static_cast<size_t>(Flags::Zero)] = intermediate == 0;
+                    // TODO: What about Sign and Parity?
                 }
                 break;
                 default:
