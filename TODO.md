@@ -1,6 +1,4 @@
-* PCW and PCC
-    * On a PCW cycle, T3 must be a DATA OUT
-    * There is also a Write Cycle on T4 for the Conditions with PCC
+* Implement PCC Cycle
 * Wait for READY on T3 of Cycle 2 of OUT
 * Implement Simple RAM
 * Implement a disassembly window
@@ -11,6 +9,8 @@
 * Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
+* There are missing bound checks, sometimes, the simulator stops because vdd is LOW.
+  But it's not set low. So there's probably an out of bound access. 
 * Possible optimization  
   * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
   * 8008: probably the priority queue is overkill too.

@@ -47,22 +47,8 @@ void ControlBus::signal_phase_2(const Edge& edge)
 
 void ControlBus::signal_sync(const Edge& edge)
 {
-    if (edge == Edge::Front::RISING)
+    if (edge == Edge::Front::FALLING)
     {
-        if (cpu->get_output_pins().state == CPU8008::CpuState::T3) {}
-    }
-    else
-    {
-        if (cpu->get_output_pins().state == CPU8008::CpuState::T3)
-        {
-            // TODO: Only on PCI and PCR
-            // Or maybe set DATA OUT only on Sync Low
-            // Or Latch Cycle Control on T2 (PCI + Sync + T2)
-            // Record the ROM Enable signal
-            // Display the T1... and PCI...
-            // Make a Panel for the Signals
-            //rom_output_disable(edge);
-        }
         read_address_from_cpu();
     }
 }

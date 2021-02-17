@@ -2,8 +2,8 @@
 #define MICRALN_CPU8008_H
 
 #include "AddressStack.h"
-#include "Instructions8008.h"
 #include "Constants8008.h"
+#include "Instructions8008.h"
 
 #include <array>
 #include <emulation_core/src/ConnectedData.h>
@@ -26,7 +26,6 @@ public:
         T1I = 0b110,
         T4 = 0b111,
     };
-
 
     enum class Register : uint8_t
     {
@@ -126,6 +125,8 @@ private:
     uint16_t latest_emitted_pci{};
 
     Constants8008::CycleControl cycle_control{Constants8008::CycleControl::PCI};
+    Constants8008::CycleControl next_cycle_control{Constants8008::CycleControl::PCI};
+
     uint8_t memory_cycle{}; // Can be reduced to distinguished between the second and third cycle?
     bool is_first_phase_cycle{true};
     bool interrupt_pending{};
@@ -157,6 +158,8 @@ private:
     void checks_cycle_end(uint8_t action);
     void execute_t5();
     void update_flags(const uint8_t& reg);
+
+    void ends_cycle(Constants8008::CycleControl cycle_control);
 };
 
 #endif //MICRALN_CPU8008_H

@@ -83,8 +83,19 @@ void CPU8008::step()
                 case CpuState::WAIT:
                     break;
                 case CpuState::T3:
-                    // Too early to execute T3.
-                    // It is executed on the DATA_IN signal.
+                    if (cycle_control == Constants8008::CycleControl::PCI ||
+                        cycle_control == Constants8008::CycleControl::PCR)
+                    {
+                        // Too early to execute T3. The data is not yet present
+                        // on the data bus.
+                        // It will be executed on the DATA_IN signal.
+                    }
+                    else
+                    {
+                        // On a PCW Cycle, the execution is now, as there's no DATA IN
+                        // issued, and no dependency on data presence on the BUS.
+                        execute_t3();
+                    }
                     break;
                 case CpuState::STOPPED:
                     break;
@@ -172,6 +183,7 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                 // TODO: Instruction Jammed goes to TI1
                 next_events.push(
                         std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+                cycle_control = next_cycle_control;
             }
             else
             {
@@ -186,6 +198,7 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                 // TODO: Instruction Jammed goes to TI1
                 next_events.push(
                         std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+                cycle_control = next_cycle_control;
             }
             else
             {
@@ -235,7 +248,8 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
 
 void CPU8008::on_signal_21_falling(Scheduling::counter_type edge_time)
 {
-    if (output_pins.state == CpuState::T3)
+    if (output_pins.state == CpuState::T3 && (cycle_control == Constants8008::CycleControl::PCI ||
+                                              cycle_control == Constants8008::CycleControl::PCR))
     {
         next_events.push(std::make_tuple(edge_time + Timings::DATA_IN_HOLD_TIME, DATA_IN, 1));
     }
@@ -440,6 +454,7 @@ void CPU8008::execute_t1()
 
     if (cycle_control == CycleControl::PCI)
     {
+        assert(memory_cycle == 0);
         instruction_register = 0;
         latest_emitted_pci = address_stack.get_pc();
         io_data_latch = address_stack.get_low_pc_and_inc();
@@ -454,6 +469,7 @@ void CPU8008::execute_t2()
 {
     if (cycle_control == CycleControl::PCI)
     {
+        assert(memory_cycle == 0);
         io_data_latch = address_stack.get_high_pc();
     }
     else
@@ -510,8 +526,6 @@ void CPU8008::execute_t3()
                 break;
             case CycleActionsFor8008::Out_Reg_b:
                 assert(cycle_control == CycleControl::PCW);
-                assert(data_pins.is_owning_bus());
-                assert(false && "Not done yet");
                 io_data_latch = hidden_registers.b;
                 break;
             case CycleActionsFor8008::Fetch_IR_And_Reg_b:
@@ -537,8 +551,7 @@ void CPU8008::checks_conditional_cycle_end(const CycleActionsFor8008::T3_Action&
 
         if (!condition_verified)
         {
-            cycle_ended = true;
-            // And stays in PCI
+            ends_cycle(Constants8008::CycleControl::PCI);
         }
     }
 }
@@ -587,13 +600,13 @@ void CPU8008::checks_cycle_end(uint8_t action)
         if (memory_cycle == 0)
         {
             auto& next_cycle = decoded_instruction.instruction->cycle_2;
-            cycle_control = next_cycle.cycle_control;
+            ends_cycle(next_cycle.cycle_control);
         }
         else
         {
             assert(memory_cycle == 1);
             auto& next_cycle = decoded_instruction.instruction->cycle_3;
-            cycle_control = next_cycle.cycle_control;
+            ends_cycle(next_cycle.cycle_control);
         }
     }
 }
@@ -780,4 +793,10 @@ void CPU8008::update_flags(const uint8_t& reg)
     flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
     flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
     flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
+}
+
+void CPU8008::ends_cycle(Constants8008::CycleControl cycle_control)
+{
+    cycle_ended = true;
+    next_cycle_control = cycle_control;
 }

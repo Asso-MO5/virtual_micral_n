@@ -37,11 +37,11 @@ public:
 
 Simulator::Simulator()
 {
-    //    ReadRomData rom_data_file("data/8008-hello-world.bin");
-    //    auto & rom_data = rom_data_file.data;
+    ReadRomData rom_data_file("data/8008-hello-world.bin");
+    auto & rom_data = rom_data_file.data;
 
-    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
-                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+//    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
+//                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
