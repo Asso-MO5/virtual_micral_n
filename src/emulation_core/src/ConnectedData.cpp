@@ -21,7 +21,7 @@ uint8_t ConnectedData::read() const { return local_data; }
 
 void ConnectedData::take_bus()
 {
-    if (data_bus)
+    if (data_bus && !owns_bus)
     {
         data_bus->request(this);
     }
