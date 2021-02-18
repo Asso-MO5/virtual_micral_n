@@ -179,11 +179,20 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
         case CpuState::T3:
             if (cycle_ended)
             {
-                // TODO: Test Interruption
-                // TODO: Instruction Jammed goes to TI1
-                next_events.push(
-                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
-                cycle_control = next_cycle_control;
+                if (decoded_instruction.instruction->name == InstructionNameFor8008::HLT)
+                {
+                    cycle_control = Constants8008::CycleControl::PCI;
+                    next_events.push(std::make_tuple(edge_time + 25, STATE,
+                                                     static_cast<int>(CpuState::STOPPED)));
+                }
+                else
+                {
+                    // TODO: Test Interruption
+                    // TODO: Instruction Jammed goes to TI1
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+                    cycle_control = next_cycle_control;
+                }
             }
             else
             {
