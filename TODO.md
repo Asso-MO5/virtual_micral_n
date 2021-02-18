@@ -1,9 +1,6 @@
-* Implement Simple RAM
-* Implement a RAM inspector window
 * Implement OUT
   * Implement PCC Cycle
   * Wait for READY on T3 of Cycle 2 of OUT
-* Add the copy string example as loadable ROM + RAM
 * Extract the definition of the machine from the Simulator
 * Clean: extract Recorders from the Simulator
 * Make the clock widget only appear on pause?

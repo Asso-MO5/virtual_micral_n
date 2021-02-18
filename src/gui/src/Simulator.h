@@ -6,6 +6,7 @@
 
 #include <devices/src/DoubleClock.h>
 #include <devices/src/MemoryView.h>
+#include <devices/src/SimpleRAM.h>
 #include <emulation_core/src/DataBus.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
@@ -19,7 +20,8 @@ class InterruptAtStart;
 class SimulatorMemoryView : public MemoryView
 {
 public:
-    void set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size);
+    void set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size, uint16_t start_address);
+    void set_ram(std::shared_ptr<SimpleRAM> ram, std::size_t size, uint16_t start_address);
 
     [[nodiscard]] uint8_t get(std::uint16_t address) const override;
     [[nodiscard]] size_t size() const override;
@@ -27,6 +29,11 @@ public:
 private:
     std::shared_ptr<SimpleROM> rom{};
     std::size_t rom_size;
+    uint16_t rom_start_address;
+
+    std::shared_ptr<SimpleRAM> ram{};
+    std::size_t ram_size;
+    uint16_t ram_start_address;
 };
 
 class Simulator
@@ -55,6 +62,7 @@ private:
 
     std::shared_ptr<CPU8008> cpu{};
     std::shared_ptr<SimpleROM> rom{};
+    std::shared_ptr<SimpleRAM> ram{};
     std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<DataBus> data_bus{};
     std::shared_ptr<InterruptAtStart> interrupt_at_start;

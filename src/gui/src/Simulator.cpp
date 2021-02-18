@@ -10,6 +10,12 @@
 #include <fstream>
 #include <utility>
 
+namespace
+{
+    const uint16_t RAM_SIZE = 2048;
+    const uint16_t RAM_START = 0x1000;
+} // namespace
+
 class ReadRomData
 {
 public:
@@ -38,21 +44,24 @@ public:
 Simulator::Simulator()
 {
     ReadRomData rom_data_file("data/8008-hello-world.bin");
-    auto & rom_data = rom_data_file.data;
+    auto& rom_data = rom_data_file.data;
 
-//    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
-//                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    //    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
+    //                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
     rom = std::make_shared<SimpleROM>(rom_data);
+    ram = std::make_shared<SimpleRAM>(RAM_SIZE);
+
     data_bus = std::make_shared<DataBus>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
-    control_bus = std::make_shared<ControlBus>(cpu, rom);
+    control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
 
     cpu->connect_data_bus(data_bus);
     rom->connect_data_bus(data_bus);
+    ram->connect_data_bus(data_bus);
 
     clock->register_phase_1_trigger([this](Edge edge) {
         clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
@@ -83,7 +92,8 @@ Simulator::Simulator()
     scheduler.add(cpu);
     scheduler.add(clock);
 
-    memory_view.set_rom(rom, rom_data.size());
+    memory_view.set_rom(rom, std::min(rom_data.size(), static_cast<size_t>(0x1000)), 0x0000);
+    memory_view.set_ram(ram, RAM_SIZE, RAM_START);
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
@@ -151,15 +161,33 @@ const CPU8008& Simulator::get_cpu() const { return *cpu; }
 const DataBus& Simulator::get_data_bus() const { return *data_bus; }
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
 
-void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size)
+void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size,
+                                  uint16_t start_address)
 {
     this->rom = std::move(rom);
     rom_size = size;
+    rom_start_address = start_address;
+}
+
+void SimulatorMemoryView::set_ram(std::shared_ptr<SimpleRAM> ram, std::size_t size,
+                                  uint16_t start_address)
+{
+    this->ram = std::move(ram);
+    ram_size = size;
+    ram_start_address = start_address;
 }
 
 uint8_t SimulatorMemoryView::get(std::uint16_t address) const
 {
-    return rom->get_direct_data(address);
+    if (address >= rom_start_address && address < rom_start_address + rom_size)
+    {
+        return rom->get_direct_data(address - rom_start_address);
+    }
+    else if (address >= ram_start_address && address < ram_start_address + ram_size)
+    {
+        return ram->get_direct_data(address - ram_start_address);
+    }
+    return 0;
 }
 
-size_t SimulatorMemoryView::size() const { return rom_size; }
+size_t SimulatorMemoryView::size() const { return 0x4000; }
