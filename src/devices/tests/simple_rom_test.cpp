@@ -38,6 +38,7 @@ TEST(SimpleRom, contains_data_after_select_and_read)
 
     auto & data_pins = rom.get_data_pins();
     ASSERT_TRUE(data_pins.is_owning_bus());
+    ASSERT_THAT(data_pins.read(), Eq(0x70));
 }
 
 TEST(SimpleRom, doesnt_apply_data_when_not_selected)
@@ -77,4 +78,5 @@ TEST(SimpleRom, contains_other_data_when_changing_address)
 
     auto & data_pins = rom.get_data_pins();
     ASSERT_TRUE(data_pins.is_owning_bus());
+    ASSERT_THAT(data_pins.read(), Eq(0x55));
 }
