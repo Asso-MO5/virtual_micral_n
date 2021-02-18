@@ -20,7 +20,8 @@ set(GUI_FILES src/main.cpp
         src/Simulator.cpp src/Simulator.h
         src/Panel8008.cpp src/Panel8008.h
         src/PanelDisassembly.cpp src/PanelDisassembly.h
-        src/PanelMemory.cpp src/PanelMemory.h)
+        src/PanelMemory.cpp src/PanelMemory.h
+        src/PanelControl.cpp src/PanelControl.h)
 
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h

@@ -1,4 +1,8 @@
-* Implement Interrupt 
+* Implement Interrupt
+  * Control Panel which can send the Interrupt (and Wait, for the Future)
+  * InterruptController which synchronizes the Interrupt Signal to the 8008
+  * And why not, data to inject.
+  * And feedback light on the STOPPED and WAIT status.
 * Implement OUT
   * Implement PCC Cycle
   * Wait for READY on T3 of Cycle 2 of OUT

@@ -1,6 +1,7 @@
 #include "ControllerWidget.h"
 #include "ImGuiSDLGLContext.h"
 #include "Panel8008.h"
+#include "PanelControl.h"
 #include "PanelDisassembly.h"
 #include "PanelMemory.h"
 #include "Simulator.h"
@@ -70,6 +71,7 @@ int main(int, char**)
     Simulator simulator;
     ControllerWidget controller;
     Disassemble8008 disassemble{simulator.get_memory_view()};
+    PanelControl panel_control;
 
     Averager<uint64_t, 8> frequency_averager{};
 
@@ -113,6 +115,7 @@ int main(int, char**)
         }
 
         display_memory_panel(simulator);
+        panel_control.display();
 
         controller.update();
         context.render_frame();
