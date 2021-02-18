@@ -20,7 +20,8 @@ set(DEVICES_FILES
         src/Instructions8008.cpp src/Instructions8008.h
         src/Constants8008.h
         src/Disassemble8008.cpp src/Disassemble8008.h
-        src/MemoryView.h)
+        src/MemoryView.h
+        src/SimpleRAM.cpp src/SimpleRAM.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
@@ -28,6 +29,7 @@ set(DEVICES_TEST_FILES
         tests/double_clock_test.cpp
         tests/address_stack_test.cpp
         tests/simple_rom_test.cpp
+        tests/simple_ram_test.cpp
         tests/instructions_8008_test.cpp
         tests/disassemble_8008_test.cpp)
 
