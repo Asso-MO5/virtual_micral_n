@@ -16,4 +16,4 @@
   * 8008: probably the priority queue is overkill too.
   * SignalRecorder makes a lot of costly memcpy.
   * InstructionTableFor8008 for the disassembly and for the 8008 decoding are ducplicated in memory.
-  
+  * The Panels (Panels/Disassembly) are constantly re-updated, which is slow (especially for the PanelMemory)

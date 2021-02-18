@@ -2,6 +2,7 @@
 #include "ImGuiSDLGLContext.h"
 #include "Panel8008.h"
 #include "PanelDisassembly.h"
+#include "PanelMemory.h"
 #include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
@@ -110,6 +111,8 @@ int main(int, char**)
         {
             display_disassembly_panel(simulator, disassemble);
         }
+
+        display_memory_panel(simulator);
 
         controller.update();
         context.render_frame();
