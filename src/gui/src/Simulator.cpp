@@ -57,6 +57,7 @@ Simulator::Simulator()
 
     data_bus = std::make_shared<DataBus>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
+    interrupt_controller = std::make_shared<InterruptController>(&(cpu->get_output_pins().state));
     control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
 
     cpu->connect_data_bus(data_bus);
@@ -69,6 +70,7 @@ Simulator::Simulator()
         phase_1_recorder.add(edge);
         cpu->signal_phase_1(edge);
         interrupt_at_start->signal_phase_1(edge);
+        interrupt_controller->signal_phase_1(edge);
         control_bus->signal_phase_1(edge);
     });
 
@@ -84,6 +86,9 @@ Simulator::Simulator()
         sync_recorder.add(edge);
         control_bus->signal_sync(edge);
     });
+
+    interrupt_controller->register_interrupt_trigger(
+            [this](Edge edge) { cpu->signal_interrupt(edge); });
 
     // Starts the CPU (normally should wait some cycle before triggering the interrupt)
     cpu->signal_vdd(Edge::Front::RISING);
@@ -160,19 +165,20 @@ const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 const CPU8008& Simulator::get_cpu() const { return *cpu; }
 const DataBus& Simulator::get_data_bus() const { return *data_bus; }
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
+InterruptController& Simulator::get_interrupt_controller() { return *interrupt_controller; }
 
-void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom, std::size_t size,
+void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom_to_install, std::size_t size,
                                   uint16_t start_address)
 {
-    this->rom = std::move(rom);
+    rom = std::move(rom_to_install);
     rom_size = size;
     rom_start_address = start_address;
 }
 
-void SimulatorMemoryView::set_ram(std::shared_ptr<SimpleRAM> ram, std::size_t size,
+void SimulatorMemoryView::set_ram(std::shared_ptr<SimpleRAM> ram_to_install, std::size_t size,
                                   uint16_t start_address)
 {
-    this->ram = std::move(ram);
+    ram = std::move(ram_to_install);
     ram_size = size;
     ram_start_address = start_address;
 }
