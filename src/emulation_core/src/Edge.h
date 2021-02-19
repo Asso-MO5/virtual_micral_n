@@ -45,7 +45,7 @@ struct Edge
     constexpr bool operator==(Edge other) const { return value == other.value; }
     constexpr bool operator!=(Edge other) const { return value != other.value; }
 
-    State apply()
+    [[nodiscard]] State apply() const
     {
         switch (value)
         {
