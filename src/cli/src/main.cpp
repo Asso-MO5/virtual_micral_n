@@ -3,6 +3,7 @@
 #include <devices/src/DoubleClock.h>
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/SimpleROM.h>
+#include <devices/src/SimpleRAM.h>
 #include <emulation_core/src/Scheduler.h>
 
 #include <emulation_core/src/DataBus.h>
@@ -30,6 +31,7 @@ int main(int argc, char** argv)
     LOG_F(INFO, "Creates the ROM");
     std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
     auto rom = std::make_shared<SimpleROM>(rom_data);
+    auto ram = std::make_shared<SimpleRAM>(1);; // Not used here, but the ControlBus needs one.
 
     LOG_F(INFO, "Creates the 8008");
     auto cpu = std::make_shared<CPU8008>(scheduler);
@@ -41,7 +43,7 @@ int main(int argc, char** argv)
     LOG_F(INFO, "Creates the Clock");
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
 
-    ControlBus control_bus{cpu, rom};
+    ControlBus control_bus{cpu, rom, ram};
     InterruptAtStart interrupt_at_start{cpu};
 
     clock->register_phase_1_trigger([&interrupt_at_start, &cpu, &control_bus](Edge edge) {
