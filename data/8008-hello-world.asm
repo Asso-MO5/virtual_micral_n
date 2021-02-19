@@ -33,6 +33,7 @@ LOOP:
     ORA
     JFZ LOOP
     HLT
+    LAA ; Insert NOP in case no instruction is jammed
     JMP START
 
 ADVANCE_HL:
