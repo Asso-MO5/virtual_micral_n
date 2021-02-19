@@ -128,9 +128,24 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         {
             auto initial_state = get_cpu().get_output_pins().state;
 
+            int timeout = 0;
+            if (initial_state == Constants8008::CpuState::STOPPED)
+            {
+                timeout = 50;
+            }
+
             while (get_cpu().get_output_pins().state == initial_state)
             {
                 scheduler.step();
+
+                if (timeout > 0)
+                {
+                    timeout -= 1;
+                    if (timeout == 0)
+                    {
+                        break;
+                    }
+                }
             }
         }
         else if (controller_state == ControllerWidget::STEP_ONE_CLOCK)
