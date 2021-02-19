@@ -37,7 +37,7 @@ void ControlBus::signal_phase_1(const Edge& edge)
     if (edge == Edge::Front::RISING)
     {
         if (cpu->get_output_pins().sync == State::HIGH &&
-            cpu->get_output_pins().state == CPU8008::CpuState::T3)
+            cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
 
@@ -69,7 +69,7 @@ void ControlBus::signal_phase_1(const Edge& edge)
     else
     {
         if (cpu->get_output_pins().sync == State::HIGH &&
-            cpu->get_output_pins().state == CPU8008::CpuState::T3)
+            cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
 
@@ -115,13 +115,13 @@ void ControlBus::signal_sync(const Edge& edge)
 
 void ControlBus::read_address_from_cpu()
 {
-    if (cpu->get_output_pins().state == CPU8008::CpuState::T1)
+    if (cpu->get_output_pins().state == Constants8008::CpuState::T1)
     {
         // TODO: Should be replaced by a decoder
         latched_address &= 0xff00;
         latched_address |= cpu->get_data_pins().read();
     }
-    if (cpu->get_output_pins().state == CPU8008::CpuState::T2)
+    if (cpu->get_output_pins().state == Constants8008::CpuState::T2)
     {
         auto read_value = cpu->get_data_pins().read();
         // TODO: Should be replaced by a decoder

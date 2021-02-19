@@ -15,18 +15,6 @@
 class CPU8008 : public SchedulableImpl
 {
 public:
-    enum class CpuState : uint8_t
-    {
-        WAIT = 0b000,
-        T3 = 0b001,
-        T1 = 0b010,
-        STOPPED = 0b011,
-        T2 = 0b100,
-        T5 = 0b101,
-        T1I = 0b110,
-        T4 = 0b111,
-    };
-
     enum class Register : uint8_t
     {
         A = 0b000,
@@ -41,7 +29,7 @@ public:
 
     struct OutputPins
     {
-        CpuState state{CpuState::STOPPED};
+        Constants8008::CpuState state{Constants8008::CpuState::STOPPED};
         State sync{State::LOW};
     };
 

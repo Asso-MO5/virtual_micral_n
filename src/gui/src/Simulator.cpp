@@ -141,14 +141,14 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         else if (controller_state == ControllerWidget::STEP_ONE_INSTRUCTION)
         {
             while (get_cpu().get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
-                   (get_cpu().get_output_pins().state == CPU8008::CpuState::T1))
+                   (get_cpu().get_output_pins().state == Constants8008::CpuState::T1))
             {
                 scheduler.step();
             }
 
             while (!((get_cpu().get_debug_data().cycle_control ==
                       Constants8008::CycleControl::PCI) &&
-                     (get_cpu().get_output_pins().state == CPU8008::CpuState::T1)))
+                     (get_cpu().get_output_pins().state == Constants8008::CpuState::T1)))
             {
                 scheduler.step();
             }
