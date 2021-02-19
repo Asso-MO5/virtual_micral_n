@@ -1,8 +1,8 @@
 * Implement Interrupt
-  * Control Panel which can send the Interrupt (and Wait, for the Future)
-  * InterruptController which synchronizes the Interrupt Signal to the 8008
-  * And why not, data to inject.
+  * Add a way to inject data on interruption.
+    * Check Micral N for operation. Is it going through WAIT ?
   * And feedback light on the STOPPED and WAIT status.
+* Implement WAIT and Control through the Panel
 * Implement OUT
   * Implement PCC Cycle
   * Wait for READY on T3 of Cycle 2 of OUT
@@ -11,6 +11,7 @@
 * Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
+* Should we keep the InterruptAtStart, or can it be an optional board?
 * There are missing bound checks, sometimes, the simulator stops because vdd is LOW.
   But it's not set low. So there's probably an out of bound access. 
 * Possible optimization  

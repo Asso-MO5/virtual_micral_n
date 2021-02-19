@@ -3,10 +3,12 @@
 
 #include <array>
 
+class Simulator;
+
 class PanelControl
 {
 public:
-    void display();
+    void display(Simulator& controller);
 
 private:
     bool interrupt_value = false;

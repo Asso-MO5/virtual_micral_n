@@ -1,5 +1,7 @@
 #include "PanelControl.h"
 
+#include "Simulator.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -68,14 +70,23 @@ namespace
     }
 } // namespace
 
-void PanelControl::display()
+void PanelControl::display(Simulator& simulator)
 {
     ImGui::Begin("Panel");
+
+    auto interrupt_value_before = interrupt_value;
 
     ImGui::BeginGroup();
     ImGui::Text("INT");
     display_control_button("INT", &interrupt_value, IMPULSE);
     ImGui::EndGroup();
+
+    if (interrupt_value != interrupt_value_before)
+    {
+        auto time = simulator.get_scheduler().get_counter();
+        Edge::Front front = interrupt_value ? Edge::Front::RISING : Edge::Front::FALLING;
+        simulator.get_interrupt_controller().wants_interrupt(Edge{front, time});
+    }
 
     ImGui::SameLine();
 
@@ -90,7 +101,6 @@ void PanelControl::display()
 
     for (auto& input_button : inputs)
     {
-        ImGui::BeginGroup();
         display_control_button("B", &input_button, TOGGLE);
         ImGui::SameLine();
     }

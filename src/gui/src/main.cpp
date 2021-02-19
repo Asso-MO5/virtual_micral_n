@@ -115,7 +115,7 @@ int main(int, char**)
         }
 
         display_memory_panel(simulator);
-        panel_control.display();
+        panel_control.display(simulator);
 
         controller.update();
         context.render_frame();
