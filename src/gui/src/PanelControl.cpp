@@ -21,6 +21,8 @@ namespace
         const float width = ImGui::GetFrameHeight();
         const float radius = width * 0.50f;
 
+        // Getting the position before the invisible button
+        const ImVec2 screen_position = ImGui::GetCursorScreenPos();
         ImGui::InvisibleButton(str_id, ImVec2(width, height));
 
         if (type == TOGGLE)
@@ -53,7 +55,6 @@ namespace
             back_color = *value ? style_color[ImGuiCol_Button] : INACTIVE_COLOR_NOT_HOVERED;
         }
 
-        const ImVec2 screen_position = ImGui::GetCursorScreenPos();
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         draw_list->AddRectFilled(screen_position,
