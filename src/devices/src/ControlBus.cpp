@@ -115,7 +115,9 @@ void ControlBus::signal_sync(const Edge& edge)
 
 void ControlBus::read_address_from_cpu()
 {
-    if (cpu->get_output_pins().state == Constants8008::CpuState::T1)
+    if (cpu->get_output_pins().state == Constants8008::CpuState::T1 ||
+        cpu->get_output_pins().state ==
+                Constants8008::CpuState::T1I) // While waiting for instruction Jam
     {
         // TODO: Should be replaced by a decoder
         latched_address &= 0xff00;
