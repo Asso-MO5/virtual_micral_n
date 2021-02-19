@@ -1,6 +1,6 @@
 #include "InterruptController.h"
 
-InterruptController::InterruptController(Constants8008::CpuState* cpu_state) : cpu_state(cpu_state)
+InterruptController::InterruptController(const Constants8008::CpuState* cpu_state) : cpu_state(cpu_state)
 {}
 
 void InterruptController::wants_interrupt(const Edge& edge)
