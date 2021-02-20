@@ -159,10 +159,7 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
         case CpuState::STOPPED:
             if (interrupt_pending)
             {
-                interrupt_pending = false;
-
-                next_events.push(
-                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1I)));
+                interrupt(edge_time);
             }
             break;
         case CpuState::WAIT:
@@ -200,10 +197,16 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                 }
                 else
                 {
-                    // TODO: Test Interruption
-                    // TODO: Instruction Jammed goes to TI1
-                    next_events.push(
-                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+                    // TODO: Instruction Jammed goes to TI1?
+                    if (is_instruction_complete() && interrupt_pending)
+                    {
+                        interrupt(edge_time);
+                    }
+                    else
+                    {
+                        next_events.push(std::make_tuple(edge_time + 25, STATE,
+                                                         static_cast<int>(CpuState::T1)));
+                    }
                     cycle_control = next_cycle_control;
                 }
             }
@@ -216,10 +219,16 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
         case CpuState::T4:
             if (cycle_ended)
             {
-                // TODO: Test Interruption
-                // TODO: Instruction Jammed goes to TI1
-                next_events.push(
-                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+                // TODO: Instruction Jammed goes to TI1?
+                if (is_instruction_complete() && interrupt_pending)
+                {
+                    interrupt(edge_time);
+                }
+                else
+                {
+                    next_events.push(
+                            std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+                }
                 cycle_control = next_cycle_control;
             }
             else
@@ -230,9 +239,15 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
             break;
         case CpuState::T5:
             assert(cycle_ended);
-            // TODO: Test Interruption
-            next_events.push(
-                    std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+            if (interrupt_pending)
+            {
+                interrupt(edge_time);
+            }
+            else
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1)));
+            }
             cycle_control = CycleControl::PCI;
 
             break;
@@ -821,8 +836,22 @@ void CPU8008::update_flags(const uint8_t& reg)
     flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
 }
 
-void CPU8008::ends_cycle(Constants8008::CycleControl cycle_control)
+void CPU8008::ends_cycle(Constants8008::CycleControl new_cycle_control)
 {
     cycle_ended = true;
-    next_cycle_control = cycle_control;
+    next_cycle_control = new_cycle_control;
+}
+
+bool CPU8008::is_instruction_complete() const
+{
+    assert(output_pins.state == Constants8008::CpuState::T3 ||
+           output_pins.state == Constants8008::CpuState::T4);
+    return next_cycle_control == Constants8008::CycleControl::PCI;
+}
+
+void CPU8008::interrupt(Scheduling::counter_type edge_time)
+{
+    interrupt_pending = false;
+
+    next_events.push(std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1I)));
 }

@@ -148,7 +148,9 @@ private:
     void execute_t5();
     void update_flags(const uint8_t& reg);
 
-    void ends_cycle(Constants8008::CycleControl cycle_control);
+    void ends_cycle(Constants8008::CycleControl new_cycle_control);
+    [[nodiscard]] bool is_instruction_complete() const;
+    void interrupt(Scheduling::counter_type edge_time);
 };
 
 #endif //MICRALN_CPU8008_H
