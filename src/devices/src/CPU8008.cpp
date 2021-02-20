@@ -166,6 +166,11 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
             }
             break;
         case CpuState::WAIT:
+            if (input_pins.ready == State{State::HIGH})
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T3)));
+            }
             break;
         case CpuState::T1:
         case CpuState::T1I:
@@ -173,8 +178,16 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                     std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T2)));
             break;
         case CpuState::T2:
-            next_events.push(
-                    std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T3)));
+            if (input_pins.ready == State{State::HIGH})
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T3)));
+            }
+            else
+            {
+                next_events.push(
+                        std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::WAIT)));
+            }
             break;
         case CpuState::T3:
             if (cycle_ended)
@@ -387,6 +400,9 @@ void CPU8008::signal_interrupt(Edge edge)
         interrupt_pending = true;
     }
 }
+
+void CPU8008::signal_wait(Edge edge) { input_pins.ready = edge.apply(); }
+
 void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 {
     sync_callback = std::move(callback);

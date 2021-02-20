@@ -61,6 +61,8 @@ public:
 
     const MemoryView& get_memory_view();
 
+    void set_wait_line(Edge edge);
+
 private:
     Scheduler scheduler{};
 

@@ -90,10 +90,19 @@ void PanelControl::display(Simulator& simulator)
 
     ImGui::SameLine();
 
+    auto wait_value_before = wait_value;
+
     ImGui::BeginGroup();
     ImGui::Text("WAIT");
     display_control_button("WAIT", &wait_value, TOGGLE);
     ImGui::EndGroup();
+
+    if (wait_value_before != wait_value)
+    {
+        auto time = simulator.get_scheduler().get_counter();
+        Edge::Front front = wait_value ? Edge::Front::FALLING : Edge::Front::RISING;
+        simulator.set_wait_line(Edge{front, time});
+    }
 
     ImGui::SameLine();
     ImGui::BeginGroup();
