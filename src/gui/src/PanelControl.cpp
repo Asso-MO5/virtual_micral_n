@@ -2,6 +2,7 @@
 
 #include "Simulator.h"
 
+#include <devices/src/CPU8008.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -16,6 +17,8 @@ namespace
     const ImVec4 INACTIVE_COLOR_HOVERED = ImVec4(0.78f, 0.78f, 0.78f, 1.0f);
     const ImVec4 INACTIVE_COLOR_NOT_HOVERED = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
     const ImU32 BORDER_COLOR = IM_COL32(255, 255, 255, 255);
+
+    const ImVec4 LED_GREEN_ON = ImVec4(0.0f, 1.0f, 0.f, 1.0f);
 
     void display_control_button(const char* str_id, bool* value, ButtonType type)
     {
@@ -68,6 +71,23 @@ namespace
                 screen_position.y + radius + (*value ? 1.f : 0.f) * (height - radius * 2.0f));
         draw_list->AddCircleFilled(circle_position, radius - 1.5f, BORDER_COLOR);
     }
+
+    void display_led(const char* id, bool value, ImVec4 color)
+    {
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        const ImVec2 screen_position = ImGui::GetCursorScreenPos();
+        const float radius = 5.f;
+        const auto circle_position = ImVec2(screen_position.x + radius, screen_position.y + radius);
+
+        if (!value)
+        {
+            color.x *= 0.2f;
+            color.y *= 0.2f;
+            color.z *= 0.2f;
+        }
+        draw_list->AddCircleFilled(circle_position, radius, ImGui::GetColorU32(color));
+    }
+
 } // namespace
 
 void PanelControl::display(Simulator& simulator)
@@ -113,6 +133,20 @@ void PanelControl::display(Simulator& simulator)
         display_control_button("B", &input_button, TOGGLE);
         ImGui::SameLine();
     }
+    ImGui::EndGroup();
+
+    auto& cpu = simulator.get_cpu();
+    auto& output_pins = cpu.get_output_pins();
+    ImGui::BeginGroup();
+    ImGui::Text("WAIT");
+    display_led("WAIT", output_pins.state == Constants8008::CpuState::WAIT, LED_GREEN_ON);
+    ImGui::EndGroup();
+
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::Text("STOPPED");
+    display_led("STOP", output_pins.state == Constants8008::CpuState::STOPPED, LED_GREEN_ON);
     ImGui::EndGroup();
 
     ImGui::End();

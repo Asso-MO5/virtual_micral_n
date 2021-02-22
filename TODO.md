@@ -1,7 +1,6 @@
 * Implement Interrupt
   * Add a way to inject data on interruption.
     * Check Micral N for operation. Is it going through WAIT ?
-  * And feedback light on the STOPPED and WAIT status.
 * Implement OUT
   * Implement PCC Cycle
   * Wait for READY on T3 of Cycle 2 of OUT
