@@ -1,3 +1,5 @@
+; Copy a string from a place to another.
+
 RAM: EQU 0x1000
 
 START:

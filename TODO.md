@@ -3,6 +3,8 @@
     * Check Micral N for operation. Is it going through WAIT ?
 * Implement OUT
   * Implement PCC Cycle
+  * Bus for PCC read is on the I/O, not Memory
+  * Latch the I/O information on the controller
   * Wait for READY on T3 of Cycle 2 of OUT
 * Extract the definition of the machine from the Simulator
 * Clean: extract Recorders from the Simulator

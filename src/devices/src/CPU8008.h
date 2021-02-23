@@ -36,7 +36,7 @@ public:
     struct InputPins
     {
         ::State interrupt;
-        ::State ready;
+        ::State ready{State::HIGH};
         ::State phase_1;
         ::State phase_2;
         ::State vdd;

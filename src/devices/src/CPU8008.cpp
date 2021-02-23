@@ -278,6 +278,11 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
             }
             break;
         case CpuState::T4:
+            if (cycle_control == Constants8008::CycleControl::PCC)
+            {
+                next_events.push(std::make_tuple(edge_time + 20, DATA_OUT, 1));
+            }
+            break;
         case CpuState::T5:
             break;
     }
@@ -313,6 +318,11 @@ void CPU8008::on_signal_22_falling(Scheduling::counter_type edge_time)
             }
             break;
         case CpuState::T4:
+            if (cycle_control == Constants8008::CycleControl::PCC)
+            {
+                next_events.push(std::make_tuple(edge_time + 20, DATA_OUT, 0));
+            }
+            break;
         case CpuState::T5:
             break;
     }
@@ -626,7 +636,11 @@ void CPU8008::execute_t4()
             address_stack.pop();
             break;
         case CycleActionsFor8008::Out_Conditions_Flags:
-            assert(false && "Not done yet");
+            assert(cycle_control == CycleControl::PCC);
+            io_data_latch = flags[static_cast<size_t>(Flags::Sign)] |
+                            (flags[static_cast<size_t>(Flags::Zero)] << 1) |
+                            (flags[static_cast<size_t>(Flags::Parity)] << 2) |
+                            (flags[static_cast<size_t>(Flags::Carry)] << 3);
     }
 
     checks_cycle_end(static_cast<uint8_t>(action));
