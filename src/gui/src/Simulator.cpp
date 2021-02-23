@@ -6,7 +6,10 @@
 #include <devices/src/ControlBus.h>
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/SimpleROM.h>
+#include <devices/src/SimpleRAM.h>
+#include <emulation_core/src/DataBus.h>
 
+#include <devices/src/IOController.h>
 #include <fstream>
 #include <utility>
 
@@ -62,6 +65,7 @@ Simulator::Simulator()
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
     interrupt_controller = std::make_shared<InterruptController>(&(cpu->get_output_pins().state));
     control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
+    io_controller = std::make_shared<IOController>(cpu, data_bus);
 
     cpu->connect_data_bus(data_bus);
     rom->connect_data_bus(data_bus);

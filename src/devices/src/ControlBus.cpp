@@ -61,7 +61,6 @@ void ControlBus::stop_t3_transfer(const Edge& edge)
     {
         switch (get_destination_from_address(latched_address))
         {
-
             case ROM:
                 rom_output_disable(edge);
                 break;
@@ -79,6 +78,10 @@ void ControlBus::stop_t3_transfer(const Edge& edge)
             ram_write_disable(edge);
         }
     }
+    else if (cycle_control == Constants8008::CycleControl::PCC)
+    {
+        // TODO: Signal to thw I/O Controller for stop emitting
+    }
 }
 
 void ControlBus::start_t3_transfer(const Edge& edge)
@@ -90,7 +93,6 @@ void ControlBus::start_t3_transfer(const Edge& edge)
     {
         switch (get_destination_from_address(latched_address))
         {
-
             case ROM:
                 rom_output_enable(edge);
                 break;
@@ -107,6 +109,10 @@ void ControlBus::start_t3_transfer(const Edge& edge)
         {
             ram_write_enable(edge);
         }
+    }
+    else if (cycle_control == Constants8008::CycleControl::PCC)
+    {
+        // TODO: Signal to thw I/O Controller for start emitting
     }
 }
 
@@ -140,7 +146,7 @@ void ControlBus::read_address_from_cpu()
         latched_address &= 0x00ff;
         latched_address |= (read_value & 0x3f) << 8;
 
-        // TODO: Only on PCI, PCR and PCW ??
+        // The address is always latched and applied, even on PCC cycle, it will just not be used.
         rom->set_address(latched_address & 0x0fff);
         ram->set_address(latched_address & 0x0fff);
 

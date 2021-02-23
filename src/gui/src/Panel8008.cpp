@@ -4,6 +4,7 @@
 #include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
+#include <emulation_core/src/DataBus.h>
 #include <imgui.h>
 
 const char* state_to_name(uint state) { return STATE_NAMES[state]; }

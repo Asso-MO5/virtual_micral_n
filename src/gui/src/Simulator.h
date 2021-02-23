@@ -7,16 +7,16 @@
 #include <devices/src/DoubleClock.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/MemoryView.h>
-#include <devices/src/SimpleRAM.h>
-#include <emulation_core/src/DataBus.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
-#include <span>
 
 class SimpleROM;
+class SimpleRAM;
+class DataBus;
 class CPU8008;
 class ControlBus;
 class InterruptAtStart;
+class IOController;
 
 class SimulatorMemoryView : public MemoryView
 {
@@ -73,6 +73,7 @@ private:
     std::shared_ptr<DataBus> data_bus{};
     std::shared_ptr<InterruptController> interrupt_controller;
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
+    std::shared_ptr<IOController> io_controller;
 
     SimulatorMemoryView memory_view;
 };

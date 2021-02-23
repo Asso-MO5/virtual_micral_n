@@ -22,7 +22,8 @@ set(DEVICES_FILES
         src/Disassemble8008.cpp src/Disassemble8008.h
         src/MemoryView.h
         src/SimpleRAM.cpp src/SimpleRAM.h
-        src/InterruptController.cpp src/InterruptController.h)
+        src/InterruptController.cpp src/InterruptController.h
+        src/IOController.cpp src/IOController.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
