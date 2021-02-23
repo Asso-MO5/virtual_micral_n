@@ -586,6 +586,8 @@ void CPU8008::execute_t3()
                 assert(false && "Invalid case");
         }
 
+        // TODO: In the PCC case, the Idle action is supposed to acknowledge a WAIT signal to proceed.
+
         checks_cycle_end(static_cast<uint8_t>(action));
         checks_conditional_cycle_end(action);
     }
