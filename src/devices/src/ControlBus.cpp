@@ -39,31 +39,7 @@ void ControlBus::signal_phase_1(const Edge& edge)
         if (cpu->get_output_pins().sync == State::HIGH &&
             cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
-            auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
-
-            if (cycle_control == Constants8008::CycleControl::PCI ||
-                cycle_control == Constants8008::CycleControl::PCR)
-            {
-                switch (get_destination_from_address(latched_address))
-                {
-
-                    case ROM:
-                        rom_output_disable(edge);
-                        break;
-                    case RAM:
-                        ram_output_disable(edge);
-                        break;
-                    case None:
-                        break;
-                }
-            }
-            else if (cycle_control == Constants8008::CycleControl::PCW)
-            {
-                if (get_destination_from_address(latched_address) == RAM)
-                {
-                    ram_write_disable(edge);
-                }
-            }
+            stop_t3_transfer(edge);
         }
     }
     else
@@ -71,31 +47,65 @@ void ControlBus::signal_phase_1(const Edge& edge)
         if (cpu->get_output_pins().sync == State::HIGH &&
             cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
-            auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
+            start_t3_transfer(edge);
+        }
+    }
+}
 
-            if (cycle_control == Constants8008::CycleControl::PCI ||
-                cycle_control == Constants8008::CycleControl::PCR)
-            {
-                switch (get_destination_from_address(latched_address))
-                {
+void ControlBus::stop_t3_transfer(const Edge& edge)
+{
+    auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
 
-                    case ROM:
-                        rom_output_enable(edge);
-                        break;
-                    case RAM:
-                        ram_output_enable(edge);
-                        break;
-                    case None:
-                        break;
-                }
-            }
-            else if (cycle_control == Constants8008::CycleControl::PCW)
-            {
-                if (get_destination_from_address(latched_address) == RAM)
-                {
-                    ram_write_enable(edge);
-                }
-            }
+    if (cycle_control == Constants8008::CycleControl::PCI ||
+        cycle_control == Constants8008::CycleControl::PCR)
+    {
+        switch (get_destination_from_address(latched_address))
+        {
+
+            case ROM:
+                rom_output_disable(edge);
+                break;
+            case RAM:
+                ram_output_disable(edge);
+                break;
+            case None:
+                break;
+        }
+    }
+    else if (cycle_control == Constants8008::CycleControl::PCW)
+    {
+        if (get_destination_from_address(latched_address) == RAM)
+        {
+            ram_write_disable(edge);
+        }
+    }
+}
+
+void ControlBus::start_t3_transfer(const Edge& edge)
+{
+    auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
+
+    if (cycle_control == Constants8008::CycleControl::PCI ||
+        cycle_control == Constants8008::CycleControl::PCR)
+    {
+        switch (get_destination_from_address(latched_address))
+        {
+
+            case ROM:
+                rom_output_enable(edge);
+                break;
+            case RAM:
+                ram_output_enable(edge);
+                break;
+            case None:
+                break;
+        }
+    }
+    else if (cycle_control == Constants8008::CycleControl::PCW)
+    {
+        if (get_destination_from_address(latched_address) == RAM)
+        {
+            ram_write_enable(edge);
         }
     }
 }

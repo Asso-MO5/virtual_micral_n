@@ -32,6 +32,8 @@ private:
     void ram_output_disable(const Edge& edge);
     void ram_write_enable(const Edge& edge);
     void ram_write_disable(const Edge& edge);
+    void start_t3_transfer(const Edge& edge);
+    void stop_t3_transfer(const Edge& edge);
 };
 
 #endif //MICRALN_CONTROLBUS_H
