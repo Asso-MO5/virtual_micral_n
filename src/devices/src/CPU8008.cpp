@@ -192,6 +192,9 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
                 if (decoded_instruction.instruction->name == InstructionNameFor8008::HLT)
                 {
                     cycle_control = Constants8008::CycleControl::PCI;
+
+                    // Internally the 8008 stays in the T3 state.
+                    // For emulation purposes, it goes to a « fake » STOPPED state.
                     next_events.push(std::make_tuple(edge_time + 25, STATE,
                                                      static_cast<int>(CpuState::STOPPED)));
                 }
