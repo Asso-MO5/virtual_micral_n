@@ -84,7 +84,8 @@ void CPU8008::step()
                     break;
                 case CpuState::T3:
                     if (cycle_control == Constants8008::CycleControl::PCI ||
-                        cycle_control == Constants8008::CycleControl::PCR)
+                        cycle_control == Constants8008::CycleControl::PCR ||
+                        cycle_control == Constants8008::CycleControl::PCC)
                     {
                         // Too early to execute T3. The data is not yet present
                         // on the data bus.
@@ -294,7 +295,8 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
 void CPU8008::on_signal_21_falling(Scheduling::counter_type edge_time)
 {
     if (output_pins.state == CpuState::T3 && (cycle_control == Constants8008::CycleControl::PCI ||
-                                              cycle_control == Constants8008::CycleControl::PCR))
+                                              cycle_control == Constants8008::CycleControl::PCR ||
+                                              cycle_control == Constants8008::CycleControl::PCC))
     {
         next_events.push(std::make_tuple(edge_time + Timings::DATA_IN_HOLD_TIME, DATA_IN, 1));
     }
@@ -598,9 +600,9 @@ void CPU8008::checks_conditional_cycle_end(const CycleActionsFor8008::T3_Action&
     auto conditionally_ended = action & CycleActionsFor8008::CONDITIONAL_END;
     if (conditionally_ended)
     {
-        auto condition = decoded_instruction.medium;
-        bool condition_verified = flags[condition & 0b11];
-        if (!(condition_verified & 0b100))
+        auto condition = decoded_instruction.medium & 0b11;
+        bool condition_verified = flags[condition];
+        if (!(decoded_instruction.medium & 0b100))
         {
             condition_verified = !condition_verified;
         }
