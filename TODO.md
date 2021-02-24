@@ -2,7 +2,7 @@
   * Add a way to inject data on interruption.
     * Check Micral N for operation. Is it going through WAIT ?
 * Implement OUT
-  * Latch the I/O information on the controller
+  * Add a control on the Panel to inject I/O data
 * Extract the definition of the machine from the Simulator
 * Clean: extract Recorders from the Simulator
 * Make the clock widget only appear on pause?

@@ -5,8 +5,8 @@
 #include <devices/src/CPU8008.h>
 #include <devices/src/ControlBus.h>
 #include <devices/src/InterruptAtStart.h>
-#include <devices/src/SimpleROM.h>
 #include <devices/src/SimpleRAM.h>
+#include <devices/src/SimpleROM.h>
 #include <emulation_core/src/DataBus.h>
 
 #include <devices/src/IOController.h>
@@ -49,8 +49,8 @@ Simulator::Simulator()
     ReadRomData rom_data_file("data/8008-input-output.bin");
     auto& rom_data = rom_data_file.data;
 
-//    ReadRomData rom_data_file("data/8008-hello-world.bin");
-//    auto& rom_data = rom_data_file.data;
+    //    ReadRomData rom_data_file("data/8008-hello-world.bin");
+    //    auto& rom_data = rom_data_file.data;
 
     //    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
     //                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
@@ -79,6 +79,7 @@ Simulator::Simulator()
         interrupt_at_start->signal_phase_1(edge);
         interrupt_controller->signal_phase_1(edge);
         control_bus->signal_phase_1(edge);
+        io_controller->signal_phase_1(edge);
     });
 
     clock->register_phase_2_trigger([this](Edge edge) {
@@ -87,11 +88,13 @@ Simulator::Simulator()
 
         cpu->signal_phase_2(edge);
         control_bus->signal_phase_2(edge);
+        io_controller->signal_phase_2(edge);
     });
 
     cpu->register_sync_trigger([this](Edge edge) {
         sync_recorder.add(edge);
         control_bus->signal_sync(edge);
+        io_controller->signal_sync(edge);
     });
 
     interrupt_controller->register_interrupt_trigger(

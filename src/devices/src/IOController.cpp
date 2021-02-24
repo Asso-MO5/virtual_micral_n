@@ -9,14 +9,16 @@
 IOController::IOController(std::shared_ptr<CPU8008> cpu, std::shared_ptr<DataBus> bus)
     : cpu{std::move(cpu)}, bus{std::move(bus)}
 {
-    latched_io_data.connect(std::move(bus));
+    latched_io_data.connect(this->bus);
 }
 
 void IOController::signal_phase_1(const Edge& edge)
 {
     if (edge == Edge::Front::FALLING)
     {
-        if (cpu->get_output_pins().sync == State::HIGH &&
+        auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
+        if (cycle_control == Constants8008::CycleControl::PCC &&
+            cpu->get_output_pins().sync == State::HIGH &&
             cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             if (will_emit)
@@ -32,7 +34,10 @@ void IOController::signal_phase_2(const Edge& edge)
 {
     if (edge == Edge::Front::FALLING)
     {
-        if (cpu->get_output_pins().sync == State::HIGH &&
+        auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
+
+        if (cycle_control == Constants8008::CycleControl::PCC &&
+            cpu->get_output_pins().sync == State::HIGH &&
             cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             if (will_emit)
@@ -62,7 +67,10 @@ void IOController::read_io_information_from_cpu()
     }
     if (cpu->get_output_pins().state == Constants8008::CpuState::T2)
     {
-        latched_io_reg_b = cpu->get_data_pins().read();
+        auto read_value = cpu->get_data_pins().read();
+
+        latched_io_reg_b = read_value;
+        latched_cycle_control = read_value & 0b11000000;
         process_io();
     }
 }
