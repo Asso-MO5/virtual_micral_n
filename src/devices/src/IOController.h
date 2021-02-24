@@ -21,10 +21,10 @@ private:
     std::shared_ptr<CPU8008> cpu;
     std::shared_ptr<DataBus> bus;
     ConnectedData latched_io_data;
-    uint8_t latched_io_reg_A;
-    uint8_t latched_io_reg_b;
-    uint8_t latched_cycle_control;
-    bool will_emit;
+    uint8_t latched_io_reg_A{};
+    uint8_t latched_io_reg_b{};
+    uint8_t latched_cycle_control{};
+    bool will_emit{};
 
     void read_io_information_from_cpu();
     void process_io();

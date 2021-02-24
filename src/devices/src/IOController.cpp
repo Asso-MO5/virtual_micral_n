@@ -3,7 +3,6 @@
 #include <devices/src/CPU8008.h>
 #include <emulation_core/src/DataBus.h>
 
-#include <iostream>
 #include <utility>
 
 IOController::IOController(std::shared_ptr<CPU8008> cpu, std::shared_ptr<DataBus> bus)
@@ -81,7 +80,6 @@ void IOController::process_io()
 
     if (is_OUT)
     {
-        std::cout << "Sent data" << std::endl;
         // TODO: Should schedule a WAIT signal at next T3
     }
     else
