@@ -21,7 +21,9 @@ set(GUI_FILES src/main.cpp
         src/Panel8008.cpp src/Panel8008.h
         src/PanelDisassembly.cpp src/PanelDisassembly.h
         src/PanelMemory.cpp src/PanelMemory.h
-        src/PanelControl.cpp src/PanelControl.h)
+        src/PanelControl.cpp src/PanelControl.h
+        src/widgets/PanelSwitch.cpp src/widgets/PanelSwitch.h
+        src/widgets/PanelLed.cpp src/widgets/PanelLed.h)
 
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h
