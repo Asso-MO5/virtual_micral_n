@@ -191,6 +191,7 @@ const CPU8008& Simulator::get_cpu() const { return *cpu; }
 const DataBus& Simulator::get_data_bus() const { return *data_bus; }
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
 InterruptController& Simulator::get_interrupt_controller() { return *interrupt_controller; }
+IOController& Simulator::get_io_controller() { return *io_controller; }
 void Simulator::set_wait_line(Edge edge) { cpu->signal_wait(edge); }
 
 void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom_to_install, std::size_t size,

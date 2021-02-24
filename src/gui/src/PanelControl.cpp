@@ -1,11 +1,13 @@
 #include "PanelControl.h"
 
 #include "Simulator.h"
-#include "widgets/PanelSwitch.h"
 #include "widgets/PanelLed.h"
+#include "widgets/PanelSwitch.h"
 
 #include <devices/src/CPU8008.h>
+#include <devices/src/IOController.h>
 #include <imgui.h>
+#include <numeric>
 
 using namespace widgets;
 
@@ -54,18 +56,24 @@ void PanelControl::display(Simulator& simulator)
     }
     ImGui::EndGroup();
 
+    auto input_data = std::accumulate(begin(inputs), end(inputs), 0,
+                                      [](auto a, auto b) { return a << 1 | b; });
+
+    simulator.get_io_controller().set_data_to_send(input_data);
+
     auto& cpu = simulator.get_cpu();
     auto& output_pins = cpu.get_output_pins();
+
     ImGui::BeginGroup();
-    ImGui::Text("WAIT");
-    display_led(output_pins.state == Constants8008::CpuState::WAIT, GREEN);
+    ImGui::Text("STOPPED");
+    display_led(output_pins.state == Constants8008::CpuState::STOPPED, GREEN);
     ImGui::EndGroup();
 
     ImGui::SameLine();
 
     ImGui::BeginGroup();
-    ImGui::Text("STOPPED");
-    display_led(output_pins.state == Constants8008::CpuState::STOPPED, GREEN);
+    ImGui::Text("WAIT");
+    display_led(output_pins.state == Constants8008::CpuState::WAIT, GREEN);
     ImGui::EndGroup();
 
     ImGui::End();

@@ -17,6 +17,8 @@ public:
     void signal_phase_2(const Edge& edge);
     void signal_sync(const Edge& edge);
 
+    void set_data_to_send(uint8_t data); // For debug purposes while developing the real I/O.
+
 private:
     std::shared_ptr<CPU8008> cpu;
     std::shared_ptr<DataBus> bus;
@@ -25,6 +27,8 @@ private:
     uint8_t latched_io_reg_b{};
     uint8_t latched_cycle_control{};
     bool will_emit{};
+
+    uint8_t data_to_send; // Debug
 
     void read_io_information_from_cpu();
     void process_io();

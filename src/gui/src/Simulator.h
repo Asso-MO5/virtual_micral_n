@@ -49,6 +49,7 @@ public:
     [[nodiscard]] const CPU8008& get_cpu() const;
     [[nodiscard]] const DataBus& get_data_bus() const;
     [[nodiscard]] InterruptController& get_interrupt_controller();
+    [[nodiscard]] IOController& get_io_controller();
 
     // To be extracted nicely.
     const size_t SIGNAL_RECORDER_WINDOW = 40;

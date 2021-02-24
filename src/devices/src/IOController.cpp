@@ -23,7 +23,7 @@ void IOController::signal_phase_1(const Edge& edge)
             if (will_emit)
             {
                 latched_io_data.take_bus();
-                latched_io_data.write(1); // Fake Data at the moment
+                latched_io_data.write(data_to_send); // Fake Data at the moment
             }
         }
     }
@@ -87,3 +87,5 @@ void IOController::process_io()
         will_emit = true;
     }
 }
+
+void IOController::set_data_to_send(uint8_t data) { data_to_send = data; }
