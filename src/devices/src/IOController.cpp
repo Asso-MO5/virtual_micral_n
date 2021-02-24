@@ -70,16 +70,23 @@ void IOController::read_io_information_from_cpu()
 
         latched_io_reg_b = read_value;
         latched_cycle_control = read_value & 0b11000000;
-        process_io();
+
+        auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
+        if (cycle_control == Constants8008::CycleControl::PCC)
+        {
+            process_io();
+        }
     }
 }
 
 void IOController::process_io()
 {
+    assert((latched_io_reg_b & 1) && "Must have received INP our OUT instruction.");
     bool is_OUT = (latched_io_reg_b & 0b00110000);
 
     if (is_OUT)
     {
+        received_data = latched_io_reg_A;
         // TODO: Should schedule a WAIT signal at next T3
     }
     else
@@ -89,3 +96,4 @@ void IOController::process_io()
 }
 
 void IOController::set_data_to_send(uint8_t data) { data_to_send = data; }
+uint8_t IOController::get_received_data() const { return received_data; }

@@ -17,7 +17,9 @@ public:
     void signal_phase_2(const Edge& edge);
     void signal_sync(const Edge& edge);
 
-    void set_data_to_send(uint8_t data); // For debug purposes while developing the real I/O.
+    // For debug purposes while developing the real I/O.
+    void set_data_to_send(uint8_t data);
+    [[nodiscard]] uint8_t get_received_data() const;
 
 private:
     std::shared_ptr<CPU8008> cpu;
@@ -29,6 +31,7 @@ private:
     bool will_emit{};
 
     uint8_t data_to_send; // Debug
+    uint8_t received_data; // Debug
 
     void read_io_information_from_cpu();
     void process_io();

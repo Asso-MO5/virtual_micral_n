@@ -64,16 +64,36 @@ void PanelControl::display(Simulator& simulator)
     auto& cpu = simulator.get_cpu();
     auto& output_pins = cpu.get_output_pins();
 
-    ImGui::BeginGroup();
-    ImGui::Text("STOPPED");
-    display_led(output_pins.state == Constants8008::CpuState::STOPPED, GREEN);
-    ImGui::EndGroup();
+    {
+        ImGui::BeginGroup();
+        {
+            ImGui::BeginGroup();
+            ImGui::Text("STOPPED");
+            display_led(output_pins.state == Constants8008::CpuState::STOPPED, GREEN);
+            ImGui::EndGroup();
 
-    ImGui::SameLine();
+            ImGui::SameLine();
+
+            ImGui::BeginGroup();
+            ImGui::Text("WAIT");
+            display_led(output_pins.state == Constants8008::CpuState::WAIT, GREEN);
+            ImGui::EndGroup();
+        }
+        ImGui::EndGroup();
+    }
 
     ImGui::BeginGroup();
-    ImGui::Text("WAIT");
-    display_led(output_pins.state == Constants8008::CpuState::WAIT, GREEN);
+    ImGui::Text("I/O Output value");
+
+    auto io_value = simulator.get_io_controller().get_received_data();
+
+    for (auto i = 0; i < 8; i += 1)
+    {
+        const bool bit_value = (io_value & 0b10000000) != 0;
+        io_value = (io_value & 0b01111111) << 1;
+        display_led(bit_value, GREEN);
+        ImGui::SameLine();
+    }
     ImGui::EndGroup();
 
     ImGui::End();
