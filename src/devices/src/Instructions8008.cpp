@@ -247,7 +247,7 @@ std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& i
     }
     if (base_string[2] == 'c')
     {
-        base_string[2] = FLAG_NAMES[instruction.medium][0];
+        base_string[2] = FLAG_NAMES[instruction.medium & 0b11][0];
     }
     if (base_string[0] == 'p' && base_string[1] == 'p')
     {
