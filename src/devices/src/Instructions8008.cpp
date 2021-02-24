@@ -164,7 +164,7 @@ InstructionTableFor8008::InstructionTableFor8008()
                         T3(Fetch_Data_to_Reg_b), T4(Out_Conditions_Flags), T5(Reg_b_to_A)},     //
              OtherCycle{}, "INP"},                                                              //
             {OUT, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                               //
-             OtherCycle{CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b), T3(IDLE | CYCLE_END)}, //
+             OtherCycle{CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b_At_T2), T3(IDLE | CYCLE_END)}, //
              OtherCycle{}, "OUT"},                                                              //
 
             // HALT
