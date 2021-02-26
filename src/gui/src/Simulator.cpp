@@ -114,9 +114,6 @@ Simulator::Simulator()
         io_controller->signal_sync(edge);
     });
 
-    interrupt_controller->register_interrupt_trigger(
-            [this](Edge edge) { cpu->signal_interrupt(edge); });
-
     // Starts the CPU (normally should wait some cycle before triggering the interrupt)
     cpu->signal_vdd(Edge::Front::RISING);
     interrupt_at_start->signal_vdd(Edge::Front::RISING);
