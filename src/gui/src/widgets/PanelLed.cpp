@@ -22,7 +22,7 @@ namespace widgets
             return;
         }
 
-        const float radius = 5.f;
+        const float radius = 10.f;
 
         const ImVec2 screen_position = ImGui::GetCursorScreenPos();
         const ImGuiStyle& style = GImGui->Style;
