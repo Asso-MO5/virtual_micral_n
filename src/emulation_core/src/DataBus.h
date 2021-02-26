@@ -1,8 +1,9 @@
 #ifndef MICRALN_DATABUS_H
 #define MICRALN_DATABUS_H
 
-#include <unordered_set>
+#include <exception>
 #include <string>
+#include <unordered_set>
 
 struct bus_error : public std::exception
 {
