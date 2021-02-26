@@ -1,6 +1,8 @@
-* Implement Interrupt
-  * Add a way to inject data on interruption.
-    * Check Micral N for operation. Is it going through WAIT ?
+* Plug the Control Panel to a Control Board
+* Plug the control board to the pluribus
+  * Pluribus must accept virtual "cards"
+* Plug the CPU board to the pluribus
+* Plug memories to the pluribus
 * Extract the definition of the machine from the Simulator
 * Clean: extract Recorders from the Simulator
 * Make the clock widget only appear on pause?
