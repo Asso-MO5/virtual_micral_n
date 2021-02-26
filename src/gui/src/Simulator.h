@@ -17,6 +17,8 @@ class CPU8008;
 class ControlBus;
 class InterruptAtStart;
 class IOController;
+class ConsoleCard;
+class Pluribus;
 
 class SimulatorMemoryView : public MemoryView
 {
@@ -75,6 +77,8 @@ private:
     std::shared_ptr<InterruptController> interrupt_controller;
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
     std::shared_ptr<IOController> io_controller;
+    std::shared_ptr<Pluribus> pluribus;
+    std::shared_ptr<ConsoleCard> console_card;
 
     SimulatorMemoryView memory_view;
 };
