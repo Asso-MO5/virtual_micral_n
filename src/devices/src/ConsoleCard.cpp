@@ -2,7 +2,12 @@
 
 #include <devices/src/Pluribus.h>
 
-ConsoleCard::ConsoleCard(const std::shared_ptr<Pluribus>& pluribus) : pluribus{pluribus} {}
+#include <utility>
+
+ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> pluribus) : pluribus{std::move(pluribus)}
+{
+    set_next_activation_time(Scheduling::unscheduled());
+}
 
 ConsoleCard::Status ConsoleCard::get_status() const { return status; }
 

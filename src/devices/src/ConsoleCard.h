@@ -9,7 +9,7 @@ class Pluribus;
 class ConsoleCard : public SchedulableImpl
 {
 public:
-    explicit ConsoleCard(const std::shared_ptr<Pluribus>& pluribus);
+    explicit ConsoleCard(std::shared_ptr<Pluribus>  pluribus);
     ~ConsoleCard() override = default;
 
     void step() override;
