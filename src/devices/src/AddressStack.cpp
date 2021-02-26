@@ -56,7 +56,7 @@ void AddressStack::set_high_pc(uint8_t value)
     stack[stack_index] |= value << 8;
 }
 
-AddressStack::DebugData AddressStack::get_debut_data() const
+AddressStack::DebugData AddressStack::get_debug_data() const
 {
     return {.stack = stack, .stack_index = stack_index};
 }

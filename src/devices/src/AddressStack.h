@@ -28,7 +28,7 @@ public:
         std::size_t stack_index{};
     };
 
-    [[nodiscard]] DebugData get_debut_data() const;
+    [[nodiscard]] DebugData get_debug_data() const;
 
 private:
     std::array<uint16_t, ADDRESS_STACK_LEVELS> stack{};

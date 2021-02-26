@@ -444,7 +444,7 @@ CPU8008::DebugData CPU8008::get_debug_data() const
             .instruction_register = instruction_register,
             .hidden_registers = hidden_registers,
             .latest_emitted_pci = latest_emitted_pci,
-            .address_stack = address_stack.get_debut_data(),
+            .address_stack = address_stack.get_debug_data(),
             .decoded_instruction = decoded_instruction,
             .cycle_control = cycle_control,
     };
