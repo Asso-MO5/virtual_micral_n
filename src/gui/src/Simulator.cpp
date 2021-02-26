@@ -3,15 +3,15 @@
 #include "ControllerWidget.h"
 
 #include <devices/src/CPU8008.h>
+#include <devices/src/ConsoleCard.h>
 #include <devices/src/ControlBus.h>
+#include <devices/src/IOController.h>
 #include <devices/src/InterruptAtStart.h>
+#include <devices/src/Pluribus.h>
+#include <devices/src/ProcessorCard.h>
 #include <devices/src/SimpleRAM.h>
 #include <devices/src/SimpleROM.h>
-#include <devices/src/Pluribus.h>
-#include <devices/src/ConsoleCard.h>
 #include <emulation_core/src/DataBus.h>
-
-#include <devices/src/IOController.h>
 #include <fstream>
 #include <utility>
 
@@ -59,16 +59,29 @@ Simulator::Simulator()
 
     // Simulation Setup
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
+
+    pluribus = std::make_shared<Pluribus>();
+
     cpu = std::make_shared<CPU8008>(scheduler);
+    interrupt_controller = std::make_shared<InterruptController>(&(cpu->get_output_pins().state));
+    interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
+
+    ProcessorCard::Config processor_card_config{
+            .pluribus = pluribus,
+            .clock = clock,
+            .cpu = cpu,
+            .interrupt_controller = interrupt_controller,
+            .interrupt_at_start = interrupt_at_start,
+    };
+
+    processor_card = std::make_shared<ProcessorCard>(processor_card_config);
+
     rom = std::make_shared<SimpleROM>(rom_data);
     ram = std::make_shared<SimpleRAM>(RAM_SIZE);
 
     data_bus = std::make_shared<DataBus>();
-    interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
-    interrupt_controller = std::make_shared<InterruptController>(&(cpu->get_output_pins().state));
     control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
     io_controller = std::make_shared<IOController>(cpu, data_bus);
-    pluribus = std::make_shared<Pluribus>();
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
     cpu->connect_data_bus(data_bus);
@@ -110,6 +123,8 @@ Simulator::Simulator()
 
     scheduler.add(cpu);
     scheduler.add(clock);
+    scheduler.add(processor_card);
+    scheduler.add(console_card);
 
     memory_view.set_rom(rom, std::min(rom_data.size(), static_cast<size_t>(0x1000)), 0x0000);
     memory_view.set_ram(ram, RAM_SIZE, RAM_START);
@@ -119,6 +134,8 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
 {
     if (controller_state != ControllerWidget::PAUSED)
     {
+        auto& cpu = processor_card->get_cpu();
+
         if (controller_state == ControllerWidget::RUNNING ||
             controller_state == ControllerWidget::STEP_ONE_FRAME)
         {
@@ -140,7 +157,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         }
         else if (controller_state == ControllerWidget::STEP_ONE_STATE)
         {
-            auto initial_state = get_cpu().get_output_pins().state;
+            auto initial_state = cpu.get_output_pins().state;
 
             int timeout = 0;
             if (initial_state == Constants8008::CpuState::STOPPED)
@@ -148,7 +165,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 timeout = 50;
             }
 
-            while (get_cpu().get_output_pins().state == initial_state)
+            while (cpu.get_output_pins().state == initial_state)
             {
                 scheduler.step();
 
@@ -174,15 +191,14 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         }
         else if (controller_state == ControllerWidget::STEP_ONE_INSTRUCTION)
         {
-            while (get_cpu().get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
-                   (get_cpu().get_output_pins().state == Constants8008::CpuState::T1))
+            while (cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
+                   (cpu.get_output_pins().state == Constants8008::CpuState::T1))
             {
                 scheduler.step();
             }
 
-            while (!((get_cpu().get_debug_data().cycle_control ==
-                      Constants8008::CycleControl::PCI) &&
-                     (get_cpu().get_output_pins().state == Constants8008::CpuState::T1)))
+            while (!((cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI) &&
+                     (cpu.get_output_pins().state == Constants8008::CpuState::T1)))
             {
                 scheduler.step();
             }
@@ -191,12 +207,20 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
 }
 
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
-const CPU8008& Simulator::get_cpu() const { return *cpu; }
+
 const DataBus& Simulator::get_data_bus() const { return *data_bus; }
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
-InterruptController& Simulator::get_interrupt_controller() { return *interrupt_controller; }
 IOController& Simulator::get_io_controller() { return *io_controller; }
-void Simulator::set_wait_line(Edge edge) { cpu->signal_wait(edge); }
+const ProcessorCard& Simulator::get_processor_card() const
+{
+    return *processor_card;
+    ;
+}
+ProcessorCard& Simulator::get_processor_card()
+{
+    return *processor_card;
+    ;
+}
 
 void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom_to_install, std::size_t size,
                                   uint16_t start_address)

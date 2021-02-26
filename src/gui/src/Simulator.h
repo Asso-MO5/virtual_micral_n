@@ -13,12 +13,14 @@
 class SimpleROM;
 class SimpleRAM;
 class DataBus;
-class CPU8008;
 class ControlBus;
-class InterruptAtStart;
 class IOController;
 class ConsoleCard;
+class ProcessorCard;
 class Pluribus;
+class CPU8008;
+class InterruptAtStart;
+class InterruptController;
 
 class SimulatorMemoryView : public MemoryView
 {
@@ -48,10 +50,12 @@ public:
     void step(float average_frame_time_in_ms, ControllerWidget::State controller_state);
 
     [[nodiscard]] const Scheduler& get_scheduler() const;
-    [[nodiscard]] const CPU8008& get_cpu() const;
     [[nodiscard]] const DataBus& get_data_bus() const;
-    [[nodiscard]] InterruptController& get_interrupt_controller();
     [[nodiscard]] IOController& get_io_controller();
+    [[nodiscard]] const ProcessorCard& get_processor_card() const;
+
+    // TODO: remove once the signals go through the Pluribus
+    [[nodiscard]] ProcessorCard& get_processor_card();
 
     // To be extracted nicely.
     const size_t SIGNAL_RECORDER_WINDOW = 40;
@@ -64,23 +68,24 @@ public:
 
     const MemoryView& get_memory_view();
 
-    void set_wait_line(Edge edge);
-
 private:
     Scheduler scheduler{};
 
-    std::shared_ptr<CPU8008> cpu{};
     std::shared_ptr<SimpleROM> rom{};
     std::shared_ptr<SimpleRAM> ram{};
     std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<DataBus> data_bus{};
-    std::shared_ptr<InterruptController> interrupt_controller;
-    std::shared_ptr<InterruptAtStart> interrupt_at_start;
     std::shared_ptr<IOController> io_controller;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
+    std::shared_ptr<ProcessorCard> processor_card;
 
     SimulatorMemoryView memory_view;
+
+    // TODO: Will go away once the signal callback are on the pluribus.
+    std::shared_ptr<CPU8008> cpu{};
+    std::shared_ptr<InterruptController> interrupt_controller;
+    std::shared_ptr<InterruptAtStart> interrupt_at_start;
 };
 
 #endif //MICRALN_SIMULATOR_H

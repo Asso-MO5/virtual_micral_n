@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <devices/src/CPU8008.h>
 #include <devices/src/Disassemble8008.h>
+#include <devices/src/ProcessorCard.h>
 #include <imgui.h>
 
 void display_memory_panel(Simulator& simulator)
@@ -14,7 +15,8 @@ void display_memory_panel(Simulator& simulator)
     ImGui::Begin("Memory");
 
     // TODO: Better would be to look at the control bus for debug data on latest fetch and latest write.
-    uint16_t latest_pci = simulator.get_cpu().get_debug_data().latest_emitted_pci;
+    uint16_t latest_pci =
+            simulator.get_processor_card().get_cpu().get_debug_data().latest_emitted_pci;
 
     uint16_t address = starting_disassembly_address;
     const uint16_t end_address = address + simulator.get_memory_view().size();

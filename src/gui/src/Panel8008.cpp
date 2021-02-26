@@ -4,6 +4,7 @@
 #include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
+#include <devices/src/ProcessorCard.h>
 #include <emulation_core/src/DataBus.h>
 #include <imgui.h>
 
@@ -21,7 +22,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     const auto& phase_2_recorder = simulator.phase_2_recorder;
     const auto& sync_recorder = simulator.sync_recorder;
 
-    const auto& cpu = simulator.get_cpu();
+    const auto& cpu = simulator.get_processor_card().get_cpu();
 
     ImGui::Begin("8008");
     ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000 / 1000);

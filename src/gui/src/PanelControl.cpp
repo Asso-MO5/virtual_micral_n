@@ -6,6 +6,7 @@
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/IOController.h>
+#include <devices/src/ProcessorCard.h>
 #include <emulation_core/src/Scheduler.h>
 #include <imgui.h>
 #include <numeric>
@@ -86,7 +87,7 @@ void PanelControl::display(Simulator& simulator)
 
     ImGui::SameLine();
 
-    auto& cpu = simulator.get_cpu();
+    const auto& cpu = simulator.get_processor_card().get_cpu();
     const auto& output_pins = cpu.get_output_pins();
     const auto& scheduler = simulator.get_scheduler();
     const auto& io_controller = simulator.get_io_controller();
@@ -197,6 +198,6 @@ void PanelControl::display_av_init_line(Simulator& simulator)
     {
         auto time = scheduler.get_counter();
         Edge::Front front = interrupt_value ? Edge::Front::RISING : Edge::Front::FALLING;
-        simulator.get_interrupt_controller().wants_interrupt(Edge{front, time});
+        simulator.get_processor_card().get_interrupt_controller().wants_interrupt(Edge{front, time});
     }
 }
