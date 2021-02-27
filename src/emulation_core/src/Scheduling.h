@@ -8,7 +8,7 @@ namespace Scheduling
 {
     using counter_type = uint64_t;
     using schedulable_id = uint32_t;
-    inline counter_type unscheduled() { return std::numeric_limits<counter_type>::max(); }
+    inline constexpr counter_type unscheduled() { return std::numeric_limits<counter_type>::max(); }
 }
 
 class SignalReceiver
