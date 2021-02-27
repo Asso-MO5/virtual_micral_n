@@ -1,8 +1,8 @@
 * Populate the Pluribus with OwnedSignal
   * Communicate first with the Console Card
-  * Add a fake OwnedSignal between the CPU and the ProcessorCard to warn about change of T State
-    * To avoid this, create a generic OwnedValue
-    * Then latch the low and high addresses on T1 and T2 + sync fall.
+    * Create a generic OwnedValue to transmit the CpuState value with timing.
+    * Then latch the low and high addresses on T1 and T2 + sync fall and publish on the pluribus.
+      * As OwnedValue of 14 bit wide address.
   * Will need to deactivate the temp IO Controller, RAM and Control Bus.
     ... or not.
   * Possibility to set Debug Read Information on the Processor Board
@@ -11,12 +11,13 @@
   * Pluribus must accept virtual "cards"
 * Plug the CPU board to the pluribus
 * Plug memories to the pluribus
+* Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
+* Are OwnedValue and ConnectedData redundant or do they serve different things?    
 * Extract the definition of the machine from the Simulator
 * Clean: extract Recorders from the Simulator
 * Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
-* Should we keep the InterruptAtStart, or can it be an optional board?
 * There are missing bound checks, sometimes, the simulator stops because vdd is LOW.
   But it's not set low. So there's probably an out of bound access. 
 * Possible optimization  
