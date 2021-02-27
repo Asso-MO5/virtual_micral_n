@@ -68,13 +68,14 @@ public:
 
     const MemoryView& get_memory_view();
 
+    ConsoleCard& get_console_card();
+
 private:
     Scheduler scheduler{};
 
     std::shared_ptr<SimpleROM> rom{};
     std::shared_ptr<SimpleRAM> ram{};
     std::shared_ptr<ControlBus> control_bus{};
-    std::shared_ptr<DataBus> data_bus{};
     std::shared_ptr<IOController> io_controller;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;

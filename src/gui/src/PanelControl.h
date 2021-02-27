@@ -5,6 +5,7 @@
 #include <devices/src/CPU8008.h>
 
 class Simulator;
+class ConsoleCard;
 
 class PanelControl
 {
@@ -15,9 +16,9 @@ private:
     std::array<bool, 14> input_address{};
     std::array<bool, 8> input_data{};
 
-    void display_address_line();
-    void display_data_line();
-    void display_control_line();
+    void display_address_line(ConsoleCard& console_card);
+    void display_data_line(ConsoleCard& console_card);
+    void display_control_line(ConsoleCard& console_card);
     void display_status_line(const CPU8008::OutputPins& output_pins);
     void display_av_init_line(Simulator& simulator);
 };

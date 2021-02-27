@@ -16,6 +16,11 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     interrupt_controller->register_interrupt_trigger(
             [this](Edge edge) { cpu->signal_interrupt(edge); });
+
+    pluribus->vdd.subscribe([this](Edge edge) {
+        cpu->signal_vdd(edge);
+        interrupt_at_start->signal_vdd(edge);
+    });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }

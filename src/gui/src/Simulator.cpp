@@ -61,6 +61,7 @@ Simulator::Simulator()
     auto clock = std::make_shared<DoubleClock>(500'000_hz);
 
     pluribus = std::make_shared<Pluribus>();
+    auto& data_bus_d0_7 = pluribus->data_bus_d0_7;
 
     cpu = std::make_shared<CPU8008>(scheduler);
     interrupt_controller = std::make_shared<InterruptController>(&(cpu->get_output_pins().state));
@@ -79,14 +80,13 @@ Simulator::Simulator()
     rom = std::make_shared<SimpleROM>(rom_data);
     ram = std::make_shared<SimpleRAM>(RAM_SIZE);
 
-    data_bus = std::make_shared<DataBus>();
     control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
-    io_controller = std::make_shared<IOController>(cpu, data_bus);
+    io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
-    cpu->connect_data_bus(data_bus);
-    rom->connect_data_bus(data_bus);
-    ram->connect_data_bus(data_bus);
+    cpu->connect_data_bus(data_bus_d0_7);
+    rom->connect_data_bus(data_bus_d0_7);
+    ram->connect_data_bus(data_bus_d0_7);
 
     clock->register_phase_1_trigger([this](Edge edge) {
         clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
@@ -114,10 +114,6 @@ Simulator::Simulator()
         io_controller->signal_sync(edge);
     });
 
-    // Starts the CPU (normally should wait some cycle before triggering the interrupt)
-    cpu->signal_vdd(Edge::Front::RISING);
-    interrupt_at_start->signal_vdd(Edge::Front::RISING);
-
     scheduler.add(cpu);
     scheduler.add(clock);
     scheduler.add(processor_card);
@@ -125,6 +121,9 @@ Simulator::Simulator()
 
     memory_view.set_rom(rom, std::min(rom_data.size(), static_cast<size_t>(0x1000)), 0x0000);
     memory_view.set_ram(ram, RAM_SIZE, RAM_START);
+
+    pluribus->vdd.request(this);
+    pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
@@ -200,24 +199,21 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 scheduler.step();
             }
         }
+
+        // TODO: step the console_card normally (or react to signal most probably)
+        console_card->step(); // Temporary manual update of the console card.
     }
 }
 
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 
-const DataBus& Simulator::get_data_bus() const { return *data_bus; }
+const DataBus& Simulator::get_data_bus() const { return *pluribus->data_bus_d0_7; }
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
 IOController& Simulator::get_io_controller() { return *io_controller; }
-const ProcessorCard& Simulator::get_processor_card() const
-{
-    return *processor_card;
-    ;
-}
-ProcessorCard& Simulator::get_processor_card()
-{
-    return *processor_card;
-    ;
-}
+const ProcessorCard& Simulator::get_processor_card() const { return *processor_card; }
+ProcessorCard& Simulator::get_processor_card() { return *processor_card; }
+
+ConsoleCard& Simulator::get_console_card() { return *console_card; }
 
 void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom_to_install, std::size_t size,
                                   uint16_t start_address)

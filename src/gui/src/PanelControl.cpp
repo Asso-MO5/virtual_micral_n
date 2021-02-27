@@ -5,9 +5,9 @@
 #include "widgets/PanelSwitch.h"
 
 #include <devices/src/CPU8008.h>
+#include <devices/src/ConsoleCard.h>
 #include <devices/src/IOController.h>
 #include <devices/src/ProcessorCard.h>
-#include <emulation_core/src/Scheduler.h>
 #include <imgui.h>
 #include <numeric>
 
@@ -87,19 +87,23 @@ void PanelControl::display(Simulator& simulator)
 
     ImGui::SameLine();
 
+    // TODO: ultimately will only read the ConsoleCard
     const auto& cpu = simulator.get_processor_card().get_cpu();
     const auto& output_pins = cpu.get_output_pins();
     const auto& scheduler = simulator.get_scheduler();
     const auto& io_controller = simulator.get_io_controller();
 
+    auto& console_card = simulator.get_console_card();
+
+
     {
-        display_address_line();
+        display_address_line(console_card);
         ImGui::NewLine();
 
-        display_data_line();
+        display_data_line(console_card);
         ImGui::NewLine();
 
-        display_control_line();
+        display_control_line(console_card);
         ImGui::NewLine();
 
         ImGui::BeginGroup();
@@ -112,7 +116,7 @@ void PanelControl::display(Simulator& simulator)
     ImGui::End();
 }
 
-void PanelControl::display_address_line()
+void PanelControl::display_address_line(ConsoleCard& console_card)
 {
     ImGui::BeginGroup();
     ImGui::Text("ADRESSE");
@@ -128,12 +132,13 @@ void PanelControl::display_address_line()
     ImGui::Text("Switch Value: $%04X o%05o %5u", numeric_data, numeric_data, numeric_data);
 }
 
-void PanelControl::display_data_line()
+void PanelControl::display_data_line(ConsoleCard& console_card)
 {
     ImGui::BeginGroup();
     ImGui::Text("DONNEE");
 
-    uint16_t display_value = 0b10101111;
+    const auto & status = console_card.get_status();
+    uint16_t display_value = status.data;
     std::array<int, 16> all_bits{value_to_display_bits(display_value, input_data.size())};
     display_led_and_switches(all_bits, input_data);
     ImGui::EndGroup();
@@ -144,7 +149,7 @@ void PanelControl::display_data_line()
     ImGui::Text("Switch Value: $%02X o%03o %3u", numeric_data, numeric_data, numeric_data);
 }
 
-void PanelControl::display_control_line()
+void PanelControl::display_control_line(ConsoleCard& console_card)
 {
     static const char* CONTROL_NAMES[] = {"AUTO", "P/P", "INST", "CYCLE", "PIEGE", "SUB"};
     static bool value = false;

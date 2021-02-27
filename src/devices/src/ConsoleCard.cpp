@@ -1,6 +1,7 @@
 #include "ConsoleCard.h"
 
 #include <devices/src/Pluribus.h>
+#include <emulation_core/src/DataBus.h>
 
 #include <utility>
 
@@ -11,4 +12,6 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> pluribus) : pluribus{std::mov
 
 ConsoleCard::Status ConsoleCard::get_status() const { return status; }
 
-void ConsoleCard::step() {}
+void ConsoleCard::step() {
+    status.data = pluribus->data_bus_d0_7->read();
+}
