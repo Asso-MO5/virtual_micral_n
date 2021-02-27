@@ -1,4 +1,8 @@
-* Populate the Pluribus with OwnedSignal (start with vdd ?)
+* Populate the Pluribus with OwnedSignal
+  * Communicate first with the Console Card
+  * Add a fake OwnedSignal between the CPU and the ProcessorCard to warn about change of T State
+  * Will need to deactivate the temp IO Controller, RAM and Control Bus.
+  * Possibility to set Debug Read Information on the Processor Board
 * Plug the Control Panel to a Control Board
 * Plug the control board to the pluribus
   * Pluribus must accept virtual "cards"
@@ -16,5 +20,7 @@
   * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
   * 8008: probably the priority queue is overkill too.
   * SignalRecorder makes a lot of costly memcpy.
-  * InstructionTableFor8008 for the disassembly and for the 8008 decoding are ducplicated in memory.
+  * InstructionTableFor8008 for the disassembly and for the 8008 decoding are duplicated in memory.
   * The Panels (Panels/Disassembly) are constantly re-updated, which is slow (especially for the PanelMemory)
+  * As each board reacts to the synchro signal, these could be directly called functions
+  rather than subscribed callbacks.
