@@ -1,3 +1,4 @@
+* Populate the Pluribus with OwnedSignal (start with vdd ?)
 * Plug the Control Panel to a Control Board
 * Plug the control board to the pluribus
   * Pluribus must accept virtual "cards"
