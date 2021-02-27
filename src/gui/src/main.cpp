@@ -6,8 +6,6 @@
 #include "PanelMemory.h"
 #include "Simulator.h"
 
-#include <devices/src/CPU8008.h>
-
 #include <devices/src/Disassemble8008.h>
 #include <gui/src/lib/Averager.h>
 #include <imgui.h>
