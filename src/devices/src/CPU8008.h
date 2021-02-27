@@ -90,6 +90,7 @@ public:
     void signal_wait(Edge edge);
 
     void register_sync_trigger(std::function<void(Edge)> callback);
+    void register_state_change(std::function<void()> callback);
 
     enum Event
     {
@@ -124,6 +125,7 @@ private:
     SignalReceiver& scheduler;
     std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
     std::function<void(Edge)> sync_callback = [](Edge) {};
+    std::function<void()> state_callback = []() {};
 
     InstructionTableFor8008 instruction_table;
     InstructionTableFor8008::DecodedInstruction decoded_instruction;

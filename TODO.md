@@ -1,7 +1,10 @@
 * Populate the Pluribus with OwnedSignal
   * Communicate first with the Console Card
   * Add a fake OwnedSignal between the CPU and the ProcessorCard to warn about change of T State
+    * To avoid this, create a generic OwnedValue
+    * Then latch the low and high addresses on T1 and T2 + sync fall.
   * Will need to deactivate the temp IO Controller, RAM and Control Bus.
+    ... or not.
   * Possibility to set Debug Read Information on the Processor Board
 * Plug the Control Panel to a Control Board
 * Plug the control board to the pluribus

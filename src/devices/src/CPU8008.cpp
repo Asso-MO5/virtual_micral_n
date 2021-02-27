@@ -107,6 +107,7 @@ void CPU8008::step()
                     execute_t5();
                     break;
             }
+            state_callback();
 
             break;
         }
@@ -875,4 +876,8 @@ void CPU8008::interrupt(Scheduling::counter_type edge_time)
     interrupt_pending = false;
 
     next_events.push(std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1I)));
+}
+void CPU8008::register_state_change(std::function<void()> callback) {
+    state_callback = std::move(callback);
+
 }
