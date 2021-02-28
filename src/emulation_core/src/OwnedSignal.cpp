@@ -22,6 +22,8 @@ void OwnedSignal::set(State new_state, OwnedSignal::counter_type time, void* set
     set_and_broadcast(new_state, time);
 }
 
+void OwnedSignal::apply(Edge edge, void* set_id) { set(edge.apply(), edge.time(), set_id); }
+
 void OwnedSignal::subscribe(const OwnedSignal::callback_type& callback)
 {
     callbacks.push_back(callback);

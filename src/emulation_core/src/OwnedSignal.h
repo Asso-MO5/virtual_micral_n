@@ -32,6 +32,7 @@ public:
     [[nodiscard]] counter_type get_latest_change_time() const;
     void request(void* requested_id);
     void set(State new_state, counter_type time, void* set_id);
+    void apply(Edge edge, void* set_id);
 
     void subscribe(const callback_type& callback);
 

@@ -62,3 +62,17 @@ TEST(OwnedSignal, can_be_subscribed_to)
     ASSERT_THAT(received_edge.apply(), Eq(State::HIGH));
     ASSERT_THAT(received_edge.time(), Eq(Scheduling::counter_type{2000}));
 }
+
+TEST(OwnedSignal, can_follow_an_wdge)
+{
+    OwnedSignal signal;
+    uint16_t owner;
+    signal.request(static_cast<void*>(&owner));
+
+    Edge edge{Edge::Front::RISING, Scheduling::counter_type{300}};
+
+    signal.apply(edge, static_cast<void*>(&owner));
+
+    ASSERT_THAT(signal.get_state(), Eq(State::HIGH));
+    ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{300}));
+}
