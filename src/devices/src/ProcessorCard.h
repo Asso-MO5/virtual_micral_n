@@ -40,7 +40,11 @@ private:
     std::shared_ptr<InterruptController> interrupt_controller;
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
 
+    uint16_t latched_address{};
+    Constants8008::CycleControl latched_cycle_control{}; // TODO: Do we need this here?
+
     void cpu_state_changed(Constants8008::CpuState state, Scheduling::counter_type time);
+    void cpu_sync_changed(Edge edge);
 };
 
 #endif //MICRALN_PROCESSORCARD_H

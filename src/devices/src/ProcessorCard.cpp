@@ -26,11 +26,16 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
             [this](Constants8008::CpuState, Constants8008::CpuState new_state,
                    Scheduling::counter_type time) { cpu_state_changed(new_state, time); });
 
+    cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
+
     pluribus->stop.request(this);
     pluribus->wait.request(this);
     pluribus->t2.request(this);
     pluribus->t3.request(this);
     pluribus->t3prime.request(this);
+    pluribus->cc0.request(this);
+    pluribus->cc1.request(this);
+    pluribus->address_bus_s0_s13.request(this);
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
@@ -85,6 +90,38 @@ void ProcessorCard::cpu_state_changed(Constants8008::CpuState state, Scheduling:
             pluribus->t3.set(State{State::LOW}, time, this);
             pluribus->t3prime.set(State{State::LOW}, time, this);
             break;
+    }
+}
+
+void ProcessorCard::cpu_sync_changed(Edge edge)
+{
+    if (edge == Edge{Edge::Front::FALLING})
+    {
+        auto cpu_state = *cpu->get_output_pins().state;
+        if (cpu_state == Constants8008::CpuState::T1)
+        {
+            latched_address &= 0xff00;
+            latched_address |= cpu->get_data_pins().read();
+        }
+        else if (cpu_state == Constants8008::CpuState::T2)
+        {
+            auto read_value = cpu->get_data_pins().read();
+
+            latched_address &= 0x00ff;
+            latched_address |= (read_value & 0x3f) << 8;
+
+            latched_cycle_control =
+                    static_cast<Constants8008::CycleControl>(read_value & 0b11000000);
+
+            auto cc0 = (read_value & 0b10000000) >> 7;
+            auto cc1 = (read_value & 0b01000000) >> 6;
+
+            auto time = edge.time();
+
+            pluribus->address_bus_s0_s13.set(latched_address, time, this);
+            pluribus->cc0.set(cc0, time, this);
+            pluribus->cc1.set(cc1, time, this);
+        }
     }
 }
 

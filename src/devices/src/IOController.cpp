@@ -17,7 +17,7 @@ void IOController::signal_phase_1(const Edge& edge)
     {
         auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
         if (cycle_control == Constants8008::CycleControl::PCC &&
-            cpu->get_output_pins().sync == State::HIGH &&
+            *cpu->get_output_pins().sync == State::HIGH &&
             *cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             if (will_emit)
@@ -36,7 +36,7 @@ void IOController::signal_phase_2(const Edge& edge)
         auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
 
         if (cycle_control == Constants8008::CycleControl::PCC &&
-            cpu->get_output_pins().sync == State::HIGH &&
+            *cpu->get_output_pins().sync == State::HIGH &&
             *cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             if (will_emit)

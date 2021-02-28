@@ -36,7 +36,7 @@ void ControlBus::signal_phase_1(const Edge& edge)
 {
     if (edge == Edge::Front::RISING)
     {
-        if (cpu->get_output_pins().sync == State::HIGH &&
+        if (*cpu->get_output_pins().sync == State::HIGH &&
             *cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             stop_t3_transfer(edge);
@@ -44,7 +44,7 @@ void ControlBus::signal_phase_1(const Edge& edge)
     }
     else
     {
-        if (cpu->get_output_pins().sync == State::HIGH &&
+        if (*cpu->get_output_pins().sync == State::HIGH &&
             *cpu->get_output_pins().state == Constants8008::CpuState::T3)
         {
             start_t3_transfer(edge);
@@ -118,7 +118,7 @@ void ControlBus::start_t3_transfer(const Edge& edge)
 
 void ControlBus::signal_phase_2(const Edge& edge)
 {
-    if (edge == Edge::Front::FALLING && cpu->get_output_pins().sync == State::HIGH) {}
+    if (edge == Edge::Front::FALLING && *cpu->get_output_pins().sync == State::HIGH) {}
 }
 
 void ControlBus::signal_sync(const Edge& edge)

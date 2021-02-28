@@ -1,7 +1,12 @@
+* Change the get_state() from OwnedValue to get_value()
 * Populate the Pluribus with OwnedSignal
   * Communicate first with the Console Card
-    * Latch the low and high addresses on T1 and T2 + sync fall and publish on the Pluribus.
-      * As OwnedValue of 14 bit wide address.
+    * Implement the State machine of the different modes.
+    * AUTO
+    * STEP
+    * TRAP
+    * SUBST
+    * AV?
   * Will need to deactivate the temp IO Controller, RAM and Control Bus.
     ... or not.
   * Possibility to set Debug Read Information on the Processor Board

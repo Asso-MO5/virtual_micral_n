@@ -14,4 +14,5 @@ ConsoleCard::Status ConsoleCard::get_status() const { return status; }
 
 void ConsoleCard::step() {
     status.data = pluribus->data_bus_d0_7->read();
+    status.address = *pluribus->address_bus_s0_s13;
 }

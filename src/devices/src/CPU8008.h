@@ -8,6 +8,7 @@
 #include <array>
 #include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
+#include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
 #include <functional>
@@ -31,7 +32,7 @@ public:
     struct OutputPins
     {
         OwnedValue<Constants8008::CpuState> state{Constants8008::CpuState::STOPPED};
-        State sync{State::LOW};
+        OwnedSignal sync;
     };
 
     struct InputPins
@@ -128,8 +129,6 @@ private:
 
     SignalReceiver& scheduler;
     std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
-    std::function<void(Edge)> sync_callback = [](Edge) {};
-    std::function<void()> state_callback = []() {};
 
     InstructionTableFor8008 instruction_table;
     InstructionTableFor8008::DecodedInstruction decoded_instruction;

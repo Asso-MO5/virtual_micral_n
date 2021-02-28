@@ -95,7 +95,6 @@ void PanelControl::display(Simulator& simulator)
 
     auto& console_card = simulator.get_console_card();
 
-
     {
         display_address_line(console_card);
         ImGui::NewLine();
@@ -121,7 +120,8 @@ void PanelControl::display_address_line(ConsoleCard& console_card)
     ImGui::BeginGroup();
     ImGui::Text("ADRESSE");
 
-    uint16_t display_value = 0b0011110000101010;
+    const auto& status = console_card.get_status();
+    uint16_t display_value = status.address;
     std::array<int, 16> all_bits{value_to_display_bits(display_value, input_address.size())};
     display_led_and_switches(all_bits, input_address);
     ImGui::EndGroup();
@@ -137,7 +137,7 @@ void PanelControl::display_data_line(ConsoleCard& console_card)
     ImGui::BeginGroup();
     ImGui::Text("DONNEE");
 
-    const auto & status = console_card.get_status();
+    const auto& status = console_card.get_status();
     uint16_t display_value = status.data;
     std::array<int, 16> all_bits{value_to_display_bits(display_value, input_data.size())};
     display_led_and_switches(all_bits, input_data);
@@ -203,6 +203,7 @@ void PanelControl::display_av_init_line(Simulator& simulator)
     {
         auto time = scheduler.get_counter();
         Edge::Front front = interrupt_value ? Edge::Front::RISING : Edge::Front::FALLING;
-        simulator.get_processor_card().get_interrupt_controller().wants_interrupt(Edge{front, time});
+        simulator.get_processor_card().get_interrupt_controller().wants_interrupt(
+                Edge{front, time});
     }
 }

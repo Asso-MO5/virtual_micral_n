@@ -34,8 +34,7 @@ bool operator<(const CPU8008::NextEventType& a, const CPU8008::NextEventType& b)
 
 CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
 {
-    output_pins.sync = ::State::LOW;
-
+    output_pins.sync.request(this);
     output_pins.state.request(this);
 }
 
@@ -59,8 +58,7 @@ void CPU8008::step()
         case SYNC: {
             auto sync_edge =
                     param ? Edge{Edge::Front::RISING, time} : Edge{Edge::Front::FALLING, time};
-            output_pins.sync = sync_edge.apply();
-            sync_callback(sync_edge);
+            output_pins.sync.apply(sync_edge, this);
             // TODO : Constraint :  tSD max (.70) after ø21 FALL
             break;
         }
@@ -109,8 +107,6 @@ void CPU8008::step()
                     execute_t5();
                     break;
             }
-            state_callback();
-
             break;
         }
         case DATA_OUT:
@@ -438,7 +434,7 @@ void CPU8008::signal_wait(Edge edge) { input_pins.ready = edge.apply(); }
 
 void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 {
-    sync_callback = std::move(callback);
+    output_pins.sync.subscribe(callback);
 }
 
 CPU8008::DebugData CPU8008::get_debug_data() const

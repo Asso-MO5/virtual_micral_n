@@ -2,6 +2,7 @@
 #define MICRALN_PLURIBUS_H
 
 #include <emulation_core/src/OwnedSignal.h>
+#include <emulation_core/src/OwnedValue.h>
 #include <memory>
 
 class DataBus;
@@ -23,6 +24,7 @@ public:
     OwnedSignal stop;
 
     std::shared_ptr<DataBus> data_bus_d0_7{};
+    OwnedValue<uint16_t> address_bus_s0_s13{};
 };
 
 #endif //MICRALN_PLURIBUS_H
