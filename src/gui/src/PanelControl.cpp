@@ -152,13 +152,39 @@ void PanelControl::display_data_line(ConsoleCard& console_card)
 void PanelControl::display_control_line(ConsoleCard& console_card)
 {
     static const char* CONTROL_NAMES[] = {"AUTO", "P/P", "INST", "CYCLE", "PIEGE", "SUB"};
-    static bool value = false;
-    const bool led_value = false;
+
+    const auto& status = console_card.get_status();
+
+    const bool control_values[] = {
+            status.automatic, status.stepping, false, false, false, false,
+    };
+
+    const std::function<void(ConsoleCard*)> button_actions[] = {
+            &ConsoleCard::press_automatic,
+            &ConsoleCard::press_stepping,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+    };
+
+    assert(IM_ARRAYSIZE(CONTROL_NAMES) == IM_ARRAYSIZE(control_values));
+
 
     ImGui::BeginGroup();
-    for (auto i = 0; i < 6; i += 1)
+    for (auto i = 0; i < IM_ARRAYSIZE(CONTROL_NAMES); i += 1)
     {
-        auto pressed = add_impulse_switch(CONTROL_NAMES[i], &value, &led_value);
+        bool value = false;
+        auto pressed = add_impulse_switch(CONTROL_NAMES[i], &value, &control_values[i]);
+
+        if (pressed)
+        {
+            auto &action = button_actions[i];
+            if (action != nullptr)
+            {
+                action(&console_card);
+            }
+        }
         ImGui::SameLine();
     }
     ImGui::EndGroup();

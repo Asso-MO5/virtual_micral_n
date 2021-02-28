@@ -42,11 +42,22 @@ public:
         uint16_t address;
     };
 
+    enum StartMode
+    {
+        Automatic,
+        Manual,
+    };
+
     [[nodiscard]] Status get_status() const;
+
+    void press_automatic();
+    void press_stepping();
+    void press_trap();
 
 private:
     std::shared_ptr<Pluribus> pluribus;
     Status status;
+
 };
 
 #endif //MICRALN_CONSOLECARD_H

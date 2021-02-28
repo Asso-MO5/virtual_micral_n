@@ -4,6 +4,7 @@
     * Implement the State machine of the different modes.
     * AUTO
     * STEP
+    * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
     * TRAP
     * SUBST
     * AV?
