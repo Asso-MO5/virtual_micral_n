@@ -7,12 +7,6 @@
 using namespace testing;
 using namespace Constants8008;
 
-TEST(InterruptController, needs_a_cpu_state)
-{
-    CpuState cpu_state{CpuState::T3};
-    InterruptController controller{&cpu_state};
-}
-
 struct InterruptControllerFixture : public ::testing::Test
 {
     InterruptControllerFixture()
@@ -22,8 +16,7 @@ struct InterruptControllerFixture : public ::testing::Test
     }
 
     Edge called_with_edge{};
-    CpuState cpu_state{CpuState::T3};
-    InterruptController controller{&cpu_state};
+    InterruptController controller;
 };
 
 TEST_F(InterruptControllerFixture, doesnt_call_the_callback_when_registered)
@@ -68,7 +61,7 @@ TEST_F(InterruptControllerFixture, keeps_interrupt_up_in_next_cycles)
     controller.signal_phase_1(Edge{Edge::Front::RISING, 200});
     controller.signal_phase_1(Edge{Edge::Front::FALLING, 250});
 
-    cpu_state = Constants8008::CpuState::T4;
+    controller.on_state_value_change(Constants8008::CpuState::T3, Constants8008::CpuState::T4, 275);
 
     controller.signal_phase_1(Edge{Edge::Front::RISING, 300}); // Time passes
     controller.signal_phase_1(Edge{Edge::Front::FALLING, 350});
@@ -91,7 +84,8 @@ TEST_F(InterruptControllerFixture, stops_the_interrupt_when_TI1_on_falling_phase
     controller.signal_phase_1(Edge{Edge::Front::RISING, 200});
     controller.signal_phase_1(Edge{Edge::Front::FALLING, 250});
 
-    cpu_state = Constants8008::CpuState::T1I;
+    controller.on_state_value_change(Constants8008::CpuState::T3, Constants8008::CpuState::T1I,
+                                     275);
 
     controller.signal_phase_1(Edge{Edge::Front::RISING, 300}); // Time passes
     controller.signal_phase_1(Edge{Edge::Front::FALLING, 350});
