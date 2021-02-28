@@ -48,8 +48,11 @@ public:
 
 Simulator::Simulator()
 {
-    ReadRomData rom_data_file("data/8008-input-output.bin");
+    ReadRomData rom_data_file("data/8008-loop-loads.bin");
     auto& rom_data = rom_data_file.data;
+
+//    ReadRomData rom_data_file("data/8008-input-output.bin");
+//    auto& rom_data = rom_data_file.data;
 
     //    ReadRomData rom_data_file("data/8008-hello-world.bin");
     //    auto& rom_data = rom_data_file.data;
