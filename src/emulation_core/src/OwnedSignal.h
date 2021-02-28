@@ -29,6 +29,7 @@ public:
     using callback_type = std::function<void(Edge)>;
 
     [[nodiscard]] State get_state() const;
+    State operator*() const;
     [[nodiscard]] counter_type get_latest_change_time() const;
     void request(void* requested_id);
     void set(State new_state, counter_type time, void* set_id);

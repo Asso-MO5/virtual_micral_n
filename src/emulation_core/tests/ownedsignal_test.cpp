@@ -12,6 +12,12 @@ TEST(OwnedSignal, is_initialized_low_and_at_unscheduled_time)
     ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::unscheduled()));
 }
 
+TEST(OwnedSignal, can_be_deferenced)
+{
+    OwnedSignal signal;
+
+    ASSERT_THAT(*signal, Eq(State::LOW));
+}
 TEST(OwnedSignal, cannot_set_state_if_not_owned)
 {
     OwnedSignal signal;

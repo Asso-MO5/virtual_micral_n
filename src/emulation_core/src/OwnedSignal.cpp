@@ -1,6 +1,7 @@
 #include "OwnedSignal.h"
 
 State OwnedSignal::get_state() const { return current_state; }
+State OwnedSignal::operator*() const { return current_state; }
 OwnedSignal::counter_type OwnedSignal::get_latest_change_time() const { return latest_change_time; }
 
 void OwnedSignal::request(void* requested_id)
