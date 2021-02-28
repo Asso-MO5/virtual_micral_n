@@ -106,7 +106,7 @@ void PanelControl::display(Simulator& simulator)
         ImGui::NewLine();
 
         ImGui::BeginGroup();
-        display_status_line(output_pins);
+        display_status_line(console_card, output_pins);
         display_av_init_line(simulator);
 
         ImGui::EndGroup();
@@ -194,17 +194,20 @@ void PanelControl::display_control_line(ConsoleCard& console_card)
     ImGui::EndGroup();
 }
 
-void PanelControl::display_status_line(const CPU8008::OutputPins& output_pins)
+void PanelControl::display_status_line(ConsoleCard& console_card, const CPU8008::OutputPins& output_pins)
 {
     static const char* INFORMATION_NAMES[] = {"EXEC", "PAUSE", "ARRET", "OP", "LEC", "E/S", "ECR"};
 
+    const auto& status = console_card.get_status();
+
+    // TODO: change output_pins for ConsoleCard information
     const bool info_values[] = {false,
                                 *output_pins.state == Constants8008::CpuState::WAIT,
                                 *output_pins.state == Constants8008::CpuState::STOPPED,
-                                false,
-                                false,
-                                false,
-                                false};
+                                status.is_op_cycle,
+                                status.is_read_cycle,
+                                status.is_io_cycle,
+                                status.is_write_cycle};
 
     assert(IM_ARRAYSIZE(INFORMATION_NAMES) == IM_ARRAYSIZE(info_values));
 

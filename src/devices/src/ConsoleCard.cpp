@@ -58,6 +58,11 @@ void ConsoleCard::on_t3(Edge edge)
                 pluribus->ready_console.set(State::LOW, time, this);
                 break;
         }
+
+        status.is_op_cycle = *pluribus->cc0 == State::LOW && *pluribus->cc1 == State::LOW;
+        status.is_read_cycle = *pluribus->cc0 == State::LOW && *pluribus->cc1 == State::HIGH;
+        status.is_io_cycle = *pluribus->cc0 == State::HIGH && *pluribus->cc1 == State::LOW;
+        status.is_write_cycle = *pluribus->cc0 == State::HIGH && *pluribus->cc1 == State::HIGH;
     }
 }
 

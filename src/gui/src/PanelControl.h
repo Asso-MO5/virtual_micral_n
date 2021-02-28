@@ -21,7 +21,7 @@ private:
     void display_address_line(ConsoleCard& console_card);
     void display_data_line(ConsoleCard& console_card);
     void display_control_line(ConsoleCard& console_card);
-    void display_status_line(const CPU8008::OutputPins& output_pins);
+    void display_status_line(ConsoleCard& console_card, const CPU8008::OutputPins& output_pins);
     void display_av_init_line(Simulator& simulator);
 };
 
