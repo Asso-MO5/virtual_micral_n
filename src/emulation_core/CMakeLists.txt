@@ -28,7 +28,7 @@ set(EMULATION_CORE_TEST_FILES
         tests/databus_test.cpp
         tests/connecteddata_test.cpp
         tests/ownedsignal_test.cpp
-        tests/owned_value_test.cpp)
+        tests/ownedvalue_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 

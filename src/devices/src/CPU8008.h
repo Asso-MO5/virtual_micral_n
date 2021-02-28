@@ -29,6 +29,7 @@ public:
 
     struct OutputPins
     {
+        //OwnedValue<Constants8008::CpuState>
         Constants8008::CpuState state{Constants8008::CpuState::STOPPED};
         State sync{State::LOW};
     };
