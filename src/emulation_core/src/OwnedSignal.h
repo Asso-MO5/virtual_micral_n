@@ -1,12 +1,12 @@
 #ifndef MICRALN_OWNEDSIGNAL_H
 #define MICRALN_OWNEDSIGNAL_H
 
-#include "State.h"
 #include "Edge.h"
+#include "State.h"
 
 #include <exception>
-#include <string>
 #include <functional>
+#include <string>
 
 struct signal_error : public std::exception
 {
@@ -25,20 +25,23 @@ protected:
 class OwnedSignal
 {
 public:
+    using counter_type = Scheduling::counter_type;
     using callback_type = std::function<void(Edge)>;
 
     [[nodiscard]] State get_state() const;
-    [[nodiscard]] Scheduling::counter_type get_latest_change_time() const;
+    [[nodiscard]] counter_type get_latest_change_time() const;
     void request(void* requested_id);
-    void set(State new_state, Scheduling::counter_type time, void* set_id);
+    void set(State new_state, counter_type time, void* set_id);
 
     void subscribe(const callback_type& callback);
 
 private:
     void* owner_id{};
     State current_state{};
-    Scheduling::counter_type latest_change_time{Scheduling::unscheduled()};
+    counter_type latest_change_time{Scheduling::unscheduled()};
     std::vector<callback_type> callbacks;
+
+    void set_and_broadcast(State new_state, counter_type time);
 };
 
 #endif //MICRALN_OWNEDSIGNAL_H
