@@ -2,6 +2,8 @@
 #define MICRALN_STATE_H
 
 #include "Schedulable.h"
+
+#include <algorithm>
 #include <cstdint>
 
 struct State
@@ -31,7 +33,15 @@ struct State
     constexpr bool operator==(State other) const { return value == other.value; }
     constexpr bool operator!=(State other) const { return value != other.value; }
 
-    constexpr explicit operator Type () const { return value; };
+    constexpr explicit operator Type() const { return value; }
+    constexpr State operator&&(const State& other) const
+    {
+        bool state_as_bool = (value == HIGH);
+        bool other_as_bool = (other.value == HIGH);
+
+        return State{state_as_bool && other_as_bool,
+                     std::max(last_change_time, other.last_change_time)};
+    };
 
 private:
     Type value;
