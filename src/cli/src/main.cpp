@@ -76,8 +76,8 @@ int main(int argc, char** argv)
         LOG_F(INFO,
               "8008 sync: %i, state: %s, data bus: %02x, (CPU PC: %04x, IR: %02x, reg.a: %02x, "
               "reg.b: %02x, A(%02x) B(%02x) C(%02x) D(%02x) E(%02x) H(%02x) L(%02x))",
-              static_cast<State::Type>(cpu->get_output_pins().sync),
-              STATE_STRINGS[static_cast<size_t>(cpu->get_output_pins().state)], data_bus->read(),
+              static_cast<State::Type>(*cpu->get_output_pins().sync),
+              STATE_STRINGS[static_cast<size_t>(*cpu->get_output_pins().state)], data_bus->read(),
               cpu_debug_data.address_stack.stack[cpu_debug_data.address_stack.stack_index],
               cpu_debug_data.instruction_register, cpu_debug_data.hidden_registers.a,
               cpu_debug_data.hidden_registers.b,
