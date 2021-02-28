@@ -19,7 +19,7 @@ set(EMULATION_CORE_FILES
         src/ConnectedData.cpp src/ConnectedData.h
         src/DataBus.cpp src/DataBus.h
         src/OwnedSignal.cpp src/OwnedSignal.h
-        )
+        src/OwnedValue.h)
 
 set(EMULATION_CORE_TEST_FILES
         tests/scheduler_test.cpp
@@ -27,7 +27,8 @@ set(EMULATION_CORE_TEST_FILES
         tests/state_test.cpp
         tests/databus_test.cpp
         tests/connecteddata_test.cpp
-        tests/ownedsignal_test.cpp)
+        tests/ownedsignal_test.cpp
+        tests/owned_value_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 

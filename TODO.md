@@ -1,6 +1,6 @@
 * Populate the Pluribus with OwnedSignal
   * Communicate first with the Console Card
-    * Create a generic OwnedValue to transmit the CpuState value with timing.
+    * Use the OwnedValue to transfer the CpuState from CPU to ProcessorCard and Pluribus 
     * Then latch the low and high addresses on T1 and T2 + sync fall and publish on the pluribus.
       * As OwnedValue of 14 bit wide address.
   * Will need to deactivate the temp IO Controller, RAM and Control Bus.
