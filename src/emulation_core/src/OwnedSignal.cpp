@@ -13,6 +13,15 @@ void OwnedSignal::request(void* requested_id)
     owner_id = requested_id;
 }
 
+void OwnedSignal::release(void* release_id)
+{
+    if (owner_id != nullptr && release_id != owner_id)
+    {
+        throw signal_error{"Cannot release, not owned."};
+    }
+    owner_id = nullptr;
+}
+
 void OwnedSignal::set(State new_state, OwnedSignal::counter_type time, void* set_id)
 {
     if (owner_id != set_id)

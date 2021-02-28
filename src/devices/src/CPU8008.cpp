@@ -430,7 +430,7 @@ void CPU8008::signal_interrupt(Edge edge)
     }
 }
 
-void CPU8008::signal_wait(Edge edge) { input_pins.ready = edge.apply(); }
+void CPU8008::signal_ready(Edge edge) { input_pins.ready = edge.apply(); }
 
 void CPU8008::register_sync_trigger(std::function<void(Edge)> callback)
 {

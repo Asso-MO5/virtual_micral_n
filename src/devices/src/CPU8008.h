@@ -89,7 +89,7 @@ public:
     void signal_phase_2(Edge edge);
     void signal_vdd(Edge edge);
     void signal_interrupt(Edge edge);
-    void signal_wait(Edge edge);
+    void signal_ready(Edge edge);
 
     void register_sync_trigger(std::function<void(Edge)> callback);
 

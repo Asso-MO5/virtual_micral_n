@@ -74,7 +74,7 @@ namespace
         display_control_button("B", switch_value, IMPULSE);
         ImGui::EndGroup();
 
-        bool impulse = *switch_value != previous_value;
+        bool impulse = (*switch_value != previous_value) && *switch_value;
 
         return impulse;
     }
@@ -156,30 +156,34 @@ void PanelControl::display_control_line(ConsoleCard& console_card)
     const auto& status = console_card.get_status();
 
     const bool control_values[] = {
-            status.automatic, status.stepping, false, false, false, false,
+            status.automatic,
+            status.stepping,
+            status.step_mode == ConsoleCard::Instruction,
+            status.step_mode == ConsoleCard::Cycle,
+            false,
+            false,
     };
 
     const std::function<void(ConsoleCard*)> button_actions[] = {
             &ConsoleCard::press_automatic,
             &ConsoleCard::press_stepping,
-            nullptr,
-            nullptr,
+            &ConsoleCard::press_instruction,
+            &ConsoleCard::press_cycle,
             nullptr,
             nullptr,
     };
 
     assert(IM_ARRAYSIZE(CONTROL_NAMES) == IM_ARRAYSIZE(control_values));
 
-
     ImGui::BeginGroup();
     for (auto i = 0; i < IM_ARRAYSIZE(CONTROL_NAMES); i += 1)
     {
-        bool value = false;
-        auto pressed = add_impulse_switch(CONTROL_NAMES[i], &value, &control_values[i]);
+        auto pressed =
+                add_impulse_switch(CONTROL_NAMES[i], &control_switches[i], &control_values[i]);
 
         if (pressed)
         {
-            auto &action = button_actions[i];
+            auto& action = button_actions[i];
             if (action != nullptr)
             {
                 action(&console_card);

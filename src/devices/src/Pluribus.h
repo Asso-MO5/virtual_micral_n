@@ -23,6 +23,9 @@ public:
     OwnedSignal wait;
     OwnedSignal stop;
 
+    OwnedSignal ready_console;
+    OwnedSignal ready;
+
     std::shared_ptr<DataBus> data_bus_d0_7{};
     OwnedValue<uint16_t> address_bus_s0_s13{};
 };

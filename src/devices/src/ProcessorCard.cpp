@@ -14,19 +14,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 {
     set_next_activation_time(Scheduling::unscheduled());
 
-    interrupt_controller->register_interrupt_trigger(
-            [this](Edge edge) { cpu->signal_interrupt(edge); });
-
-    pluribus->vdd.subscribe([this](Edge edge) {
-        cpu->signal_vdd(edge);
-        interrupt_at_start->signal_vdd(edge);
-    });
-
-    cpu->register_state_change(
-            [this](Constants8008::CpuState, Constants8008::CpuState new_state,
-                   Scheduling::counter_type time) { cpu_state_changed(new_state, time); });
-
-    cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
+    combined_ready.request(this);
 
     pluribus->stop.request(this);
     pluribus->wait.request(this);
@@ -36,11 +24,38 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     pluribus->cc0.request(this);
     pluribus->cc1.request(this);
     pluribus->address_bus_s0_s13.request(this);
+    pluribus->sync.request(this);
+
+    interrupt_controller->register_interrupt_trigger(
+            [this](Edge edge) { cpu->signal_interrupt(edge); });
+
+    pluribus->vdd.subscribe([this](Edge edge) {
+        cpu->signal_vdd(edge);
+        interrupt_at_start->signal_vdd(edge);
+
+        if (edge == Edge::Front::RISING)
+        {
+            pluribus->ready.request(this);
+            pluribus->ready.set(State::HIGH, 0, this);
+            //pluribus->ready.release(this);
+        }
+    });
+
+    cpu->register_state_change(
+            [this](Constants8008::CpuState, Constants8008::CpuState new_state,
+                   Scheduling::counter_type time) { cpu_state_changed(new_state, time); });
+
+    cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
+
+    combined_ready.subscribe([this](Edge edge) { cpu->signal_ready(edge); });
+
+    pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });
+    pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
 InterruptController& ProcessorCard::get_interrupt_controller() { return *interrupt_controller; }
-void ProcessorCard::set_wait_line(Edge edge) { cpu->signal_wait(edge); }
+void ProcessorCard::set_wait_line(Edge edge) { cpu->signal_ready(edge); }
 
 void ProcessorCard::cpu_state_changed(Constants8008::CpuState state, Scheduling::counter_type time)
 {
@@ -123,6 +138,12 @@ void ProcessorCard::cpu_sync_changed(Edge edge)
             pluribus->cc1.set(cc1, time, this);
         }
     }
+    pluribus->sync.apply(edge, this);
+}
+
+void ProcessorCard::on_ready_change(Edge edge)
+{
+    combined_ready.set((*pluribus->ready_console) && (*pluribus->ready), edge.time(), this);
 }
 
 void ProcessorCard::step() {}

@@ -4,6 +4,7 @@
 #include "Constants8008.h"
 
 #include <emulation_core/src/Edge.h>
+#include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/Schedulable.h>
 #include <memory>
 
@@ -40,11 +41,14 @@ private:
     std::shared_ptr<InterruptController> interrupt_controller;
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
 
+    OwnedSignal combined_ready;
+
     uint16_t latched_address{};
     Constants8008::CycleControl latched_cycle_control{}; // TODO: Do we need this here?
 
     void cpu_state_changed(Constants8008::CpuState state, Scheduling::counter_type time);
     void cpu_sync_changed(Edge edge);
+    void on_ready_change(Edge edge);
 };
 
 #endif //MICRALN_PROCESSORCARD_H
