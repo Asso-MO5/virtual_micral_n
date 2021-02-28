@@ -8,6 +8,7 @@
 #include <array>
 #include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
+#include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
 #include <functional>
 #include <queue>
@@ -29,8 +30,7 @@ public:
 
     struct OutputPins
     {
-        //OwnedValue<Constants8008::CpuState>
-        Constants8008::CpuState state{Constants8008::CpuState::STOPPED};
+        OwnedValue<Constants8008::CpuState> state{Constants8008::CpuState::STOPPED};
         State sync{State::LOW};
     };
 
@@ -91,7 +91,10 @@ public:
     void signal_wait(Edge edge);
 
     void register_sync_trigger(std::function<void(Edge)> callback);
-    void register_state_change(std::function<void()> callback);
+
+    using state_callback_type = std::function<void(Constants8008::CpuState, Constants8008::CpuState,
+                                                   Scheduling::counter_type)>;
+    void register_state_change(state_callback_type callback);
 
     enum Event
     {

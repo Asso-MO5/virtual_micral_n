@@ -64,7 +64,12 @@ Simulator::Simulator()
     auto& data_bus_d0_7 = pluribus->data_bus_d0_7;
 
     cpu = std::make_shared<CPU8008>(scheduler);
-    interrupt_controller = std::make_shared<InterruptController>(&(cpu->get_output_pins().state));
+    interrupt_controller = std::make_shared<InterruptController>();
+    cpu->register_state_change([&](Constants8008::CpuState old_value,
+                                   Constants8008::CpuState new_value,
+                                   Scheduling::counter_type time) {
+        interrupt_controller->on_state_value_change(old_value, new_value, time);
+    });
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
 
     ProcessorCard::Config processor_card_config{
@@ -153,7 +158,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         }
         else if (controller_state == ControllerWidget::STEP_ONE_STATE)
         {
-            auto initial_state = cpu.get_output_pins().state;
+            auto initial_state = *cpu.get_output_pins().state;
 
             int timeout = 0;
             if (initial_state == Constants8008::CpuState::STOPPED)
@@ -161,7 +166,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 timeout = 50;
             }
 
-            while (cpu.get_output_pins().state == initial_state)
+            while (*cpu.get_output_pins().state == initial_state)
             {
                 scheduler.step();
 
@@ -188,13 +193,13 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         else if (controller_state == ControllerWidget::STEP_ONE_INSTRUCTION)
         {
             while (cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
-                   (cpu.get_output_pins().state == Constants8008::CpuState::T1))
+                   (*cpu.get_output_pins().state == Constants8008::CpuState::T1))
             {
                 scheduler.step();
             }
 
             while (!((cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI) &&
-                     (cpu.get_output_pins().state == Constants8008::CpuState::T1)))
+                     (*cpu.get_output_pins().state == Constants8008::CpuState::T1)))
             {
                 scheduler.step();
             }

@@ -1,6 +1,8 @@
 #ifndef MICRALN_PROCESSORCARD_H
 #define MICRALN_PROCESSORCARD_H
 
+#include "Constants8008.h"
+
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
 #include <memory>
@@ -38,7 +40,7 @@ private:
     std::shared_ptr<InterruptController> interrupt_controller;
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
 
-    void cpu_state_changed();
+    void cpu_state_changed(Constants8008::CpuState state, Scheduling::counter_type time);
 };
 
 #endif //MICRALN_PROCESSORCARD_H

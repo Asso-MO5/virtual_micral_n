@@ -169,8 +169,8 @@ void PanelControl::display_status_line(const CPU8008::OutputPins& output_pins)
     static const char* INFORMATION_NAMES[] = {"EXEC", "PAUSE", "ARRET", "OP", "LEC", "E/S", "ECR"};
 
     const bool info_values[] = {false,
-                                output_pins.state == Constants8008::CpuState::WAIT,
-                                output_pins.state == Constants8008::CpuState::STOPPED,
+                                *output_pins.state == Constants8008::CpuState::WAIT,
+                                *output_pins.state == Constants8008::CpuState::STOPPED,
                                 false,
                                 false,
                                 false,

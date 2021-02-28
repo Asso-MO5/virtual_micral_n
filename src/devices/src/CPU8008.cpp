@@ -35,6 +35,8 @@ bool operator<(const CPU8008::NextEventType& a, const CPU8008::NextEventType& b)
 CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
 {
     output_pins.sync = ::State::LOW;
+
+    output_pins.state.request(this);
 }
 
 void CPU8008::connect_data_bus(std::shared_ptr<DataBus> bus) { data_pins.connect(std::move(bus)); }
@@ -65,9 +67,9 @@ void CPU8008::step()
         case STATE: {
             // TODO: Constraint : tS2 max (1.0) after ø11 RAISE (for T1/TI1)
             // TODO: Constraint : tS1 max (1.1) after ø11 RAISE (for others)
-            output_pins.state = static_cast<CpuState>(param);
+            output_pins.state.set(static_cast<CpuState>(param), time, this);
 
-            switch (output_pins.state)
+            switch (*output_pins.state)
             {
                 case CpuState::T1I:
                     cycle_ended = false;
@@ -119,7 +121,7 @@ void CPU8008::step()
             {
                 uint8_t data_to_send = io_data_latch;
 
-                if (output_pins.state == CpuState::T2)
+                if (*output_pins.state == CpuState::T2)
                 {
                     data_to_send &= 0b00111111;
                     data_to_send |= static_cast<uint8_t>(cycle_control);
@@ -156,7 +158,7 @@ void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
 {
     next_events.push(std::make_tuple(edge_time + 20, SYNC, 1));
 
-    switch (output_pins.state)
+    switch (*output_pins.state)
     {
         case CpuState::STOPPED:
             if (interrupt_pending)
@@ -266,7 +268,7 @@ void CPU8008::on_signal_12_raising(Scheduling::counter_type edge_time)
 
 void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
 {
-    switch (output_pins.state)
+    switch (*output_pins.state)
     {
         case CpuState::WAIT:
         case CpuState::STOPPED:
@@ -295,9 +297,9 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
 
 void CPU8008::on_signal_21_falling(Scheduling::counter_type edge_time)
 {
-    if (output_pins.state == CpuState::T3 && (cycle_control == Constants8008::CycleControl::PCI ||
-                                              cycle_control == Constants8008::CycleControl::PCR ||
-                                              cycle_control == Constants8008::CycleControl::PCC))
+    if (*output_pins.state == CpuState::T3 && (cycle_control == Constants8008::CycleControl::PCI ||
+                                               cycle_control == Constants8008::CycleControl::PCR ||
+                                               cycle_control == Constants8008::CycleControl::PCC))
     {
         next_events.push(std::make_tuple(edge_time + Timings::DATA_IN_HOLD_TIME, DATA_IN, 1));
     }
@@ -305,7 +307,7 @@ void CPU8008::on_signal_21_falling(Scheduling::counter_type edge_time)
 
 void CPU8008::on_signal_22_falling(Scheduling::counter_type edge_time)
 {
-    switch (output_pins.state)
+    switch (*output_pins.state)
     {
         case CpuState::WAIT:
         case CpuState::STOPPED:
@@ -866,8 +868,8 @@ void CPU8008::ends_cycle(Constants8008::CycleControl new_cycle_control)
 
 bool CPU8008::is_instruction_complete() const
 {
-    assert(output_pins.state == Constants8008::CpuState::T3 ||
-           output_pins.state == Constants8008::CpuState::T4);
+    assert(*output_pins.state == Constants8008::CpuState::T3 ||
+           *output_pins.state == Constants8008::CpuState::T4);
     return next_cycle_control == Constants8008::CycleControl::PCI;
 }
 
@@ -877,7 +879,8 @@ void CPU8008::interrupt(Scheduling::counter_type edge_time)
 
     next_events.push(std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1I)));
 }
-void CPU8008::register_state_change(std::function<void()> callback) {
-    state_callback = std::move(callback);
 
+void CPU8008::register_state_change(state_callback_type callback)
+{
+    output_pins.state.subscribe(callback);
 }

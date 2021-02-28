@@ -1,11 +1,12 @@
 * Populate the Pluribus with OwnedSignal
   * Communicate first with the Console Card
-    * Use the OwnedValue to transfer the CpuState from CPU to ProcessorCard and Pluribus 
-    * Then latch the low and high addresses on T1 and T2 + sync fall and publish on the pluribus.
+    * Latch the low and high addresses on T1 and T2 + sync fall and publish on the Pluribus.
       * As OwnedValue of 14 bit wide address.
   * Will need to deactivate the temp IO Controller, RAM and Control Bus.
     ... or not.
   * Possibility to set Debug Read Information on the Processor Board
+  * Except on the Processor Bus, other components should not address it
+  directly, but through the Pluribus (except for Debug Feedback)
 * Plug the Control Panel to a Control Board
 * Plug the control board to the pluribus
   * Pluribus must accept virtual "cards"

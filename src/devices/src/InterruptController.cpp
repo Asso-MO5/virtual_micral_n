@@ -1,7 +1,6 @@
 #include "InterruptController.h"
 
-InterruptController::InterruptController(const Constants8008::CpuState* cpu_state) : cpu_state(cpu_state)
-{}
+InterruptController::InterruptController() {}
 
 void InterruptController::wants_interrupt(const Edge& edge)
 {
@@ -24,7 +23,7 @@ void InterruptController::signal_phase_1(const Edge& edge)
     }
     else
     {
-        if (applying_interrupt && (*cpu_state == Constants8008::CpuState::T1I))
+        if (applying_interrupt && (latest_cpu_state == Constants8008::CpuState::T1I))
         {
             interrupt_is_scheduled = false;
             applying_interrupt = false;
@@ -36,4 +35,11 @@ void InterruptController::signal_phase_1(const Edge& edge)
 void InterruptController::register_interrupt_trigger(std::function<void(Edge)> callback)
 {
     interrupt_callback = std::move(callback);
+}
+
+void InterruptController::on_state_value_change(Constants8008::CpuState old_value,
+                                                Constants8008::CpuState new_value,
+                                                Scheduling::counter_type time)
+{
+    latest_cpu_state = new_value;
 }
