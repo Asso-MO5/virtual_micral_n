@@ -23,7 +23,11 @@ public:
     using counter_type = Scheduling::counter_type;
     using callback_type = std::function<void(ValueType, ValueType, counter_type)>;
 
-    [[nodiscard]] ValueType get_state() const { return current_state; };
+    OwnedValue() = default;
+    explicit OwnedValue(ValueType start_value) : current_value{start_value} {}
+
+    [[nodiscard]] ValueType get_state() const { return current_value; };
+    ValueType operator*() const { return current_value; }
     [[nodiscard]] counter_type get_latest_change_time() const { return latest_change_time; }
 
     void request(void* requested_id)
@@ -49,17 +53,17 @@ public:
 
 private:
     void* owner_id{};
-    ValueType current_state{};
+    ValueType current_value{};
     counter_type latest_change_time{Scheduling::unscheduled()};
     std::vector<callback_type> callbacks;
 
     void set_and_broadcast(ValueType new_value, counter_type time)
     {
-        auto previous_state = current_state;
+        auto previous_state = current_value;
 
         if (previous_state != new_value)
         {
-            current_state = new_value;
+            current_value = new_value;
             latest_change_time = time;
 
             for (auto& callback : callbacks)

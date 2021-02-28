@@ -12,6 +12,21 @@ TEST(OwnedValue, is_initialized_at_unscheduled_time_with_a_default_value)
     ASSERT_THAT(owned_value.get_latest_change_time(), Eq(Scheduling::unscheduled()));
 }
 
+TEST(OwnedValue, can_be_initialized_with_a_value)
+{
+    OwnedValue<uint8_t> owned_value{20};
+
+    ASSERT_THAT(owned_value.get_state(), Eq(20));
+    ASSERT_THAT(owned_value.get_latest_change_time(), Eq(Scheduling::unscheduled()));
+}
+
+TEST(OwnedValue, can_be_deferenced)
+{
+    OwnedValue<uint8_t> owned_value{20};
+
+    ASSERT_THAT(*owned_value, Eq(20));
+}
+
 TEST(OwnedValue, cannot_set_state_if_not_owned)
 {
     OwnedValue<uint8_t> owned_value;
