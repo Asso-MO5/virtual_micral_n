@@ -21,6 +21,7 @@ class Pluribus;
 class CPU8008;
 class InterruptAtStart;
 class InterruptController;
+class MemoryCard;
 
 class SimulatorMemoryView : public MemoryView
 {
@@ -76,6 +77,7 @@ private:
 
     std::shared_ptr<SimpleROM> rom{};
     std::shared_ptr<SimpleRAM> ram{};
+    std::shared_ptr<MemoryCard> memory_card;
     std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<IOController> io_controller;
     std::shared_ptr<Pluribus> pluribus;

@@ -1,3 +1,9 @@
+* Plug memories to the pluribus
+  * Load data into the Card
+  * Allow Memory Debugging (adjust display for uncovered pages)
+  * Put two cards.
+  * Make ProcessorCard read md0-md7
+  * Unplug SimpleROM/SimpleRAM and ControlBus (then Remove when everything works).
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
@@ -15,7 +21,6 @@
 * Plug the control board to the pluribus
     * Pluribus must accept virtual "cards"
 * Plug the CPU board to the pluribus
-* Plug memories to the pluribus
 * Make a Virtual Card for Debugging GUI information
 * The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board

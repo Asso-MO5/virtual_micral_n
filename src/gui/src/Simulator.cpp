@@ -7,6 +7,7 @@
 #include <devices/src/ControlBus.h>
 #include <devices/src/IOController.h>
 #include <devices/src/InterruptAtStart.h>
+#include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/SimpleRAM.h>
@@ -89,6 +90,26 @@ Simulator::Simulator()
     rom = std::make_shared<SimpleROM>(rom_data);
     ram = std::make_shared<SimpleRAM>(RAM_SIZE);
 
+    auto memory_config = MemoryCard::Config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .addressing_size = MemoryCard::Card2k,
+            .writable_page =
+                    {
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                    },
+            .selection_mask = {false, false, false}, // Pages covering first 2k
+    };
+
+    memory_card = std::make_shared<MemoryCard>(memory_config);
+
     control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
     io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
     console_card = std::make_shared<ConsoleCard>(pluribus);
@@ -127,6 +148,7 @@ Simulator::Simulator()
     scheduler.add(clock);
     scheduler.add(processor_card);
     scheduler.add(console_card);
+    scheduler.add(memory_card);
 
     memory_view.set_rom(rom, std::min(rom_data.size(), static_cast<size_t>(0x1000)), 0x0000);
     memory_view.set_ram(ram, RAM_SIZE, RAM_START);

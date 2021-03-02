@@ -27,7 +27,8 @@ namespace
 } // namespace
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
-    : scheduler{config.scheduler}, pluribus(config.pluribus)
+    : scheduler{config.scheduler}, pluribus{config.pluribus}, writable_page{config.writable_page},
+      selection_mask{config.selection_mask}
 {
     set_data_size(config);
 
@@ -69,8 +70,9 @@ void MemoryCard::on_t2(Edge edge)
     if (is_falling(edge))
     {
         auto [address, cycle_control] = read_address_bus();
-        if (cycle_control == Constants8008::CycleControl::PCI ||
-            cycle_control == Constants8008::CycleControl::PCR || is_addressed(address))
+        if ((cycle_control == Constants8008::CycleControl::PCI ||
+             cycle_control == Constants8008::CycleControl::PCR) &&
+            is_addressed(address))
         {
             // This is the end of T2, schedule the data emission
             latch_read_data(address);
@@ -102,12 +104,28 @@ std::tuple<uint16_t, Constants8008::CycleControl> MemoryCard::read_address_bus()
 
 bool MemoryCard::is_addressed(uint16_t address)
 {
-    return true; // TODO: implement
+    bool s13 = address & 0b1000000000000;
+    bool s12 = address & 0b0100000000000;
+    bool s11 = address & 0b0010000000000;
+
+    if (get_addressing_size() == Card2k && s11 != selection_mask[2])
+    {
+        return false;
+    }
+
+    return s13 == selection_mask[0] && s12 == selection_mask[1];
 }
 
 void MemoryCard::latch_read_data(uint16_t address)
 {
-    auto address_on_card = (data.size() == 2048) ? (address & 0x7ff) : (address & 0xfff);
+    auto address_on_card =
+            (get_addressing_size() == Card2k) ? (address & 0x7ff) : (address & 0xfff);
 
     latched_data = data[address_on_card];
+}
+
+MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
+{
+    // TODO: Could be as well stored.
+    return (data.size() == 2048) ? Card4k : Card2k;
 }

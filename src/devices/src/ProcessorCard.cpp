@@ -37,8 +37,8 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
         if (is_rising(edge))
         {
             pluribus->ready.request(this);
-            pluribus->ready.set(State::HIGH, 0, this);
-            //pluribus->ready.release(this);
+            pluribus->ready.set(State::LOW, 0, this);
+            pluribus->ready.release(this);
         }
     });
 

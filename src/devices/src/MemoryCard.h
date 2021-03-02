@@ -30,8 +30,8 @@ public:
         SignalReceiver& scheduler;
         std::shared_ptr<Pluribus> pluribus;
         AddressingSize addressing_size;
-        bool writable_page[MemoryConstants::MAXIMUM_PAGES];
-        bool selection_bit[MemoryConstants::SELECTION_BIT_COUNT];
+        std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
+        std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
     };
 
     explicit MemoryCard(const Config& config);
@@ -46,6 +46,8 @@ private:
 
     std::shared_ptr<Pluribus> pluribus;
     std::vector<uint8_t> data;
+    std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
+    std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
 
     uint8_t latched_data;
 
@@ -55,6 +57,7 @@ private:
     bool is_addressed(uint16_t address);
     void latch_read_data(uint16_t address);
     void set_data_size(const Config& config);
+    AddressingSize get_addressing_size() const;
 };
 
 #endif //MICRALN_MEMORYCARD_H
