@@ -34,7 +34,7 @@ ControlBus::ControlBus(std::shared_ptr<CPU8008> cpu, std::shared_ptr<SimpleROM> 
 
 void ControlBus::signal_phase_1(const Edge& edge)
 {
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         if (*cpu->get_output_pins().sync == State::HIGH &&
             *cpu->get_output_pins().state == Constants8008::CpuState::T3)
@@ -118,12 +118,12 @@ void ControlBus::start_t3_transfer(const Edge& edge)
 
 void ControlBus::signal_phase_2(const Edge& edge)
 {
-    if (edge == Edge::Front::FALLING && *cpu->get_output_pins().sync == State::HIGH) {}
+    if (is_falling(edge) && *cpu->get_output_pins().sync == State::HIGH) {}
 }
 
 void ControlBus::signal_sync(const Edge& edge)
 {
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         read_address_from_cpu();
     }
@@ -139,6 +139,7 @@ void ControlBus::read_address_from_cpu()
         latched_address &= 0xff00;
         latched_address |= cpu->get_data_pins().read();
     }
+
     if (*cpu->get_output_pins().state == Constants8008::CpuState::T2)
     {
         auto read_value = cpu->get_data_pins().read();

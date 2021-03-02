@@ -43,7 +43,7 @@ void ConsoleCard::press_trap() {}
 
 void ConsoleCard::on_t3(Edge edge)
 {
-    if (status.stepping && edge == Edge::Front::RISING)
+    if (status.stepping && is_rising(edge))
     {
         auto time = edge.time();
         switch (status.step_mode)
@@ -70,7 +70,7 @@ void ConsoleCard::press_instruction() { status.step_mode = Instruction; }
 void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
 void ConsoleCard::on_sync(Edge edge)
 {
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         if (*pluribus->t3 == State::HIGH && *pluribus->cc0 == State::LOW &&
             *pluribus->cc1 == State::HIGH)

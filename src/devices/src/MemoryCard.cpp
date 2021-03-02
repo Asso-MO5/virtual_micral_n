@@ -66,7 +66,7 @@ void MemoryCard::load_data(std::vector<uint8_t> data) {}
 void MemoryCard::on_t2(Edge edge)
 {
 
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         auto [address, cycle_control] = read_address_bus();
         if (cycle_control == Constants8008::CycleControl::PCI ||
@@ -81,7 +81,7 @@ void MemoryCard::on_t2(Edge edge)
 }
 void MemoryCard::on_t3(Edge edge)
 {
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         pluribus->data_bus_md0_7.release(this);
         pluribus->ready.release(this);

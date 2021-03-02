@@ -51,8 +51,8 @@ Simulator::Simulator()
     ReadRomData rom_data_file("data/8008-loop-loads.bin");
     auto& rom_data = rom_data_file.data;
 
-//    ReadRomData rom_data_file("data/8008-input-output.bin");
-//    auto& rom_data = rom_data_file.data;
+    //    ReadRomData rom_data_file("data/8008-input-output.bin");
+    //    auto& rom_data = rom_data_file.data;
 
     //    ReadRomData rom_data_file("data/8008-hello-world.bin");
     //    auto& rom_data = rom_data_file.data;
@@ -98,7 +98,7 @@ Simulator::Simulator()
     ram->connect_data_bus(data_bus_d0_7);
 
     clock->register_phase_1_trigger([this](Edge edge) {
-        clock_1_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+        clock_1_pulse += is_rising(edge) ? 1 : 0;
 
         phase_1_recorder.add(edge);
         cpu->signal_phase_1(edge);
@@ -109,7 +109,7 @@ Simulator::Simulator()
     });
 
     clock->register_phase_2_trigger([this](Edge edge) {
-        clock_2_pulse += (edge == Edge::Front::RISING ? 1 : 0);
+        clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
 
         cpu->signal_phase_2(edge);
@@ -134,9 +134,7 @@ Simulator::Simulator()
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
 
-    pluribus->t3prime.subscribe([this](Edge edge) {
-        t3prime_recorder.add(edge);
-    });
+    pluribus->t3prime.subscribe([this](Edge edge) { t3prime_recorder.add(edge); });
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)

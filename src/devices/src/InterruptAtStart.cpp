@@ -6,7 +6,7 @@ InterruptAtStart::InterruptAtStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move
 
 void InterruptAtStart::signal_phase_1(const Edge& edge)
 {
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         counter += 1;
         if (counter == 20)
@@ -22,7 +22,7 @@ void InterruptAtStart::signal_phase_1(const Edge& edge)
 
 void InterruptAtStart::signal_vdd(const Edge& edge)
 {
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         counter = 0;
     }

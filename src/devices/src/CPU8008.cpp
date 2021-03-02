@@ -342,7 +342,7 @@ void CPU8008::signal_phase_1(Edge edge)
 
     auto edge_time = edge.time();
 
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         if (is_first_phase_cycle)
         {
@@ -370,7 +370,7 @@ void CPU8008::signal_phase_2(Edge edge)
 
     auto edge_time = edge.time();
 
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         if (is_first_phase_cycle)
         {

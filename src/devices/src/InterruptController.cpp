@@ -4,7 +4,7 @@ InterruptController::InterruptController() {}
 
 void InterruptController::wants_interrupt(const Edge& edge)
 {
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         interrupt_is_scheduled = true;
     }
@@ -12,7 +12,7 @@ void InterruptController::wants_interrupt(const Edge& edge)
 
 void InterruptController::signal_phase_1(const Edge& edge)
 {
-    if (edge == Edge::Front::RISING)
+    if (is_rising(edge))
     {
         if (interrupt_is_scheduled && !applying_interrupt)
         {

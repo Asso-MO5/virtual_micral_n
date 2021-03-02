@@ -34,7 +34,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
         cpu->signal_vdd(edge);
         interrupt_at_start->signal_vdd(edge);
 
-        if (edge == Edge::Front::RISING)
+        if (is_rising(edge))
         {
             pluribus->ready.request(this);
             pluribus->ready.set(State::HIGH, 0, this);

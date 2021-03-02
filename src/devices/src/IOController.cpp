@@ -13,7 +13,7 @@ IOController::IOController(std::shared_ptr<CPU8008> cpu, std::shared_ptr<DataBus
 
 void IOController::signal_phase_1(const Edge& edge)
 {
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
         if (cycle_control == Constants8008::CycleControl::PCC &&
@@ -31,7 +31,7 @@ void IOController::signal_phase_1(const Edge& edge)
 
 void IOController::signal_phase_2(const Edge& edge)
 {
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
 
@@ -50,7 +50,7 @@ void IOController::signal_phase_2(const Edge& edge)
 
 void IOController::signal_sync(const Edge& edge)
 {
-    if (edge == Edge::Front::FALLING)
+    if (is_falling(edge))
     {
         read_io_information_from_cpu();
     }

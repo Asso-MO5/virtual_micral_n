@@ -64,4 +64,7 @@ private:
     Scheduling::counter_type timestamp{};
 };
 
+inline bool is_rising(const Edge& edge) { return edge == Edge::Front::RISING; }
+inline bool is_falling(const Edge& edge) { return edge == Edge::Front::FALLING; }
+
 #endif //MICRALN_EDGE_H

@@ -40,5 +40,15 @@ TEST(Edge, can_be_applied_to_a_state)
     Edge edge_2{State::HIGH, State::LOW, Scheduling::counter_type{2000}};
     State state_2 = edge_2.apply();
     ASSERT_THAT(state_2.last_change(), Eq(Scheduling::counter_type{2000}));
+}
 
+TEST(Edge, predicate_functions)
+{
+    Edge edge_rising{Edge::Front::RISING};
+    ASSERT_TRUE(is_rising(edge_rising));
+    ASSERT_FALSE(is_falling(edge_rising));
+
+    Edge edge_falling{Edge::Front::FALLING};
+    ASSERT_FALSE(is_rising(edge_falling));
+    ASSERT_TRUE(is_falling(edge_falling));
 }
