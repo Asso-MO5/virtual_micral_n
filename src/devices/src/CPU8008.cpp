@@ -410,7 +410,7 @@ void CPU8008::schedule_next_event(Scheduling::counter_type edge_time)
 void CPU8008::signal_vdd(Edge edge)
 {
     input_pins.vdd = edge.apply();
-    if (input_pins.vdd == State::LOW)
+    if (is_low(input_pins.vdd))
     {
         set_next_activation_time(Scheduling::unscheduled());
     }

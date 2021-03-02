@@ -49,7 +49,7 @@ void ConsoleCard::on_t3(Edge edge)
         switch (status.step_mode)
         {
             case Instruction:
-                if (*pluribus->cc0 == State::LOW && *pluribus->cc1 == State::LOW)
+                if (is_low(*pluribus->cc0) && is_low(*pluribus->cc1))
                 {
                     pluribus->ready_console.set(State::LOW, time, this);
                 }
@@ -59,10 +59,10 @@ void ConsoleCard::on_t3(Edge edge)
                 break;
         }
 
-        status.is_op_cycle = *pluribus->cc0 == State::LOW && *pluribus->cc1 == State::LOW;
-        status.is_read_cycle = *pluribus->cc0 == State::LOW && *pluribus->cc1 == State::HIGH;
-        status.is_io_cycle = *pluribus->cc0 == State::HIGH && *pluribus->cc1 == State::LOW;
-        status.is_write_cycle = *pluribus->cc0 == State::HIGH && *pluribus->cc1 == State::HIGH;
+        status.is_op_cycle = is_low(*pluribus->cc0) && is_low(*pluribus->cc1);
+        status.is_read_cycle = is_low(*pluribus->cc0) && is_high(*pluribus->cc1);
+        status.is_io_cycle = is_high(*pluribus->cc0) && is_low(*pluribus->cc1);
+        status.is_write_cycle = is_high(*pluribus->cc0) && is_high(*pluribus->cc1);
     }
 }
 
@@ -72,8 +72,7 @@ void ConsoleCard::on_sync(Edge edge)
 {
     if (is_falling(edge))
     {
-        if (*pluribus->t3 == State::HIGH && *pluribus->cc0 == State::LOW &&
-            *pluribus->cc1 == State::HIGH)
+        if (is_high(*pluribus->t3) && is_low(*pluribus->cc0) && is_high(*pluribus->cc1))
         {
             // TODO: Check when the read timing is done.
             status.data = pluribus->data_bus_d0_7->read();

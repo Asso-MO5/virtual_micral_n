@@ -43,3 +43,15 @@ TEST(State, supports_and_2)
     ASSERT_THAT(result, State::HIGH);
     ASSERT_THAT(result.last_change(), Eq(40));
 }
+
+TEST(State, predicate_functions)
+{
+    State state_low{State::LOW, Scheduling::counter_type{20}};
+    State state_high{State::HIGH, Scheduling::counter_type{40}};
+
+    ASSERT_TRUE(is_high(state_high));
+    ASSERT_FALSE(is_low(state_high));
+
+    ASSERT_FALSE(is_high(state_low));
+    ASSERT_TRUE(is_low(state_low));
+}

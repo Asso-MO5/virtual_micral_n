@@ -34,7 +34,7 @@ void SimpleRAM::signal_write_enable(Edge edge)
 {
     input_pins.write_enable = edge.apply();
 
-    if ((input_pins.write_enable == State::LOW) && (input_pins.chip_select == State::HIGH))
+    if (is_low(input_pins.write_enable) && is_high(input_pins.chip_select))
     {
         data[input_pins.address] = data_pins.read();
     }
@@ -43,8 +43,8 @@ void SimpleRAM::signal_write_enable(Edge edge)
 
 void SimpleRAM::set_data_when_read_selected()
 {
-    if ((input_pins.chip_select == State::HIGH) && (input_pins.output_enable == State::HIGH) &&
-        (input_pins.write_enable == State::LOW))
+    if (is_high(input_pins.chip_select) && is_high(input_pins.output_enable) &&
+        is_low(input_pins.write_enable))
     {
         // Simple RAM is immediate
         data_pins.take_bus();

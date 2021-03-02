@@ -48,4 +48,7 @@ private:
     Scheduling::counter_type last_change_time;
 };
 
+inline bool is_high(const State& state) { return state == State::HIGH; }
+inline bool is_low(const State& state) { return state == State::LOW; }
+
 #endif //MICRALN_STATE_H
