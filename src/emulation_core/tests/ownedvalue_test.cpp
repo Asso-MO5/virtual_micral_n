@@ -8,7 +8,7 @@ TEST(OwnedValue, is_initialized_at_unscheduled_time_with_a_default_value)
 {
     OwnedValue<uint8_t> owned_value;
 
-    ASSERT_THAT(owned_value.get_state(), Eq(0));
+    ASSERT_THAT(owned_value.get_value(), Eq(0));
     ASSERT_THAT(owned_value.get_latest_change_time(), Eq(Scheduling::unscheduled()));
 }
 
@@ -16,7 +16,7 @@ TEST(OwnedValue, can_be_initialized_with_a_value)
 {
     OwnedValue<uint8_t> owned_value{20};
 
-    ASSERT_THAT(owned_value.get_state(), Eq(20));
+    ASSERT_THAT(owned_value.get_value(), Eq(20));
     ASSERT_THAT(owned_value.get_latest_change_time(), Eq(Scheduling::unscheduled()));
 }
 
@@ -44,7 +44,7 @@ TEST(OwnedValue, cant_set_state_if_not_owned)
     owned_value.request(static_cast<void*>(&owner));
     owned_value.set(10, Scheduling::counter_type{1000}, static_cast<void*>(&owner));
 
-    ASSERT_THAT(owned_value.get_state(), Eq(10));
+    ASSERT_THAT(owned_value.get_value(), Eq(10));
     ASSERT_THAT(owned_value.get_latest_change_time(), Eq(Scheduling::counter_type{1000}));
 }
 

@@ -27,7 +27,7 @@ public:
     OwnedValue() = default;
     explicit OwnedValue(ValueType start_value) : current_value{start_value} {}
 
-    [[nodiscard]] ValueType get_state() const { return current_value; };
+    [[nodiscard]] ValueType get_value() const { return current_value; };
     ValueType operator*() const { return current_value; }
     [[nodiscard]] counter_type get_latest_change_time() const { return latest_change_time; }
 
