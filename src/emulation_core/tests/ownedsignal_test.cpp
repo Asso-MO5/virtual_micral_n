@@ -59,7 +59,6 @@ TEST(OwnedSignal, can_be_subscribed_to)
 
     Edge received_edge{};
 
-    //std::function<void(Edge)> callback
     signal.subscribe([&received_edge](Edge edge) { received_edge = edge; });
 
     signal.request(static_cast<void*>(&owner));
