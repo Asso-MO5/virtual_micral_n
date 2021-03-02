@@ -6,8 +6,8 @@
     * STEP
     * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
     * TRAP
-    * SUBST
-    * AV?
+    * SUBST (Needs new Memory Cards)
+    * AV? (Need to understand better)
   * Will need to deactivate the temp IO Controller, RAM and Control Bus.
     ... or not.
   * Possibility to set Debug Read Information on the Processor Board
@@ -18,6 +18,8 @@
   * Pluribus must accept virtual "cards"
 * Plug the CPU board to the pluribus
 * Plug memories to the pluribus
+* Make a Virtual Card for Debugging GUI information
+* The debug at Simulator level doesn't work when Stepping on the Emulated system  
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Are OwnedValue and ConnectedData redundant or do they serve different things?    
 * Extract the definition of the machine from the Simulator
@@ -29,6 +31,7 @@
   But it's not set low. So there's probably an out of bound access. 
 * Possible optimization  
   * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
+    * Globally, the back signaling on every timing change is not efficient nor practical not pretty.
   * 8008: probably the priority queue is overkill too.
   * SignalRecorder makes a lot of costly memcpy.
   * InstructionTableFor8008 for the disassembly and for the 8008 decoding are duplicated in memory.

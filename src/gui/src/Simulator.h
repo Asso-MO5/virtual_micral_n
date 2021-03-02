@@ -62,6 +62,7 @@ public:
     SignalRecorder phase_1_recorder{SIGNAL_RECORDER_WINDOW};
     SignalRecorder phase_2_recorder{SIGNAL_RECORDER_WINDOW};
     SignalRecorder sync_recorder{SIGNAL_RECORDER_WINDOW};
+    SignalRecorder t3prime_recorder{SIGNAL_RECORDER_WINDOW};
 
     uint64_t clock_1_pulse{};
     uint64_t clock_2_pulse{};

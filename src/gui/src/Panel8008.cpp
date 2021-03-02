@@ -21,6 +21,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     const auto& phase_1_recorder = simulator.phase_1_recorder;
     const auto& phase_2_recorder = simulator.phase_2_recorder;
     const auto& sync_recorder = simulator.sync_recorder;
+    const auto& t3prime_recorder = simulator.t3prime_recorder;
 
     const auto& cpu = simulator.get_processor_card().get_cpu();
 
@@ -52,7 +53,8 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
         config.frame_size = ImVec2(400, 25);
         config.line_thickness = 1.f;
 
-        for (const auto& recorder : {phase_1_recorder, phase_2_recorder, sync_recorder})
+        for (const auto& recorder :
+             {phase_1_recorder, phase_2_recorder, sync_recorder, t3prime_recorder})
         {
             config.values.x_series = recorder.time_series();
             config.values.y_series = recorder.state_series();

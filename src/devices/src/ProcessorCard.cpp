@@ -10,7 +10,8 @@
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)},
       interrupt_controller{std::move(config.interrupt_controller)},
-      interrupt_at_start{std::move(config.interrupt_at_start)}
+      interrupt_at_start{std::move(config.interrupt_at_start)},
+      scheduler(config.scheduler)
 {
     set_next_activation_time(Scheduling::unscheduled());
 
@@ -41,9 +42,11 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
         }
     });
 
-    cpu->register_state_change(
-            [this](Constants8008::CpuState, Constants8008::CpuState new_state,
-                   Scheduling::counter_type time) { cpu_state_changed(new_state, time); });
+    cpu->register_state_change([this](Constants8008::CpuState old_state,
+                                      Constants8008::CpuState new_state,
+                                      Scheduling::counter_type time) {
+        cpu_state_changed(old_state, new_state, time);
+    });
 
     cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
 
@@ -57,7 +60,8 @@ const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
 InterruptController& ProcessorCard::get_interrupt_controller() { return *interrupt_controller; }
 void ProcessorCard::set_wait_line(Edge edge) { cpu->signal_ready(edge); }
 
-void ProcessorCard::cpu_state_changed(Constants8008::CpuState state, Scheduling::counter_type time)
+void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
+                                      Constants8008::CpuState state, Scheduling::counter_type time)
 {
     switch (state)
     {
@@ -87,13 +91,11 @@ void ProcessorCard::cpu_state_changed(Constants8008::CpuState state, Scheduling:
             pluribus->wait.set(State{State::HIGH}, time, this);
             pluribus->t2.set(State{State::LOW}, time, this);
             pluribus->t3.set(State{State::LOW}, time, this);
-            pluribus->t3prime.set(State{State::LOW}, time, this);
             break;
         case Constants8008::CpuState::T3:
             pluribus->wait.set(State{State::LOW}, time, this);
             pluribus->t2.set(State{State::LOW}, time, this);
             pluribus->t3.set(State{State::HIGH}, time, this);
-            pluribus->t3prime.set(State{State::LOW}, time, this);
             break;
         case Constants8008::CpuState::T4:
             pluribus->t2.set(State{State::LOW}, time, this);
@@ -105,6 +107,14 @@ void ProcessorCard::cpu_state_changed(Constants8008::CpuState state, Scheduling:
             pluribus->t3.set(State{State::LOW}, time, this);
             pluribus->t3prime.set(State{State::LOW}, time, this);
             break;
+    }
+
+    if (old_state == Constants8008::CpuState::T2)
+    {
+        // T'3 is generated from the end of T2, not depending on T3.
+        emit_t3prime_on_next_step = true;
+        set_next_activation_time(time + 500);
+        scheduler.change_schedule(get_id());
     }
 }
 
@@ -146,4 +156,15 @@ void ProcessorCard::on_ready_change(Edge edge)
     combined_ready.set((*pluribus->ready_console) && (*pluribus->ready), edge.time(), this);
 }
 
-void ProcessorCard::step() {}
+void ProcessorCard::step()
+{
+
+    assert(emit_t3prime_on_next_step &&
+           "Currently, step() in the ProcessorCard only purpose is to emit t3prime.");
+    emit_t3prime_on_next_step = false;
+
+    auto time = get_next_activation_time();
+    pluribus->t3prime.set(State{State::HIGH}, time, this);
+
+    set_next_activation_time(Scheduling::unscheduled());
+}

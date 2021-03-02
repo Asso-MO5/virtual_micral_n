@@ -19,6 +19,7 @@ class ProcessorCard : public SchedulableImpl
 public:
     struct Config
     {
+        SignalReceiver& scheduler;
         std::shared_ptr<Pluribus> pluribus;
         std::shared_ptr<DoubleClock> clock;
         std::shared_ptr<CPU8008> cpu;
@@ -45,8 +46,11 @@ private:
 
     uint16_t latched_address{};
     Constants8008::CycleControl latched_cycle_control{}; // TODO: Do we need this here?
+    bool emit_t3prime_on_next_step{};
+    SignalReceiver& scheduler;
 
-    void cpu_state_changed(Constants8008::CpuState state, Scheduling::counter_type time);
+    void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState state,
+                           Scheduling::counter_type time);
     void cpu_sync_changed(Edge edge);
     void on_ready_change(Edge edge);
 };

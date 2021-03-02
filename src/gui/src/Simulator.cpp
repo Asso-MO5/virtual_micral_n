@@ -76,6 +76,7 @@ Simulator::Simulator()
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
 
     ProcessorCard::Config processor_card_config{
+            .scheduler = scheduler,
             .pluribus = pluribus,
             .clock = clock,
             .cpu = cpu,
@@ -132,6 +133,10 @@ Simulator::Simulator()
 
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
+
+    pluribus->t3prime.subscribe([this](Edge edge) {
+        t3prime_recorder.add(edge);
+    });
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
