@@ -27,6 +27,7 @@ public:
     OwnedSignal ready;
 
     std::shared_ptr<DataBus> data_bus_d0_7{};
+    OwnedValue<uint8_t> data_bus_md0_7{};
     OwnedValue<uint16_t> address_bus_s0_s13{};
 };
 
