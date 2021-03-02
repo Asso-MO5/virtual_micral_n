@@ -59,6 +59,19 @@ TEST(OwnedValue, cannot_be_requested_if_taken)
     ASSERT_THROW(owned_value.request(static_cast<void*>(&other_owner)), owned_value_error);
 }
 
+TEST(OwnedValue, can_be_released)
+{
+    OwnedValue<uint8_t> owned_value;
+    uint16_t owner;
+
+    owned_value.request(static_cast<void*>(&owner));
+    owned_value.release(static_cast<void*>(&owner));
+
+    ASSERT_THROW(owned_value.set(10, Scheduling::counter_type{1000}, static_cast<void*>(&owner)),
+                 owned_value_error);
+}
+
+
 TEST(OwnedValue, can_be_subscribed_to)
 {
     using OwnedValueType = OwnedValue<uint8_t>;

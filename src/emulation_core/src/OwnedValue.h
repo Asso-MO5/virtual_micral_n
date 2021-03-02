@@ -3,6 +3,7 @@
 
 #include "Scheduling.h"
 
+#include <devices/src/MemoryCard.h>
 #include <exception>
 #include <functional>
 #include <string>
@@ -37,6 +38,15 @@ public:
             throw owned_value_error{"Cannot request, the value is already owned."};
         }
         owner_id = requested_id;
+    }
+
+    void release(void* release_id)
+    {
+        if (owner_id != nullptr && release_id != owner_id)
+        {
+            throw owned_value_error{"Cannot release when the value is not owned."};
+        }
+        owner_id = nullptr;
     }
 
     void set(ValueType new_value, counter_type time, void* set_id)

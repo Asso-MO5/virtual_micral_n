@@ -28,7 +28,7 @@ TEST(OwnedSignal, cannot_set_state_if_not_owned)
             signal_error);
 }
 
-TEST(OwnedSignal, cant_set_state_if_not_owned)
+TEST(OwnedSignal, can_set_state_if_owned)
 {
     OwnedSignal signal;
     uint16_t owner;
@@ -38,6 +38,19 @@ TEST(OwnedSignal, cant_set_state_if_not_owned)
 
     ASSERT_THAT(signal.get_state(), Eq(State::HIGH));
     ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{1000}));
+}
+
+TEST(OwnedSignal, can_be_released)
+{
+    OwnedSignal signal;
+    uint16_t owner;
+
+    signal.request(static_cast<void*>(&owner));
+    signal.release(static_cast<void*>(&owner));
+
+    ASSERT_THROW(
+            signal.set(State::HIGH, Scheduling::counter_type{1000}, static_cast<void*>(&owner)),
+            signal_error);
 }
 
 TEST(OwnedSignal, cannot_be_requested_if_taken)
