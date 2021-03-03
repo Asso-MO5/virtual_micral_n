@@ -113,7 +113,7 @@ private:
     InputPins input_pins{};
     AddressStack address_stack;
     HiddenRegisters hidden_registers{};
-    uint8_t flags[static_cast<size_t>(Flags::MAX)];
+    uint8_t flags[static_cast<size_t>(Flags::MAX)]{};
     uint8_t scratch_pad_memory[SCRATCH_PAD_SIZE]; //A, B, C, D, E, H, L registers
     uint8_t io_data_latch{};
     uint8_t instruction_register{};
