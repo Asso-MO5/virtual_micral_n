@@ -853,7 +853,15 @@ void CPU8008::update_flags(const uint8_t& reg)
     // Updates each flags except Carry
     flags[static_cast<size_t>(Flags::Zero)] = (reg == 0);
     flags[static_cast<size_t>(Flags::Sign)] = (reg & 0x80);
-    flags[static_cast<size_t>(Flags::Parity)] = ((reg & 0x1) == 0);
+
+    auto bit_count = 0;
+    auto shift = reg;
+    for (auto i = 0; i < 8; i += 1)
+    {
+        bit_count += shift & 1;
+        shift >>= 1;
+    }
+    flags[static_cast<size_t>(Flags::Parity)] = ((bit_count & 0x1) == 0);
 }
 
 void CPU8008::ends_cycle(Constants8008::CycleControl new_cycle_control)
