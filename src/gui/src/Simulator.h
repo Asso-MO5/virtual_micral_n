@@ -26,22 +26,13 @@ class MemoryCard;
 class SimulatorMemoryView : public MemoryView
 {
 public:
-    void set_rom(std::shared_ptr<SimpleROM> rom_to_install, std::size_t size,
-                 uint16_t start_address);
-    void set_ram(std::shared_ptr<SimpleRAM> ram_to_install, std::size_t size,
-                 uint16_t start_address);
+    void add_memory_card(const std::shared_ptr<MemoryCard>& memory_card);
 
     [[nodiscard]] uint8_t get(std::uint16_t address) const override;
     [[nodiscard]] size_t size() const override;
 
 private:
-    std::shared_ptr<SimpleROM> rom{};
-    std::size_t rom_size;
-    uint16_t rom_start_address;
-
-    std::shared_ptr<SimpleRAM> ram{};
-    std::size_t ram_size;
-    uint16_t ram_start_address;
+    std::vector<std::shared_ptr<MemoryCard>> memory_cards;
 };
 
 class Simulator

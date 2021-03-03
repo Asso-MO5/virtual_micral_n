@@ -19,7 +19,6 @@
 namespace
 {
     const uint16_t RAM_SIZE = 2048;
-    const uint16_t RAM_START = 0x1000;
 } // namespace
 
 class ReadRomData
@@ -109,6 +108,7 @@ Simulator::Simulator()
     };
 
     memory_card = std::make_shared<MemoryCard>(memory_config);
+    memory_card->load_data(rom_data);
 
     control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
     io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
@@ -150,8 +150,7 @@ Simulator::Simulator()
     scheduler.add(console_card);
     scheduler.add(memory_card);
 
-    memory_view.set_rom(rom, std::min(rom_data.size(), static_cast<size_t>(0x1000)), 0x0000);
-    memory_view.set_ram(ram, RAM_SIZE, RAM_START);
+    memory_view.add_memory_card(memory_card);
 
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
@@ -248,31 +247,30 @@ ProcessorCard& Simulator::get_processor_card() { return *processor_card; }
 
 ConsoleCard& Simulator::get_console_card() { return *console_card; }
 
-void SimulatorMemoryView::set_rom(std::shared_ptr<SimpleROM> rom_to_install, std::size_t size,
-                                  uint16_t start_address)
+void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& memory_card)
 {
-    rom = std::move(rom_to_install);
-    rom_size = size;
-    rom_start_address = start_address;
-}
+    memory_cards.push_back(memory_card);
 
-void SimulatorMemoryView::set_ram(std::shared_ptr<SimpleRAM> ram_to_install, std::size_t size,
-                                  uint16_t start_address)
-{
-    ram = std::move(ram_to_install);
-    ram_size = size;
-    ram_start_address = start_address;
+    std::sort(begin(memory_cards), end(memory_cards), [](const auto& a, const auto& b) {
+        return a->get_start_address() < b->get_start_address();
+    });
 }
 
 uint8_t SimulatorMemoryView::get(std::uint16_t address) const
 {
-    if (address >= rom_start_address && address < rom_start_address + rom_size)
+    for(const auto & memory : memory_cards)
     {
-        return rom->get_direct_data(address - rom_start_address);
-    }
-    else if (address >= ram_start_address && address < ram_start_address + ram_size)
-    {
-        return ram->get_direct_data(address - ram_start_address);
+        auto start_address = memory->get_start_address();
+
+        if (address >= start_address)
+        {
+            auto end_address = memory->get_length();
+
+            if (address<end_address)
+            {
+                return memory->get_data_at(address - start_address);
+            }
+        }
     }
     return 0;
 }

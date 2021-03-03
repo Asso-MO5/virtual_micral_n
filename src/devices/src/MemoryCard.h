@@ -41,6 +41,11 @@ public:
 
     void step() override;
 
+    // For debugging purposes
+    [[nodiscard]] uint16_t get_start_address() const;
+    [[nodiscard]] uint16_t get_length() const;
+    [[nodiscard]] uint8_t get_data_at(uint16_t address) const;
+
 private:
     SignalReceiver& scheduler;
 
@@ -57,7 +62,7 @@ private:
     bool is_addressed(uint16_t address);
     void latch_read_data(uint16_t address);
     void set_data_size(const Config& config);
-    AddressingSize get_addressing_size() const;
+    [[nodiscard]] AddressingSize get_addressing_size() const;
 };
 
 #endif //MICRALN_MEMORYCARD_H

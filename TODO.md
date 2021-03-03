@@ -1,9 +1,8 @@
 * Plug memories to the pluribus
-  * Load data into the Card
-  * Allow Memory Debugging (adjust display for uncovered pages)
-  * Put two cards.
-  * Make ProcessorCard read md0-md7
-  * Unplug SimpleROM/SimpleRAM and ControlBus (then Remove when everything works).
+    * Make ProcessorCard read md0-md7
+    * Put two cards.
+    * Make one writable to behave like RAM.
+    * Unplug SimpleROM/SimpleRAM and ControlBus (then Remove when everything works).
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
@@ -22,6 +21,7 @@
     * Pluribus must accept virtual "cards"
 * Plug the CPU board to the pluribus
 * Make a Virtual Card for Debugging GUI information
+* On Memory Display, show from which card the data comes from.
 * The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Are OwnedValue and ConnectedData redundant or do they serve different things?
@@ -42,3 +42,6 @@
     * The Panels (Panels/Disassembly) are constantly re-updated, which is slow (especially for the PanelMemory)
     * As each board reacts to the synchro signal, these could be directly called functions rather than subscribed
       callbacks.
+    * Access to Debug Memory/Disassembly makes a lot of redundant computation
+      * when getting the data
+      * when computing the display

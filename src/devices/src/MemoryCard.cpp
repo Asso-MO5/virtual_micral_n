@@ -3,6 +3,7 @@
 #include "Pluribus.h"
 
 #include <emulation_core/src/DataBus.h>
+#include <utility>
 
 namespace
 {
@@ -62,7 +63,7 @@ void MemoryCard::step()
     set_next_activation_time(Scheduling::unscheduled());
 }
 
-void MemoryCard::load_data(std::vector<uint8_t> data) {}
+void MemoryCard::load_data(std::vector<uint8_t> data_to_load) { data = std::move(data_to_load); }
 
 void MemoryCard::on_t2(Edge edge)
 {
@@ -129,3 +130,19 @@ MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
     // TODO: Could be as well stored.
     return (data.size() == 2048) ? Card4k : Card2k;
 }
+
+uint16_t MemoryCard::get_start_address() const
+{
+    auto first_page_address =
+            (selection_mask[0] << 13 | selection_mask[1] << 12 | selection_mask[2] << 11);
+    if (get_addressing_size() == Card4k)
+    {
+        first_page_address &= 0b00011111111111;
+    }
+
+    return first_page_address;
+}
+
+uint16_t MemoryCard::get_length() const { return data.size(); }
+
+uint8_t MemoryCard::get_data_at(uint16_t address) const { return data.at(address); }
