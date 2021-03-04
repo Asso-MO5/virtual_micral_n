@@ -282,7 +282,7 @@ uint8_t SimulatorMemoryView::get(std::uint16_t address) const
 
         if (address >= start_address)
         {
-            auto end_address = memory->get_length();
+            auto end_address = start_address + memory->get_length();
 
             if (address < end_address)
             {

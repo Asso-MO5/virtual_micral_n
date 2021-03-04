@@ -1,11 +1,9 @@
-* Plug memories to the pluribus
-    * Put two cards.
-    * Make one writable to behave like RAM.
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
         * AUTO
         * STEP
+          * Should wait only on the PCI/T3 when in INST mode.
         * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
         * TRAP
         * SUBST (Needs new Memory Cards)
