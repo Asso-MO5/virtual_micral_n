@@ -6,12 +6,12 @@
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/Pluribus.h>
+#include <emulation_core/src/DataBus.h>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)},
       interrupt_controller{std::move(config.interrupt_controller)},
-      interrupt_at_start{std::move(config.interrupt_at_start)},
-      scheduler(config.scheduler)
+      interrupt_at_start{std::move(config.interrupt_at_start)}, scheduler(config.scheduler)
 {
     set_next_activation_time(Scheduling::unscheduled());
 
@@ -37,7 +37,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
         if (is_rising(edge))
         {
             pluribus->ready.request(this);
-            pluribus->ready.set(State::LOW, 0, this);
+            pluribus->ready.set(State::HIGH, 0, this);
             pluribus->ready.release(this);
         }
     });
@@ -54,6 +54,8 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });
     pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
+    pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime(edge); });
+    pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
@@ -62,6 +64,19 @@ void ProcessorCard::set_wait_line(Edge edge) { cpu->signal_ready(edge); }
 
 void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
                                       Constants8008::CpuState state, Scheduling::counter_type time)
+{
+    apply_signal_on_bus(state, time);
+
+    if (old_state == Constants8008::CpuState::T2)
+    {
+        // T'3 is generated from the end of T2, not depending on T3.
+        emit_t3prime_on_next_step = true;
+        set_next_activation_time(time + 500);
+        scheduler.change_schedule(get_id());
+    }
+}
+
+void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, unsigned long time)
 {
     switch (state)
     {
@@ -108,15 +123,9 @@ void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
             pluribus->t3prime.set(State{State::LOW}, time, this);
             break;
     }
-
-    if (old_state == Constants8008::CpuState::T2)
-    {
-        // T'3 is generated from the end of T2, not depending on T3.
-        emit_t3prime_on_next_step = true;
-        set_next_activation_time(time + 500);
-        scheduler.change_schedule(get_id());
-    }
 }
+
+void ProcessorCard::on_t3prime(Edge edge) {}
 
 void ProcessorCard::cpu_sync_changed(Edge edge)
 {
@@ -167,4 +176,22 @@ void ProcessorCard::step()
     pluribus->t3prime.set(State{State::HIGH}, time, this);
 
     set_next_activation_time(Scheduling::unscheduled());
+}
+
+void ProcessorCard::connect_data_bus(std::shared_ptr<DataBus> bus)
+{
+    // TODO: The Processor Card will own the DataBus shared with the 8008.
+    // Maybe change the principe of the DataBus to prefer the OwnedData...
+    data_pins.connect(std::move(bus));
+}
+
+void ProcessorCard::on_phase_2(Edge edge)
+{
+    if (is_falling(edge) && is_high(*pluribus->t3))
+    {
+        auto read_data = *pluribus->data_bus_md0_7;
+        data_pins.take_bus();
+        data_pins.write(read_data);
+        data_pins.release_bus();
+    }
 }

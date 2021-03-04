@@ -31,6 +31,8 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     : scheduler{config.scheduler}, pluribus{config.pluribus}, writable_page{config.writable_page},
       selection_mask{config.selection_mask}
 {
+    set_next_activation_time(Scheduling::unscheduled());
+
     set_data_size(config);
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
@@ -57,7 +59,7 @@ void MemoryCard::step()
     pluribus->data_bus_md0_7.set(latched_data, time, this);
 
     pluribus->ready.request(this);
-    pluribus->ready.set(State::LOW, time, this); // Reminder: setting the logical
+    pluribus->ready.set(State::HIGH, time, this); // Reminder: setting the logical
                                                  // not physical value, for signals.
 
     set_next_activation_time(Scheduling::unscheduled());

@@ -3,6 +3,7 @@
 
 #include "Constants8008.h"
 
+#include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/Schedulable.h>
@@ -13,6 +14,7 @@ class CPU8008;
 class InterruptController;
 class InterruptAtStart;
 class DoubleClock;
+class DataBus;
 
 class ProcessorCard : public SchedulableImpl
 {
@@ -36,6 +38,8 @@ public:
     [[nodiscard]] InterruptController& get_interrupt_controller();
     void set_wait_line(Edge edge);
 
+    void connect_data_bus(std::shared_ptr<DataBus> bus);
+
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu{};
@@ -43,6 +47,7 @@ private:
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
 
     OwnedSignal combined_ready;
+    ConnectedData data_pins{};
 
     uint16_t latched_address{};
     Constants8008::CycleControl latched_cycle_control{}; // TODO: Do we need this here?
@@ -53,6 +58,9 @@ private:
                            Scheduling::counter_type time);
     void cpu_sync_changed(Edge edge);
     void on_ready_change(Edge edge);
+    void on_t3prime(Edge edge);
+    void on_phase_2(Edge edge);
+    void apply_signal_on_bus(const Constants8008::CpuState& state, unsigned long time);
 };
 
 #endif //MICRALN_PROCESSORCARD_H

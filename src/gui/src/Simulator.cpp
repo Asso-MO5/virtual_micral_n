@@ -115,8 +115,7 @@ Simulator::Simulator()
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
     cpu->connect_data_bus(data_bus_d0_7);
-    rom->connect_data_bus(data_bus_d0_7);
-    ram->connect_data_bus(data_bus_d0_7);
+    processor_card->connect_data_bus(data_bus_d0_7);
 
     clock->register_phase_1_trigger([this](Edge edge) {
         clock_1_pulse += is_rising(edge) ? 1 : 0;
@@ -129,6 +128,8 @@ Simulator::Simulator()
         io_controller->signal_phase_1(edge);
     });
 
+    pluribus->phase_2.request(this);
+
     clock->register_phase_2_trigger([this](Edge edge) {
         clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
@@ -136,6 +137,7 @@ Simulator::Simulator()
         cpu->signal_phase_2(edge);
         control_bus->signal_phase_2(edge);
         io_controller->signal_phase_2(edge);
+        pluribus->phase_2.apply(edge, this);
     });
 
     cpu->register_sync_trigger([this](Edge edge) {
