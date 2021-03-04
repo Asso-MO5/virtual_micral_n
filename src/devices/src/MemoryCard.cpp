@@ -1,6 +1,7 @@
 #include "MemoryCard.h"
 
 #include "Pluribus.h"
+#include "PluribusHelpers.h"
 
 #include <emulation_core/src/DataBus.h>
 #include <utility>
@@ -8,23 +9,6 @@
 namespace
 {
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
-
-    Constants8008::CycleControl cycle_control_from_cc(State cc0, State cc1)
-    {
-        Constants8008::CycleControl cycleControl;
-        if (is_low(cc0))
-        {
-            cycleControl = is_low(cc1) ? Constants8008::CycleControl::PCI
-                                       : Constants8008::CycleControl::PCR;
-        }
-        else
-        {
-            cycleControl = is_low(cc1) ? Constants8008::CycleControl::PCC
-                                       : Constants8008::CycleControl::PCW;
-        }
-        return cycleControl;
-    }
-
 } // namespace
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)

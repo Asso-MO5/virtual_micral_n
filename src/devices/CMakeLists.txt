@@ -27,7 +27,8 @@ set(DEVICES_FILES
         src/ConsoleCard.cpp src/ConsoleCard.h
         src/Pluribus.cpp src/Pluribus.h
         src/ProcessorCard.cpp src/ProcessorCard.h
-        src/MemoryCard.cpp src/MemoryCard.h)
+        src/MemoryCard.cpp src/MemoryCard.h
+        src/PluribusHelpers.cpp src/PluribusHelpers.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp

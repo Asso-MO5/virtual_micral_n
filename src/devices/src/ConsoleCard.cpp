@@ -1,4 +1,5 @@
 #include "ConsoleCard.h"
+#include "PluribusHelpers.h"
 
 #include <devices/src/Pluribus.h>
 #include <emulation_core/src/DataBus.h>
@@ -45,24 +46,32 @@ void ConsoleCard::on_t3(Edge edge)
 {
     if (status.stepping && is_rising(edge))
     {
+        auto cc0 = *pluribus->cc0;
+        auto cc1 = *pluribus->cc1;
+        Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
+
+        status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
+        status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
+        status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
+        status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
+
         auto time = edge.time();
         switch (status.step_mode)
         {
             case Instruction:
-                if (is_low(*pluribus->cc0) && is_low(*pluribus->cc1))
+                if (status.is_op_cycle)
                 {
                     pluribus->ready_console.set(State::LOW, time, this);
+                }
+                else
+                {
+                    pluribus->ready_console.set(State::HIGH, time, this);
                 }
                 break;
             case Cycle:
                 pluribus->ready_console.set(State::LOW, time, this);
                 break;
         }
-
-        status.is_op_cycle = is_low(*pluribus->cc0) && is_low(*pluribus->cc1);
-        status.is_read_cycle = is_low(*pluribus->cc0) && is_high(*pluribus->cc1);
-        status.is_io_cycle = is_high(*pluribus->cc0) && is_low(*pluribus->cc1);
-        status.is_write_cycle = is_high(*pluribus->cc0) && is_high(*pluribus->cc1);
     }
 }
 
@@ -72,7 +81,8 @@ void ConsoleCard::on_sync(Edge edge)
 {
     if (is_falling(edge))
     {
-        if (is_high(*pluribus->t3) && is_low(*pluribus->cc0) && is_high(*pluribus->cc1))
+        if (is_high(*pluribus->t3) && (cycle_control_from_cc(*pluribus->cc0, *pluribus->cc1) ==
+                                       Constants8008::CycleControl::PCR))
         {
             // TODO: Check when the read timing is done.
             status.data = pluribus->data_bus_d0_7->read();
