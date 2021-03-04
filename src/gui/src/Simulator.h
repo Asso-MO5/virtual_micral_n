@@ -10,10 +10,7 @@
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
 
-class SimpleROM;
-class SimpleRAM;
 class DataBus;
-class ControlBus;
 class IOController;
 class ConsoleCard;
 class ProcessorCard;
@@ -66,10 +63,7 @@ public:
 private:
     Scheduler scheduler{};
 
-    std::shared_ptr<SimpleROM> rom{};
-    std::shared_ptr<SimpleRAM> ram{};
     std::shared_ptr<MemoryCard> memory_card;
-    std::shared_ptr<ControlBus> control_bus{};
     std::shared_ptr<IOController> io_controller;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;

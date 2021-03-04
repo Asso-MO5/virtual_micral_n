@@ -4,22 +4,13 @@
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/ConsoleCard.h>
-#include <devices/src/ControlBus.h>
 #include <devices/src/IOController.h>
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
-#include <devices/src/SimpleRAM.h>
-#include <devices/src/SimpleROM.h>
 #include <emulation_core/src/DataBus.h>
 #include <fstream>
-#include <utility>
-
-namespace
-{
-    const uint16_t RAM_SIZE = 2048;
-} // namespace
 
 class ReadRomData
 {
@@ -86,9 +77,6 @@ Simulator::Simulator()
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
 
-    rom = std::make_shared<SimpleROM>(rom_data);
-    ram = std::make_shared<SimpleRAM>(RAM_SIZE);
-
     auto memory_config = MemoryCard::Config{
             .scheduler = scheduler,
             .pluribus = pluribus,
@@ -110,7 +98,6 @@ Simulator::Simulator()
     memory_card = std::make_shared<MemoryCard>(memory_config);
     memory_card->load_data(rom_data);
 
-    control_bus = std::make_shared<ControlBus>(cpu, rom, ram);
     io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
@@ -124,7 +111,6 @@ Simulator::Simulator()
         cpu->signal_phase_1(edge);
         interrupt_at_start->signal_phase_1(edge);
         interrupt_controller->signal_phase_1(edge);
-        control_bus->signal_phase_1(edge);
         io_controller->signal_phase_1(edge);
     });
 
@@ -135,14 +121,12 @@ Simulator::Simulator()
         phase_2_recorder.add(edge);
 
         cpu->signal_phase_2(edge);
-        control_bus->signal_phase_2(edge);
         io_controller->signal_phase_2(edge);
         pluribus->phase_2.apply(edge, this);
     });
 
     cpu->register_sync_trigger([this](Edge edge) {
         sync_recorder.add(edge);
-        control_bus->signal_sync(edge);
         io_controller->signal_sync(edge);
     });
 
