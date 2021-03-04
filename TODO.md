@@ -1,7 +1,6 @@
 * Plug memories to the pluribus
     * Put two cards.
     * Make one writable to behave like RAM.
-    * Unplug SimpleROM/SimpleRAM and ControlBus (then Remove when everything works).
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
@@ -29,6 +28,8 @@
 * Are OwnedValue and ConnectedData redundant or do they serve different things?
 * Extract the definition of the machine from the Simulator
 * Clean: extract Recorders from the Simulator
+* Update the CLI to a valid configuration
+    * Remove SimpleROM/SimpleRAM and ControlBus from the project.
 * Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
