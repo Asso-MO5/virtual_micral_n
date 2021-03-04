@@ -7,20 +7,17 @@
         * TRAP
         * SUBST (Needs new Memory Cards)
         * AV? (Need to understand better)
-    * Will need to deactivate the temp IO Controller, RAM and Control Bus. ... or not.
     * Possibility to set Debug Read Information on the Processor Board
     * Except on the Processor Bus, other components should not address it directly, but through the Pluribus (except for
       Debug Feedback)
-* Plug the Control Panel to a Control Board
+* Implement the I/O cards
 * Move the DataBus to the ProcessorCard to share with the CPU
-  * Change to OwnedSignal?
-* Plug the control board to the pluribus
-    * Pluribus must accept virtual "cards"
-* Plug the CPU board to the pluribus
+    * Change to OwnedSignal?
+* Control Panel + Simulator fixes to work with the Console Panel
+    * The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Make a Virtual Card for Debugging GUI information
 * On Memory Display, show from which card the data comes from.
 * Show more signals on the Debug Panel (those on the pluribus).
-* The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Are OwnedValue and ConnectedData redundant or do they serve different things?
 * Extract the definition of the machine from the Simulator
@@ -43,5 +40,5 @@
     * As each board reacts to the synchro signal, these could be directly called functions rather than subscribed
       callbacks.
     * Access to Debug Memory/Disassembly makes a lot of redundant computation
-      * when getting the data
-      * when computing the display
+        * when getting the data
+        * when computing the display
