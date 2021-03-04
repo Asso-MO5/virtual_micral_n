@@ -37,6 +37,14 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
+    pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime((edge)); });
+}
+
+void MemoryCard::load_data(std::vector<uint8_t> data_to_load)
+{
+    auto initial_size = data.size();
+    data = std::move(data_to_load);
+    data.resize(initial_size);
 }
 
 void MemoryCard::set_data_size(const MemoryCard::Config& config)
@@ -57,19 +65,17 @@ void MemoryCard::step()
 
     pluribus->data_bus_md0_7.request(this);
     pluribus->data_bus_md0_7.set(latched_data, time, this);
+    is_emitting_data = true;
 
     pluribus->ready.request(this);
     pluribus->ready.set(State::HIGH, time, this); // Reminder: setting the logical
-                                                 // not physical value, for signals.
+                                                  // not physical value, for signals.
 
     set_next_activation_time(Scheduling::unscheduled());
 }
 
-void MemoryCard::load_data(std::vector<uint8_t> data_to_load) { data = std::move(data_to_load); }
-
 void MemoryCard::on_t2(Edge edge)
 {
-
     if (is_falling(edge))
     {
         auto [address, cycle_control] = read_address_bus();
@@ -86,10 +92,28 @@ void MemoryCard::on_t2(Edge edge)
 }
 void MemoryCard::on_t3(Edge edge)
 {
-    if (is_falling(edge))
+    if (is_falling(edge) && is_emitting_data)
     {
         pluribus->data_bus_md0_7.release(this);
         pluribus->ready.release(this);
+    }
+}
+
+void MemoryCard::on_t3prime(Edge edge)
+{
+    if (is_falling(edge))
+    {
+        auto [address, cycle_control] = read_address_bus();
+        if (cycle_control == Constants8008::CycleControl::PCW && is_addressed(address))
+        {
+            auto data_on_bus = pluribus->data_bus_d0_7->read();
+            auto local_address = address - get_start_address();
+            auto page_number = local_address / 512;
+            if (writable_page.at(page_number))
+            {
+                data.at(local_address) = data_on_bus;
+            }
+        }
     }
 }
 
@@ -107,9 +131,9 @@ std::tuple<uint16_t, Constants8008::CycleControl> MemoryCard::read_address_bus()
 
 bool MemoryCard::is_addressed(uint16_t address)
 {
-    bool s13 = address & 0b1000000000000;
-    bool s12 = address & 0b0100000000000;
-    bool s11 = address & 0b0010000000000;
+    bool s13 = address & 0b10000000000000;
+    bool s12 = address & 0b01000000000000;
+    bool s11 = address & 0b00100000000000;
 
     if (get_addressing_size() == Card2k && s11 != selection_mask[2])
     {
@@ -130,7 +154,7 @@ void MemoryCard::latch_read_data(uint16_t address)
 MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
 {
     // TODO: Could be as well stored.
-    return (data.size() == 2048) ? Card4k : Card2k;
+    return (data.size() == 2048) ? Card2k : Card4k;
 }
 
 uint16_t MemoryCard::get_start_address() const
@@ -139,7 +163,7 @@ uint16_t MemoryCard::get_start_address() const
             (selection_mask[0] << 13 | selection_mask[1] << 12 | selection_mask[2] << 11);
     if (get_addressing_size() == Card4k)
     {
-        first_page_address &= 0b00011111111111;
+        first_page_address &= 0b11000000000000;
     }
 
     return first_page_address;

@@ -54,14 +54,18 @@ private:
     std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
     std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
 
-    uint8_t latched_data;
+    uint8_t latched_data{};
+    bool is_emitting_data{false};
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);
+    void on_t3prime(Edge edge);
+
     std::tuple<uint16_t, Constants8008::CycleControl> read_address_bus();
     bool is_addressed(uint16_t address);
     void latch_read_data(uint16_t address);
     void set_data_size(const Config& config);
+
     [[nodiscard]] AddressingSize get_addressing_size() const;
 };
 
