@@ -56,10 +56,10 @@ void CPU8008::step()
     switch (event)
     {
         case SYNC: {
+            // TODO : Constraint :  tSD max (.70) after ø21 FALL
             auto sync_edge =
                     param ? Edge{Edge::Front::RISING, time} : Edge{Edge::Front::FALLING, time};
             output_pins.sync.apply(sync_edge, this);
-            // TODO : Constraint :  tSD max (.70) after ø21 FALL
             break;
         }
         case STATE: {
@@ -93,9 +93,9 @@ void CPU8008::step()
                     }
                     else
                     {
-                        // On a PCW Cycle, the execution is now, as there's no DATA IN
-                        // issued, and no dependency on data presence on the BUS.
+                        // On a PCW Cycle, execution is early in the cpu cycle.
                         execute_t3();
+                        next_events.push(std::make_tuple(time + 20, DATA_OUT, 1));
                     }
                     break;
                 case CpuState::STOPPED:
@@ -175,10 +175,6 @@ void CPU8008::on_signal_21_raising(Scheduling::counter_type edge_time)
             next_events.push(std::make_tuple(edge_time + 20, DATA_OUT, 1));
             break;
         case CpuState::T3:
-            if (cycle_control == Constants8008::CycleControl::PCW)
-            {
-                next_events.push(std::make_tuple(edge_time + 20, DATA_OUT, 1));
-            }
             break;
         case CpuState::T4:
             if (cycle_control == Constants8008::CycleControl::PCC)
