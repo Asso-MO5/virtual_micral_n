@@ -189,9 +189,14 @@ void ProcessorCard::on_phase_2(Edge edge)
 {
     if (is_falling(edge) && is_high(*pluribus->t3))
     {
-        auto read_data = *pluribus->data_bus_md0_7;
-        data_pins.take_bus();
-        data_pins.write(read_data);
-        data_pins.release_bus();
+        if (latched_cycle_control == Constants8008::CycleControl::PCI ||
+            latched_cycle_control == Constants8008::CycleControl::PCR ||
+            latched_cycle_control == Constants8008::CycleControl::PCC)
+        {
+            auto read_data = *pluribus->data_bus_md0_7;
+            data_pins.take_bus();
+            data_pins.write(read_data);
+            data_pins.release_bus();
+        }
     }
 }

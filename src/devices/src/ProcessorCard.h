@@ -50,7 +50,7 @@ private:
     ConnectedData data_pins{};
 
     uint16_t latched_address{};
-    Constants8008::CycleControl latched_cycle_control{}; // TODO: Do we need this here?
+    Constants8008::CycleControl latched_cycle_control{};
     bool emit_t3prime_on_next_step{};
     SignalReceiver& scheduler;
 

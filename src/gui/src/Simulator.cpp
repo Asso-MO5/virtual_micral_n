@@ -39,14 +39,14 @@ public:
 
 Simulator::Simulator()
 {
-    ReadRomData rom_data_file("data/8008-loop-loads.bin");
-    auto& rom_data = rom_data_file.data;
+    //    ReadRomData rom_data_file("data/8008-loop-loads.bin");
+    //    auto& rom_data = rom_data_file.data;
 
     //    ReadRomData rom_data_file("data/8008-input-output.bin");
     //    auto& rom_data = rom_data_file.data;
 
-    //    ReadRomData rom_data_file("data/8008-hello-world.bin");
-    //    auto& rom_data = rom_data_file.data;
+    ReadRomData rom_data_file("data/8008-hello-world.bin");
+    auto& rom_data = rom_data_file.data;
 
     //    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
     //                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
@@ -77,26 +77,12 @@ Simulator::Simulator()
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
 
-    auto memory_config = MemoryCard::Config{
-            .scheduler = scheduler,
-            .pluribus = pluribus,
-            .addressing_size = MemoryCard::Card2k,
-            .writable_page =
-                    {
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                    },
-            .selection_mask = {false, false, false}, // Pages covering first 2k
-    };
+    MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config();
+    memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
+    memory_card_1->load_data(rom_data);
 
-    memory_card = std::make_shared<MemoryCard>(memory_config);
-    memory_card->load_data(rom_data);
+    MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config();
+    memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
     io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
     console_card = std::make_shared<ConsoleCard>(pluribus);
@@ -134,14 +120,60 @@ Simulator::Simulator()
     scheduler.add(clock);
     scheduler.add(processor_card);
     scheduler.add(console_card);
-    scheduler.add(memory_card);
+    scheduler.add(memory_card_1);
+    scheduler.add(memory_card_2);
 
-    memory_view.add_memory_card(memory_card);
+    memory_view.add_memory_card(memory_card_1);
+    memory_view.add_memory_card(memory_card_2);
 
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
 
     pluribus->t3prime.subscribe([this](Edge edge) { t3prime_recorder.add(edge); });
+}
+
+MemoryCard::Config Simulator::get_memory_card_rom_2k_config()
+{
+    auto memory_config = MemoryCard::Config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .addressing_size = MemoryCard::Card2k,
+            .writable_page =
+                    {
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                    },
+            .selection_mask = {false, false, false}, // Pages covering first 2k
+    };
+    return memory_config;
+}
+
+MemoryCard::Config Simulator::get_memory_card_ram_2k_config()
+{
+    auto memory_config = MemoryCard::Config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .addressing_size = MemoryCard::Card2k,
+            .writable_page =
+                    {
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                    },
+            .selection_mask = {false, true, false}, // 2k starting from $1000
+    };
+    return memory_config;
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
@@ -244,7 +276,7 @@ void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& mem
 
 uint8_t SimulatorMemoryView::get(std::uint16_t address) const
 {
-    for(const auto & memory : memory_cards)
+    for (const auto& memory : memory_cards)
     {
         auto start_address = memory->get_start_address();
 
@@ -252,7 +284,7 @@ uint8_t SimulatorMemoryView::get(std::uint16_t address) const
         {
             auto end_address = memory->get_length();
 
-            if (address<end_address)
+            if (address < end_address)
             {
                 return memory->get_data_at(address - start_address);
             }

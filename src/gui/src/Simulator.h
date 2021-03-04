@@ -6,6 +6,7 @@
 
 #include <devices/src/DoubleClock.h>
 #include <devices/src/InterruptController.h>
+#include <devices/src/MemoryCard.h>
 #include <devices/src/MemoryView.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
@@ -63,11 +64,15 @@ public:
 private:
     Scheduler scheduler{};
 
-    std::shared_ptr<MemoryCard> memory_card;
+    std::shared_ptr<MemoryCard> memory_card_1;
+    std::shared_ptr<MemoryCard> memory_card_2;
     std::shared_ptr<IOController> io_controller;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;
+
+    MemoryCard::Config get_memory_card_rom_2k_config();
+    MemoryCard::Config get_memory_card_ram_2k_config();
 
     SimulatorMemoryView memory_view;
 
