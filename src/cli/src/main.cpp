@@ -2,8 +2,8 @@
 #include <devices/src/ControlBus.h>
 #include <devices/src/DoubleClock.h>
 #include <devices/src/InterruptAtStart.h>
-#include <devices/src/SimpleROM.h>
 #include <devices/src/SimpleRAM.h>
+#include <devices/src/SimpleROM.h>
 #include <emulation_core/src/Scheduler.h>
 
 #include <emulation_core/src/DataBus.h>
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     LOG_F(INFO, "Creates the ROM");
     std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
     auto rom = std::make_shared<SimpleROM>(rom_data);
-    auto ram = std::make_shared<SimpleRAM>(1);; // Not used here, but the ControlBus needs one.
+    auto ram = std::make_shared<SimpleRAM>(1); // Not used here, but the ControlBus needs one.
 
     LOG_F(INFO, "Creates the 8008");
     auto cpu = std::make_shared<CPU8008>(scheduler);

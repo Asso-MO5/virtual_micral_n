@@ -71,8 +71,8 @@ private:
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;
 
-    MemoryCard::Config get_memory_card_rom_2k_config();
-    MemoryCard::Config get_memory_card_ram_2k_config();
+    MemoryCard::Config get_memory_card_rom_2k_config(bool s13, bool s12, bool s11);
+    MemoryCard::Config get_memory_card_ram_2k_config(bool s13, bool s12, bool s11);
 
     SimulatorMemoryView memory_view;
 

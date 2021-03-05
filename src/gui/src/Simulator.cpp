@@ -77,11 +77,11 @@ Simulator::Simulator()
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
 
-    MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config();
+    MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
     memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
     memory_card_1->load_data(rom_data);
 
-    MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config();
+    MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
     io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
@@ -132,7 +132,7 @@ Simulator::Simulator()
     pluribus->t3prime.subscribe([this](Edge edge) { t3prime_recorder.add(edge); });
 }
 
-MemoryCard::Config Simulator::get_memory_card_rom_2k_config()
+MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {
     auto memory_config = MemoryCard::Config{
             .scheduler = scheduler,
@@ -149,12 +149,12 @@ MemoryCard::Config Simulator::get_memory_card_rom_2k_config()
                             false,
                             false,
                     },
-            .selection_mask = {false, false, false}, // Pages covering first 2k
+            .selection_mask = {s13, s12, s11},
     };
     return memory_config;
 }
 
-MemoryCard::Config Simulator::get_memory_card_ram_2k_config()
+MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, bool s11)
 {
     auto memory_config = MemoryCard::Config{
             .scheduler = scheduler,
@@ -171,7 +171,7 @@ MemoryCard::Config Simulator::get_memory_card_ram_2k_config()
                             true,
                             true,
                     },
-            .selection_mask = {false, true, false}, // 2k starting from $1000
+            .selection_mask = {s13, s12, s11},
     };
     return memory_config;
 }
