@@ -92,11 +92,8 @@ Simulator::Simulator()
 
     clock->register_phase_1_trigger([this](Edge edge) {
         clock_1_pulse += is_rising(edge) ? 1 : 0;
-
         phase_1_recorder.add(edge);
-        cpu->signal_phase_1(edge);
-        interrupt_at_start->signal_phase_1(edge);
-        interrupt_controller->signal_phase_1(edge);
+
         io_controller->signal_phase_1(edge);
     });
 
@@ -106,7 +103,6 @@ Simulator::Simulator()
         clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
 
-        cpu->signal_phase_2(edge);
         io_controller->signal_phase_2(edge);
         pluribus->phase_2.apply(edge, this);
     });

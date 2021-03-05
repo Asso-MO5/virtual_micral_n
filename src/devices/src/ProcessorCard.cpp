@@ -3,6 +3,7 @@
 #include <utility>
 
 #include <devices/src/CPU8008.h>
+#include <devices/src/DoubleClock.h>
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/Pluribus.h>
@@ -10,7 +11,7 @@
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)},
-      interrupt_controller{std::move(config.interrupt_controller)},
+      clock{std::move(config.clock)}, interrupt_controller{std::move(config.interrupt_controller)},
       interrupt_at_start{std::move(config.interrupt_at_start)}, scheduler(config.scheduler)
 {
     set_next_activation_time(Scheduling::unscheduled());
@@ -56,6 +57,16 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
     pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime(edge); });
     pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
+
+    clock->phase_1.subscribe([this](Edge edge) {
+        cpu->signal_phase_1(edge);
+        interrupt_at_start->signal_phase_1(edge);
+        interrupt_controller->signal_phase_1(edge);
+    });
+
+    clock->phase_2.subscribe([this](Edge edge) {
+        cpu->signal_phase_2(edge);
+    });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
