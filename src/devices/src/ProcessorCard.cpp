@@ -1,13 +1,12 @@
 #include "ProcessorCard.h"
 
-#include <utility>
-
 #include <devices/src/CPU8008.h>
 #include <devices/src/DoubleClock.h>
 #include <devices/src/InterruptAtStart.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/Pluribus.h>
 #include <emulation_core/src/DataBus.h>
+#include <utility>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)},
@@ -16,8 +15,41 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 {
     set_next_activation_time(Scheduling::unscheduled());
 
-    combined_ready.request(this);
+    connect_to_pluribus();
+    connect_to_cpu();
+    connect_to_clock();
 
+    combined_ready.request(this);
+    combined_ready.subscribe([this](Edge edge) { cpu->signal_ready(edge); });
+
+    interrupt_controller->register_interrupt_trigger(
+            [this](Edge edge) { cpu->signal_interrupt(edge); });
+}
+
+void ProcessorCard::connect_to_clock()
+{
+    clock->phase_1.subscribe([this](Edge edge) {
+        cpu->signal_phase_1(edge);
+        interrupt_at_start->signal_phase_1(edge);
+        interrupt_controller->signal_phase_1(edge);
+    });
+
+    clock->phase_2.subscribe([this](Edge edge) { cpu->signal_phase_2(edge); });
+}
+
+void ProcessorCard::connect_to_cpu()
+{
+    cpu->register_state_change([this](Constants8008::CpuState old_state,
+                                      Constants8008::CpuState new_state,
+                                      Scheduling::counter_type time) {
+        cpu_state_changed(old_state, new_state, time);
+    });
+
+    cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
+}
+
+void ProcessorCard::connect_to_pluribus()
+{
     pluribus->stop.request(this);
     pluribus->wait.request(this);
     pluribus->t2.request(this);
@@ -28,8 +60,9 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     pluribus->address_bus_s0_s13.request(this);
     pluribus->sync.request(this);
 
-    interrupt_controller->register_interrupt_trigger(
-            [this](Edge edge) { cpu->signal_interrupt(edge); });
+    pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });
+    pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
+    pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
 
     pluribus->vdd.subscribe([this](Edge edge) {
         cpu->signal_vdd(edge);
@@ -42,36 +75,10 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
             pluribus->ready.release(this);
         }
     });
-
-    cpu->register_state_change([this](Constants8008::CpuState old_state,
-                                      Constants8008::CpuState new_state,
-                                      Scheduling::counter_type time) {
-        cpu_state_changed(old_state, new_state, time);
-    });
-
-    cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
-
-    combined_ready.subscribe([this](Edge edge) { cpu->signal_ready(edge); });
-
-    pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });
-    pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
-    pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime(edge); });
-    pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
-
-    clock->phase_1.subscribe([this](Edge edge) {
-        cpu->signal_phase_1(edge);
-        interrupt_at_start->signal_phase_1(edge);
-        interrupt_controller->signal_phase_1(edge);
-    });
-
-    clock->phase_2.subscribe([this](Edge edge) {
-        cpu->signal_phase_2(edge);
-    });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
 InterruptController& ProcessorCard::get_interrupt_controller() { return *interrupt_controller; }
-void ProcessorCard::set_wait_line(Edge edge) { cpu->signal_ready(edge); }
 
 void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
                                       Constants8008::CpuState state, Scheduling::counter_type time)
@@ -135,8 +142,6 @@ void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, un
             break;
     }
 }
-
-void ProcessorCard::on_t3prime(Edge edge) {}
 
 void ProcessorCard::cpu_sync_changed(Edge edge)
 {

@@ -36,7 +36,6 @@ public:
 
     [[nodiscard]] const CPU8008& get_cpu() const;
     [[nodiscard]] InterruptController& get_interrupt_controller();
-    void set_wait_line(Edge edge);
 
     void connect_data_bus(std::shared_ptr<DataBus> bus);
 
@@ -59,9 +58,12 @@ private:
                            Scheduling::counter_type time);
     void cpu_sync_changed(Edge edge);
     void on_ready_change(Edge edge);
-    void on_t3prime(Edge edge);
     void on_phase_2(Edge edge);
     void apply_signal_on_bus(const Constants8008::CpuState& state, unsigned long time);
+
+    void connect_to_pluribus();
+    void connect_to_cpu();
+    void connect_to_clock();
 };
 
 #endif //MICRALN_PROCESSORCARD_H
