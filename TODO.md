@@ -16,8 +16,12 @@
 * Control Panel + Simulator fixes to work with the Console Panel
     * The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Make a Virtual Card for Debugging GUI information
+  * Virtual Card that references memory, for display memory
+  * Virtual Card that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
 * Show more signals on the Debug Panel (those on the pluribus).
+  * Dedicate a Panel to collect and show Signals
+  * Add a view for OwnedValues as signals.
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Are OwnedValue and ConnectedData redundant or do they serve different things?
 * Extract the definition of the machine from the Simulator
