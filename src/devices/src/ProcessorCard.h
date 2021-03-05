@@ -25,8 +25,6 @@ public:
         std::shared_ptr<Pluribus> pluribus;
         std::shared_ptr<DoubleClock> clock;
         std::shared_ptr<CPU8008> cpu;
-        std::shared_ptr<InterruptController> interrupt_controller;
-        std::shared_ptr<InterruptAtStart> interrupt_at_start;
     };
 
     explicit ProcessorCard(Config config);

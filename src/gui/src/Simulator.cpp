@@ -58,21 +58,12 @@ Simulator::Simulator()
     auto& data_bus_d0_7 = pluribus->data_bus_d0_7;
 
     cpu = std::make_shared<CPU8008>(scheduler);
-    interrupt_controller = std::make_shared<InterruptController>();
-    cpu->register_state_change([&](Constants8008::CpuState old_value,
-                                   Constants8008::CpuState new_value,
-                                   Scheduling::counter_type time) {
-        interrupt_controller->on_state_value_change(old_value, new_value, time);
-    });
-    interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
 
     ProcessorCard::Config processor_card_config{
             .scheduler = scheduler,
             .pluribus = pluribus,
             .clock = clock,
             .cpu = cpu,
-            .interrupt_controller = interrupt_controller,
-            .interrupt_at_start = interrupt_at_start,
     };
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);

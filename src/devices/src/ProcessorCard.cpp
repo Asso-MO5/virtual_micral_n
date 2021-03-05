@@ -10,10 +10,12 @@
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)},
-      clock{std::move(config.clock)}, interrupt_controller{std::move(config.interrupt_controller)},
-      interrupt_at_start{std::move(config.interrupt_at_start)}, scheduler(config.scheduler)
+      clock{std::move(config.clock)}, scheduler{config.scheduler}
 {
     set_next_activation_time(Scheduling::unscheduled());
+
+    interrupt_controller = std::make_shared<InterruptController>();
+    interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
 
     connect_to_pluribus();
     connect_to_cpu();
@@ -46,6 +48,12 @@ void ProcessorCard::connect_to_cpu()
     });
 
     cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
+
+    cpu->register_state_change([&](Constants8008::CpuState old_value,
+                                   Constants8008::CpuState new_value,
+                                   Scheduling::counter_type time) {
+        interrupt_controller->on_state_value_change(old_value, new_value, time);
+    });
 }
 
 void ProcessorCard::connect_to_pluribus()

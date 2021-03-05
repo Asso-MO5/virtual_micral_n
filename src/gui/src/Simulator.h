@@ -78,8 +78,6 @@ private:
 
     // TODO: Will go away once the signal callback are on the pluribus.
     std::shared_ptr<CPU8008> cpu{};
-    std::shared_ptr<InterruptController> interrupt_controller;
-    std::shared_ptr<InterruptAtStart> interrupt_at_start;
 };
 
 #endif //MICRALN_SIMULATOR_H
