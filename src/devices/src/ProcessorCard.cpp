@@ -216,3 +216,8 @@ void ProcessorCard::on_phase_2(Edge edge)
         }
     }
 }
+
+std::vector<std::shared_ptr<Schedulable>> ProcessorCard::get_sub_schedulables()
+{
+    return {clock, cpu};
+}

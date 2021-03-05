@@ -112,8 +112,10 @@ Simulator::Simulator()
         io_controller->signal_sync(edge);
     });
 
-    scheduler.add(cpu);
-    scheduler.add(clock);
+    for (auto& sub : processor_card->get_sub_schedulables())
+    {
+        scheduler.add(sub);
+    }
     scheduler.add(processor_card);
     scheduler.add(console_card);
     scheduler.add(memory_card_1);

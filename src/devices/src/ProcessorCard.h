@@ -38,6 +38,7 @@ public:
     [[nodiscard]] InterruptController& get_interrupt_controller();
 
     void connect_data_bus(std::shared_ptr<DataBus> bus);
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
 
 private:
     std::shared_ptr<Pluribus> pluribus;
