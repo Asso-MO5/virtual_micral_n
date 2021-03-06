@@ -11,7 +11,7 @@ class DataBus;
 class IOController
 {
 public:
-    IOController(std::shared_ptr<CPU8008> cpu, std::shared_ptr<DataBus> bus);
+    IOController(const CPU8008& cpu, std::shared_ptr<DataBus> bus);
 
     void signal_phase_1(const Edge& edge);
     void signal_phase_2(const Edge& edge);
@@ -22,7 +22,7 @@ public:
     [[nodiscard]] uint8_t get_received_data() const;
 
 private:
-    std::shared_ptr<CPU8008> cpu;
+    const CPU8008& cpu;
     std::shared_ptr<DataBus> bus;
     ConnectedData latched_io_data;
     uint8_t latched_io_reg_A{};

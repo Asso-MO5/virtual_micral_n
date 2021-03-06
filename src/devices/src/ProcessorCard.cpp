@@ -14,6 +14,9 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 {
     set_next_activation_time(Scheduling::unscheduled());
 
+    cpu = std::make_shared<CPU8008>(scheduler);
+    cpu->connect_data_bus(pluribus->data_bus_d0_7);
+
     interrupt_controller = std::make_shared<InterruptController>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
 

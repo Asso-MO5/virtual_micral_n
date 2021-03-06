@@ -5,7 +5,6 @@
 #include "ControllerWidget.h"
 
 #include <devices/src/DoubleClock.h>
-#include <devices/src/InterruptController.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/MemoryView.h>
 #include <emulation_core/src/Scheduler.h>
@@ -16,9 +15,7 @@ class IOController;
 class ConsoleCard;
 class ProcessorCard;
 class Pluribus;
-class CPU8008;
 class InterruptAtStart;
-class InterruptController;
 class MemoryCard;
 
 class SimulatorMemoryView : public MemoryView
@@ -75,9 +72,6 @@ private:
     MemoryCard::Config get_memory_card_ram_2k_config(bool s13, bool s12, bool s11);
 
     SimulatorMemoryView memory_view;
-
-    // TODO: Will go away once the signal callback are on the pluribus.
-    std::shared_ptr<CPU8008> cpu{};
 };
 
 #endif //MICRALN_SIMULATOR_H

@@ -5,7 +5,6 @@
 #include <devices/src/CPU8008.h>
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/IOController.h>
-#include <devices/src/InterruptAtStart.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
@@ -57,13 +56,10 @@ Simulator::Simulator()
     pluribus = std::make_shared<Pluribus>();
     auto& data_bus_d0_7 = pluribus->data_bus_d0_7;
 
-    cpu = std::make_shared<CPU8008>(scheduler);
-
     ProcessorCard::Config processor_card_config{
             .scheduler = scheduler,
             .pluribus = pluribus,
             .clock = clock,
-            .cpu = cpu,
     };
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
@@ -75,10 +71,9 @@ Simulator::Simulator()
     MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
-    io_controller = std::make_shared<IOController>(cpu, data_bus_d0_7);
+    io_controller = std::make_shared<IOController>(processor_card->get_cpu(), data_bus_d0_7);
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
-    cpu->connect_data_bus(data_bus_d0_7);
     processor_card->connect_data_bus(data_bus_d0_7);
 
     clock->register_phase_1_trigger([this](Edge edge) {
@@ -98,7 +93,7 @@ Simulator::Simulator()
         pluribus->phase_2.apply(edge, this);
     });
 
-    cpu->register_sync_trigger([this](Edge edge) {
+    pluribus->sync.subscribe([this](Edge edge) {
         sync_recorder.add(edge);
         io_controller->signal_sync(edge);
     });

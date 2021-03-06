@@ -8,6 +8,7 @@
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/IOController.h>
 #include <devices/src/ProcessorCard.h>
+#include <devices/src/InterruptController.h>
 #include <imgui.h>
 #include <numeric>
 
