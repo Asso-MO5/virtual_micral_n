@@ -9,10 +9,11 @@
 #include <utility>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
-    : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)},
-      clock{std::move(config.clock)}, scheduler{config.scheduler}
+    : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)}, scheduler{config.scheduler}
 {
     set_next_activation_time(Scheduling::unscheduled());
+
+    clock = std::make_shared<DoubleClock>(500'000_hz);
 
     cpu = std::make_shared<CPU8008>(scheduler);
     cpu->connect_data_bus(pluribus->data_bus_d0_7);
@@ -93,6 +94,7 @@ void ProcessorCard::connect_to_pluribus()
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
+DoubleClock& ProcessorCard::get_clock() { return *clock; }
 InterruptController& ProcessorCard::get_interrupt_controller() { return *interrupt_controller; }
 
 void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,

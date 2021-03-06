@@ -51,15 +51,12 @@ Simulator::Simulator()
     //                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
 
     // Simulation Setup
-    auto clock = std::make_shared<DoubleClock>(500'000_hz);
-
     pluribus = std::make_shared<Pluribus>();
     auto& data_bus_d0_7 = pluribus->data_bus_d0_7;
 
     ProcessorCard::Config processor_card_config{
             .scheduler = scheduler,
             .pluribus = pluribus,
-            .clock = clock,
     };
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
@@ -76,14 +73,16 @@ Simulator::Simulator()
 
     processor_card->connect_data_bus(data_bus_d0_7);
 
-    clock->phase_1.subscribe([this](Edge edge) {
+    auto& clock = processor_card->get_clock();
+
+    clock.phase_1.subscribe([this](Edge edge) {
         clock_1_pulse += is_rising(edge) ? 1 : 0;
         phase_1_recorder.add(edge);
 
         io_controller->signal_phase_1(edge);
     });
 
-    clock->phase_2.subscribe([this](Edge edge) {
+    clock.phase_2.subscribe([this](Edge edge) {
         clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
 
@@ -94,6 +93,8 @@ Simulator::Simulator()
         sync_recorder.add(edge);
         io_controller->signal_sync(edge);
     });
+
+    pluribus->t3prime.subscribe([this](Edge edge) { t3prime_recorder.add(edge); });
 
     for (auto& sub : processor_card->get_sub_schedulables())
     {
@@ -109,8 +110,6 @@ Simulator::Simulator()
 
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
-
-    pluribus->t3prime.subscribe([this](Edge edge) { t3prime_recorder.add(edge); });
 }
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)

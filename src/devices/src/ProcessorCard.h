@@ -38,6 +38,8 @@ public:
     void connect_data_bus(std::shared_ptr<DataBus> bus);
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
 
+    DoubleClock & get_clock();
+
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<DoubleClock> clock{};
