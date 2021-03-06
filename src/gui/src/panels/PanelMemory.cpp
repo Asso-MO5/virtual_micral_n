@@ -1,6 +1,6 @@
 #include "PanelMemory.h"
 
-#include "Simulator.h"
+#include "gui/src/Simulator.h"
 
 #include <array>
 #include <cstdint>

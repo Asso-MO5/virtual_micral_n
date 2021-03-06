@@ -1,8 +1,8 @@
 #include "PanelControl.h"
 
-#include "Simulator.h"
-#include "widgets/PanelLed.h"
-#include "widgets/PanelSwitch.h"
+#include "gui/src/Simulator.h"
+#include "gui/src/widgets/PanelLed.h"
+#include "gui/src/widgets/PanelSwitch.h"
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/ConsoleCard.h>

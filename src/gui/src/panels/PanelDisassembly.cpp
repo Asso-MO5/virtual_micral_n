@@ -1,6 +1,6 @@
 #include "PanelDisassembly.h"
 
-#include "Simulator.h"
+#include "gui/src/Simulator.h"
 
 #include <cstdint>
 #include <devices/src/Disassemble8008.h>

@@ -1,7 +1,7 @@
 #include "Panel8008.h"
 
-#include "SignalPlot.h"
-#include "Simulator.h"
+#include "gui/src/SignalPlot.h"
+#include "gui/src/Simulator.h"
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/ProcessorCard.h>
