@@ -83,14 +83,11 @@ Simulator::Simulator()
         io_controller->signal_phase_1(edge);
     });
 
-    pluribus->phase_2.request(this);
-
     clock->phase_2.subscribe([this](Edge edge) {
         clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
 
         io_controller->signal_phase_2(edge);
-        pluribus->phase_2.apply(edge, this);
     });
 
     pluribus->sync.subscribe([this](Edge edge) {

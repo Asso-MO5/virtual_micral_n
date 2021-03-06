@@ -39,7 +39,10 @@ void ProcessorCard::connect_to_clock()
         interrupt_controller->signal_phase_1(edge);
     });
 
-    clock->phase_2.subscribe([this](Edge edge) { cpu->signal_phase_2(edge); });
+    clock->phase_2.subscribe([this](Edge edge) {
+        pluribus->phase_2.apply(edge, this);
+        cpu->signal_phase_2(edge);
+    });
 }
 
 void ProcessorCard::connect_to_cpu()
@@ -61,6 +64,7 @@ void ProcessorCard::connect_to_cpu()
 
 void ProcessorCard::connect_to_pluribus()
 {
+    pluribus->phase_2.request(this);
     pluribus->stop.request(this);
     pluribus->wait.request(this);
     pluribus->t2.request(this);
