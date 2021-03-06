@@ -12,12 +12,11 @@ namespace
 } // namespace
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
-    : scheduler{config.scheduler}, pluribus{config.pluribus}, writable_page{config.writable_page},
-      selection_mask{config.selection_mask}
+    : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration{config.configuration}
 {
     set_next_activation_time(Scheduling::unscheduled());
 
-    set_data_size(config);
+    set_data_size();
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
@@ -31,9 +30,9 @@ void MemoryCard::load_data(std::vector<uint8_t> data_to_load)
     data.resize(initial_size);
 }
 
-void MemoryCard::set_data_size(const MemoryCard::Config& config)
+void MemoryCard::set_data_size()
 {
-    if (config.addressing_size == Card2k)
+    if (configuration.addressing_size == AddressingSize::Card2k)
     {
         data.resize(2048);
     }
@@ -93,7 +92,7 @@ void MemoryCard::on_t3prime(Edge edge)
             auto data_on_bus = pluribus->data_bus_d0_7->read();
             auto local_address = address - get_start_address();
             auto page_number = local_address / 512;
-            if (writable_page.at(page_number))
+            if (configuration.writable_page.at(page_number))
             {
                 data.at(local_address) = data_on_bus;
             }
@@ -119,33 +118,34 @@ bool MemoryCard::is_addressed(uint16_t address)
     bool s12 = address & 0b01000000000000;
     bool s11 = address & 0b00100000000000;
 
-    if (get_addressing_size() == Card2k && s11 != selection_mask[2])
+    if (get_addressing_size() == AddressingSize::Card2k && s11 != configuration.selection_mask[2])
     {
         return false;
     }
 
+    auto& selection_mask = configuration.selection_mask;
     return s13 == selection_mask[0] && s12 == selection_mask[1];
 }
 
 void MemoryCard::latch_read_data(uint16_t address)
 {
-    auto address_on_card =
-            (get_addressing_size() == Card2k) ? (address & 0x7ff) : (address & 0xfff);
+    auto address_on_card = (get_addressing_size() == AddressingSize::Card2k) ? (address & 0x7ff)
+                                                                             : (address & 0xfff);
 
     latched_data = data[address_on_card];
 }
 
 MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
 {
-    // TODO: Could be as well stored.
-    return (data.size() == 2048) ? Card2k : Card4k;
+    return configuration.addressing_size;
 }
 
 uint16_t MemoryCard::get_start_address() const
 {
+    auto& selection_mask = configuration.selection_mask;
     auto first_page_address =
             (selection_mask[0] << 13 | selection_mask[1] << 12 | selection_mask[2] << 11);
-    if (get_addressing_size() == Card4k)
+    if (get_addressing_size() == AddressingSize::Card4k)
     {
         first_page_address &= 0b11000000000000;
     }

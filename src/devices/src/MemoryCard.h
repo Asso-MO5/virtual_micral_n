@@ -16,22 +16,29 @@ namespace MemoryConstants
     constexpr const size_t MAXIMUM_PAGES = 8;
 } // namespace MemoryConstants
 
-class MemoryCard : public SchedulableImpl
+struct MemoryCardConfiguration
 {
-public:
     enum AddressingSize
     {
         Card2k,
         Card4k,
     };
 
+    AddressingSize addressing_size;
+    std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
+    std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
+};
+
+class MemoryCard : public SchedulableImpl
+{
+public:
+    using AddressingSize = MemoryCardConfiguration::AddressingSize;
+
     struct Config
     {
         SignalReceiver& scheduler;
         std::shared_ptr<Pluribus> pluribus;
-        AddressingSize addressing_size;
-        std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
-        std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
+        MemoryCardConfiguration configuration;
     };
 
     explicit MemoryCard(const Config& config);
@@ -51,8 +58,8 @@ private:
 
     std::shared_ptr<Pluribus> pluribus;
     std::vector<uint8_t> data;
-    std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
-    std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
+
+    MemoryCardConfiguration configuration;
 
     uint8_t latched_data{};
     bool is_emitting_data{false};
@@ -64,7 +71,7 @@ private:
     std::tuple<uint16_t, Constants8008::CycleControl> read_address_bus();
     bool is_addressed(uint16_t address);
     void latch_read_data(uint16_t address);
-    void set_data_size(const Config& config);
+    void set_data_size();
 
     [[nodiscard]] AddressingSize get_addressing_size() const;
 };

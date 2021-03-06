@@ -123,10 +123,8 @@ Simulator::Simulator()
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {
-    auto memory_config = MemoryCard::Config{
-            .scheduler = scheduler,
-            .pluribus = pluribus,
-            .addressing_size = MemoryCard::Card2k,
+    auto configuration = MemoryCardConfiguration{
+            .addressing_size = MemoryCard::AddressingSize::Card2k,
             .writable_page =
                     {
                             false,
@@ -140,15 +138,16 @@ MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, 
                     },
             .selection_mask = {s13, s12, s11},
     };
-    return memory_config;
+    auto construction_config = MemoryCard::Config{.scheduler = scheduler,
+                                                  .pluribus = pluribus,
+                                                  .configuration = configuration};
+    return construction_config;
 }
 
 MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, bool s11)
 {
-    auto memory_config = MemoryCard::Config{
-            .scheduler = scheduler,
-            .pluribus = pluribus,
-            .addressing_size = MemoryCard::Card2k,
+    auto configuration = MemoryCardConfiguration{
+            .addressing_size = MemoryCard::AddressingSize::Card2k,
             .writable_page =
                     {
                             true,
@@ -162,7 +161,13 @@ MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, 
                     },
             .selection_mask = {s13, s12, s11},
     };
-    return memory_config;
+
+    auto construction_config = MemoryCard::Config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .configuration = configuration,
+    };
+    return construction_config;
 }
 
 void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
