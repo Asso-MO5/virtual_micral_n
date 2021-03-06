@@ -238,9 +238,6 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 scheduler.step();
             }
         }
-
-        // TODO: step the console_card normally (or react to signal most probably)
-        console_card->step(); // Temporary manual update of the console card.
     }
 }
 
