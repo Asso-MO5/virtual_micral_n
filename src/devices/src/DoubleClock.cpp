@@ -40,14 +40,4 @@ void DoubleClock::step()
 }
 
 State DoubleClock::get_phase_1_state() const { return *phase_1; }
-
 State DoubleClock::get_phase_2_state() const { return *phase_2; }
-
-void DoubleClock::register_phase_1_trigger(const std::function<void(Edge)>& callback)
-{
-    phase_1.subscribe(callback);
-}
-void DoubleClock::register_phase_2_trigger(const std::function<void(Edge)>& callback)
-{
-    phase_2.subscribe(callback);
-}

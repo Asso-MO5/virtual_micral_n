@@ -57,13 +57,8 @@ TEST(DoubleClock, signals_edges_with_timings)
 
     EdgeTester tester;
 
-    clock.register_phase_1_trigger([&tester](Edge edge) {
-        tester.received_phase_1_edge = edge;
-    });
-
-    clock.register_phase_2_trigger([&tester](Edge edge) {
-        tester.received_phase_2_edge = edge;
-    });
+    clock.phase_1.subscribe([&tester](Edge edge) { tester.received_phase_1_edge = edge; });
+    clock.phase_2.subscribe([&tester](Edge edge) { tester.received_phase_2_edge = edge; });
 
     clock.step();
     tester.test(Edge::Front::RISING, 0, Edge::Front::NONE, 0);

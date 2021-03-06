@@ -76,7 +76,7 @@ Simulator::Simulator()
 
     processor_card->connect_data_bus(data_bus_d0_7);
 
-    clock->register_phase_1_trigger([this](Edge edge) {
+    clock->phase_1.subscribe([this](Edge edge) {
         clock_1_pulse += is_rising(edge) ? 1 : 0;
         phase_1_recorder.add(edge);
 
@@ -85,7 +85,7 @@ Simulator::Simulator()
 
     pluribus->phase_2.request(this);
 
-    clock->register_phase_2_trigger([this](Edge edge) {
+    clock->phase_2.subscribe([this](Edge edge) {
         clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
 

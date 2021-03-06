@@ -3,9 +3,9 @@
 
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Frequency.h>
+#include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/Schedulable.h>
 #include <emulation_core/src/State.h>
-#include <emulation_core/src/OwnedSignal.h>
 #include <functional>
 
 class DoubleClock : public SchedulableImpl
@@ -16,9 +16,6 @@ public:
     void step() override;
     [[nodiscard]] State get_phase_1_state() const;
     [[nodiscard]] State get_phase_2_state() const;
-
-    void register_phase_1_trigger(const std::function<void(Edge)>& callback);
-    void register_phase_2_trigger(const std::function<void(Edge)>& callback);
 
     OwnedSignal phase_1;
     OwnedSignal phase_2;

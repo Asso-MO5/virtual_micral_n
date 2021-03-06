@@ -46,13 +46,13 @@ int main(int argc, char** argv)
     ControlBus control_bus{cpu, rom, ram};
     InterruptAtStart interrupt_at_start{cpu};
 
-    clock->register_phase_1_trigger([&interrupt_at_start, &cpu, &control_bus](Edge edge) {
+    clock->phase_1.subscribe([&interrupt_at_start, &cpu, &control_bus](Edge edge) {
         interrupt_at_start.signal_phase_1(edge);
         cpu->signal_phase_1(edge);
         control_bus.signal_phase_1(edge);
     });
 
-    clock->register_phase_2_trigger([&cpu, &control_bus](Edge edge) {
+    clock->phase_2.subscribe([&cpu, &control_bus](Edge edge) {
         cpu->signal_phase_2(edge);
         control_bus.signal_phase_2(edge);
     });
