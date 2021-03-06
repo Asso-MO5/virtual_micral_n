@@ -5,6 +5,7 @@
 #include "gui/src/panels/PanelControl.h"
 #include "gui/src/panels/PanelDisassembly.h"
 #include "gui/src/panels/PanelMemory.h"
+#include "gui/src/panels/PanelPluribus.h"
 
 #include <devices/src/Disassemble8008.h>
 #include <gui/src/lib/Averager.h>
@@ -112,6 +113,7 @@ int main(int, char**)
             display_disassembly_panel(simulator, disassemble);
         }
 
+        display_pluribus_panel(simulator);
         display_memory_panel(simulator);
         panel_control.display(simulator);
 
