@@ -38,7 +38,15 @@ public:
     void connect_data_bus(std::shared_ptr<DataBus> bus);
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
 
-    DoubleClock & get_clock();
+    DoubleClock& get_clock();
+
+    struct DebugInfo
+    {
+        Scheduling::counter_type clock_pulse{};
+    };
+
+    void install_debug_info();
+    [[nodiscard]] const DebugInfo& get_debug_info() const;
 
 private:
     std::shared_ptr<Pluribus> pluribus;
@@ -54,6 +62,8 @@ private:
     Constants8008::CycleControl latched_cycle_control{};
     bool emit_t3prime_on_next_step{};
     SignalReceiver& scheduler;
+
+    DebugInfo debug_info;
 
     void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState state,
                            Scheduling::counter_type time);

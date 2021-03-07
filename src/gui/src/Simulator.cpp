@@ -60,6 +60,8 @@ Simulator::Simulator()
     };
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
+    processor_card->install_debug_info();
+    processor_card->connect_data_bus(data_bus_d0_7);
 
     MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
     memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
@@ -71,21 +73,15 @@ Simulator::Simulator()
     io_controller = std::make_shared<IOController>(processor_card->get_cpu(), data_bus_d0_7);
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
-    processor_card->connect_data_bus(data_bus_d0_7);
-
     auto& clock = processor_card->get_clock();
 
     clock.phase_1.subscribe([this](Edge edge) {
-        clock_1_pulse += is_rising(edge) ? 1 : 0;
         phase_1_recorder.add(edge);
-
         io_controller->signal_phase_1(edge);
     });
 
     clock.phase_2.subscribe([this](Edge edge) {
-        clock_2_pulse += is_rising(edge) ? 1 : 0;
         phase_2_recorder.add(edge);
-
         io_controller->signal_phase_2(edge);
     });
 
@@ -212,10 +208,12 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
         }
         else if (controller_state == ControllerWidget::STEP_ONE_CLOCK)
         {
-            auto initial_clock_1 = clock_1_pulse;
-            auto initial_clock_2 = clock_2_pulse;
+            auto& clock = processor_card->get_clock();
+            auto initial_clock_1 = clock.get_phase_1_state();
+            auto initial_clock_2 = clock.get_phase_2_state();
 
-            while (initial_clock_1 == clock_1_pulse && initial_clock_2 == clock_2_pulse)
+            while (initial_clock_1 == clock.get_phase_1_state() &&
+                   initial_clock_2 == clock.get_phase_2_state())
             {
                 scheduler.step();
             }

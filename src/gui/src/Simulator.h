@@ -51,9 +51,6 @@ public:
     SignalRecorder sync_recorder{SIGNAL_RECORDER_WINDOW};
     SignalRecorder t3prime_recorder{SIGNAL_RECORDER_WINDOW};
 
-    uint64_t clock_1_pulse{};
-    uint64_t clock_2_pulse{};
-
     const MemoryView& get_memory_view();
 
     ConsoleCard& get_console_card();

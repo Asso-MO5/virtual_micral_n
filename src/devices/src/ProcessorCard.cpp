@@ -238,3 +238,15 @@ std::vector<std::shared_ptr<Schedulable>> ProcessorCard::get_sub_schedulables()
 {
     return {clock, cpu};
 }
+
+void ProcessorCard::install_debug_info()
+{
+    debug_info.clock_pulse = 0;
+    clock->phase_1.subscribe([this](Edge edge) {
+        if (is_rising(edge)) {
+            debug_info.clock_pulse += 1;
+        }
+    });
+}
+
+const ProcessorCard::DebugInfo& ProcessorCard::get_debug_info() const { return debug_info; }

@@ -1,3 +1,5 @@
+* Optionally install the recorders on the Cards and Pluribus.
+  * Will Need a way to unsubscribe to signals at some point.
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
@@ -15,9 +17,9 @@
     * Change to OwnedSignal?
 * Control Panel + Simulator fixes to work with the Console Panel
     * The debug at Simulator level doesn't work when Stepping on the Emulated system
-* Make a Virtual Card for Debugging GUI information
-  * Virtual Card that references memory, for display memory
-  * Virtual Card that references all cards to associate to specific debug panel.
+* Make a Debuggers for GUI information (but can be use in CLI also)
+  * Debugger that references memory, to display memory cards information
+  * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
 * Show more signals on the Debug Panel (those on the pluribus).
   * Dedicate a Panel to collect and show Signals

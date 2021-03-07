@@ -15,8 +15,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     static bool running_update = true;
 
     const auto& scheduler = simulator.get_scheduler();
-    const auto& clock_1_pulse = simulator.clock_1_pulse;
-    const auto& clock_2_pulse = simulator.clock_2_pulse;
+    const auto& clock_pulse = simulator.get_processor_card().get_debug_info().clock_pulse;
 
     const auto& phase_1_recorder = simulator.phase_1_recorder;
     const auto& phase_2_recorder = simulator.phase_2_recorder;
@@ -29,7 +28,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000 / 1000);
 
     ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
-                scheduler.get_counter() > 0 ? 1'000'000 * clock_1_pulse / scheduler.get_counter()
+                scheduler.get_counter() > 0 ? 1'000'000 * clock_pulse / scheduler.get_counter()
                                             : 0,
                 average_frequency);
 
