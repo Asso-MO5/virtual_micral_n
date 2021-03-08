@@ -12,7 +12,11 @@ Prerequisites:
   
 For the GUI:
 * SDL2 development files
+    * sudo apt install libsdl2-dev
 * OpenGL development files
+    * sudo apt install libopengl-dev
+    * sudo apt install libglfw3-dev
+
 
 ```shell
 mkdir build
