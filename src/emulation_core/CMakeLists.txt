@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.13)
 
 project(micraln-emulation-core
         DESCRIPTION "The emulation core for the Micral N emulation"

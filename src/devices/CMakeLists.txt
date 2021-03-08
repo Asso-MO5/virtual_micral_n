@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.13)
 
 project(micraln-devices
         DESCRIPTION "The devices for the Micral N emulation"
@@ -28,7 +28,8 @@ set(DEVICES_FILES
         src/Pluribus.cpp src/Pluribus.h
         src/ProcessorCard.cpp src/ProcessorCard.h
         src/MemoryCard.cpp src/MemoryCard.h
-        src/PluribusHelpers.cpp src/PluribusHelpers.h)
+        src/PluribusHelpers.cpp src/PluribusHelpers.h
+        src/PluribusConfiguration.cpp src/PluribusConfiguration.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
