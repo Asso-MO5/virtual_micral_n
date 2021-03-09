@@ -24,7 +24,8 @@ set(GUI_FILES src/main.cpp
         src/panels/PanelControl.cpp src/panels/PanelControl.h
         src/widgets/PanelSwitch.cpp src/widgets/PanelSwitch.h
         src/widgets/PanelLed.cpp src/widgets/PanelLed.h
-        src/panels/PanelPluribus.cpp src/panels/PanelPluribus.h)
+        src/panels/PanelPluribus.cpp src/panels/PanelPluribus.h
+        src/RecorderCollection.cpp src/RecorderCollection.h)
 
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h

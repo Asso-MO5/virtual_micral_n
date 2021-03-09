@@ -10,54 +10,61 @@
 
 const char* state_to_name(uint state) { return STATE_NAMES[state]; }
 
+double get_most_recent_time(const RecorderCollection& recorders)
+{
+    double time = 0.0;
+
+    for (const auto& recorder : recorders)
+    {
+        const size_t last_index = recorder.second.size() - 1;
+        time = std::max(time, recorder.second.time_series()[last_index]);
+    }
+    return time;
+}
+
 void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
 {
     static bool running_update = true;
 
     const auto& scheduler = simulator.get_scheduler();
     const auto& clock_pulse = simulator.get_processor_card().get_debug_info().clock_pulse;
-
-    const auto& phase_1_recorder = simulator.phase_1_recorder;
-    const auto& phase_2_recorder = simulator.phase_2_recorder;
-    const auto& sync_recorder = simulator.sync_recorder;
-    const auto& t3prime_recorder = simulator.t3prime_recorder;
-
     const auto& cpu = simulator.get_processor_card().get_cpu();
 
     ImGui::Begin("8008");
     ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000 / 1000);
 
     ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
-                scheduler.get_counter() > 0 ? 1'000'000 * clock_pulse / scheduler.get_counter()
-                                            : 0,
+                scheduler.get_counter() > 0 ? 1'000'000 * clock_pulse / scheduler.get_counter() : 0,
                 average_frequency);
 
     ImGui::Checkbox("Update while running", &running_update);
 
     if (running_update)
     {
-        const double first_time =
-                std::min(phase_1_recorder.time_series()[0], phase_2_recorder.time_series()[0]);
-        const size_t last_index = phase_1_recorder.size() - 1;
-        const double last_time = std::max(phase_1_recorder.time_series()[last_index],
-                                          phase_2_recorder.time_series()[last_index]);
+        const auto& recorders = simulator.get_recorders();
+
+        const auto most_recent_time = get_most_recent_time(recorders);
+        const auto starting_time_for_frame =
+                std::max(0.0, most_recent_time - recorders.get_time_frame_as_counter());
 
         ImGui::PlotSignalConfig config;
-        config.values.count = phase_1_recorder.size();
         config.scale.x_scaled = true;
-        config.scale.x_min = first_time;
-        config.scale.x_max = last_time;
+        config.scale.x_min = starting_time_for_frame;
+        config.scale.x_max = most_recent_time;
         config.scale.y_min = 0.f;
         config.scale.y_max = 1.f;
         config.frame_size = ImVec2(400, 25);
         config.line_thickness = 1.f;
 
-        for (const auto& recorder :
-             {phase_1_recorder, phase_2_recorder, sync_recorder, t3prime_recorder})
+        for (const auto& recorder : recorders)
         {
-            config.values.x_series = recorder.time_series();
-            config.values.y_series = recorder.state_series();
+            config.values.count = recorder.second.size();
+            config.values.x_series = recorder.second.time_series();
+            config.values.y_series = recorder.second.state_series();
             ImGui::PlotSignal(config);
+
+            ImGui::SameLine();
+            ImGui::Text("%s", recorder.first.c_str());
         }
 
         auto cpu_debug_data = cpu.get_debug_data();

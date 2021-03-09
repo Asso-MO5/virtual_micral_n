@@ -1,5 +1,6 @@
 * Optionally install the recorders on the Cards and Pluribus.
   * Will Need a way to unsubscribe to signals at some point.
+* Add a kind of signal to show states (data bus, Cpu States...)
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.

@@ -1,8 +1,8 @@
-
 #ifndef MICRALN_SIMULATOR_H
 #define MICRALN_SIMULATOR_H
 
 #include "ControllerWidget.h"
+#include "RecorderCollection.h"
 
 #include <devices/src/DoubleClock.h>
 #include <devices/src/MemoryCard.h>
@@ -44,14 +44,8 @@ public:
     // TODO: remove once the signals go through the Pluribus
     [[nodiscard]] ProcessorCard& get_processor_card();
 
-    // To be extracted nicely.
-    const size_t SIGNAL_RECORDER_WINDOW = 40;
-    SignalRecorder phase_1_recorder{SIGNAL_RECORDER_WINDOW};
-    SignalRecorder phase_2_recorder{SIGNAL_RECORDER_WINDOW};
-    SignalRecorder sync_recorder{SIGNAL_RECORDER_WINDOW};
-    SignalRecorder t3prime_recorder{SIGNAL_RECORDER_WINDOW};
-
     const MemoryView& get_memory_view();
+    const RecorderCollection& get_recorders() const;
 
     ConsoleCard& get_console_card();
 
@@ -69,6 +63,7 @@ private:
     MemoryCard::Config get_memory_card_ram_2k_config(bool s13, bool s12, bool s11);
 
     SimulatorMemoryView memory_view;
+    RecorderCollection recorders;
 };
 
 #endif //MICRALN_SIMULATOR_H

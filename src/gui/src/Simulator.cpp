@@ -75,22 +75,28 @@ Simulator::Simulator()
 
     auto& clock = processor_card->get_clock();
 
-    clock.phase_1.subscribe([this](Edge edge) {
+    const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
+    auto& t3prime_recorder = recorders.create_and_get("T'3", window_time_frame_in_s, 300'000 * 4);
+    auto& sync_recorder = recorders.create_and_get("Sync", window_time_frame_in_s, 300'000 * 4);
+    auto& phase_2_recorder = recorders.create_and_get("Phase 2", window_time_frame_in_s, 550'000 * 4);
+    auto& phase_1_recorder = recorders.create_and_get("Phase 1", window_time_frame_in_s, 550'000 * 4);
+
+    clock.phase_1.subscribe([this, &phase_1_recorder](Edge edge) {
         phase_1_recorder.add(edge);
         io_controller->signal_phase_1(edge);
     });
 
-    clock.phase_2.subscribe([this](Edge edge) {
+    clock.phase_2.subscribe([this, &phase_2_recorder](Edge edge) {
         phase_2_recorder.add(edge);
         io_controller->signal_phase_2(edge);
     });
 
-    pluribus->sync.subscribe([this](Edge edge) {
+    pluribus->sync.subscribe([this, &sync_recorder](Edge edge) {
         sync_recorder.add(edge);
         io_controller->signal_sync(edge);
     });
 
-    pluribus->t3prime.subscribe([this](Edge edge) { t3prime_recorder.add(edge); });
+    pluribus->t3prime.subscribe([&t3prime_recorder](Edge edge) { t3prime_recorder.add(edge); });
 
     for (auto& sub : processor_card->get_sub_schedulables())
     {
@@ -244,6 +250,7 @@ const ProcessorCard& Simulator::get_processor_card() const { return *processor_c
 ProcessorCard& Simulator::get_processor_card() { return *processor_card; }
 
 ConsoleCard& Simulator::get_console_card() { return *console_card; }
+const RecorderCollection& Simulator::get_recorders() const { return recorders; }
 
 void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& memory_card)
 {
