@@ -38,14 +38,14 @@ public:
 
 Simulator::Simulator()
 {
-    //    ReadRomData rom_data_file("data/8008-loop-loads.bin");
-    //    auto& rom_data = rom_data_file.data;
+    ReadRomData rom_data_file("data/8008-loop-loads.bin");
+    auto& rom_data = rom_data_file.data;
 
     //    ReadRomData rom_data_file("data/8008-input-output.bin");
     //    auto& rom_data = rom_data_file.data;
 
-    ReadRomData rom_data_file("data/8008-hello-world.bin");
-    auto& rom_data = rom_data_file.data;
+    //    ReadRomData rom_data_file("data/8008-hello-world.bin");
+    //    auto& rom_data = rom_data_file.data;
 
     //    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
     //                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
@@ -74,29 +74,11 @@ Simulator::Simulator()
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
     auto& clock = processor_card->get_clock();
+    clock.phase_1.subscribe([this](Edge edge) { io_controller->signal_phase_1(edge); });
+    clock.phase_2.subscribe([this](Edge edge) { io_controller->signal_phase_2(edge); });
+    pluribus->sync.subscribe([this](Edge edge) { io_controller->signal_sync(edge); });
 
-    const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
-    auto& t3prime_recorder = recorders.create_and_get("T'3", window_time_frame_in_s, 300'000 * 4);
-    auto& sync_recorder = recorders.create_and_get("Sync", window_time_frame_in_s, 300'000 * 4);
-    auto& phase_2_recorder = recorders.create_and_get("Phase 2", window_time_frame_in_s, 550'000 * 4);
-    auto& phase_1_recorder = recorders.create_and_get("Phase 1", window_time_frame_in_s, 550'000 * 4);
-
-    clock.phase_1.subscribe([this, &phase_1_recorder](Edge edge) {
-        phase_1_recorder.add(edge);
-        io_controller->signal_phase_1(edge);
-    });
-
-    clock.phase_2.subscribe([this, &phase_2_recorder](Edge edge) {
-        phase_2_recorder.add(edge);
-        io_controller->signal_phase_2(edge);
-    });
-
-    pluribus->sync.subscribe([this, &sync_recorder](Edge edge) {
-        sync_recorder.add(edge);
-        io_controller->signal_sync(edge);
-    });
-
-    pluribus->t3prime.subscribe([&t3prime_recorder](Edge edge) { t3prime_recorder.add(edge); });
+    register_signals();
 
     for (auto& sub : processor_card->get_sub_schedulables())
     {
@@ -112,6 +94,28 @@ Simulator::Simulator()
 
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
+}
+
+void Simulator::register_signals()
+{
+    auto& clock = processor_card->get_clock();
+
+    const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
+    auto& t3prime_recorder = recorders.create_and_get("T'3", window_time_frame_in_s, 300'000 * 4);
+    auto& t3_recorder = recorders.create_and_get("T3", window_time_frame_in_s, 300'000 * 4);
+    auto& t2_recorder = recorders.create_and_get("T2", window_time_frame_in_s, 300'000 * 4);
+    auto& sync_recorder = recorders.create_and_get("Sync", window_time_frame_in_s, 300'000 * 4);
+    auto& phase_2_recorder =
+            recorders.create_and_get("Phase 2", window_time_frame_in_s, 550'000 * 4);
+    auto& phase_1_recorder =
+            recorders.create_and_get("Phase 1", window_time_frame_in_s, 550'000 * 4);
+
+    clock.phase_1.subscribe([this, &phase_1_recorder](Edge edge) { phase_1_recorder.add(edge); });
+    clock.phase_2.subscribe([this, &phase_2_recorder](Edge edge) { phase_2_recorder.add(edge); });
+    pluribus->t3.subscribe([this, &t3_recorder](Edge edge) { t3_recorder.add(edge); });
+    pluribus->t2.subscribe([this, &t2_recorder](Edge edge) { t2_recorder.add(edge); });
+    pluribus->sync.subscribe([this, &sync_recorder](Edge edge) { sync_recorder.add(edge); });
+    pluribus->t3prime.subscribe([&t3prime_recorder](Edge edge) { t3prime_recorder.add(edge); });
 }
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
