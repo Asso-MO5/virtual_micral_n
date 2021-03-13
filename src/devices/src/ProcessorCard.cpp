@@ -153,7 +153,7 @@ void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, un
             pluribus->t3prime.set(State{State::LOW}, time, this);
             break;
         case Constants8008::CpuState::T5:
-            pluribus->t2.set(State{State::HIGH}, time, this);
+            pluribus->t2.set(State{State::LOW}, time, this);
             pluribus->t3.set(State{State::LOW}, time, this);
             pluribus->t3prime.set(State{State::LOW}, time, this);
             break;

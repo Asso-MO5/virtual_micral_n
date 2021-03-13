@@ -1,4 +1,3 @@
-* There's a T2 generated at T5. To fix.
 * Optionally install the recorders on the Cards and Pluribus.
   * Will Need a way to unsubscribe to signals at some point.
 * Add a kind of signal to show states (data bus, Cpu States...)
