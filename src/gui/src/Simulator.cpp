@@ -96,11 +96,22 @@ Simulator::Simulator()
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
 }
 
+void connect_recorder(OwnedSignal & signal, SignalRecorder & recorder)
+{
+    signal.subscribe([&recorder](Edge edge){ recorder.add(edge);});
+}
+
 void Simulator::register_signals()
 {
     auto& clock = processor_card->get_clock();
 
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
+    auto& ready_recorder = recorders.create_and_get("READY", window_time_frame_in_s, 300'000 * 4);
+    auto& ready_console_recorder = recorders.create_and_get("READY C", window_time_frame_in_s, 300'000 * 4);
+    auto& stop_recorder = recorders.create_and_get("STOP", window_time_frame_in_s, 300'000 * 4);
+    auto& wait_recorder = recorders.create_and_get("WAIT", window_time_frame_in_s, 300'000 * 4);
+    auto& cc0_recorder = recorders.create_and_get("CC0", window_time_frame_in_s, 300'000 * 4);
+    auto& cc1_recorder = recorders.create_and_get("CC1", window_time_frame_in_s, 300'000 * 4);
     auto& t3prime_recorder = recorders.create_and_get("T'3", window_time_frame_in_s, 300'000 * 4);
     auto& t3_recorder = recorders.create_and_get("T3", window_time_frame_in_s, 300'000 * 4);
     auto& t2_recorder = recorders.create_and_get("T2", window_time_frame_in_s, 300'000 * 4);
@@ -110,12 +121,20 @@ void Simulator::register_signals()
     auto& phase_1_recorder =
             recorders.create_and_get("Phase 1", window_time_frame_in_s, 550'000 * 4);
 
-    clock.phase_1.subscribe([this, &phase_1_recorder](Edge edge) { phase_1_recorder.add(edge); });
-    clock.phase_2.subscribe([this, &phase_2_recorder](Edge edge) { phase_2_recorder.add(edge); });
-    pluribus->t3.subscribe([this, &t3_recorder](Edge edge) { t3_recorder.add(edge); });
-    pluribus->t2.subscribe([this, &t2_recorder](Edge edge) { t2_recorder.add(edge); });
-    pluribus->sync.subscribe([this, &sync_recorder](Edge edge) { sync_recorder.add(edge); });
-    pluribus->t3prime.subscribe([&t3prime_recorder](Edge edge) { t3prime_recorder.add(edge); });
+    connect_recorder(clock.phase_1, phase_1_recorder);
+    connect_recorder(clock.phase_2, phase_2_recorder);
+    connect_recorder(pluribus->t3, t3_recorder);
+    connect_recorder(pluribus->t2, t2_recorder);
+    connect_recorder(pluribus->sync, sync_recorder);
+    connect_recorder(pluribus->t3prime, t3prime_recorder);
+
+    connect_recorder(pluribus->cc0, cc0_recorder);
+    connect_recorder(pluribus->cc1, cc1_recorder);
+    connect_recorder(pluribus->wait, wait_recorder);
+    connect_recorder(pluribus->stop, stop_recorder);
+
+    connect_recorder(pluribus->ready, ready_recorder);
+    connect_recorder(pluribus->ready_console, ready_console_recorder);
 }
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
