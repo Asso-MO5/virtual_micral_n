@@ -1,6 +1,10 @@
 * Optionally install the recorders on the Cards and Pluribus.
-  * Will Need a way to unsubscribe to signals at some point.
+    * Will Need a way to unsubscribe to signals at some point.
+* Show more signals on the Debug Panel (those on the pluribus).
+    * Dedicate a Panel to collect and show Signals
+    * Add a view for OwnedValues as signals.
 * Add a kind of signal to show states (data bus, Cpu States...)
+* Add a Time Scale to the Simulator, to better see the signals.
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
@@ -22,9 +26,6 @@
   * Debugger that references memory, to display memory cards information
   * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
-* Show more signals on the Debug Panel (those on the pluribus).
-  * Dedicate a Panel to collect and show Signals
-  * Add a view for OwnedValues as signals.
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Are OwnedValue and ConnectedData redundant or do they serve different things?
 * Extract the definition of the machine from the Simulator

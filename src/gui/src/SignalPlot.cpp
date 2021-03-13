@@ -50,8 +50,16 @@ namespace ImGui
                             ? 0.0
                             : (1.0 / (config.scale.y_max - config.scale.y_min));
 
-            const double first_x_value = config.values.x_series[config.values.offset];
-            const double first_y_value = config.values.y_series[config.values.offset];
+            auto first_valid_index = config.values.offset;
+            double first_x_value = config.values.x_series[first_valid_index];
+            double first_y_value = config.values.y_series[first_valid_index];
+
+            while ((first_x_value < x_min) && (first_valid_index < config.values.count))
+            {
+                first_valid_index += 1;
+                first_x_value = config.values.x_series[first_valid_index];
+                first_y_value = config.values.y_series[first_valid_index];
+            }
 
             ImVec2 first_normalized_point = ImVec2(
                     ImSaturate(static_cast<float>((first_x_value - x_min) * inverse_scale_x)),
@@ -72,7 +80,7 @@ namespace ImGui
             ImVec2 second_position;
 
             const int end_index = config.values.offset + config.values.count;
-            for (int value_index = config.values.offset; value_index < end_index; value_index++)
+            for (int value_index = first_valid_index; value_index < end_index; value_index++)
             {
                 const double x_value = config.values.x_series[value_index] - x_min;
                 const double y_value = config.values.y_series[value_index];
