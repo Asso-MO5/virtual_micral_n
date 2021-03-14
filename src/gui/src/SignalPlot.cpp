@@ -54,7 +54,7 @@ namespace ImGui
             double first_x_value = config.values.x_series[first_valid_index];
             double first_y_value = config.values.y_series[first_valid_index];
 
-            while ((first_x_value < x_min) && (first_valid_index < config.values.count))
+            while ((first_x_value < x_min) && (first_valid_index < config.values.count - 1))
             {
                 first_valid_index += 1;
                 first_x_value = config.values.x_series[first_valid_index];
