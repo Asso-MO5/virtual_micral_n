@@ -17,10 +17,13 @@ public:
     [[nodiscard]] const double* state_series() const;
 
     void add(Edge edge);
+    void pause();
+    void resume();
 
 private:
     std::vector<double> time_values;
     std::vector<double> state_values;
+    bool paused;
 };
 
 #endif //MICRALN_SIGNALRECORDER_H
