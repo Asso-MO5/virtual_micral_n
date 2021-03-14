@@ -1,5 +1,3 @@
-* Optionally install the recorders on the Cards and Pluribus.
-    * Will Need a way to unsubscribe to signals at some point.
 * Show more signals on the Debug Panel (those on the pluribus).
     * Dedicate a Panel to collect and show Signals
     * Add a view for OwnedValues as signals.

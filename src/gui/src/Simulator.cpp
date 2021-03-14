@@ -79,6 +79,8 @@ Simulator::Simulator()
     pluribus->sync.subscribe([this](Edge edge) { io_controller->signal_sync(edge); });
 
     register_signals();
+    pause_all_recorders();
+    resume_all_recorders();
 
     for (auto& sub : processor_card->get_sub_schedulables())
     {
@@ -96,9 +98,9 @@ Simulator::Simulator()
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
 }
 
-void connect_recorder(OwnedSignal & signal, SignalRecorder & recorder)
+void connect_recorder(OwnedSignal& signal, SignalRecorder& recorder)
 {
-    signal.subscribe([&recorder](Edge edge){ recorder.add(edge);});
+    signal.subscribe([&recorder](Edge edge) { recorder.add(edge); });
 }
 
 void Simulator::register_signals()
@@ -107,7 +109,8 @@ void Simulator::register_signals()
 
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
     auto& ready_recorder = recorders.create_and_get("READY", window_time_frame_in_s, 300'000 * 4);
-    auto& ready_console_recorder = recorders.create_and_get("READY C", window_time_frame_in_s, 300'000 * 4);
+    auto& ready_console_recorder =
+            recorders.create_and_get("READY C", window_time_frame_in_s, 300'000 * 4);
     auto& stop_recorder = recorders.create_and_get("STOP", window_time_frame_in_s, 300'000 * 4);
     auto& wait_recorder = recorders.create_and_get("WAIT", window_time_frame_in_s, 300'000 * 4);
     auto& cc0_recorder = recorders.create_and_get("CC0", window_time_frame_in_s, 300'000 * 4);
@@ -136,6 +139,23 @@ void Simulator::register_signals()
     connect_recorder(pluribus->ready, ready_recorder);
     connect_recorder(pluribus->ready_console, ready_console_recorder);
 }
+
+void Simulator::pause_all_recorders()
+{
+    for (auto& recorder : recorders)
+    {
+        recorder.second.pause();
+    }
+}
+
+void Simulator::resume_all_recorders()
+{
+    for (auto& recorder : recorders)
+    {
+        recorder.second.resume();
+    }
+}
+
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {

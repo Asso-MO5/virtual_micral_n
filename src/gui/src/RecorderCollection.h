@@ -14,6 +14,8 @@ public:
 
     container_type::const_iterator begin() const;
     container_type::const_iterator end() const;
+    container_type::iterator begin() ;
+    container_type::iterator end() ;
 
     Scheduling::counter_type get_time_frame_as_counter() const;
 

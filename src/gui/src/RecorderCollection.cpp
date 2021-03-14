@@ -18,13 +18,24 @@ SignalRecorder& RecorderCollection::create_and_get(const std::string& signal_nam
 
 RecorderCollection::container_type::const_iterator RecorderCollection::begin() const
 {
-    return cbegin(recorders);
+    return std::cbegin(recorders);
 }
 
 RecorderCollection::container_type::const_iterator RecorderCollection::end() const
 {
-    return cend(recorders);
+    return std::cend(recorders);
 }
+
+RecorderCollection::container_type::iterator RecorderCollection::begin()
+{
+    return std::begin(recorders);
+}
+
+RecorderCollection::container_type::iterator RecorderCollection::end()
+{
+    return std::end(recorders);
+}
+
 
 Scheduling::counter_type RecorderCollection::get_time_frame_as_counter() const
 {
