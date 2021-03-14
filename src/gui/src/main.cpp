@@ -10,6 +10,7 @@
 #include <devices/src/Disassemble8008.h>
 #include <devices/src/ProcessorCard.h>
 #include <gui/src/lib/Averager.h>
+#include <gui/src/panels/PanelSignals.h>
 #include <imgui.h>
 
 static const int WINDOW_WIDTH = 1280;
@@ -117,6 +118,7 @@ int main(int, char**)
         display_pluribus_panel(simulator);
         display_memory_panel(simulator);
         panel_control.display(simulator);
+        display_signals_panel(simulator);
 
         controller.update();
         context.render_frame();
