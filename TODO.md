@@ -1,7 +1,6 @@
 * Show more signals on the Debug Panel (those on the pluribus).
     * Add a view for OwnedValues as signals.
 * Add a kind of signal to show states (data bus, Cpu States...)
-* The display of Address on the Panel is broken
 * Add a Time Scale to the Simulator, to better see the signals.
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card

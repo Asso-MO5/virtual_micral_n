@@ -20,7 +20,7 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus)
 
 ConsoleCard::Status ConsoleCard::get_status() const { return status; }
 
-void ConsoleCard::step() { status.address = *pluribus->address_bus_s0_s13; }
+void ConsoleCard::step() {}
 
 void ConsoleCard::press_automatic()
 {
@@ -44,34 +44,38 @@ void ConsoleCard::press_trap() {}
 
 void ConsoleCard::on_t3(Edge edge)
 {
-    if (status.stepping && is_rising(edge))
+    if (is_rising(edge))
     {
-        auto cc0 = *pluribus->cc0;
-        auto cc1 = *pluribus->cc1;
-        Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
-
-        status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
-        status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
-        status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
-        status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
-
-        auto time = edge.time();
-        switch (status.step_mode)
+        if (status.stepping)
         {
-            case Instruction:
-                if (status.is_op_cycle)
-                {
+            auto cc0 = *pluribus->cc0;
+            auto cc1 = *pluribus->cc1;
+            Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
+
+            status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
+            status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
+            status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
+            status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
+
+            auto time = edge.time();
+            switch (status.step_mode)
+            {
+                case Instruction:
+                    if (status.is_op_cycle)
+                    {
+                        pluribus->ready_console.set(State::LOW, time, this);
+                    }
+                    else
+                    {
+                        pluribus->ready_console.set(State::HIGH, time, this);
+                    }
+                    break;
+                case Cycle:
                     pluribus->ready_console.set(State::LOW, time, this);
-                }
-                else
-                {
-                    pluribus->ready_console.set(State::HIGH, time, this);
-                }
-                break;
-            case Cycle:
-                pluribus->ready_console.set(State::LOW, time, this);
-                break;
+                    break;
+            }
         }
+        status.address = *pluribus->address_bus_s0_s13;
     }
 }
 
