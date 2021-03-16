@@ -30,11 +30,12 @@ set(GUI_FILES src/main.cpp
 
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h
-        src/lib/Averager.cpp src/lib/Averager.h)
+        src/lib/Averager.cpp src/lib/Averager.h
+        src/lib/ValueRecorder.cpp src/lib/ValueRecorder.h)
 
 set(GUI_TEST_FILES
         tests/signal_recorder_test.cpp
-        tests/averager_test.cpp)
+        tests/averager_test.cpp tests/value_recorder_test.cpp)
 
 add_library(${GUI_LIB_NAME} ${GUI_FILES_LIB})
 target_include_directories(${GUI_LIB_NAME} PRIVATE ../)
