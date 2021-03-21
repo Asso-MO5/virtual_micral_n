@@ -1,7 +1,6 @@
 #ifndef MICRALN_SIMULATOR_H
 #define MICRALN_SIMULATOR_H
 
-#include "ControllerWidget.h"
 #include "RecorderCollection.h"
 
 #include <devices/src/DoubleClock.h>
@@ -9,6 +8,7 @@
 #include <devices/src/MemoryView.h>
 #include <emulation_core/src/Scheduler.h>
 #include <gui/src/lib/SignalRecorder.h>
+#include <emulator/src/SmulationRunType.h>
 
 class DataBus;
 class IOController;
@@ -34,7 +34,7 @@ class Simulator
 {
 public:
     Simulator();
-    void step(float average_frame_time_in_ms, ControllerWidget::State controller_state);
+    void step(float average_frame_time_in_ms, SimulationRunType controller_state);
 
     [[nodiscard]] const Scheduler& get_scheduler() const;
     [[nodiscard]] IOController& get_io_controller();

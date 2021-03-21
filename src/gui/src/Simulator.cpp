@@ -1,6 +1,5 @@
 
 #include "Simulator.h"
-#include "ControllerWidget.h"
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/ConsoleCard.h>
@@ -207,14 +206,14 @@ MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, 
     return construction_config;
 }
 
-void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State controller_state)
+void Simulator::step(float average_frame_time_in_ms, SimulationRunType controller_state)
 {
-    if (controller_state != ControllerWidget::PAUSED)
+    if (controller_state != PAUSED)
     {
         auto& cpu = processor_card->get_cpu();
 
-        if (controller_state == ControllerWidget::RUNNING ||
-            controller_state == ControllerWidget::STEP_ONE_FRAME)
+        if (controller_state == RUNNING ||
+            controller_state == STEP_ONE_FRAME)
         {
             auto start_point = scheduler.get_counter();
 
@@ -232,7 +231,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 scheduler.step();
             }
         }
-        else if (controller_state == ControllerWidget::STEP_ONE_STATE)
+        else if (controller_state == STEP_ONE_STATE)
         {
             auto initial_state = *cpu.output_pins.state;
 
@@ -256,7 +255,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 }
             }
         }
-        else if (controller_state == ControllerWidget::STEP_ONE_CLOCK)
+        else if (controller_state == STEP_ONE_CLOCK)
         {
             auto& clock = processor_card->get_clock();
             auto initial_clock_1 = clock.get_phase_1_state();
@@ -268,7 +267,7 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
                 scheduler.step();
             }
         }
-        else if (controller_state == ControllerWidget::STEP_ONE_INSTRUCTION)
+        else if (controller_state == STEP_ONE_INSTRUCTION)
         {
             while (cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
                    (*cpu.output_pins.state == Constants8008::CpuState::T1))

@@ -16,7 +16,7 @@ set(CLI_TEST_FILES tests/test_main.cpp)
 add_executable(${CLI_EXE_NAME} ${CLI_FILES})
 set_target_properties(${CLI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(${CLI_EXE_NAME} ${LOGURU_LIB_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME})
+target_link_libraries(${CLI_EXE_NAME} ${LOGURU_LIB_NAME} ${EMULATOR_LIB_NAME})
 target_include_directories(${CLI_EXE_NAME} PRIVATE ../)
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))

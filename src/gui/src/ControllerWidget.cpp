@@ -49,4 +49,4 @@ void ControllerWidget::update()
     ImGui::End();
 }
 
-ControllerWidget::State ControllerWidget::get_state() const { return state; }
+SimulationRunType ControllerWidget::get_state() const { return state; }
