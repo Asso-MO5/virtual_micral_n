@@ -15,8 +15,6 @@
     * Except on the Processor Bus, other components should not address it directly, but through the Pluribus (except for
       Debug Feedback)
 * Implement the I/O cards
-* Move the DataBus to the ProcessorCard to share with the CPU
-    * Change to OwnedSignal?
 * Control Panel + Simulator fixes to work with the Console Panel
     * The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Make a Debuggers for GUI information (but can be use in CLI also)
@@ -24,14 +22,9 @@
   * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
-* Are OwnedValue and ConnectedData redundant or do they serve different things?
-* Extract the definition of the machine from the Simulator
-* Clean: extract Recorders from the Simulator
 * Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
-* There are missing bound checks, sometimes, the simulator stops because vdd is LOW. But it's not set low. So there's
-  probably an out of bound access.
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.
 * Possible optimization
     * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
