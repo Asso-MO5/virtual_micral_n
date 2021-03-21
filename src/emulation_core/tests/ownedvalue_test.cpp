@@ -103,12 +103,12 @@ TEST(OwnedValue, can_be_subscribed_to_for_owner_change)
     OwnedValueType owned_value;
     uint16_t owner;
 
-    uint32_t received_old_owner{};
-    uint32_t received_new_owner{};
+    void* received_old_owner{};
+    void* received_new_owner{};
     OwnedValueType::counter_type received_time{};
 
     owned_value.subscribe_to_owner(
-            [&](uint32_t old_value, uint32_t new_value, OwnedValueType::counter_type time) {
+            [&](void* old_value, void* new_value, OwnedValueType::counter_type time) {
               received_old_owner = old_value;
               received_new_owner = new_value;
               received_time = time;
@@ -116,16 +116,16 @@ TEST(OwnedValue, can_be_subscribed_to_for_owner_change)
 
     owned_value.request(static_cast<void*>(&owner), Scheduling::counter_type{2000});
 
-    uint32_t saved_new_owner{received_new_owner};
+    void* saved_new_owner{received_new_owner};
 
-    ASSERT_THAT(received_old_owner, Eq(0));
-    ASSERT_THAT(received_new_owner, Ne(0));
+    ASSERT_THAT(received_old_owner, IsNull());
+    ASSERT_THAT(received_new_owner, Ne(nullptr));
     ASSERT_THAT(received_time, Eq(Scheduling::counter_type{2000}));
 
     owned_value.release(static_cast<void*>(&owner), Scheduling::counter_type{3000});
 
     ASSERT_THAT(received_old_owner, Eq(saved_new_owner));
-    ASSERT_THAT(received_new_owner, Eq(0));
+    ASSERT_THAT(received_new_owner, IsNull());
     ASSERT_THAT(received_time, Eq(Scheduling::counter_type{3000}));
 
 

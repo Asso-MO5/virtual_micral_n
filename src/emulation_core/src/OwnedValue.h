@@ -23,7 +23,7 @@ class OwnedValue
 public:
     using counter_type = Scheduling::counter_type;
     using callback_type = std::function<void(ValueType, ValueType, counter_type)>;
-    using callback_type_for_owner = std::function<void(uint32_t, uint32_t, counter_type)>;
+    using callback_type_for_owner = std::function<void(void*, void*, counter_type)>;
 
     OwnedValue() = default;
     explicit OwnedValue(ValueType start_value) : current_value{start_value} {}
@@ -61,7 +61,7 @@ public:
     }
 
     void subscribe(const callback_type& callback) { callbacks.push_back(callback); }
-    void subscribe_to_owner(const callback_type& callback)
+    void subscribe_to_owner(const callback_type_for_owner& callback)
     {
         callbacks_for_owner_change.push_back(callback);
     }
@@ -91,16 +91,14 @@ private:
 
     void set_owner_and_broadcast(void* new_owner, counter_type time)
     {
-        const auto previous_owner_id = static_cast<uint32_t>(reinterpret_cast<uint64_t>(owner_id));
-        const auto new_owner_id = static_cast<uint32_t>(reinterpret_cast<uint64_t>(new_owner));
-
+        void* previous_owner = owner_id;
         owner_id = new_owner;
 
-        if (previous_owner_id != new_owner_id)
+        if (previous_owner != new_owner)
         {
             for (auto& callback : callbacks_for_owner_change)
             {
-                callback(previous_owner_id, new_owner_id, time);
+                callback(previous_owner, new_owner, time);
             }
         }
     }
