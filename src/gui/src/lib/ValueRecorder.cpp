@@ -45,8 +45,8 @@ void ValueRecorder::change_owner(void* owner, Scheduling::counter_type time)
 const double* ValueRecorder::time_series() const { return time_values.data(); }
 const double* ValueRecorder::value_series() const { return state_values.data(); }
 
-double* ValueRecorder::owner_time_series() { return owner_time_values.data(); }
-std::uint32_t* ValueRecorder::owner_series() { return owner_values.data(); }
+const double* ValueRecorder::owner_time_series() const { return owner_time_values.data(); }
+const std::uint32_t* ValueRecorder::owner_series() const { return owner_values.data(); }
 
 void ValueRecorder::pause() { paused = true; }
 void ValueRecorder::resume() { paused = false; }

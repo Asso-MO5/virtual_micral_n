@@ -20,8 +20,8 @@ public:
     void pause();
     void resume();
 
-    double* owner_time_series();
-    std::uint32_t* owner_series();
+    [[nodiscard]] const double* owner_time_series() const;
+    [[nodiscard]] const std::uint32_t* owner_series() const;
 
 private:
     std::vector<double> time_values;
