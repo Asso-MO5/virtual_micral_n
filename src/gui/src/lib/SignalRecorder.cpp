@@ -16,7 +16,7 @@ SignalRecorder::SignalRecorder(std::size_t size)
 
 std::size_t SignalRecorder::size() const { return time_values.size(); }
 const double* SignalRecorder::time_series() const { return time_values.data(); }
-const double* SignalRecorder::state_series() const { return state_values.data(); }
+const double* SignalRecorder::data_series() const { return state_values.data(); }
 
 void SignalRecorder::add(Edge edge)
 {

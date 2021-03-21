@@ -24,25 +24,25 @@ TEST(SignalRecorder, gets_timed_values)
     clock_recorder.add(Edge{Edge::Front::RISING, Scheduling::counter_type{300}});
 
     ASSERT_THAT(clock_recorder.time_series(), NotNull());
-    ASSERT_THAT(clock_recorder.state_series(), NotNull());
+    ASSERT_THAT(clock_recorder.data_series(), NotNull());
 
     ASSERT_THAT(clock_recorder.time_series()[0], Le(100.f));
-    ASSERT_THAT(clock_recorder.state_series()[0], Eq(0.f));
+    ASSERT_THAT(clock_recorder.data_series()[0], Eq(0.f));
 
     ASSERT_THAT(clock_recorder.time_series()[1], Ge(100.f));
-    ASSERT_THAT(clock_recorder.state_series()[1], Eq(1.f));
+    ASSERT_THAT(clock_recorder.data_series()[1], Eq(1.f));
 
     ASSERT_THAT(clock_recorder.time_series()[2], Le(200.f));
-    ASSERT_THAT(clock_recorder.state_series()[2], Eq(1.f));
+    ASSERT_THAT(clock_recorder.data_series()[2], Eq(1.f));
 
     ASSERT_THAT(clock_recorder.time_series()[3], Ge(200.f));
-    ASSERT_THAT(clock_recorder.state_series()[3], Eq(0.f));
+    ASSERT_THAT(clock_recorder.data_series()[3], Eq(0.f));
 
     ASSERT_THAT(clock_recorder.time_series()[4], Le(300.f));
-    ASSERT_THAT(clock_recorder.state_series()[4], Eq(0.f));
+    ASSERT_THAT(clock_recorder.data_series()[4], Eq(0.f));
 
     ASSERT_THAT(clock_recorder.time_series()[5], Ge(300.f));
-    ASSERT_THAT(clock_recorder.state_series()[5], Eq(1.f));
+    ASSERT_THAT(clock_recorder.data_series()[5], Eq(1.f));
 }
 
 TEST(SignalRecorder, can_be_paused)
@@ -58,7 +58,7 @@ TEST(SignalRecorder, can_be_paused)
     for (auto index = 0; index < SIZE; index += 1)
     {
         ASSERT_THAT(clock_recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(clock_recorder.state_series()[index], Eq(0.f));
+        ASSERT_THAT(clock_recorder.data_series()[index], Eq(0.f));
     };
 }
 
@@ -78,12 +78,12 @@ TEST(SignalRecorder, can_be_resumed)
     for (auto index = 0; index < SIZE - 2; index += 1)
     {
         ASSERT_THAT(clock_recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(clock_recorder.state_series()[index], Eq(0.f));
+        ASSERT_THAT(clock_recorder.data_series()[index], Eq(0.f));
     }
 
     ASSERT_THAT(clock_recorder.time_series()[SIZE - 2], Le(400.f));
-    ASSERT_THAT(clock_recorder.state_series()[SIZE - 2], Eq(0.f));
+    ASSERT_THAT(clock_recorder.data_series()[SIZE - 2], Eq(0.f));
 
     ASSERT_THAT(clock_recorder.time_series()[SIZE - 1], Ge(400.f));
-    ASSERT_THAT(clock_recorder.state_series()[SIZE - 1], Eq(1.f));
+    ASSERT_THAT(clock_recorder.data_series()[SIZE - 1], Eq(1.f));
 }

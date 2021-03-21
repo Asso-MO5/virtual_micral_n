@@ -15,7 +15,7 @@ public:
 
     [[nodiscard]] std::size_t size() const override;
     [[nodiscard]] const double* time_series() const override;
-    [[nodiscard]] const double* state_series() const override;
+    [[nodiscard]] const double* data_series() const override;
 
     void add(Edge edge);
 

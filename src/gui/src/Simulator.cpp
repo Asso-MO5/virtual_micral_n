@@ -108,21 +108,30 @@ void Simulator::register_signals()
     auto& clock = processor_card->get_clock();
 
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
-    auto& ready_recorder = recorders.create_and_get("READY", window_time_frame_in_s, 300'000 * 4);
-    auto& ready_console_recorder =
-            recorders.create_and_get("READY C", window_time_frame_in_s, 300'000 * 4);
-    auto& stop_recorder = recorders.create_and_get("STOP", window_time_frame_in_s, 300'000 * 4);
-    auto& wait_recorder = recorders.create_and_get("WAIT", window_time_frame_in_s, 300'000 * 4);
-    auto& cc0_recorder = recorders.create_and_get("CC0", window_time_frame_in_s, 300'000 * 4);
-    auto& cc1_recorder = recorders.create_and_get("CC1", window_time_frame_in_s, 300'000 * 4);
-    auto& t3prime_recorder = recorders.create_and_get("T'3", window_time_frame_in_s, 300'000 * 4);
-    auto& t3_recorder = recorders.create_and_get("T3", window_time_frame_in_s, 300'000 * 4);
-    auto& t2_recorder = recorders.create_and_get("T2", window_time_frame_in_s, 300'000 * 4);
-    auto& sync_recorder = recorders.create_and_get("Sync", window_time_frame_in_s, 300'000 * 4);
-    auto& phase_2_recorder =
-            recorders.create_and_get("Phase 2", window_time_frame_in_s, 550'000 * 4);
-    auto& phase_1_recorder =
-            recorders.create_and_get("Phase 1", window_time_frame_in_s, 550'000 * 4);
+    auto& ready_recorder =
+            recorders.create_and_get_signal_recorder("READY", window_time_frame_in_s, 300'000 * 4);
+    auto& ready_console_recorder = recorders.create_and_get_signal_recorder(
+            "READY C", window_time_frame_in_s, 300'000 * 4);
+    auto& stop_recorder =
+            recorders.create_and_get_signal_recorder("STOP", window_time_frame_in_s, 300'000 * 4);
+    auto& wait_recorder =
+            recorders.create_and_get_signal_recorder("WAIT", window_time_frame_in_s, 300'000 * 4);
+    auto& cc0_recorder =
+            recorders.create_and_get_signal_recorder("CC0", window_time_frame_in_s, 300'000 * 4);
+    auto& cc1_recorder =
+            recorders.create_and_get_signal_recorder("CC1", window_time_frame_in_s, 300'000 * 4);
+    auto& t3prime_recorder =
+            recorders.create_and_get_signal_recorder("T'3", window_time_frame_in_s, 300'000 * 4);
+    auto& t3_recorder =
+            recorders.create_and_get_signal_recorder("T3", window_time_frame_in_s, 300'000 * 4);
+    auto& t2_recorder =
+            recorders.create_and_get_signal_recorder("T2", window_time_frame_in_s, 300'000 * 4);
+    auto& sync_recorder =
+            recorders.create_and_get_signal_recorder("Sync", window_time_frame_in_s, 300'000 * 4);
+    auto& phase_2_recorder = recorders.create_and_get_signal_recorder(
+            "Phase 2", window_time_frame_in_s, 550'000 * 4);
+    auto& phase_1_recorder = recorders.create_and_get_signal_recorder(
+            "Phase 1", window_time_frame_in_s, 550'000 * 4);
 
     connect_recorder(clock.phase_1, phase_1_recorder);
     connect_recorder(clock.phase_2, phase_2_recorder);

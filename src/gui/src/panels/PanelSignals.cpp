@@ -42,7 +42,7 @@ void display_signals_panel(Simulator& simulator)
     {
         config.values.count = recorder.second->size();
         config.values.x_series = recorder.second->time_series();
-        config.values.y_series = recorder.second->state_series();
+        config.values.y_series = recorder.second->data_series();
         ImGui::PlotSignal(config);
 
         ImGui::SameLine();

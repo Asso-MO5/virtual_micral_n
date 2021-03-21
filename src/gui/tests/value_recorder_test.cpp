@@ -21,10 +21,10 @@ TEST(ValueRecorder, gets_timed_values)
     recorder.add(0xffff, Scheduling::counter_type{100});
 
     ASSERT_THAT(recorder.time_series(), NotNull());
-    ASSERT_THAT(recorder.value_series(), NotNull());
+    ASSERT_THAT(recorder.data_series(), NotNull());
 
     ASSERT_THAT(recorder.time_series()[SIZE - 1], Eq(100.f));
-    ASSERT_THAT(recorder.value_series()[SIZE - 1], Eq(static_cast<double>(0xffff)));
+    ASSERT_THAT(recorder.data_series()[SIZE - 1], Eq(static_cast<double>(0xffff)));
 }
 
 TEST(ValueRecorder, can_be_paused)
@@ -38,7 +38,7 @@ TEST(ValueRecorder, can_be_paused)
     for (auto index = 0; index < SIZE; index += 1)
     {
         ASSERT_THAT(recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(recorder.value_series()[index], Eq(0.f));
+        ASSERT_THAT(recorder.data_series()[index], Eq(0.f));
     }
 }
 
@@ -75,9 +75,9 @@ TEST(ValueRecorder, can_be_resumed)
     for (auto index = 0; index < SIZE - 1; index += 1)
     {
         ASSERT_THAT(recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(recorder.value_series()[index], Eq(0.f));
+        ASSERT_THAT(recorder.data_series()[index], Eq(0.f));
     }
 
     ASSERT_THAT(recorder.time_series()[SIZE - 1], Eq(200.f));
-    ASSERT_THAT(recorder.value_series()[SIZE - 1], Eq(static_cast<double>(0xf0f0)));
+    ASSERT_THAT(recorder.data_series()[SIZE - 1], Eq(static_cast<double>(0xf0f0)));
 }

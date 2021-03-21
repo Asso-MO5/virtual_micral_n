@@ -2,14 +2,20 @@
 #define MICRALN_RECORDERCOLLECTION_H
 
 #include <gui/src/lib/SignalRecorder.h>
+#include <gui/src/lib/ValueRecorder.h>
 #include <memory>
 #include <string>
 
 class RecorderCollection
 {
 public:
-    SignalRecorder& create_and_get(const std::string& signal_name, double time_frame_in_s,
-                                   double projected_event_frequency);
+    SignalRecorder& create_and_get_signal_recorder(const std::string& signal_name,
+                                                   double time_frame_in_s,
+                                                   double projected_event_frequency);
+
+    ValueRecorder& create_and_get_value_recorder(const std::string& signal_name,
+                                                 double time_frame_in_s,
+                                                 double projected_event_frequency);
 
     using container_type = std::unordered_map<std::string, std::shared_ptr<Recorder>>;
 

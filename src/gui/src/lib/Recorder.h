@@ -8,7 +8,7 @@ class Recorder
 public:
     [[nodiscard]] virtual std::size_t size() const = 0;
     [[nodiscard]] virtual const double* time_series() const = 0;
-    [[nodiscard]] virtual const double* state_series() const = 0;
+    [[nodiscard]] virtual const double* data_series() const = 0;
 
     void pause();
     void resume();

@@ -1,6 +1,6 @@
 #include "ValueRecorder.h"
 
-ValueRecorder::ValueRecorder(std::size_t size) : paused{false}
+ValueRecorder::ValueRecorder(std::size_t size)
 {
     assert((size > 2) && "Size must be 2 or greater");
 
@@ -15,7 +15,7 @@ std::size_t ValueRecorder::size() const { return state_values.size(); }
 
 void ValueRecorder::add(uint16_t value, Scheduling::counter_type time)
 {
-    if (paused)
+    if (is_paused())
     {
         return;
     }
@@ -29,7 +29,7 @@ void ValueRecorder::add(uint16_t value, Scheduling::counter_type time)
 
 void ValueRecorder::change_owner(void* owner, Scheduling::counter_type time)
 {
-    if (paused)
+    if (is_paused())
     {
         return;
     }
@@ -43,10 +43,7 @@ void ValueRecorder::change_owner(void* owner, Scheduling::counter_type time)
 }
 
 const double* ValueRecorder::time_series() const { return time_values.data(); }
-const double* ValueRecorder::value_series() const { return state_values.data(); }
+const double* ValueRecorder::data_series() const { return state_values.data(); }
 
 const double* ValueRecorder::owner_time_series() const { return owner_time_values.data(); }
 const std::uint32_t* ValueRecorder::owner_series() const { return owner_values.data(); }
-
-void ValueRecorder::pause() { paused = true; }
-void ValueRecorder::resume() { paused = false; }
