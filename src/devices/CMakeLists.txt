@@ -14,14 +14,11 @@ set(DEVICES_FILES
         src/CPU8008.cpp src/CPU8008.h
         src/DoubleClock.cpp src/DoubleClock.h
         src/AddressStack.cpp src/AddressStack.h
-        src/SimpleROM.cpp src/SimpleROM.h
-        src/ControlBus.cpp src/ControlBus.h
         src/InterruptAtStart.cpp src/InterruptAtStart.h
         src/Instructions8008.cpp src/Instructions8008.h
         src/Constants8008.h
         src/Disassemble8008.cpp src/Disassemble8008.h
         src/MemoryView.h
-        src/SimpleRAM.cpp src/SimpleRAM.h
         src/InterruptController.cpp src/InterruptController.h
         src/IOController.cpp src/IOController.h
         src/ConsoleCard.cpp src/ConsoleCard.h
@@ -36,8 +33,6 @@ set(DEVICES_TEST_FILES
         tests/8008_test.cpp
         tests/double_clock_test.cpp
         tests/address_stack_test.cpp
-        tests/simple_rom_test.cpp
-        tests/simple_ram_test.cpp
         tests/instructions_8008_test.cpp
         tests/disassemble_8008_test.cpp
         tests/interrupt_controller_test.cpp)
