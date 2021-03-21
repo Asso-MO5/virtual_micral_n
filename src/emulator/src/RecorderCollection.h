@@ -1,8 +1,9 @@
 #ifndef MICRALN_RECORDERCOLLECTION_H
 #define MICRALN_RECORDERCOLLECTION_H
 
-#include <gui/src/lib/SignalRecorder.h>
-#include <gui/src/lib/ValueRecorder.h>
+#include "SignalRecorder.h"
+#include "ValueRecorder.h"
+
 #include <memory>
 #include <string>
 

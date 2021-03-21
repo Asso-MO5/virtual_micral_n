@@ -7,8 +7,8 @@
 #include <devices/src/MemoryCard.h>
 #include <devices/src/MemoryView.h>
 #include <emulation_core/src/Scheduler.h>
-#include <gui/src/lib/SignalRecorder.h>
-#include <emulator/src/SmulationRunType.h>
+#include <emulator/src/SignalRecorder.h>
+#include <emulator/src/SimulationRunType.h>
 
 class DataBus;
 class IOController;

@@ -1,14 +1,14 @@
 #include "PanelControl.h"
 
-#include "gui/src/Simulator.h"
 #include "gui/src/widgets/PanelLed.h"
 #include "gui/src/widgets/PanelSwitch.h"
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/IOController.h>
-#include <devices/src/ProcessorCard.h>
 #include <devices/src/InterruptController.h>
+#include <devices/src/ProcessorCard.h>
+#include <emulator/src/Simulator.h>
 #include <imgui.h>
 #include <numeric>
 
@@ -195,7 +195,8 @@ void PanelControl::display_control_line(ConsoleCard& console_card)
     ImGui::EndGroup();
 }
 
-void PanelControl::display_status_line(ConsoleCard& console_card, const CPU8008::OutputPins& output_pins)
+void PanelControl::display_status_line(ConsoleCard& console_card,
+                                       const CPU8008::OutputPins& output_pins)
 {
     static const char* INFORMATION_NAMES[] = {"EXEC", "PAUSE", "ARRET", "OP", "LEC", "E/S", "ECR"};
 

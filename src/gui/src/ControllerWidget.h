@@ -1,7 +1,7 @@
 #ifndef MICRALN_CONTROLLERWIDGET_H
 #define MICRALN_CONTROLLERWIDGET_H
 
-#include <emulator/src/SmulationRunType.h>
+#include <emulator/src/SimulationRunType.h>
 
 class ControllerWidget
 {

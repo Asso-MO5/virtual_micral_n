@@ -1,12 +1,12 @@
 #include "ControllerWidget.h"
 #include "ImGuiSDLGLContext.h"
-#include "Simulator.h"
 #include "gui/src/panels/Panel8008.h"
 #include "gui/src/panels/PanelControl.h"
 #include "gui/src/panels/PanelDisassembly.h"
 #include "gui/src/panels/PanelMemory.h"
 #include "gui/src/panels/PanelPluribus.h"
 
+#include <emulator/src/Simulator.h>
 #include <devices/src/Disassemble8008.h>
 #include <devices/src/ProcessorCard.h>
 #include <gui/src/lib/Averager.h>

@@ -2,6 +2,7 @@
 #define MICRALN_VALUERECORDER_H
 
 #include "SignalRecorder.h"
+
 #include <cstdint>
 
 class ValueRecorder : public Recorder

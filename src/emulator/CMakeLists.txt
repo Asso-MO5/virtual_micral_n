@@ -9,9 +9,16 @@ set(CMAKE_CXX_STANDARD 17)
 # Emulator
 set(EMULATOR_TEST_NAME ${EMULATOR_LIB_NAME}_tests)
 
-set(EMULATOR_FILES src/SmulationRunType.h)
+set(EMULATOR_FILES src/SimulationRunType.h
+        src/Simulator.cpp src/Simulator.h
+        src/SignalRecorder.cpp src/SignalRecorder.h
+        src/ValueRecorder.cpp src/ValueRecorder.h
+        src/Recorder.h src/Recorder.cpp
+        src/RecorderCollection.cpp src/RecorderCollection.h
+        )
 
-set(EMULATOR_TEST_FILES tests/dummy_test.cpp)
+set(EMULATOR_TEST_FILES
+        tests/signal_recorder_test.cpp tests/value_recorder_test.cpp)
 
 add_library(${EMULATOR_LIB_NAME} ${EMULATOR_FILES})
 target_include_directories(${EMULATOR_LIB_NAME} PRIVATE ../)

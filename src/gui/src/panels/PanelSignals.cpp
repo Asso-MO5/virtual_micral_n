@@ -1,7 +1,8 @@
 #include "PanelSignals.h"
 
 #include "gui/src/SignalPlot.h"
-#include "gui/src/Simulator.h"
+
+#include <emulator/src/Simulator.h>
 
 namespace
 {

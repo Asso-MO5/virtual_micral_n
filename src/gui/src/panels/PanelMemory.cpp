@@ -1,12 +1,11 @@
 #include "PanelMemory.h"
 
-#include "gui/src/Simulator.h"
-
 #include <array>
 #include <cstdint>
 #include <devices/src/CPU8008.h>
 #include <devices/src/Disassemble8008.h>
 #include <devices/src/ProcessorCard.h>
+#include <emulator/src/Simulator.h>
 #include <imgui.h>
 
 void display_memory_panel(Simulator& simulator)

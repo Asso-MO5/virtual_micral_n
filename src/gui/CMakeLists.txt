@@ -17,7 +17,6 @@ set(GUI_FILES src/main.cpp
         src/ImGuiSDLGLContext.cpp src/ImGuiSDLGLContext.h
         src/ControllerWidget.cpp src/ControllerWidget.h
         src/SignalPlot.cpp src/SignalPlot.h
-        src/Simulator.cpp src/Simulator.h
         src/panels/Panel8008.cpp src/panels/Panel8008.h
         src/panels/PanelDisassembly.cpp src/panels/PanelDisassembly.h
         src/panels/PanelMemory.cpp src/panels/PanelMemory.h
@@ -25,18 +24,11 @@ set(GUI_FILES src/main.cpp
         src/widgets/PanelSwitch.cpp src/widgets/PanelSwitch.h
         src/widgets/PanelLed.cpp src/widgets/PanelLed.h
         src/panels/PanelPluribus.cpp src/panels/PanelPluribus.h
-        src/RecorderCollection.cpp src/RecorderCollection.h
         src/panels/PanelSignals.cpp src/panels/PanelSignals.h)
 
-set(GUI_FILES_LIB
-        src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h
-        src/lib/Averager.cpp src/lib/Averager.h
-        src/lib/ValueRecorder.cpp src/lib/ValueRecorder.h
-        src/lib/Recorder.h src/lib/Recorder.cpp)
+set(GUI_FILES_LIB src/lib/Averager.cpp src/lib/Averager.h)
 
-set(GUI_TEST_FILES
-        tests/signal_recorder_test.cpp
-        tests/averager_test.cpp tests/value_recorder_test.cpp)
+set(GUI_TEST_FILES tests/averager_test.cpp)
 
 add_library(${GUI_LIB_NAME} ${GUI_FILES_LIB})
 target_include_directories(${GUI_LIB_NAME} PRIVATE ../)

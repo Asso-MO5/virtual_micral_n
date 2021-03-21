@@ -1,7 +1,6 @@
 #include "PanelPluribus.h"
 
-#include "gui/src/Simulator.h"
-
+#include <emulator/src/Simulator.h>
 #include <imgui.h>
 
 const size_t PLURIBUS_SLOT_COUNT = 11;
