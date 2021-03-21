@@ -76,4 +76,8 @@ private:
     [[nodiscard]] AddressingSize get_addressing_size() const;
 };
 
+MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11);
+MemoryCardConfiguration get_ram_2k_configuration(bool s13, bool s12, bool s11);
+
+
 #endif //MICRALN_MEMORYCARD_H

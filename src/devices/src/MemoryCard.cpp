@@ -156,3 +156,41 @@ uint16_t MemoryCard::get_start_address() const
 uint16_t MemoryCard::get_length() const { return data.size(); }
 
 uint8_t MemoryCard::get_data_at(uint16_t address) const { return data.at(address); }
+
+MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11)
+{
+    return {
+            .addressing_size = MemoryCard::AddressingSize::Card2k,
+            .writable_page =
+                    {
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                    },
+            .selection_mask = {s13, s12, s11},
+    };
+}
+
+MemoryCardConfiguration get_ram_2k_configuration(bool s13, bool s12, bool s11)
+{
+    return {
+            .addressing_size = MemoryCard::AddressingSize::Card2k,
+            .writable_page =
+                    {
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                            true,
+                    },
+            .selection_mask = {s13, s12, s11},
+    };
+}

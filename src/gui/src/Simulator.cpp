@@ -8,7 +8,6 @@
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
-#include <emulation_core/src/DataBus.h>
 #include <fstream>
 
 class ReadRomData
@@ -190,21 +189,7 @@ void Simulator::resume_all_recorders()
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {
-    auto configuration = MemoryCardConfiguration{
-            .addressing_size = MemoryCard::AddressingSize::Card2k,
-            .writable_page =
-                    {
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                    },
-            .selection_mask = {s13, s12, s11},
-    };
+    auto configuration = ::get_rom_2k_configuration(s13, s12, s11);
     auto construction_config = MemoryCard::Config{.scheduler = scheduler,
                                                   .pluribus = pluribus,
                                                   .configuration = configuration};
@@ -213,22 +198,7 @@ MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, 
 
 MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, bool s11)
 {
-    auto configuration = MemoryCardConfiguration{
-            .addressing_size = MemoryCard::AddressingSize::Card2k,
-            .writable_page =
-                    {
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                    },
-            .selection_mask = {s13, s12, s11},
-    };
-
+    auto configuration = ::get_ram_2k_configuration(s13, s12, s11);
     auto construction_config = MemoryCard::Config{
             .scheduler = scheduler,
             .pluribus = pluribus,
