@@ -1,6 +1,6 @@
 #include "ValueRecorder.h"
 
-ValueRecorder::ValueRecorder(std::size_t size)
+ValueRecorder::ValueRecorder(std::size_t size, uint8_t bus_width) : data_bus_width{bus_width}
 {
     assert((size > 2) && "Size must be 2 or greater");
 
@@ -46,4 +46,6 @@ const double* ValueRecorder::time_series() const { return time_values.data(); }
 const double* ValueRecorder::data_series() const { return state_values.data(); }
 
 const double* ValueRecorder::owner_time_series() const { return owner_time_values.data(); }
-const std::uint32_t* ValueRecorder::owner_series() const { return owner_values.data(); }
+const std::uint32_t* ValueRecorder::owner_data_series() const { return owner_values.data(); }
+size_t ValueRecorder::owner_size() const { return owner_time_values.size(); }
+uint8_t ValueRecorder::bus_width() const { return 0; }

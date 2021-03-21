@@ -8,7 +8,7 @@ using namespace testing;
 TEST(ValueRecorder, starts_with_a_size)
 {
     const size_t SIZE = 5;
-    auto recorder = ValueRecorder{SIZE};
+    auto recorder = ValueRecorder{SIZE, 8};
 
     ASSERT_THAT(recorder.size(), Eq(SIZE));
 }
@@ -16,7 +16,7 @@ TEST(ValueRecorder, starts_with_a_size)
 TEST(ValueRecorder, gets_timed_values)
 {
     const size_t SIZE = 5;
-    auto recorder = ValueRecorder{SIZE};
+    auto recorder = ValueRecorder{SIZE, 8};
 
     recorder.add(0xffff, Scheduling::counter_type{100});
 
@@ -30,7 +30,7 @@ TEST(ValueRecorder, gets_timed_values)
 TEST(ValueRecorder, can_be_paused)
 {
     const size_t SIZE = 5;
-    auto recorder = ValueRecorder{SIZE};
+    auto recorder = ValueRecorder{SIZE, 8};
 
     recorder.pause();
     recorder.add(0xffff, Scheduling::counter_type{100});
@@ -45,26 +45,26 @@ TEST(ValueRecorder, can_be_paused)
 TEST(ValueRecorder, records_the_owner_change)
 {
     const size_t SIZE = 5;
-    auto recorder = ValueRecorder{SIZE};
+    auto recorder = ValueRecorder{SIZE, 8};
 
     recorder.change_owner(nullptr, Scheduling::counter_type{150});
     recorder.change_owner(reinterpret_cast<void*>(&recorder), Scheduling::counter_type{250});
 
     ASSERT_THAT(recorder.owner_time_series(), NotNull());
-    ASSERT_THAT(recorder.owner_series(), NotNull());
+    ASSERT_THAT(recorder.owner_data_series(), NotNull());
 
     ASSERT_THAT(recorder.owner_time_series()[SIZE - 2], Eq(150.f));
-    ASSERT_THAT(recorder.owner_series()[SIZE - 2], Eq(0));
+    ASSERT_THAT(recorder.owner_data_series()[SIZE - 2], Eq(0));
 
     ASSERT_THAT(recorder.owner_time_series()[SIZE - 1], Eq(250.f));
-    ASSERT_THAT(recorder.owner_series()[SIZE - 1],
+    ASSERT_THAT(recorder.owner_data_series()[SIZE - 1],
                 Eq(static_cast<uint32_t>(0xffffffff & (reinterpret_cast<uint64_t>(&recorder)))));
 }
 
 TEST(ValueRecorder, can_be_resumed)
 {
     const size_t SIZE = 5;
-    auto recorder = ValueRecorder{SIZE};
+    auto recorder = ValueRecorder{SIZE, 8};
 
     recorder.pause();
     recorder.add(0xffff, Scheduling::counter_type{100});

@@ -35,3 +35,8 @@ void SignalRecorder::add(Edge edge)
     state_values[state_values.size() - 1] = (is_rising(edge)) ? 1. : 0.;
     time_values[time_values.size() - 1] = time + 1;
 }
+
+size_t SignalRecorder::owner_size() const { return 0; }
+const double* SignalRecorder::owner_time_series() const { return nullptr; }
+const std::uint32_t* SignalRecorder::owner_data_series() const { return nullptr; }
+uint8_t SignalRecorder::bus_width() const { return 1; }

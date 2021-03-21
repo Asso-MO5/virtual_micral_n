@@ -79,6 +79,7 @@ Simulator::Simulator()
     pluribus->sync.subscribe([this](Edge edge) { io_controller->signal_sync(edge); });
 
     register_signals();
+    register_values();
     pause_all_recorders();
     resume_all_recorders();
 
@@ -101,6 +102,17 @@ Simulator::Simulator()
 void connect_recorder(OwnedSignal& signal, SignalRecorder& recorder)
 {
     signal.subscribe([&recorder](Edge edge) { recorder.add(edge); });
+}
+
+template<typename ValueType>
+void connect_recorder(OwnedValue<ValueType>& value, ValueRecorder& recorder)
+{
+    value.subscribe([&recorder](ValueType old_value, ValueType new_value,
+                                Scheduling::counter_type time) { recorder.add(new_value, time); });
+    value.subscribe_to_owner(
+            [&recorder](void* old_owner, void* new_owner, Scheduling::counter_type time) {
+                recorder.change_owner(new_owner, time);
+            });
 }
 
 void Simulator::register_signals()
@@ -149,6 +161,19 @@ void Simulator::register_signals()
     connect_recorder(pluribus->ready_console, ready_console_recorder);
 }
 
+void Simulator::register_values()
+{
+    const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
+
+    auto& address_bus_recorder = recorders.create_and_get_value_recorder(
+            "S0-S13", window_time_frame_in_s, 200'000 * 4, 14);
+    auto& data_return_bus_recorder = recorders.create_and_get_value_recorder(
+            "MD0-MD7", window_time_frame_in_s, 200'000 * 4, 8);
+
+    connect_recorder(pluribus->address_bus_s0_s13, address_bus_recorder);
+    connect_recorder(pluribus->data_bus_md0_7, data_return_bus_recorder);
+}
+
 void Simulator::pause_all_recorders()
 {
     for (auto& recorder : recorders)
@@ -164,7 +189,6 @@ void Simulator::resume_all_recorders()
         recorder.second->resume();
     }
 }
-
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {

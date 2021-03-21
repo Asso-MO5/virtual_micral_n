@@ -7,7 +7,7 @@
 class ValueRecorder : public Recorder
 {
 public:
-    explicit ValueRecorder(std::size_t size);
+    explicit ValueRecorder(std::size_t size, uint8_t bus_width);
 
     void add(uint16_t value, Scheduling::counter_type time);
     void change_owner(void* owner, Scheduling::counter_type time);
@@ -16,8 +16,11 @@ public:
     [[nodiscard]] const double* time_series() const override;
     [[nodiscard]] const double* data_series() const override;
 
-    [[nodiscard]] const double* owner_time_series() const;
-    [[nodiscard]] const std::uint32_t* owner_series() const;
+    [[nodiscard]] size_t owner_size() const override;
+    [[nodiscard]] const double* owner_time_series() const override;
+    [[nodiscard]] const std::uint32_t* owner_data_series() const override;
+
+    [[nodiscard]] uint8_t bus_width() const override;
 
 private:
     std::vector<double> time_values;
@@ -25,6 +28,8 @@ private:
 
     std::vector<double> owner_time_values;
     std::vector<uint32_t> owner_values;
+
+    uint8_t data_bus_width;
 };
 
 #endif //MICRALN_VALUERECORDER_H

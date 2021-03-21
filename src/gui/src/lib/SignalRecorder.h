@@ -13,11 +13,17 @@ class SignalRecorder : public Recorder
 public:
     explicit SignalRecorder(std::size_t size);
 
+    void add(Edge edge);
+
     [[nodiscard]] std::size_t size() const override;
     [[nodiscard]] const double* time_series() const override;
     [[nodiscard]] const double* data_series() const override;
 
-    void add(Edge edge);
+    [[nodiscard]] size_t owner_size() const override;
+    [[nodiscard]] const double* owner_time_series() const override;
+    [[nodiscard]] const std::uint32_t* owner_data_series() const override;
+
+    uint8_t bus_width() const override;
 
 private:
     std::vector<double> time_values;

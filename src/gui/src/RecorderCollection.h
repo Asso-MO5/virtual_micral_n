@@ -15,7 +15,8 @@ public:
 
     ValueRecorder& create_and_get_value_recorder(const std::string& signal_name,
                                                  double time_frame_in_s,
-                                                 double projected_event_frequency);
+                                                 double projected_event_frequency,
+                                                 int8_t bus_width);
 
     using container_type = std::unordered_map<std::string, std::shared_ptr<Recorder>>;
 
