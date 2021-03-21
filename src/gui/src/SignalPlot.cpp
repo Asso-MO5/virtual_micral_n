@@ -5,6 +5,8 @@
 #endif
 #include <imgui_internal.h>
 
+#include "Plot.h"
+
 namespace ImGui
 {
     void PlotSignal(const PlotSignalConfig& config)
@@ -15,21 +17,13 @@ namespace ImGui
             return;
         }
 
-        const ImGuiStyle& style = GImGui->Style;
-
-        const ImRect frame_bounding_box(window->DC.CursorPos,
-                                        window->DC.CursorPos + config.frame_size);
-        const ImRect inner_bounding_box(frame_bounding_box.Min + style.FramePadding,
-                                        frame_bounding_box.Max - style.FramePadding);
-        const ImRect total_bounding_box = frame_bounding_box;
-        ItemSize(total_bounding_box, style.FramePadding.y);
-        if (!ItemAdd(total_bounding_box, 0, &frame_bounding_box))
+        const auto [displayed, bb_min, bb_max] = render_plot_frame(config.frame_size);
+        if (!displayed)
         {
             return;
         }
 
-        RenderFrame(frame_bounding_box.Min, frame_bounding_box.Max, GetColorU32(ImGuiCol_FrameBg),
-                    true, style.FrameRounding);
+        ImRect inner_bounding_box{bb_min, bb_max};
 
         if (config.values.count > 0)
         {
@@ -108,4 +102,5 @@ namespace ImGui
             }
         }
     }
+
 } // namespace ImGui

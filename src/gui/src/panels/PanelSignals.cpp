@@ -1,6 +1,7 @@
 #include "PanelSignals.h"
 
 #include "gui/src/SignalPlot.h"
+#include "gui/src/ValuePlot.h"
 
 #include <emulator/src/Simulator.h>
 
@@ -28,24 +29,47 @@ void display_signals_panel(Simulator& simulator)
     const auto starting_time_for_frame =
             std::max(0.0, most_recent_time - recorders.get_time_frame_as_counter());
 
-    ImGui::PlotSignalConfig config;
-    config.scale.x_scaled = true;
-    config.scale.x_min = starting_time_for_frame;
-    config.scale.x_max = most_recent_time;
-    config.scale.y_min = 0.f;
-    config.scale.y_max = 1.f;
-    config.frame_size = ImVec2(400, 25);
-    config.line_thickness = 1.f;
+    ImGui::PlotSignalConfig config_for_signal;
+    config_for_signal.scale.x_scaled = true;
+    config_for_signal.scale.x_min = starting_time_for_frame;
+    config_for_signal.scale.x_max = most_recent_time;
+    config_for_signal.scale.y_min = 0.f;
+    config_for_signal.scale.y_max = 1.f;
+    config_for_signal.frame_size = ImVec2(400, 25);
+    config_for_signal.line_thickness = 1.f;
+
+    ImGui::PlotValueConfig config_for_value;
+    config_for_value.scale.x_scaled = true;
+    config_for_value.scale.x_min = starting_time_for_frame;
+    config_for_value.scale.x_max = most_recent_time;
+    config_for_value.scale.y_min = 0.f;
+    config_for_value.scale.y_max = 1.f;
+    config_for_value.frame_size = ImVec2(400, 25);
+    config_for_value.line_thickness = 1.f;
 
     ImGui::Begin("Pluribus Signals");
 
     for (const auto& recorder : recorders)
     {
-        config.values.count = recorder.second->size();
-        config.values.x_series = recorder.second->time_series();
-        config.values.y_series = recorder.second->data_series();
-        ImGui::PlotSignal(config);
+        if (recorder.second->owner_size() == 0)
+        {
+            config_for_signal.values.count = recorder.second->size();
+            config_for_signal.values.x_series = recorder.second->time_series();
+            config_for_signal.values.y_series = recorder.second->data_series();
+            ImGui::PlotSignal(config_for_signal);
+        }
+        else
+        {
+            config_for_value.values.value_count = recorder.second->size();
+            config_for_value.values.x_value_series = recorder.second->time_series();
+            config_for_value.values.y_value_series = recorder.second->data_series();
 
+            config_for_value.values.owner_count = recorder.second->owner_size();
+            config_for_value.values.x_owner_series = recorder.second->owner_time_series();
+            config_for_value.values.y_owner_series = recorder.second->owner_data_series();
+
+            ImGui::PlotValue(config_for_value);
+        }
         ImGui::SameLine();
         ImGui::Text("%s", recorder.first.c_str());
     }
