@@ -73,7 +73,7 @@ void ProcessorCard::connect_to_pluribus()
     pluribus->t3prime.request(this);
     pluribus->cc0.request(this);
     pluribus->cc1.request(this);
-    pluribus->address_bus_s0_s13.request(this);
+    pluribus->address_bus_s0_s13.request(this, 0);
     pluribus->sync.request(this);
 
     pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });

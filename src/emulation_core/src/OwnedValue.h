@@ -23,6 +23,7 @@ class OwnedValue
 public:
     using counter_type = Scheduling::counter_type;
     using callback_type = std::function<void(ValueType, ValueType, counter_type)>;
+    using callback_type_for_owner = std::function<void(uint32_t, uint32_t, counter_type)>;
 
     OwnedValue() = default;
     explicit OwnedValue(ValueType start_value) : current_value{start_value} {}
@@ -31,22 +32,22 @@ public:
     ValueType operator*() const { return current_value; }
     [[nodiscard]] counter_type get_latest_change_time() const { return latest_change_time; }
 
-    void request(void* requested_id)
+    void request(void* requested_id, counter_type time)
     {
         if (owner_id != nullptr && requested_id != owner_id)
         {
             throw owned_value_error{"Cannot request, the value is already owned."};
         }
-        owner_id = requested_id;
+        set_owner_and_broadcast(requested_id, time);
     }
 
-    void release(void* release_id)
+    void release(void* release_id, counter_type time)
     {
         if (owner_id != nullptr && release_id != owner_id)
         {
             throw owned_value_error{"Cannot release when the value is not owned."};
         }
-        owner_id = nullptr;
+        set_owner_and_broadcast(nullptr, time);
     }
 
     void set(ValueType new_value, counter_type time, void* set_id)
@@ -60,12 +61,17 @@ public:
     }
 
     void subscribe(const callback_type& callback) { callbacks.push_back(callback); }
+    void subscribe_to_owner(const callback_type& callback)
+    {
+        callbacks_for_owner_change.push_back(callback);
+    }
 
 private:
     void* owner_id{};
     ValueType current_value{};
     counter_type latest_change_time{Scheduling::unscheduled()};
     std::vector<callback_type> callbacks;
+    std::vector<callback_type_for_owner> callbacks_for_owner_change;
 
     void set_and_broadcast(ValueType new_value, counter_type time)
     {
@@ -79,6 +85,22 @@ private:
             for (auto& callback : callbacks)
             {
                 callback(previous_state, new_value, time);
+            }
+        }
+    }
+
+    void set_owner_and_broadcast(void* new_owner, counter_type time)
+    {
+        const auto previous_owner_id = static_cast<uint32_t>(reinterpret_cast<uint64_t>(owner_id));
+        const auto new_owner_id = static_cast<uint32_t>(reinterpret_cast<uint64_t>(new_owner));
+
+        owner_id = new_owner;
+
+        if (previous_owner_id != new_owner_id)
+        {
+            for (auto& callback : callbacks_for_owner_change)
+            {
+                callback(previous_owner_id, new_owner_id, time);
             }
         }
     }

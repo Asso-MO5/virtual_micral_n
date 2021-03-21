@@ -35,7 +35,7 @@ bool operator<(const CPU8008::NextEventType& a, const CPU8008::NextEventType& b)
 CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
 {
     output_pins.sync.request(this);
-    output_pins.state.request(this);
+    output_pins.state.request(this, 0);
 }
 
 void CPU8008::connect_data_bus(std::shared_ptr<DataBus> bus) { data_pins.connect(std::move(bus)); }

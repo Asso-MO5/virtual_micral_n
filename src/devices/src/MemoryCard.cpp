@@ -46,7 +46,7 @@ void MemoryCard::step()
 {
     auto time = get_next_activation_time();
 
-    pluribus->data_bus_md0_7.request(this);
+    pluribus->data_bus_md0_7.request(this, time);
     pluribus->data_bus_md0_7.set(latched_data, time, this);
     is_emitting_data = true;
 
@@ -77,7 +77,7 @@ void MemoryCard::on_t3(Edge edge)
 {
     if (is_falling(edge) && is_emitting_data)
     {
-        pluribus->data_bus_md0_7.release(this);
+        pluribus->data_bus_md0_7.release(this, 0);
         pluribus->ready.release(this);
     }
 }
