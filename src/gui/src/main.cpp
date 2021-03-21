@@ -6,9 +6,9 @@
 #include "gui/src/panels/PanelMemory.h"
 #include "gui/src/panels/PanelPluribus.h"
 
-#include <emulator/src/Simulator.h>
 #include <devices/src/Disassemble8008.h>
 #include <devices/src/ProcessorCard.h>
+#include <emulator/src/Simulator.h>
 #include <gui/src/lib/Averager.h>
 #include <gui/src/panels/PanelSignals.h>
 #include <imgui.h>
@@ -69,7 +69,7 @@ int main(int, char**)
     bool toggle_display_8008_panel = true;
     bool toggle_disassembly_panel = true;
 
-    Simulator simulator;
+    Simulator simulator{LOOP_LOADS};
     ControllerWidget controller;
     Disassemble8008 disassemble{simulator.get_memory_view()};
     PanelControl panel_control;

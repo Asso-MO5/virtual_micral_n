@@ -30,15 +30,24 @@ private:
     std::vector<std::shared_ptr<MemoryCard>> memory_cards;
 };
 
+enum ConfigROM
+{
+    HARD_CODED,
+    LOOP_LOADS,
+    INPUT_OUTPUT,
+    HELLO_WORLD,
+};
+
 class Simulator
 {
 public:
-    Simulator();
+    explicit Simulator(ConfigROM rom_config);
     void step(float average_frame_time_in_ms, SimulationRunType controller_state);
 
     [[nodiscard]] const Scheduler& get_scheduler() const;
     [[nodiscard]] IOController& get_io_controller();
     [[nodiscard]] const ProcessorCard& get_processor_card() const;
+    [[nodiscard]] const Pluribus& get_pluribus() const;
 
     // TODO: remove once the signals go through the Pluribus
     [[nodiscard]] ProcessorCard& get_processor_card();

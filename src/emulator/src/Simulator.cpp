@@ -1,4 +1,3 @@
-
 #include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
@@ -9,44 +8,54 @@
 #include <devices/src/ProcessorCard.h>
 #include <fstream>
 
-class ReadRomData
+namespace
 {
-public:
-    explicit ReadRomData(const char* file_path)
+    class ReadRomData
     {
-        std::fstream file;
-        file.open(file_path, std::ios::in | std::ios::binary);
-        if (file)
+    public:
+        explicit ReadRomData(const char* file_path)
         {
-            file.seekg(0, std::ios::end);
-            auto file_size = file.tellg();
-            file.seekg(0, std::ios::beg);
+            std::fstream file;
+            file.open(file_path, std::ios::in | std::ios::binary);
+            if (file)
+            {
+                file.seekg(0, std::ios::end);
+                auto file_size = file.tellg();
+                file.seekg(0, std::ios::beg);
 
-            data.resize(file_size);
-            file.read(reinterpret_cast<char*>(&data[0]), file_size);
+                data.resize(file_size);
+                file.read(reinterpret_cast<char*>(&data[0]), file_size);
+            }
+            else
+            {
+                throw std::runtime_error("Cannot open ROM file");
+            }
         }
-        else
+
+        std::vector<uint8_t> data;
+    };
+
+    std::vector<uint8_t> get_rom_data(ConfigROM& rom_config)
+    {
+        switch (rom_config)
         {
-            throw std::runtime_error("Cannot open ROM file");
+            case HARD_CODED:
+                return {0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
+                        0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+            case LOOP_LOADS:
+                return ReadRomData("data/8008-loop-loads.bin").data;
+            case INPUT_OUTPUT:
+                return ReadRomData("data/8008-input-output.bin").data;
+            case HELLO_WORLD:
+                return ReadRomData("data/8008-hello_world.bin").data;
         }
+        return {};
     }
+} // namespace
 
-    std::vector<uint8_t> data;
-};
-
-Simulator::Simulator()
+Simulator::Simulator(ConfigROM rom_config)
 {
-    ReadRomData rom_data_file("data/8008-loop-loads.bin");
-    auto& rom_data = rom_data_file.data;
-
-    //    ReadRomData rom_data_file("data/8008-input-output.bin");
-    //    auto& rom_data = rom_data_file.data;
-
-    //    ReadRomData rom_data_file("data/8008-hello-world.bin");
-    //    auto& rom_data = rom_data_file.data;
-
-    //    std::vector<uint8_t> rom_data{0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
-    //                                  0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    auto rom_data = get_rom_data(rom_config);
 
     // Simulation Setup
     pluribus = std::make_shared<Pluribus>();
@@ -212,8 +221,7 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
     {
         auto& cpu = processor_card->get_cpu();
 
-        if (controller_state == RUNNING ||
-            controller_state == STEP_ONE_FRAME)
+        if (controller_state == RUNNING || controller_state == STEP_ONE_FRAME)
         {
             auto start_point = scheduler.get_counter();
 
@@ -293,6 +301,7 @@ ProcessorCard& Simulator::get_processor_card() { return *processor_card; }
 
 ConsoleCard& Simulator::get_console_card() { return *console_card; }
 const RecorderCollection& Simulator::get_recorders() const { return recorders; }
+const Pluribus& Simulator::get_pluribus() const { return *pluribus; }
 
 void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& memory_card)
 {
