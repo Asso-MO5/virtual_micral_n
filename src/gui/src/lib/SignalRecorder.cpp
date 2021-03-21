@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cassert>
 
-SignalRecorder::SignalRecorder(std::size_t size) : paused{false}
+SignalRecorder::SignalRecorder(std::size_t size)
 {
     assert((size > 2) && "Size must be 2 or greater");
     time_values.resize(size);
@@ -20,7 +20,7 @@ const double* SignalRecorder::state_series() const { return state_values.data();
 
 void SignalRecorder::add(Edge edge)
 {
-    if (paused)
+    if (is_paused())
     {
         return;
     }
@@ -35,7 +35,3 @@ void SignalRecorder::add(Edge edge)
     state_values[state_values.size() - 1] = (is_rising(edge)) ? 1. : 0.;
     time_values[time_values.size() - 1] = time + 1;
 }
-
-void SignalRecorder::pause() { paused = true; }
-
-void SignalRecorder::resume() { paused = false; }

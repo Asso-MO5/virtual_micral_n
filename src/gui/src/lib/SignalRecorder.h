@@ -1,29 +1,27 @@
 #ifndef MICRALN_SIGNALRECORDER_H
 #define MICRALN_SIGNALRECORDER_H
 
-#include <emulation_core/src/Scheduling.h>
-#include <emulation_core/src/Edge.h>
+#include "Recorder.h"
 
 #include <cstdint>
+#include <emulation_core/src/Edge.h>
+#include <emulation_core/src/Scheduling.h>
 #include <vector>
 
-class SignalRecorder
+class SignalRecorder : public Recorder
 {
 public:
     explicit SignalRecorder(std::size_t size);
 
-    [[nodiscard]] std::size_t size() const;
-    [[nodiscard]] const double* time_series() const;
-    [[nodiscard]] const double* state_series() const;
+    [[nodiscard]] std::size_t size() const override;
+    [[nodiscard]] const double* time_series() const override;
+    [[nodiscard]] const double* state_series() const override;
 
     void add(Edge edge);
-    void pause();
-    void resume();
 
 private:
     std::vector<double> time_values;
     std::vector<double> state_values;
-    bool paused;
 };
 
 #endif //MICRALN_SIGNALRECORDER_H

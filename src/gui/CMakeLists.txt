@@ -31,7 +31,8 @@ set(GUI_FILES src/main.cpp
 set(GUI_FILES_LIB
         src/lib/SignalRecorder.cpp src/lib/SignalRecorder.h
         src/lib/Averager.cpp src/lib/Averager.h
-        src/lib/ValueRecorder.cpp src/lib/ValueRecorder.h)
+        src/lib/ValueRecorder.cpp src/lib/ValueRecorder.h
+        src/lib/Recorder.h src/lib/Recorder.cpp)
 
 set(GUI_TEST_FILES
         tests/signal_recorder_test.cpp

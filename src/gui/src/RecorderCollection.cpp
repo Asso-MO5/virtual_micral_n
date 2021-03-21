@@ -10,10 +10,12 @@ SignalRecorder& RecorderCollection::create_and_get(const std::string& signal_nam
             static_cast<size_t>(std::max(3.0, time_frame_in_s * projected_event_frequency));
     general_time_frame_in_s = std::min(general_time_frame_in_s, time_frame_in_s);
 
-    auto insertion_result = recorders.emplace(signal_name, SignalRecorder{number_of_events});
+    auto new_signal_recorder = std::make_shared<SignalRecorder>(number_of_events);
+
+    auto insertion_result = recorders.insert({signal_name, new_signal_recorder});
     assert(insertion_result.second && "Failed to create the recorder");
 
-    return (insertion_result.first)->second;
+    return *new_signal_recorder;
 }
 
 RecorderCollection::container_type::const_iterator RecorderCollection::begin() const
@@ -35,7 +37,6 @@ RecorderCollection::container_type::iterator RecorderCollection::end()
 {
     return std::end(recorders);
 }
-
 
 Scheduling::counter_type RecorderCollection::get_time_frame_as_counter() const
 {

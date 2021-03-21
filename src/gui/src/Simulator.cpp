@@ -144,7 +144,7 @@ void Simulator::pause_all_recorders()
 {
     for (auto& recorder : recorders)
     {
-        recorder.second.pause();
+        recorder.second->pause();
     }
 }
 
@@ -152,7 +152,7 @@ void Simulator::resume_all_recorders()
 {
     for (auto& recorder : recorders)
     {
-        recorder.second.resume();
+        recorder.second->resume();
     }
 }
 

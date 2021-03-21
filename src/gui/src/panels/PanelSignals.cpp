@@ -11,8 +11,8 @@ namespace
 
         for (const auto& recorder : recorders)
         {
-            const size_t last_index = recorder.second.size() - 1;
-            time = std::max(time, recorder.second.time_series()[last_index]);
+            const size_t last_index = recorder.second->size() - 1;
+            time = std::max(time, recorder.second->time_series()[last_index]);
         }
         return time;
     }
@@ -40,9 +40,9 @@ void display_signals_panel(Simulator& simulator)
 
     for (const auto& recorder : recorders)
     {
-        config.values.count = recorder.second.size();
-        config.values.x_series = recorder.second.time_series();
-        config.values.y_series = recorder.second.state_series();
+        config.values.count = recorder.second->size();
+        config.values.x_series = recorder.second->time_series();
+        config.values.y_series = recorder.second->state_series();
         ImGui::PlotSignal(config);
 
         ImGui::SameLine();
