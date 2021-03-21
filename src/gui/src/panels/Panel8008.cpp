@@ -37,7 +37,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
             ImGui::BeginChild("ChildLeft-Internal",
                               ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 160), true);
 
-            auto state = static_cast<uint>(*cpu.get_output_pins().state);
+            auto state = static_cast<uint>(*cpu.output_pins.state);
             ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1,
                         (state >> 0) & 1, state_to_name(state));
 

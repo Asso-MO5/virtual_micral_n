@@ -36,16 +36,16 @@ void ControlBus::signal_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
-        if (*cpu->get_output_pins().sync == State::HIGH &&
-            *cpu->get_output_pins().state == Constants8008::CpuState::T3)
+        if (*cpu->output_pins.sync == State::HIGH &&
+            *cpu->output_pins.state == Constants8008::CpuState::T3)
         {
             stop_t3_transfer(edge);
         }
     }
     else
     {
-        if (*cpu->get_output_pins().sync == State::HIGH &&
-            *cpu->get_output_pins().state == Constants8008::CpuState::T3)
+        if (*cpu->output_pins.sync == State::HIGH &&
+            *cpu->output_pins.state == Constants8008::CpuState::T3)
         {
             start_t3_transfer(edge);
         }
@@ -118,7 +118,7 @@ void ControlBus::start_t3_transfer(const Edge& edge)
 
 void ControlBus::signal_phase_2(const Edge& edge)
 {
-    if (is_falling(edge) && *cpu->get_output_pins().sync == State::HIGH) {}
+    if (is_falling(edge) && *cpu->output_pins.sync == State::HIGH) {}
 }
 
 void ControlBus::signal_sync(const Edge& edge)
@@ -131,8 +131,8 @@ void ControlBus::signal_sync(const Edge& edge)
 
 void ControlBus::read_address_from_cpu()
 {
-    if (*cpu->get_output_pins().state == Constants8008::CpuState::T1 ||
-        *cpu->get_output_pins().state ==
+    if (*cpu->output_pins.state == Constants8008::CpuState::T1 ||
+        *cpu->output_pins.state ==
                 Constants8008::CpuState::T1I) // While waiting for instruction Jam
     {
         // TODO: Should be replaced by a decoder
@@ -140,7 +140,7 @@ void ControlBus::read_address_from_cpu()
         latched_address |= cpu->data_pins.get_value();
     }
 
-    if (*cpu->get_output_pins().state == Constants8008::CpuState::T2)
+    if (*cpu->output_pins.state == Constants8008::CpuState::T2)
     {
         auto read_value = cpu->data_pins.get_value();
         // TODO: Should be replaced by a decoder

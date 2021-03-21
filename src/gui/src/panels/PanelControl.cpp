@@ -90,7 +90,7 @@ void PanelControl::display(Simulator& simulator)
 
     // TODO: ultimately will only read the ConsoleCard
     const auto& cpu = simulator.get_processor_card().get_cpu();
-    const auto& output_pins = cpu.get_output_pins();
+    const auto& output_pins = cpu.output_pins;
     const auto& scheduler = simulator.get_scheduler();
     const auto& io_controller = simulator.get_io_controller();
 

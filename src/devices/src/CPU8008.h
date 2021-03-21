@@ -78,7 +78,6 @@ public:
     [[nodiscard]] DebugData get_debug_data() const;
 
     void step() override;
-    [[nodiscard]] const OutputPins& get_output_pins() const;
 
     void signal_phase_1(Edge edge);
     void signal_phase_2(Edge edge);
@@ -103,9 +102,9 @@ public:
     using NextEventType = std::tuple<Scheduling::counter_type, Event, uint8_t>;
 
     OwnedValue<uint8_t> data_pins{};
+    OutputPins output_pins{};
 
 private:
-    OutputPins output_pins{};
     InputPins input_pins{};
     AddressStack address_stack;
     HiddenRegisters hidden_registers{};

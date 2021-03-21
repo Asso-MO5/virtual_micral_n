@@ -145,8 +145,6 @@ void CPU8008::step()
     }
 }
 
-const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
-
 void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
 {
     next_events.push(std::make_tuple(edge_time + 20, SYNC, 1));

@@ -169,7 +169,7 @@ void ProcessorCard::cpu_sync_changed(Edge edge)
 {
     if (edge == Edge{Edge::Front::FALLING})
     {
-        auto cpu_state = *cpu->get_output_pins().state;
+        auto cpu_state = *cpu->output_pins.state;
         if (cpu_state == Constants8008::CpuState::T1)
         {
             latched_address &= 0xff00;

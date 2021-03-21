@@ -15,8 +15,8 @@ void IOController::signal_phase_1(const Edge& edge)
     {
         auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
         if (cycle_control == Constants8008::CycleControl::PCC &&
-            *cpu.get_output_pins().sync == State::HIGH &&
-            *cpu.get_output_pins().state == Constants8008::CpuState::T3)
+            *cpu.output_pins.sync == State::HIGH &&
+            *cpu.output_pins.state == Constants8008::CpuState::T3)
         {
             if (will_emit)
             {
@@ -35,8 +35,8 @@ void IOController::signal_phase_2(const Edge& edge)
         auto cycle_control = static_cast<Constants8008::CycleControl>(latched_cycle_control);
 
         if (cycle_control == Constants8008::CycleControl::PCC &&
-            *cpu.get_output_pins().sync == State::HIGH &&
-            *cpu.get_output_pins().state == Constants8008::CpuState::T3)
+            *cpu.output_pins.sync == State::HIGH &&
+            *cpu.output_pins.state == Constants8008::CpuState::T3)
         {
             if (will_emit)
             {
@@ -57,13 +57,13 @@ void IOController::signal_sync(const Edge& edge)
 
 void IOController::read_io_information_from_cpu()
 {
-    if (*cpu.get_output_pins().state == Constants8008::CpuState::T1 ||
-        *cpu.get_output_pins().state ==
+    if (*cpu.output_pins.state == Constants8008::CpuState::T1 ||
+        *cpu.output_pins.state ==
                 Constants8008::CpuState::T1I) // While waiting for instruction Jam
     {
         latched_io_reg_A = cpu.data_pins.get_value();
     }
-    if (*cpu.get_output_pins().state == Constants8008::CpuState::T2)
+    if (*cpu.output_pins.state == Constants8008::CpuState::T2)
     {
         auto read_value = cpu.data_pins.get_value();
 
