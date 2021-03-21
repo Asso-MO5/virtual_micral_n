@@ -1,15 +1,13 @@
 #include "IOController.h"
 
 #include <devices/src/CPU8008.h>
-#include <emulation_core/src/DataBus.h>
+#include <devices/src/Pluribus.h>
 
 #include <utility>
 
-IOController::IOController(const CPU8008& cpu, std::shared_ptr<DataBus> bus)
-    : cpu{cpu}, bus{std::move(bus)}
-{
-    latched_io_data.connect(this->bus);
-}
+IOController::IOController(const CPU8008& cpu, std::shared_ptr<Pluribus> pluribus)
+    : cpu{cpu}, pluribus{std::move(pluribus)}
+{}
 
 void IOController::signal_phase_1(const Edge& edge)
 {
@@ -22,8 +20,9 @@ void IOController::signal_phase_1(const Edge& edge)
         {
             if (will_emit)
             {
-                latched_io_data.take_bus();
-                latched_io_data.write(data_to_send); // Fake Data at the moment
+                auto time = edge.time();
+                pluribus->data_bus_md0_7.request(this, time);
+                pluribus->data_bus_md0_7.set(data_to_send, time, this);
             }
         }
     }
@@ -41,7 +40,7 @@ void IOController::signal_phase_2(const Edge& edge)
         {
             if (will_emit)
             {
-                latched_io_data.release_bus();
+                pluribus->data_bus_md0_7.release(this, edge.time());
                 will_emit = false;
             }
         }
@@ -62,11 +61,11 @@ void IOController::read_io_information_from_cpu()
         *cpu.get_output_pins().state ==
                 Constants8008::CpuState::T1I) // While waiting for instruction Jam
     {
-        latched_io_reg_A = cpu.get_data_pins().read();
+        latched_io_reg_A = cpu.data_pins.get_value();
     }
     if (*cpu.get_output_pins().state == Constants8008::CpuState::T2)
     {
-        auto read_value = cpu.get_data_pins().read();
+        auto read_value = cpu.data_pins.get_value();
 
         latched_io_reg_b = read_value;
         latched_cycle_control = read_value & 0b11000000;

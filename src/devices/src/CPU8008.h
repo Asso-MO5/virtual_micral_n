@@ -73,17 +73,12 @@ public:
         Constants8008::CycleControl cycle_control;
     };
 
-    ConnectedData data;
-
     explicit CPU8008(SignalReceiver& scheduler);
-
-    void connect_data_bus(std::shared_ptr<DataBus> bus);
 
     [[nodiscard]] DebugData get_debug_data() const;
 
     void step() override;
     [[nodiscard]] const OutputPins& get_output_pins() const;
-    [[nodiscard]] const ConnectedData& get_data_pins() const;
 
     void signal_phase_1(Edge edge);
     void signal_phase_2(Edge edge);
@@ -107,9 +102,10 @@ public:
 
     using NextEventType = std::tuple<Scheduling::counter_type, Event, uint8_t>;
 
+    OwnedValue<uint8_t> data_pins{};
+
 private:
     OutputPins output_pins{};
-    ConnectedData data_pins{};
     InputPins input_pins{};
     AddressStack address_stack;
     HiddenRegisters hidden_registers{};

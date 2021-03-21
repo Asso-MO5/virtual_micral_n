@@ -52,7 +52,6 @@ Simulator::Simulator()
 
     // Simulation Setup
     pluribus = std::make_shared<Pluribus>();
-    auto& data_bus_d0_7 = pluribus->data_bus_d0_7;
 
     ProcessorCard::Config processor_card_config{
             .scheduler = scheduler,
@@ -61,7 +60,6 @@ Simulator::Simulator()
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
     processor_card->install_debug_info();
-    processor_card->connect_data_bus(data_bus_d0_7);
 
     MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
     memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
@@ -70,7 +68,7 @@ Simulator::Simulator()
     MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
-    io_controller = std::make_shared<IOController>(processor_card->get_cpu(), data_bus_d0_7);
+    io_controller = std::make_shared<IOController>(processor_card->get_cpu(), pluribus);
     console_card = std::make_shared<ConsoleCard>(pluribus);
 
     auto& clock = processor_card->get_clock();
@@ -319,7 +317,6 @@ void Simulator::step(float average_frame_time_in_ms, ControllerWidget::State con
 
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 
-const DataBus& Simulator::get_data_bus() const { return *pluribus->data_bus_d0_7; }
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
 IOController& Simulator::get_io_controller() { return *io_controller; }
 const ProcessorCard& Simulator::get_processor_card() const { return *processor_card; }

@@ -1,17 +1,16 @@
 #ifndef MICRALN_IOCONTROLLER_H
 #define MICRALN_IOCONTROLLER_H
 
-#include <emulation_core/src/ConnectedData.h>
 #include <memory>
 
 class CPU8008;
 class Edge;
-class DataBus;
+class Pluribus;
 
 class IOController
 {
 public:
-    IOController(const CPU8008& cpu, std::shared_ptr<DataBus> bus);
+    IOController(const CPU8008& cpu, std::shared_ptr<Pluribus> pluribus);
 
     void signal_phase_1(const Edge& edge);
     void signal_phase_2(const Edge& edge);
@@ -23,15 +22,14 @@ public:
 
 private:
     const CPU8008& cpu;
-    std::shared_ptr<DataBus> bus;
-    ConnectedData latched_io_data;
+    std::shared_ptr<Pluribus> pluribus;
     uint8_t latched_io_reg_A{};
     uint8_t latched_io_reg_b{};
     uint8_t latched_cycle_control{};
     bool will_emit{};
 
-    uint8_t data_to_send; // Debug
-    uint8_t received_data; // Debug
+    uint8_t data_to_send{}; // Debug
+    uint8_t received_data{}; // Debug
 
     void read_io_information_from_cpu();
     void process_io();

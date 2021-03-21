@@ -89,7 +89,7 @@ void ConsoleCard::on_sync(Edge edge)
                                        Constants8008::CycleControl::PCR))
         {
             // TODO: Check when the read timing is done.
-            status.data = pluribus->data_bus_d0_7->read();
+            status.data = pluribus->data_bus_d0_7.get_value();
         }
     }
 }

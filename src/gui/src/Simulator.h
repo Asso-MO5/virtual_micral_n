@@ -37,7 +37,6 @@ public:
     void step(float average_frame_time_in_ms, ControllerWidget::State controller_state);
 
     [[nodiscard]] const Scheduler& get_scheduler() const;
-    [[nodiscard]] const DataBus& get_data_bus() const;
     [[nodiscard]] IOController& get_io_controller();
     [[nodiscard]] const ProcessorCard& get_processor_card() const;
 

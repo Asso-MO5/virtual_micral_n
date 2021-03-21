@@ -137,12 +137,12 @@ void ControlBus::read_address_from_cpu()
     {
         // TODO: Should be replaced by a decoder
         latched_address &= 0xff00;
-        latched_address |= cpu->get_data_pins().read();
+        latched_address |= cpu->data_pins.get_value();
     }
 
     if (*cpu->get_output_pins().state == Constants8008::CpuState::T2)
     {
-        auto read_value = cpu->get_data_pins().read();
+        auto read_value = cpu->data_pins.get_value();
         // TODO: Should be replaced by a decoder
         latched_address &= 0x00ff;
         latched_address |= (read_value & 0x3f) << 8;

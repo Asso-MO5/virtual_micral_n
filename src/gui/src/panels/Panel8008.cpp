@@ -30,7 +30,8 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     {
         auto cpu_debug_data = cpu.get_debug_data();
 
-        ImGui::Text("Data Bus: %02x ", simulator.get_data_bus().read());
+        ImGui::Text("Data Pins: %02x ",
+                    simulator.get_processor_card().get_cpu().data_pins.get_value()); // Ouch...
 
         {
             ImGui::BeginChild("ChildLeft-Internal",

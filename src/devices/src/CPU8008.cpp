@@ -38,8 +38,6 @@ CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
     output_pins.state.request(this, 0);
 }
 
-void CPU8008::connect_data_bus(std::shared_ptr<DataBus> bus) { data_pins.connect(std::move(bus)); }
-
 void CPU8008::step()
 {
     assert((input_pins.vdd == ::State::HIGH) && "CPU without power should not be scheduled");
@@ -123,12 +121,12 @@ void CPU8008::step()
                     data_to_send |= static_cast<uint8_t>(cycle_control);
                 }
 
-                data_pins.take_bus();
-                data_pins.write(data_to_send);
+                data_pins.request(this, time);
+                data_pins.set(data_to_send, time, this);
             }
             else
             {
-                data_pins.release_bus();
+                data_pins.release(this, time);
             }
             break;
         case DATA_IN:
@@ -148,7 +146,6 @@ void CPU8008::step()
 }
 
 const CPU8008::OutputPins& CPU8008::get_output_pins() const { return output_pins; }
-const ConnectedData& CPU8008::get_data_pins() const { return data_pins; }
 
 void CPU8008::on_signal_11_raising(Scheduling::counter_type edge_time)
 {
@@ -552,7 +549,7 @@ void CPU8008::execute_t3()
     if (cycle_control == CycleControl::PCI)
     {
         hidden_registers.a = 0x00; // only on RST? (but is it important?)
-        hidden_registers.b = data_pins.read();
+        hidden_registers.b = data_pins.get_value();
 
         assert(memory_cycle == 0);
         instruction_register = hidden_registers.b;
@@ -574,10 +571,10 @@ void CPU8008::execute_t3()
         switch (action & CycleActionsFor8008::ACTION_MASK)
         {
             case CycleActionsFor8008::Fetch_Data_to_Reg_b:
-                hidden_registers.b = data_pins.read();
+                hidden_registers.b = data_pins.get_value();
                 break;
             case CycleActionsFor8008::Fetch_Data_to_Reg_a:
-                hidden_registers.a = data_pins.read();
+                hidden_registers.a = data_pins.get_value();
                 break;
             case CycleActionsFor8008::Out_Reg_b:
                 assert(cycle_control == CycleControl::PCW);

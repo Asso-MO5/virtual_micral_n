@@ -35,7 +35,6 @@ public:
     [[nodiscard]] const CPU8008& get_cpu() const;
     [[nodiscard]] InterruptController& get_interrupt_controller();
 
-    void connect_data_bus(std::shared_ptr<DataBus> bus);
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
 
     DoubleClock& get_clock();
@@ -56,7 +55,6 @@ private:
     std::shared_ptr<InterruptAtStart> interrupt_at_start;
 
     OwnedSignal combined_ready;
-    ConnectedData data_pins{};
 
     uint16_t latched_address{};
     Constants8008::CycleControl latched_cycle_control{};

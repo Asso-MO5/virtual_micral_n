@@ -89,7 +89,7 @@ void MemoryCard::on_t3prime(Edge edge)
         auto [address, cycle_control] = read_address_bus();
         if (cycle_control == Constants8008::CycleControl::PCW && is_addressed(address))
         {
-            auto data_on_bus = pluribus->data_bus_d0_7->read();
+            auto data_on_bus = pluribus->data_bus_d0_7.get_value();
             auto local_address = address - get_start_address();
             auto page_number = local_address / 512;
             if (configuration.writable_page.at(page_number))

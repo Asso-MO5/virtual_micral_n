@@ -5,13 +5,9 @@
 #include <emulation_core/src/OwnedValue.h>
 #include <memory>
 
-class DataBus;
-
 class Pluribus
 {
 public:
-    Pluribus();
-
     OwnedSignal vdd;
     OwnedSignal phase_2;
     OwnedSignal sync;
@@ -26,7 +22,7 @@ public:
     OwnedSignal ready_console;
     OwnedSignal ready;
 
-    std::shared_ptr<DataBus> data_bus_d0_7{};
+    OwnedValue<uint8_t> data_bus_d0_7{};
     OwnedValue<uint8_t> data_bus_md0_7{};
     OwnedValue<uint16_t> address_bus_s0_s13{};
 };

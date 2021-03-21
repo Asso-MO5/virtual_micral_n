@@ -37,7 +37,6 @@ int main(int argc, char** argv)
     auto cpu = std::make_shared<CPU8008>(scheduler);
 
     auto data_bus = std::make_shared<DataBus>();
-    cpu->connect_data_bus(data_bus);
     rom->connect_data_bus(data_bus);
 
     LOG_F(INFO, "Creates the Clock");

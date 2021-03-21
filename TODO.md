@@ -1,3 +1,4 @@
+* Turn OutputPins from the 8008 in public, they are owned
 * Show more signals on the Debug Panel (those on the pluribus).
     * Add a view for OwnedValues as signals.
 * Add a kind of signal to show states (data bus, Cpu States...)

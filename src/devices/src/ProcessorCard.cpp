@@ -16,7 +16,6 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     clock = std::make_shared<DoubleClock>(500'000_hz);
 
     cpu = std::make_shared<CPU8008>(scheduler);
-    cpu->connect_data_bus(pluribus->data_bus_d0_7);
 
     interrupt_controller = std::make_shared<InterruptController>();
     interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
@@ -75,6 +74,7 @@ void ProcessorCard::connect_to_pluribus()
     pluribus->cc1.request(this);
     pluribus->address_bus_s0_s13.request(this, 0);
     pluribus->sync.request(this);
+    pluribus->data_bus_d0_7.request(this, 0);
 
     pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });
     pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
@@ -91,6 +91,11 @@ void ProcessorCard::connect_to_pluribus()
             pluribus->ready.release(this);
         }
     });
+
+    cpu->data_pins.subscribe(
+            [this](uint8_t old_value, uint8_t new_value, Scheduling::counter_type time) {
+                pluribus->data_bus_d0_7.set(new_value, time, this);
+            });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
@@ -168,11 +173,11 @@ void ProcessorCard::cpu_sync_changed(Edge edge)
         if (cpu_state == Constants8008::CpuState::T1)
         {
             latched_address &= 0xff00;
-            latched_address |= cpu->get_data_pins().read();
+            latched_address |= cpu->data_pins.get_value();
         }
         else if (cpu_state == Constants8008::CpuState::T2)
         {
-            auto read_value = cpu->get_data_pins().read();
+            auto read_value = cpu->data_pins.get_value();
 
             latched_address &= 0x00ff;
             latched_address |= (read_value & 0x3f) << 8;
@@ -211,13 +216,6 @@ void ProcessorCard::step()
     set_next_activation_time(Scheduling::unscheduled());
 }
 
-void ProcessorCard::connect_data_bus(std::shared_ptr<DataBus> bus)
-{
-    // TODO: The Processor Card will own the DataBus shared with the 8008.
-    // Maybe change the principe of the DataBus to prefer the OwnedData...
-    data_pins.connect(std::move(bus));
-}
-
 void ProcessorCard::on_phase_2(Edge edge)
 {
     if (is_falling(edge) && is_high(*pluribus->t3))
@@ -227,9 +225,12 @@ void ProcessorCard::on_phase_2(Edge edge)
             latched_cycle_control == Constants8008::CycleControl::PCC)
         {
             auto read_data = *pluribus->data_bus_md0_7;
-            data_pins.take_bus();
-            data_pins.write(read_data);
-            data_pins.release_bus();
+            auto time =edge.time();
+
+            // TODO: find better timings
+            cpu->data_pins.request(this, time);
+            cpu->data_pins.set(read_data, time, this);
+            cpu->data_pins.release(this, time);
         }
     }
 }
@@ -243,7 +244,8 @@ void ProcessorCard::install_debug_info()
 {
     debug_info.clock_pulse = 0;
     clock->phase_1.subscribe([this](Edge edge) {
-        if (is_rising(edge)) {
+        if (is_rising(edge))
+        {
             debug_info.clock_pulse += 1;
         }
     });
