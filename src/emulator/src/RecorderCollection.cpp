@@ -1,8 +1,8 @@
 #include "RecorderCollection.h"
 
 SignalRecorder& RecorderCollection::create_and_get_signal_recorder(const std::string& signal_name,
-                                                   double time_frame_in_s,
-                                                   double projected_event_frequency)
+                                                                   double time_frame_in_s,
+                                                                   double projected_event_frequency)
 {
     assert((recorders.find(signal_name) == std::end(recorders)) && "Signal already created");
 
@@ -35,9 +35,7 @@ ValueRecorder& RecorderCollection::create_and_get_value_recorder(const std::stri
     assert(insertion_result.second && "Failed to create the recorder");
 
     return *new_value_recorder;
-
 }
-
 
 RecorderCollection::container_type::const_iterator RecorderCollection::begin() const
 {
@@ -62,4 +60,9 @@ RecorderCollection::container_type::iterator RecorderCollection::end()
 Scheduling::counter_type RecorderCollection::get_time_frame_as_counter() const
 {
     return general_time_frame_in_s * 1'000'000'000;
+}
+
+const Recorder& RecorderCollection::get_by_name(const std::string& name) const
+{
+    return *recorders.find(name)->second;
 }

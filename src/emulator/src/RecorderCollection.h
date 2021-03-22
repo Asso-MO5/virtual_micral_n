@@ -26,6 +26,8 @@ public:
     container_type::iterator begin();
     container_type::iterator end();
 
+    const Recorder& get_by_name(const std::string& name) const;
+
     Scheduling::counter_type get_time_frame_as_counter() const;
 
 private:
