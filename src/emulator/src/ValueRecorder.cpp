@@ -48,4 +48,4 @@ const double* ValueRecorder::data_series() const { return state_values.data(); }
 const double* ValueRecorder::owner_time_series() const { return owner_time_values.data(); }
 const std::uint32_t* ValueRecorder::owner_data_series() const { return owner_values.data(); }
 size_t ValueRecorder::owner_size() const { return owner_time_values.size(); }
-uint8_t ValueRecorder::bus_width() const { return 0; }
+uint8_t ValueRecorder::bus_width() const { return data_bus_width; }
