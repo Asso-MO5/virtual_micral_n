@@ -49,30 +49,37 @@ void display_signals_panel(Simulator& simulator)
 
     ImGui::Begin("Pluribus Signals");
 
-    for (const auto& recorder : recorders)
+    static std::string signal_order[] = {
+            "Phase 1", "Phase 2", "T2",      "T3",    "T'3",     "Sync", "CC0",  "CC1",
+            "S0-S13",  "D0-D7",   "MD0-MD7", "READY", "READY C", "WAIT", "STOP",
+    };
+
+    for (const auto& signal_name : signal_order)
     {
-        if (recorder.second->owner_size() == 0)
+        auto& recorder = recorders.get_by_name(signal_name);
+
+        if (recorder.owner_size() == 0)
         {
-            config_for_signal.values.count = recorder.second->size();
-            config_for_signal.values.x_series = recorder.second->time_series();
-            config_for_signal.values.y_series = recorder.second->data_series();
+            config_for_signal.values.count = recorder.size();
+            config_for_signal.values.x_series = recorder.time_series();
+            config_for_signal.values.y_series = recorder.data_series();
             ImGui::PlotSignal(config_for_signal);
         }
         else
         {
-            config_for_value.data_values.count = recorder.second->size();
-            config_for_value.data_values.x_series = recorder.second->time_series();
-            config_for_value.data_values.y_series = recorder.second->data_series();
+            config_for_value.data_values.count = recorder.size();
+            config_for_value.data_values.x_series = recorder.time_series();
+            config_for_value.data_values.y_series = recorder.data_series();
 
-            config_for_value.owner_values.count = recorder.second->owner_size();
-            config_for_value.owner_values.x_series = recorder.second->owner_time_series();
-            config_for_value.owner_values.y_series = recorder.second->owner_data_series();
-            config_for_value.bus_width = recorder.second->bus_width();
+            config_for_value.owner_values.count = recorder.owner_size();
+            config_for_value.owner_values.x_series = recorder.owner_time_series();
+            config_for_value.owner_values.y_series = recorder.owner_data_series();
+            config_for_value.bus_width = recorder.bus_width();
 
             ImGui::PlotValue(config_for_value);
         }
         ImGui::SameLine();
-        ImGui::Text("%s", recorder.first.c_str());
+        ImGui::Text("%s", signal_name.c_str());
     }
 
     ImGui::End();
