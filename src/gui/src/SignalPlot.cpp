@@ -32,22 +32,15 @@ namespace ImGui
             const auto [x_min, x_max, inverse_scale_x, inverse_scale_y] =
                     get_x_min_max_scales(config.values, config.scale);
 
-            auto first_valid_index = config.values.offset;
-            double first_x_value = config.values.x_series[first_valid_index];
-            double first_y_value = config.values.y_series[first_valid_index];
-
-            while ((first_x_value < x_min) && (first_valid_index < config.values.count - 1))
-            {
-                first_valid_index += 1;
-                first_x_value = config.values.x_series[first_valid_index];
-                first_y_value = config.values.y_series[first_valid_index];
-            }
+            auto [first_valid_index, first_x_value, first_y_value] =
+                    get_first_values(config.values, x_min);
 
             ImVec2 first_normalized_point = ImVec2(
                     ImSaturate(static_cast<float>((first_x_value - x_min) * inverse_scale_x)),
                     1.0f - ImSaturate(static_cast<float>((first_y_value - config.scale.y_min) *
                                                          inverse_scale_y)));
 
+            // Plot the line before the first point if needed
             if (first_x_value > x_min)
             {
                 ImVec2 first_position = ImLerp(inner_bounding_box.Min, inner_bounding_box.Max,
@@ -59,6 +52,7 @@ namespace ImGui
                                           config.line_thickness);
             }
 
+            // Plot the values
             ImVec2 second_position;
 
             const int end_index = config.values.offset + config.values.count;
@@ -81,6 +75,7 @@ namespace ImGui
                 first_normalized_point = second_normalized_point;
             }
 
+            // Extends the last value if needed
             if (config.values.x_series[end_index - 1] != x_max)
             {
                 ImVec2 last_position = second_position;

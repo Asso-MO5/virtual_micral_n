@@ -25,6 +25,23 @@ namespace ImGui
         return {x_min, x_max, inverse_scale_x, inverse_scale_y};
     }
 
+    template<typename ValueType>
+    std::tuple<int, double, ValueType> get_first_values(const PlotValues<ValueType>& values,
+                                                        double x_min)
+    {
+        auto first_valid_index = values.offset;
+        auto first_x_value = values.x_series[first_valid_index];
+        auto first_y_value = values.y_series[first_valid_index];
+        while ((first_x_value < x_min) && (first_valid_index < values.count - 1))
+        {
+            first_valid_index += 1;
+            first_x_value = values.x_series[first_valid_index];
+            first_y_value = values.y_series[first_valid_index];
+        }
+
+        return {first_valid_index, first_x_value, first_y_value};
+    }
+
 } // namespace ImGui
 
 #endif //MICRALN_PLOT_H
