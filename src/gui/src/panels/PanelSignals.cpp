@@ -67,6 +67,7 @@ void display_signals_panel(Simulator& simulator)
             config_for_value.owner_values.count = recorder.second->owner_size();
             config_for_value.owner_values.x_series = recorder.second->owner_time_series();
             config_for_value.owner_values.y_series = recorder.second->owner_data_series();
+            config_for_value.bus_width = recorder.second->bus_width();
 
             ImGui::PlotValue(config_for_value);
         }

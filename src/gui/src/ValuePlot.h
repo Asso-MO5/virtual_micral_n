@@ -16,6 +16,7 @@ namespace ImGui
 
         ImVec2 frame_size = ImVec2(0.f, 0.f);
         float line_thickness = 1.f;
+        uint8_t bus_width;
     };
 
     IMGUI_API void PlotValue(const PlotValueConfig& config);
