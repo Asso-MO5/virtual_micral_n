@@ -1,6 +1,8 @@
 #ifndef MICRALN_SIGNALPLOT_H
 #define MICRALN_SIGNALPLOT_H
 
+#include "PlotStructures.h"
+
 #include <cstdint>
 #include <imgui.h>
 
@@ -15,21 +17,8 @@ namespace ImGui
 {
     struct PlotSignalConfig
     {
-        struct Values
-        {
-            const double* x_series = nullptr;
-            const double* y_series = nullptr;
-            int count{};
-            int offset = 0;
-        } values;
-        struct Scale
-        {
-            double x_min{};
-            double x_max{};
-            double y_min{};
-            double y_max{};
-            bool x_scaled = false;
-        } scale;
+        PlotValues<double> values;
+        PlotScale scale;
         ImVec2 frame_size = ImVec2(0.f, 0.f);
         float line_thickness = 1.f;
     };

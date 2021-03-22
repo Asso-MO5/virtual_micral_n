@@ -22,6 +22,14 @@ namespace ImGui
         {
             return;
         }
+
+        ImRect inner_bounding_box{bb_min, bb_max};
+
+        if (config.data_values.count > 0)
+        {
+
+        }
+
     }
 
 } // namespace ImGui

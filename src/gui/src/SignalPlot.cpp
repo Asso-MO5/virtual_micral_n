@@ -29,20 +29,8 @@ namespace ImGui
         {
             const ImU32 line_color = GetColorU32(ImGuiCol_PlotLines);
 
-            const double x_min = config.scale.x_scaled
-                                         ? config.scale.x_min
-                                         : config.values.x_series[config.values.offset];
-            const double x_max =
-                    config.scale.x_scaled
-                            ? config.scale.x_max
-                            : config.values
-                                      .x_series[config.values.offset + config.values.count - 1];
-
-            const double inverse_scale_x = (x_max == x_min) ? 0.0 : (1.0 / (x_max - x_min));
-            const double inverse_scale_y =
-                    (config.scale.y_min == config.scale.y_max)
-                            ? 0.0
-                            : (1.0 / (config.scale.y_max - config.scale.y_min));
+            const auto [x_min, x_max, inverse_scale_x, inverse_scale_y] =
+                    get_x_min_max_scales(config.values, config.scale);
 
             auto first_valid_index = config.values.offset;
             double first_x_value = config.values.x_series[first_valid_index];

@@ -60,13 +60,13 @@ void display_signals_panel(Simulator& simulator)
         }
         else
         {
-            config_for_value.values.value_count = recorder.second->size();
-            config_for_value.values.x_value_series = recorder.second->time_series();
-            config_for_value.values.y_value_series = recorder.second->data_series();
+            config_for_value.data_values.count = recorder.second->size();
+            config_for_value.data_values.x_series = recorder.second->time_series();
+            config_for_value.data_values.y_series = recorder.second->data_series();
 
-            config_for_value.values.owner_count = recorder.second->owner_size();
-            config_for_value.values.x_owner_series = recorder.second->owner_time_series();
-            config_for_value.values.y_owner_series = recorder.second->owner_data_series();
+            config_for_value.owner_values.count = recorder.second->owner_size();
+            config_for_value.owner_values.x_series = recorder.second->owner_time_series();
+            config_for_value.owner_values.y_series = recorder.second->owner_data_series();
 
             ImGui::PlotValue(config_for_value);
         }
