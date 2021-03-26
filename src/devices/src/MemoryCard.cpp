@@ -46,7 +46,6 @@ void MemoryCard::step()
 {
     auto time = get_next_activation_time();
 
-    pluribus->data_bus_md0_7.request(this, time);
     pluribus->data_bus_md0_7.set(latched_data, time, this);
     is_emitting_data = true;
 
@@ -68,6 +67,7 @@ void MemoryCard::on_t2(Edge edge)
         {
             // This is the end of T2, schedule the data emission
             latch_read_data(address);
+            pluribus->data_bus_md0_7.request(this, edge.time());
             set_next_activation_time(edge.time() + MEMORY_READ_DELAY);
             scheduler.change_schedule(get_id());
         }
@@ -77,7 +77,7 @@ void MemoryCard::on_t3(Edge edge)
 {
     if (is_falling(edge) && is_emitting_data)
     {
-        pluribus->data_bus_md0_7.release(this, 0);
+        pluribus->data_bus_md0_7.release(this, edge.time());
         pluribus->ready.release(this);
     }
 }
