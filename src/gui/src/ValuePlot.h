@@ -11,7 +11,7 @@ namespace ImGui
     struct PlotValueConfig
     {
         PlotValues<double> data_values;
-        PlotValues<void> owner_values;
+        PlotValues<uint32_t> owner_values;
         PlotScale scale;
 
         ImVec2 frame_size = ImVec2(0.f, 0.f);

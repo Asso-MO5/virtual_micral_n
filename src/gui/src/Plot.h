@@ -12,7 +12,7 @@ namespace ImGui
 
     template<typename ValueType>
     std::tuple<double, double, double, double>
-    get_x_min_max_scales(const PlotValues<ValueType> values, const PlotScale& scale)
+    get_x_min_max_scales(const PlotValues<ValueType>& values, const PlotScale& scale)
     {
         const double x_min = scale.x_scaled ? scale.x_min : values.x_series[values.offset];
         const double x_max =

@@ -1,5 +1,4 @@
-* Show more signals on the Debug Panel (those on the pluribus).
-    * Add a view for OwnedValues as signals.
+* Allow OwnedSignal plot not to show (or compute) the Ownership
 * Add a kind of signal to show states (data bus, Cpu States...)
 * Add a Time Scale to the Simulator, to better see the signals.
 * Populate the Pluribus with OwnedSignal
