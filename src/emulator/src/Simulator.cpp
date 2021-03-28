@@ -243,6 +243,10 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
                 scheduler.step();
             }
         }
+        else if (controller_state == RUNNING_SLOW)
+        {
+            scheduler.step();
+        }
         else if (controller_state == STEP_ONE_STATE)
         {
             auto initial_state = *cpu.output_pins.state;

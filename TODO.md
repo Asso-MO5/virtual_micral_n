@@ -1,17 +1,13 @@
-* Add a kind of signal to show states (data bus, Cpu States...)
-* Add a Time Scale to the Simulator, to better see the signals.
 * Populate the Pluribus with OwnedSignal
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
         * AUTO: Ok
-        * STEP: Is broken. Try to find the good signal/timings.
+        * STEP: Ok (but Check the data displayed on Panel)
         * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
         * TRAP
-        * SUBST (Needs new Memory Cards)
+        * SUBST
         * AV? (Need to understand better)
-    * Possibility to set Debug Read Information on the Processor Board
-    * Except on the Processor Bus, other components should not address it directly, but through the Pluribus (except for
-      Debug Feedback)
+* Implement the Stack card
 * Implement the I/O cards
 * Control Panel + Simulator fixes to work with the Console Panel
     * The debug at Simulator level doesn't work when Stepping on the Emulated system

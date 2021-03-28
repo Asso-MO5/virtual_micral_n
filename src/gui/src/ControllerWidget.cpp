@@ -15,7 +15,7 @@ void ControllerWidget::update()
         ImGui::Text("Paused");
     }
 
-    if (state != RUNNING && state != PAUSED)
+    if (state != RUNNING && state != RUNNING_SLOW && state != PAUSED)
     {
         state = PAUSED;
     }
@@ -23,6 +23,10 @@ void ControllerWidget::update()
     if (ImGui::Button("Run"))
     {
         state = RUNNING;
+    }
+    if (ImGui::Button("Run Slow"))
+    {
+        state = RUNNING_SLOW;
     }
     if (ImGui::Button("Pause"))
     {
