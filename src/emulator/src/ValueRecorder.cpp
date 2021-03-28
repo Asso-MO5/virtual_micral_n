@@ -1,14 +1,18 @@
 #include "ValueRecorder.h"
 
-ValueRecorder::ValueRecorder(std::size_t size, uint8_t bus_width) : data_bus_width{bus_width}
+ValueRecorder::ValueRecorder(std::size_t size, uint8_t bus_width, OwnerTracking track_owners)
+    : data_bus_width{bus_width}
 {
     assert((size > 2) && "Size must be 2 or greater");
 
     time_values.resize(size);
     state_values.resize(size);
 
-    owner_time_values.resize(size);
-    owner_values.resize(size);
+    if (track_owners == TRACK_OWNERS)
+    {
+        owner_time_values.resize(size);
+        owner_values.resize(size);
+    }
 }
 
 std::size_t ValueRecorder::size() const { return state_values.size(); }
@@ -29,7 +33,7 @@ void ValueRecorder::add(uint16_t value, Scheduling::counter_type time)
 
 void ValueRecorder::change_owner(void* owner, Scheduling::counter_type time)
 {
-    if (is_paused())
+    if (is_paused() || owner_values.empty())
     {
         return;
     }

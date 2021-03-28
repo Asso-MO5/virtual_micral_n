@@ -58,7 +58,7 @@ void display_signals_panel(Simulator& simulator)
     {
         auto& recorder = recorders.get_by_name(signal_name);
 
-        if (recorder.owner_size() == 0)
+        if (recorder.bus_width() == 1)
         {
             config_for_signal.values.count = recorder.size();
             config_for_signal.values.x_series = recorder.time_series();

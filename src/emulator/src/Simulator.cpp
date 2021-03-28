@@ -114,6 +114,7 @@ void connect_recorder(OwnedValue<ValueType>& value, ValueRecorder& recorder)
 {
     value.subscribe([&recorder](ValueType old_value, ValueType new_value,
                                 Scheduling::counter_type time) { recorder.add(new_value, time); });
+
     value.subscribe_to_owner(
             [&recorder](void* old_owner, void* new_owner, Scheduling::counter_type time) {
                 recorder.change_owner(new_owner, time);
@@ -171,11 +172,11 @@ void Simulator::register_values()
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
 
     auto& address_bus_recorder = recorders.create_and_get_value_recorder(
-            "S0-S13", window_time_frame_in_s, 200'000 * 4, 14);
+            "S0-S13", window_time_frame_in_s, 200'000 * 4, 14, ValueRecorder::DO_NOT_TRACK_OWNERS);
     auto& data_send_bus_recorder = recorders.create_and_get_value_recorder(
-            "D0-D7", window_time_frame_in_s, 200'000 * 4, 8);
+            "D0-D7", window_time_frame_in_s, 200'000 * 4, 8, ValueRecorder::DO_NOT_TRACK_OWNERS);
     auto& data_return_bus_recorder = recorders.create_and_get_value_recorder(
-            "MD0-MD7", window_time_frame_in_s, 200'000 * 4, 8);
+            "MD0-MD7", window_time_frame_in_s, 200'000 * 4, 8, ValueRecorder::TRACK_OWNERS);
 
     connect_recorder(pluribus->address_bus_s0_s13, address_bus_recorder);
     connect_recorder(pluribus->data_bus_d0_7, data_send_bus_recorder);
