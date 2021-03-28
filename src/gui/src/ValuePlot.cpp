@@ -69,7 +69,12 @@ namespace ImGui
                 auto* text_start = value.c_str();
                 auto* text_end = text_start + value.size();
 
-                RenderText(value_position, text_start, text_end, false);
+                auto size = CalcTextSize(text_start, text_end, false, 0.f);
+
+                if (value_position.x + size.x < inner_bounding_box.Max.x)
+                {
+                    RenderText(value_position, text_start, text_end, false);
+                }
 
                 const ImVec2 line_up = ImVec2{normalized_position.x, 0.0};
                 const ImVec2 line_down = ImVec2{normalized_position.x, 0.99};
