@@ -9,14 +9,11 @@
         * AV? (Need to understand better)
 * Implement the Stack card
 * Implement the I/O cards
-* Control Panel + Simulator fixes to work with the Console Panel
-    * The debug at Simulator level doesn't work when Stepping on the Emulated system
 * Make a Debuggers for GUI information (but can be use in CLI also)
   * Debugger that references memory, to display memory cards information
   * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
 * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
-* Make the clock widget only appear on pause?
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.

@@ -225,7 +225,7 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
     {
         auto& cpu = processor_card->get_cpu();
 
-        if (controller_state == RUNNING || controller_state == STEP_ONE_FRAME)
+        if (controller_state == RUNNING)
         {
             auto start_point = scheduler.get_counter();
 
@@ -251,24 +251,12 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
         {
             auto initial_state = *cpu.output_pins.state;
 
-            int timeout = 0;
-            if (initial_state == Constants8008::CpuState::STOPPED)
-            {
-                timeout = 50;
-            }
+            int timeout = 50;
 
-            while (*cpu.output_pins.state == initial_state)
+            while (*cpu.output_pins.state == initial_state && timeout > 0)
             {
                 scheduler.step();
-
-                if (timeout > 0)
-                {
-                    timeout -= 1;
-                    if (timeout == 0)
-                    {
-                        break;
-                    }
-                }
+                timeout -= 1;
             }
         }
         else if (controller_state == STEP_ONE_CLOCK)
@@ -285,16 +273,23 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
         }
         else if (controller_state == STEP_ONE_INSTRUCTION)
         {
+            int timeout = 500;
+
             while (cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI &&
-                   (*cpu.output_pins.state == Constants8008::CpuState::T1))
+                   (*cpu.output_pins.state == Constants8008::CpuState::T1) && timeout > 0)
             {
                 scheduler.step();
+                timeout -= 1;
             }
 
+            timeout = 500;
+
             while (!((cpu.get_debug_data().cycle_control == Constants8008::CycleControl::PCI) &&
-                     (*cpu.output_pins.state == Constants8008::CpuState::T1)))
+                     (*cpu.output_pins.state == Constants8008::CpuState::T1)) &&
+                   timeout > 0)
             {
                 scheduler.step();
+                timeout -= 1;
             }
         }
     }
