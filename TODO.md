@@ -1,14 +1,14 @@
-* Populate the Pluribus with OwnedSignal
-    * Communicate first with the Console Card
-        * Implement the State machine of the different modes.
-        * AUTO: Ok
-        * STEP: Ok (but Check the data displayed on Panel for Write and I/O on Cycle Step)
-          * Broken on 1 byte instructions?
-          * Or at least the debug display is not correct.
-        * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
-        * TRAP
-        * SUBST
-        * AV? (Need to understand better)
+* Panel and Console Card implementation
+    * Implement the State machine of the different modes.
+    * AUTO: Ok
+    * STEP: Ok (but Check the data displayed on Panel for Write and I/O on Cycle Step)
+      * Broken on 1 byte instructions?
+      * Or at least the debug display is not correct.
+    * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
+    * TRAP
+    * SUBST
+    * AV? (Need to understand better)
+* The Ready C signal is "jumping" on display after its first change. Probably wrongly initialized.
 * Implement the Stack card
 * Implement the I/O cards
 * Make a Debuggers for GUI information (but can be use in CLI also)
