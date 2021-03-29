@@ -140,8 +140,17 @@ void PanelControl::display_data_line(ConsoleCard& console_card)
 
     const auto& status = console_card.get_status();
 
-    assert(status.is_op_cycle || status.is_read_cycle); // TODO: Other cycle display
-    uint16_t display_value = status.is_op_cycle ? status.instruction : status.data;
+    assert(status.is_op_cycle || status.is_read_cycle ||
+           status.is_write_cycle); // TODO: Other cycle display
+    uint16_t display_value = 0;
+    if (status.is_op_cycle)
+    {
+        display_value = status.instruction;
+    }
+    else if (status.is_read_cycle || status.is_write_cycle)
+    {
+        display_value = status.data;
+    }
     std::array<int, 16> all_bits{value_to_display_bits(display_value, input_data.size())};
     display_led_and_switches(all_bits, input_data);
     ImGui::EndGroup();
