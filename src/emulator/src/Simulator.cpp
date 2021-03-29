@@ -47,7 +47,7 @@ namespace
             case INPUT_OUTPUT:
                 return ReadRomData("data/8008-input-output.bin").data;
             case HELLO_WORLD:
-                return ReadRomData("data/8008-hello_world.bin").data;
+                return ReadRomData("data/8008-hello-world.bin").data;
         }
         return {};
     }
