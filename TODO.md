@@ -2,7 +2,7 @@
     * Communicate first with the Console Card
         * Implement the State machine of the different modes.
         * AUTO: Ok
-        * STEP: Ok (but Check the data displayed on Panel)
+        * STEP: Ok (but Check the data displayed on Panel for Write and I/O on Cycle Step)
         * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
         * TRAP
         * SUBST

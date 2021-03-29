@@ -38,6 +38,7 @@ public:
         bool is_io_cycle;
         bool is_write_cycle;
 
+        uint8_t instruction;
         uint8_t data;
         uint16_t address;
     };

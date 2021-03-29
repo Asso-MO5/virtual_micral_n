@@ -85,11 +85,18 @@ void ConsoleCard::on_sync(Edge edge)
 {
     if (is_falling(edge))
     {
-        if (is_high(*pluribus->t3) && (cycle_control_from_cc(*pluribus->cc0, *pluribus->cc1) ==
-                                       Constants8008::CycleControl::PCR))
+        if (is_high(*pluribus->t3))
         {
-            // TODO: Check when the read timing is done.
-            status.data = pluribus->data_bus_d0_7.get_value();
+            if (cycle_control_from_cc(*pluribus->cc0, *pluribus->cc1) ==
+                Constants8008::CycleControl::PCI)
+            {
+                status.instruction = pluribus->data_bus_d0_7.get_value();
+            }
+            else if (cycle_control_from_cc(*pluribus->cc0, *pluribus->cc1) ==
+                     Constants8008::CycleControl::PCR)
+            {
+                status.data = pluribus->data_bus_d0_7.get_value();
+            }
         }
     }
 }
