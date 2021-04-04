@@ -2,8 +2,7 @@
     * Implement the State machine of the different modes.
     * AUTO: Ok
     * STEP: Ok (but Check the data displayed on Panel for Write and I/O on Cycle Step)
-      * Broken on 1 byte instructions?
-      * Or at least the debug display is not correct.
+      * On PCR and Step Cycle, the DATA is not displayed correctly
     * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
     * TRAP
     * SUBST

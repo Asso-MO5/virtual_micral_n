@@ -62,6 +62,7 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     Status status;
 
+    void on_phase_2(Edge edge);
     void on_t3(Edge edge);
     void on_sync(Edge edge);
 };

@@ -12,6 +12,7 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus)
     set_next_activation_time(Scheduling::unscheduled());
     pluribus->ready_console.request(this);
 
+    pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3(edge); });
     pluribus->sync.subscribe([this](Edge edge) { on_sync(edge); });
 
@@ -46,35 +47,6 @@ void ConsoleCard::on_t3(Edge edge)
 {
     if (is_rising(edge))
     {
-        if (status.stepping)
-        {
-            auto cc0 = *pluribus->cc0;
-            auto cc1 = *pluribus->cc1;
-            Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
-
-            status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
-            status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
-            status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
-            status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
-
-            auto time = edge.time();
-            switch (status.step_mode)
-            {
-                case Instruction:
-                    if (status.is_op_cycle)
-                    {
-                        pluribus->ready_console.set(State::LOW, time, this);
-                    }
-                    else
-                    {
-                        pluribus->ready_console.set(State::HIGH, time, this);
-                    }
-                    break;
-                case Cycle:
-                    pluribus->ready_console.set(State::LOW, time, this);
-                    break;
-            }
-        }
         status.address = *pluribus->address_bus_s0_s13;
     }
 }
@@ -96,6 +68,46 @@ void ConsoleCard::on_sync(Edge edge)
                      Constants8008::CycleControl::PCR)
             {
                 status.data = pluribus->data_bus_d0_7.get_value();
+            }
+        }
+    }
+}
+
+void ConsoleCard::on_phase_2(Edge edge)
+{
+    if (is_falling(edge))
+    {
+
+        if (is_high(*pluribus->t2))
+        {
+            if (status.stepping)
+            {
+                auto cc0 = *pluribus->cc0;
+                auto cc1 = *pluribus->cc1;
+                Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
+
+                status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
+                status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
+                status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
+                status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
+
+                auto time = edge.time();
+                switch (status.step_mode)
+                {
+                    case Instruction:
+                        if (status.is_op_cycle)
+                        {
+                            pluribus->ready_console.set(State::LOW, time, this);
+                        }
+                        else
+                        {
+                            pluribus->ready_console.set(State::HIGH, time, this);
+                        }
+                        break;
+                    case Cycle:
+                        pluribus->ready_console.set(State::LOW, time, this);
+                        break;
+                }
             }
         }
     }
