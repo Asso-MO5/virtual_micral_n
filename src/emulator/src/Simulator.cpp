@@ -48,6 +48,11 @@ namespace
                 return ReadRomData("data/8008-input-output.bin").data;
             case HELLO_WORLD:
                 return ReadRomData("data/8008-hello-world.bin").data;
+            case MICRAL_38_3F:
+                return ReadRomData("data/MIC_38_3F.BIN").data;
+            case MICRAL_MIC_1:
+                return ReadRomData("data/MIC_1_EPROM_CARTE_MEM_4K.BIN").data;
+
         }
         return {};
     }
@@ -68,6 +73,7 @@ Simulator::Simulator(ConfigROM rom_config)
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
     processor_card->install_debug_info();
 
+    // MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(true, true, true);
     MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
     memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
     memory_card_1->load_data(rom_data);

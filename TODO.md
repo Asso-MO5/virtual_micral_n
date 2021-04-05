@@ -18,6 +18,7 @@
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.
+* Extract 8008 instruction decoding so it can also serve in a disassembler or other tools
 * Possible optimization
     * Scheduler: Change the sort everything into a forward only sort. Or a dumb selection... Or something else
         * Globally, the back signaling on every timing change is not efficient nor practical not pretty.

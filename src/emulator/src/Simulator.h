@@ -36,6 +36,8 @@ enum ConfigROM
     LOOP_LOADS,
     INPUT_OUTPUT,
     HELLO_WORLD,
+    MICRAL_38_3F,
+    MICRAL_MIC_1,
 };
 
 class Simulator
