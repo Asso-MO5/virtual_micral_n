@@ -1,19 +1,20 @@
 * Panel and Console Card implementation
     * Implement the State machine of the different modes.
     * AUTO: Ok
-    * STEP: Ok (but Check the data displayed on Panel for Write and I/O on Cycle Step)
-    * On VDD up for the ConsoleCard, check the mode to select between AUTO and STEP
+    * STEP: Ok
+    * AUTO/STEP on Startup mode: Ok
     * TRAP
     * SUBST
     * AV? (Need to understand better)
 * The Ready C signal is "jumping" on display after its first change. Probably wrongly initialized.
+* Implement the Interrupt System on the Processor Board
+  * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Implement the Stack card
 * Implement the I/O cards
 * Make a Debuggers for GUI information (but can be use in CLI also)
   * Debugger that references memory, to display memory cards information
   * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
-* Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Create a Standalone bundle exporter
 * Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.

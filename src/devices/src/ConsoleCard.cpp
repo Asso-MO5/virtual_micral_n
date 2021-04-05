@@ -6,8 +6,9 @@
 
 #include <utility>
 
-ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus)
-    : pluribus{std::move(given_pluribus)}
+ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus,
+                         ConsoleCard::StartMode start_mode)
+    : pluribus{std::move(given_pluribus)}, start_mode{start_mode}
 {
     set_next_activation_time(Scheduling::unscheduled());
     pluribus->ready_console.request(this);
@@ -15,8 +16,7 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus)
     pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3(edge); });
     pluribus->sync.subscribe([this](Edge edge) { on_sync(edge); });
-
-    press_automatic();
+    pluribus->vdd.subscribe([this](Edge edge) { on_vdd(edge); });
 }
 
 ConsoleCard::Status ConsoleCard::get_status() const { return status; }
@@ -42,6 +42,21 @@ void ConsoleCard::press_stepping()
 }
 
 void ConsoleCard::press_trap() {}
+
+void ConsoleCard::on_vdd(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        if (start_mode == Automatic)
+        {
+            press_automatic();
+        }
+        else
+        {
+            press_stepping();
+        }
+    }
+}
 
 void ConsoleCard::on_t3(Edge edge) {}
 

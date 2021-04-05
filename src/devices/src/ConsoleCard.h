@@ -10,7 +10,13 @@ class Pluribus;
 class ConsoleCard : public SchedulableImpl
 {
 public:
-    explicit ConsoleCard(std::shared_ptr<Pluribus> pluribus);
+    enum StartMode
+    {
+        Automatic,
+        Manual,
+    };
+
+    explicit ConsoleCard(std::shared_ptr<Pluribus> pluribus, StartMode start_mode);
     ~ConsoleCard() override = default;
 
     void step() override;
@@ -38,15 +44,8 @@ public:
         bool is_io_cycle;
         bool is_write_cycle;
 
-        //uint8_t instruction;
         uint8_t data;
         uint16_t address;
-    };
-
-    enum StartMode
-    {
-        Automatic,
-        Manual,
     };
 
     [[nodiscard]] Status get_status() const;
@@ -59,9 +58,11 @@ public:
     void press_cycle();
 
 private:
+    StartMode start_mode;
     std::shared_ptr<Pluribus> pluribus;
     Status status;
 
+    void on_vdd(Edge edge);
     void on_phase_2(Edge edge);
     void on_t3(Edge edge);
     void on_sync(Edge edge);
