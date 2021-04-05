@@ -43,41 +43,16 @@ void ConsoleCard::press_stepping()
 
 void ConsoleCard::press_trap() {}
 
-void ConsoleCard::on_t3(Edge edge)
-{
-    if (is_rising(edge))
-    {
-        status.address = *pluribus->address_bus_s0_s13;
-    }
-}
+void ConsoleCard::on_t3(Edge edge) {}
 
 void ConsoleCard::press_instruction() { status.step_mode = Instruction; }
 void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
-void ConsoleCard::on_sync(Edge edge)
-{
-    if (is_falling(edge))
-    {
-        if (is_high(*pluribus->t3))
-        {
-            if (cycle_control_from_cc(*pluribus->cc0, *pluribus->cc1) ==
-                Constants8008::CycleControl::PCI)
-            {
-                status.instruction = pluribus->data_bus_d0_7.get_value();
-            }
-            else if (cycle_control_from_cc(*pluribus->cc0, *pluribus->cc1) ==
-                     Constants8008::CycleControl::PCR)
-            {
-                status.data = pluribus->data_bus_d0_7.get_value();
-            }
-        }
-    }
-}
+void ConsoleCard::on_sync(Edge edge) {}
 
 void ConsoleCard::on_phase_2(Edge edge)
 {
     if (is_falling(edge))
     {
-
         if (is_high(*pluribus->t2))
         {
             if (status.stepping)
@@ -109,6 +84,12 @@ void ConsoleCard::on_phase_2(Edge edge)
                         break;
                 }
             }
+        }
+
+        if (is_high(*pluribus->t3prime))
+        {
+            status.data = pluribus->data_bus_md0_7.get_value();
+            status.address = *pluribus->address_bus_s0_s13;
         }
     }
 }
