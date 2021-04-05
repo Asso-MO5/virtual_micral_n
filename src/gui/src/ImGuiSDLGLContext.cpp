@@ -19,8 +19,9 @@ ImGui_SDL_GL_Context::ImGui_SDL_GL_Context(ImGui_SDL_GL_Context::Config config)
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    auto window_flags = static_cast<SDL_WindowFlags>(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
-                                                     SDL_WINDOW_ALLOW_HIGHDPI);
+    auto window_flags =
+            static_cast<SDL_WindowFlags>(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
+                                         SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MAXIMIZED);
     window = SDL_CreateWindow("Micral N Emulation", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               config.width, config.height, window_flags);
     gl_context = SDL_GL_CreateContext(window);
