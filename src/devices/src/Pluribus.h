@@ -19,6 +19,26 @@ public:
     OwnedSignal wait;
     OwnedSignal stop;
 
+    OwnedSignal mrst;
+    OwnedSignal bi1;
+    OwnedSignal bi2;
+    OwnedSignal bi3;
+    OwnedSignal bi4;
+    OwnedSignal bi5;
+    OwnedSignal bi6;
+    OwnedSignal bi7;
+
+    OwnedSignal rzgi;
+    OwnedSignal aint1;
+    OwnedSignal aint2;
+    OwnedSignal aint3;
+    OwnedSignal aint4;
+    OwnedSignal aint5;
+    OwnedSignal aint6;
+    OwnedSignal aint7;
+
+    OwnedSignal init;
+
     OwnedSignal ready_console;
     OwnedSignal ready;
 
