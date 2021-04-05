@@ -128,6 +128,7 @@ void PanelControl::display_address_line(ConsoleCard& console_card)
     ImGui::EndGroup();
 
     auto numeric_data = bits_to_value(input_address);
+    console_card.set_switch_address(numeric_data);
 
     ImGui::Text("LED    Value: $%04X o%05o %5u", display_value, display_value, display_value);
     ImGui::Text("Switch Value: $%04X o%05o %5u", numeric_data, numeric_data, numeric_data);
@@ -147,6 +148,7 @@ void PanelControl::display_data_line(ConsoleCard& console_card)
     ImGui::EndGroup();
 
     auto numeric_data = bits_to_value(input_data);
+    console_card.set_switch_data(static_cast<uint8_t>(numeric_data & 0xff));
 
     ImGui::Text("LED    Value: $%02X o%03o %3u", display_value, display_value, display_value);
     ImGui::Text("Switch Value: $%02X o%03o %3u", numeric_data, numeric_data, numeric_data);
@@ -163,17 +165,14 @@ void PanelControl::display_control_line(ConsoleCard& console_card)
             status.stepping,
             status.step_mode == ConsoleCard::Instruction,
             status.step_mode == ConsoleCard::Cycle,
-            false,
+            status.trap,
             false,
     };
 
     const std::function<void(ConsoleCard*)> button_actions[] = {
-            &ConsoleCard::press_automatic,
-            &ConsoleCard::press_stepping,
-            &ConsoleCard::press_instruction,
-            &ConsoleCard::press_cycle,
-            nullptr,
-            nullptr,
+            &ConsoleCard::press_automatic,   &ConsoleCard::press_stepping,
+            &ConsoleCard::press_instruction, &ConsoleCard::press_cycle,
+            &ConsoleCard::press_trap,        nullptr,
     };
 
     assert(IM_ARRAYSIZE(CONTROL_NAMES) == IM_ARRAYSIZE(control_values));
@@ -205,9 +204,11 @@ void PanelControl::display_status_line(ConsoleCard& console_card,
     const auto& status = console_card.get_status();
 
     // TODO: change output_pins for ConsoleCard information
-    const bool info_values[] = {false,
-                                *output_pins.state == Constants8008::CpuState::WAIT,
-                                *output_pins.state == Constants8008::CpuState::STOPPED,
+    bool is_paused = *output_pins.state == Constants8008::CpuState::WAIT;
+    bool is_stopped = *output_pins.state == Constants8008::CpuState::STOPPED;
+    const bool info_values[] = {!(is_paused || is_stopped),
+                                is_paused,
+                                is_stopped,
                                 status.is_op_cycle,
                                 status.is_read_cycle,
                                 status.is_io_cycle,

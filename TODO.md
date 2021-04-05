@@ -3,7 +3,7 @@
     * AUTO: Ok
     * STEP: Ok
     * AUTO/STEP on Startup mode: Ok
-    * TRAP
+    * TRAP: Ok
     * SUBST
     * AV? (Need to understand better)
 * The Ready C signal is "jumping" on display after its first change. Probably wrongly initialized.

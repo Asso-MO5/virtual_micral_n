@@ -32,16 +32,21 @@ void ConsoleCard::press_automatic()
     pluribus->ready_console.set(State::HIGH, time, this);
 }
 
-void ConsoleCard::press_stepping()
+void ConsoleCard::set_step_mode()
 {
     status.automatic = false;
     status.stepping = true;
+}
+
+void ConsoleCard::press_stepping()
+{
+    set_step_mode();
 
     auto time = pluribus->phase_2.get_latest_change_time();
     pluribus->ready_console.set(State::HIGH, time, this);
 }
 
-void ConsoleCard::press_trap() {}
+void ConsoleCard::press_trap() { status.trap = !status.trap; }
 
 void ConsoleCard::on_vdd(Edge edge)
 {
@@ -62,12 +67,22 @@ void ConsoleCard::on_t3(Edge edge) {}
 
 void ConsoleCard::press_instruction() { status.step_mode = Instruction; }
 void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
-void ConsoleCard::on_sync(Edge edge) {}
+void ConsoleCard::on_sync(Edge edge)
+{
+    if (is_falling(edge) && is_high(*pluribus->t2))
+    {
+        if (status.trap && !status.stepping)
+        {
+            pluribus->ready_console.set(State::LOW, edge.time(), this);
+        }
+    }
+}
 
 void ConsoleCard::on_phase_2(Edge edge)
 {
     if (is_falling(edge))
     {
+        auto time = edge.time();
         if (is_high(*pluribus->t2))
         {
             if (status.stepping)
@@ -81,7 +96,6 @@ void ConsoleCard::on_phase_2(Edge edge)
                 status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
                 status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
 
-                auto time = edge.time();
                 switch (status.step_mode)
                 {
                     case Instruction:
@@ -105,6 +119,24 @@ void ConsoleCard::on_phase_2(Edge edge)
         {
             status.data = pluribus->data_bus_md0_7.get_value();
             status.address = *pluribus->address_bus_s0_s13;
+
+            if (status.trap && status.is_op_cycle)
+            {
+                if (status.address == switch_address)
+                {
+                    set_step_mode();
+                }
+                else
+                {
+                    if (!status.stepping)
+                    {
+                        pluribus->ready_console.set(State::HIGH, time, this);
+                    }
+                }
+            }
         }
     }
 }
+
+void ConsoleCard::set_switch_data(uint8_t data) { switch_data = data; }
+void ConsoleCard::set_switch_address(uint16_t address) { switch_address = address; }

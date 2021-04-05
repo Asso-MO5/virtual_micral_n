@@ -57,15 +57,23 @@ public:
     void press_instruction();
     void press_cycle();
 
+    void set_switch_data(uint8_t i);
+
+    void set_switch_address(uint16_t i);
+
 private:
     StartMode start_mode;
     std::shared_ptr<Pluribus> pluribus;
     Status status;
+    uint16_t switch_address{};
+    uint8_t switch_data{};
 
     void on_vdd(Edge edge);
     void on_phase_2(Edge edge);
     void on_t3(Edge edge);
     void on_sync(Edge edge);
+
+    void set_step_mode();
 };
 
 #endif //MICRALN_CONSOLECARD_H
