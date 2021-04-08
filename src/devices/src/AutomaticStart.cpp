@@ -1,10 +1,10 @@
-#include "InterruptAtStart.h"
+#include "AutomaticStart.h"
 
 #include <devices/src/CPU8008.h>
 
-InterruptAtStart::InterruptAtStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move(cpu)) {}
+AutomaticStart::AutomaticStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move(cpu)) {}
 
-void InterruptAtStart::signal_phase_1(const Edge& edge)
+void AutomaticStart::signal_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
@@ -13,17 +13,14 @@ void InterruptAtStart::signal_phase_1(const Edge& edge)
         {
             cpu->signal_interrupt({Edge::Front::RISING, edge.time()});
         }
-        if (counter == 21)
+        if (counter == 22)
         {
             cpu->signal_interrupt(Edge{Edge::Front::FALLING, edge.time()});
         }
     }
 }
 
-void InterruptAtStart::signal_vdd(const Edge& edge)
+void AutomaticStart::signal_vdd(const Edge& edge)
 {
-    if (is_rising(edge))
-    {
-        counter = 0;
-    }
+    counter = 0;
 }

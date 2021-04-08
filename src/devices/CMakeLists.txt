@@ -14,7 +14,7 @@ set(DEVICES_FILES
         src/CPU8008.cpp src/CPU8008.h
         src/DoubleClock.cpp src/DoubleClock.h
         src/AddressStack.cpp src/AddressStack.h
-        src/InterruptAtStart.cpp src/InterruptAtStart.h
+        src/AutomaticStart.cpp src/AutomaticStart.h
         src/Instructions8008.cpp src/Instructions8008.h
         src/Constants8008.h
         src/Disassemble8008.cpp src/Disassemble8008.h

@@ -1,8 +1,8 @@
 #include "ProcessorCard.h"
 
+#include <devices/src/AutomaticStart.h>
 #include <devices/src/CPU8008.h>
 #include <devices/src/DoubleClock.h>
-#include <devices/src/InterruptAtStart.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/Pluribus.h>
 #include <emulation_core/src/DataBus.h>
@@ -18,7 +18,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     cpu = std::make_shared<CPU8008>(scheduler);
 
     interrupt_controller = std::make_shared<InterruptController>();
-    interrupt_at_start = std::make_shared<InterruptAtStart>(cpu);
+    interrupt_at_start = std::make_shared<AutomaticStart>(cpu);
 
     connect_to_pluribus();
     connect_to_cpu();
@@ -225,7 +225,7 @@ void ProcessorCard::on_phase_2(Edge edge)
             latched_cycle_control == Constants8008::CycleControl::PCC)
         {
             auto read_data = *pluribus->data_bus_md0_7;
-            auto time =edge.time();
+            auto time = edge.time();
 
             // TODO: find better timings
             cpu->data_pins.request(this, time);

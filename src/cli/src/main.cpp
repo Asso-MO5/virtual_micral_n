@@ -1,5 +1,5 @@
+#include <devices/src/AutomaticStart.h>
 #include <devices/src/CPU8008.h>
-#include <devices/src/InterruptAtStart.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>

@@ -12,7 +12,7 @@
 class Pluribus;
 class CPU8008;
 class InterruptController;
-class InterruptAtStart;
+class AutomaticStart;
 class DoubleClock;
 class DataBus;
 
@@ -52,7 +52,7 @@ private:
     std::shared_ptr<DoubleClock> clock{};
     std::shared_ptr<CPU8008> cpu{};
     std::shared_ptr<InterruptController> interrupt_controller;
-    std::shared_ptr<InterruptAtStart> interrupt_at_start;
+    std::shared_ptr<AutomaticStart> interrupt_at_start;
 
     OwnedSignal combined_ready;
 

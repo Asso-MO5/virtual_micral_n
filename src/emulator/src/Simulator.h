@@ -15,7 +15,7 @@ class IOController;
 class ConsoleCard;
 class ProcessorCard;
 class Pluribus;
-class InterruptAtStart;
+class AutomaticStart;
 class MemoryCard;
 
 class SimulatorMemoryView : public MemoryView

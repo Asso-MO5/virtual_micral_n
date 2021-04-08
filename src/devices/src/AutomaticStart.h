@@ -1,6 +1,6 @@
 
-#ifndef MICRALN_INTERRUPTATSTART_H
-#define MICRALN_INTERRUPTATSTART_H
+#ifndef MICRALN_AUTOMATICSTART_H
+#define MICRALN_AUTOMATICSTART_H
 
 #include <cstdint>
 #include <memory>
@@ -8,10 +8,10 @@
 class CPU8008;
 class Edge;
 
-class InterruptAtStart
+class AutomaticStart
 {
 public:
-    explicit InterruptAtStart(std::shared_ptr<CPU8008> cpu);
+    explicit AutomaticStart(std::shared_ptr<CPU8008> cpu);
 
     void signal_phase_1(const Edge& edge);
     void signal_vdd(const Edge& edge);
@@ -21,4 +21,4 @@ private:
     uint64_t counter{};
 };
 
-#endif //MICRALN_INTERRUPTATSTART_H
+#endif //MICRALN_AUTOMATICSTART_H
