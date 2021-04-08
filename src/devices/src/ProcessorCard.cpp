@@ -9,7 +9,7 @@
 #include <utility>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
-    : pluribus{std::move(config.pluribus)}, cpu{std::move(config.cpu)}, scheduler{config.scheduler}
+    : scheduler{config.scheduler}, pluribus{std::move(config.pluribus)}
 {
     set_next_activation_time(Scheduling::unscheduled());
 
@@ -153,10 +153,6 @@ void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, un
             pluribus->t3.set(State{State::HIGH}, time, this);
             break;
         case Constants8008::CpuState::T4:
-            pluribus->t2.set(State{State::LOW}, time, this);
-            pluribus->t3.set(State{State::LOW}, time, this);
-            pluribus->t3prime.set(State{State::LOW}, time, this);
-            break;
         case Constants8008::CpuState::T5:
             pluribus->t2.set(State{State::LOW}, time, this);
             pluribus->t3.set(State{State::LOW}, time, this);

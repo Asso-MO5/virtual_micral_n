@@ -23,8 +23,6 @@ public:
     {
         SignalReceiver& scheduler;
         std::shared_ptr<Pluribus> pluribus;
-        std::shared_ptr<DoubleClock> clock;
-        std::shared_ptr<CPU8008> cpu;
     };
 
     explicit ProcessorCard(Config config);
