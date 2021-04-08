@@ -35,7 +35,7 @@ TEST(Clock, clock_triggers_on_edge)
     Clock clock{400'000_hz};
 
     Edge received_edge;
-    clock.register_trigger([&received_edge](Edge edge) { received_edge = edge; });
+    clock.phase.subscribe([&received_edge](Edge edge) { received_edge = edge; });
     clock.step();
     ASSERT_THAT(received_edge, Eq(Edge::Front::RISING));
 

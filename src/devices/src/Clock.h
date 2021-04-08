@@ -3,6 +3,7 @@
 
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Frequency.h>
+#include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/Schedulable.h>
 #include <emulation_core/src/State.h>
 
@@ -17,12 +18,11 @@ public:
     void step() override;
     [[nodiscard]] State get_state() const;
 
-    void register_trigger(std::function<void(Edge)> callback);
+    OwnedSignal phase;
 
 private:
     Frequency frequency;
     std::function<void(Edge)> edge_callback = [](Edge) {};
-    State state = State::LOW;
 };
 
 #endif //MICRALN_CLOCK_H

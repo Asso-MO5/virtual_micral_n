@@ -1,7 +1,6 @@
 #include "Clock.h"
 
-Clock::Clock(Frequency frequency) : frequency(frequency) {
-}
+Clock::Clock(Frequency frequency) : frequency(frequency) { phase.request(this); }
 
 void Clock::step()
 {
@@ -9,18 +8,12 @@ void Clock::step()
 
     const uint64_t period_in_ns = frequency.get_period_as_ns() / 2; // Two phases in a full cycle.
 
-    auto before = state;
+    auto state = phase.get_state();
     state.invert(activation_time);
 
-    Edge edge{before, state, activation_time};
-    edge_callback(edge);
+    phase.set(state, activation_time, this);
 
     set_next_activation_time(activation_time + period_in_ns);
 }
 
-State Clock::get_state() const { return state; }
-
-void Clock::register_trigger(std::function<void(Edge)> callback)
-{
-    edge_callback = std::move(callback);
-}
+State Clock::get_state() const { return phase.get_state(); }
