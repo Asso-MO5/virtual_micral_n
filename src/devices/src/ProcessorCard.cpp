@@ -1,4 +1,5 @@
 #include "ProcessorCard.h"
+#include "Clock.h"
 
 #include <devices/src/AutomaticStart.h>
 #include <devices/src/CPU8008.h>
@@ -18,7 +19,9 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     cpu = std::make_shared<CPU8008>(scheduler);
 
     interrupt_controller = std::make_shared<InterruptController>();
-    interrupt_at_start = std::make_shared<AutomaticStart>(cpu);
+    automatic_startup = std::make_shared<AutomaticStart>(cpu);
+
+    real_time_clock = std::make_shared<Clock>(100_hz); // Default factory configuration.
 
     connect_to_pluribus();
     connect_to_cpu();
@@ -35,7 +38,7 @@ void ProcessorCard::connect_to_clock()
 {
     clock->phase_1.subscribe([this](Edge edge) {
         cpu->signal_phase_1(edge);
-        interrupt_at_start->signal_phase_1(edge);
+        automatic_startup->signal_phase_1(edge);
         interrupt_controller->signal_phase_1(edge);
     });
 
@@ -82,7 +85,7 @@ void ProcessorCard::connect_to_pluribus()
 
     pluribus->vdd.subscribe([this](Edge edge) {
         cpu->signal_vdd(edge);
-        interrupt_at_start->signal_vdd(edge);
+        automatic_startup->signal_vdd(edge);
 
         if (is_rising(edge))
         {
@@ -100,6 +103,7 @@ void ProcessorCard::connect_to_pluribus()
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
 DoubleClock& ProcessorCard::get_clock() { return *clock; }
+Clock& ProcessorCard::get_rtc() { return *real_time_clock; }
 InterruptController& ProcessorCard::get_interrupt_controller() { return *interrupt_controller; }
 
 void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
@@ -233,7 +237,7 @@ void ProcessorCard::on_phase_2(Edge edge)
 
 std::vector<std::shared_ptr<Schedulable>> ProcessorCard::get_sub_schedulables()
 {
-    return {clock, cpu};
+    return {clock, cpu, real_time_clock};
 }
 
 void ProcessorCard::install_debug_info()

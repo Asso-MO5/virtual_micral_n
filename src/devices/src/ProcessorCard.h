@@ -15,6 +15,7 @@ class InterruptController;
 class AutomaticStart;
 class DoubleClock;
 class DataBus;
+class Clock;
 
 class ProcessorCard : public SchedulableImpl
 {
@@ -36,6 +37,7 @@ public:
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
 
     DoubleClock& get_clock();
+    Clock& get_rtc();
 
     struct DebugInfo
     {
@@ -50,7 +52,8 @@ private:
     std::shared_ptr<DoubleClock> clock{};
     std::shared_ptr<CPU8008> cpu{};
     std::shared_ptr<InterruptController> interrupt_controller;
-    std::shared_ptr<AutomaticStart> interrupt_at_start;
+    std::shared_ptr<AutomaticStart> automatic_startup;
+    std::shared_ptr<Clock> real_time_clock;
 
     OwnedSignal combined_ready;
 

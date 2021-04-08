@@ -1,6 +1,7 @@
 #include "Simulator.h"
 
 #include <devices/src/CPU8008.h>
+#include <devices/src/Clock.h>
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/IOController.h>
 #include <devices/src/MemoryCard.h>
@@ -129,6 +130,7 @@ void connect_recorder(OwnedValue<ValueType>& value, ValueRecorder& recorder)
 void Simulator::register_signals()
 {
     auto& clock = processor_card->get_clock();
+    auto& rtc = processor_card->get_rtc();
 
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
     auto& ready_recorder =
@@ -156,6 +158,9 @@ void Simulator::register_signals()
     auto& phase_1_recorder = recorders.create_and_get_signal_recorder(
             "Phase 1", window_time_frame_in_s, 550'000 * 4);
 
+    auto& rtc_recorder =
+            recorders.create_and_get_signal_recorder("RTC", window_time_frame_in_s, 100 * 2);
+
     connect_recorder(clock.phase_1, phase_1_recorder);
     connect_recorder(clock.phase_2, phase_2_recorder);
     connect_recorder(pluribus->t3, t3_recorder);
@@ -170,6 +175,8 @@ void Simulator::register_signals()
 
     connect_recorder(pluribus->ready, ready_recorder);
     connect_recorder(pluribus->ready_console, ready_console_recorder);
+
+    connect_recorder(rtc.phase, rtc_recorder);
 }
 
 void Simulator::register_values()
