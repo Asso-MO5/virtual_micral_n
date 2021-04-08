@@ -51,8 +51,8 @@ public:
     [[nodiscard]] const ProcessorCard& get_processor_card() const;
     [[nodiscard]] const Pluribus& get_pluribus() const;
 
-    // TODO: remove once the signals go through the Pluribus
-    [[nodiscard]] ProcessorCard& get_processor_card();
+    // TODO: remove the shortcut usages of accessing the processor card (it should be const)
+    [[nodiscard]] ProcessorCard& get_processor_card(); // Normally for debug only
 
     const MemoryView& get_memory_view();
     const RecorderCollection& get_recorders() const;
