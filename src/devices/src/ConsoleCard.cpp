@@ -69,6 +69,9 @@ void ConsoleCard::press_instruction() { status.step_mode = Instruction; }
 void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
 void ConsoleCard::on_sync(Edge edge)
 {
+    status.is_waiting = *pluribus->wait == State::HIGH;
+    status.is_stopped = *pluribus->stop == State::HIGH;
+
     if (is_falling(edge) && is_high(*pluribus->t2))
     {
         if (status.trap && !status.stepping)

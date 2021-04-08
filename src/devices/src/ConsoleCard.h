@@ -35,7 +35,6 @@ public:
 
         StepMode step_mode{Instruction};
 
-        bool is_running;
         bool is_waiting;
         bool is_stopped;
 

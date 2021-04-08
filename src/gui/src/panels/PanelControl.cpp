@@ -3,7 +3,6 @@
 #include "gui/src/widgets/PanelLed.h"
 #include "gui/src/widgets/PanelSwitch.h"
 
-#include <devices/src/CPU8008.h>
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/IOController.h>
 #include <devices/src/InterruptController.h>
@@ -85,14 +84,7 @@ namespace
 void PanelControl::display(Simulator& simulator)
 {
     ImGui::Begin("Panel");
-
     ImGui::SameLine();
-
-    // TODO: ultimately will only read the ConsoleCard
-    const auto& cpu = simulator.get_processor_card().get_cpu();
-    const auto& output_pins = cpu.output_pins;
-    const auto& scheduler = simulator.get_scheduler();
-    const auto& io_controller = simulator.get_io_controller();
 
     auto& console_card = simulator.get_console_card();
 
@@ -107,7 +99,7 @@ void PanelControl::display(Simulator& simulator)
         ImGui::NewLine();
 
         ImGui::BeginGroup();
-        display_status_line(console_card, output_pins);
+        display_status_line(console_card);
         display_av_init_line(simulator);
 
         ImGui::EndGroup();
@@ -196,18 +188,15 @@ void PanelControl::display_control_line(ConsoleCard& console_card)
     ImGui::EndGroup();
 }
 
-void PanelControl::display_status_line(ConsoleCard& console_card,
-                                       const CPU8008::OutputPins& output_pins)
+void PanelControl::display_status_line(ConsoleCard& console_card)
 {
     static const char* INFORMATION_NAMES[] = {"EXEC", "PAUSE", "ARRET", "OP", "LEC", "E/S", "ECR"};
 
     const auto& status = console_card.get_status();
 
-    // TODO: change output_pins for ConsoleCard information
-    bool is_paused = *output_pins.state == Constants8008::CpuState::WAIT;
-    bool is_stopped = *output_pins.state == Constants8008::CpuState::STOPPED;
-    const bool info_values[] = {!(is_paused || is_stopped),
-                                is_paused,
+    bool is_waiting = status.is_waiting;
+    bool is_stopped = status.is_stopped;
+    const bool info_values[] = {!(is_waiting || is_stopped), is_waiting,
                                 is_stopped,
                                 status.is_op_cycle,
                                 status.is_read_cycle,
