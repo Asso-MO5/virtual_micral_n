@@ -57,8 +57,8 @@ TEST(SignalRecorder, can_be_paused)
 
     for (auto index = 0; index < SIZE; index += 1)
     {
-        ASSERT_THAT(clock_recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(clock_recorder.data_series()[index], Eq(0.f));
+        ASSERT_THAT(clock_recorder.time_series()[index], Eq(-100.0));
+        ASSERT_THAT(clock_recorder.data_series()[index], Eq(0.0));
     };
 }
 
@@ -77,13 +77,13 @@ TEST(SignalRecorder, can_be_resumed)
 
     for (auto index = 0; index < SIZE - 2; index += 1)
     {
-        ASSERT_THAT(clock_recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(clock_recorder.data_series()[index], Eq(0.f));
+        ASSERT_THAT(clock_recorder.time_series()[index], Eq(-100.0));
+        ASSERT_THAT(clock_recorder.data_series()[index], Eq(0.0));
     }
 
-    ASSERT_THAT(clock_recorder.time_series()[SIZE - 2], Le(400.f));
-    ASSERT_THAT(clock_recorder.data_series()[SIZE - 2], Eq(0.f));
+    ASSERT_THAT(clock_recorder.time_series()[SIZE - 2], Le(400.0));
+    ASSERT_THAT(clock_recorder.data_series()[SIZE - 2], Eq(0.0));
 
-    ASSERT_THAT(clock_recorder.time_series()[SIZE - 1], Ge(400.f));
-    ASSERT_THAT(clock_recorder.data_series()[SIZE - 1], Eq(1.f));
+    ASSERT_THAT(clock_recorder.time_series()[SIZE - 1], Ge(400.0));
+    ASSERT_THAT(clock_recorder.data_series()[SIZE - 1], Eq(1.0));
 }

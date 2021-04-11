@@ -27,7 +27,7 @@ void display_signals_panel(Simulator& simulator)
 
     const auto most_recent_time = get_most_recent_time(recorders);
     const auto starting_time_for_frame =
-            std::max(0.0, most_recent_time - recorders.get_time_frame_as_counter());
+            std::max(-20.0, most_recent_time - recorders.get_time_frame_as_counter());
 
     ImGui::PlotSignalConfig config_for_signal;
     config_for_signal.scale.x_scaled = true;

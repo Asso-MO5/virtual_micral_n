@@ -8,10 +8,16 @@ ValueRecorder::ValueRecorder(std::size_t size, uint8_t bus_width, OwnerTracking 
     time_values.resize(size);
     state_values.resize(size);
 
+    std::fill(begin(time_values), end(time_values), -100.0);
+    std::fill(begin(state_values), end(state_values), 0);
+
     if (track_owners == TRACK_OWNERS)
     {
         owner_time_values.resize(size);
         owner_values.resize(size);
+
+        std::fill(begin(owner_time_values), end(owner_time_values), -100.0);
+        std::fill(begin(owner_values), end(owner_values), 0);
     }
 }
 

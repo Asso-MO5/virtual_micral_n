@@ -41,7 +41,7 @@ public:
 private:
     void* owner_id{};
     State current_state{};
-    counter_type latest_change_time{Scheduling::unscheduled()};
+    counter_type latest_change_time{0};
     std::vector<callback_type> callbacks;
 
     void set_and_broadcast(State new_state, counter_type time);

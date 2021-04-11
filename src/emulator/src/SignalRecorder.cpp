@@ -10,7 +10,7 @@ SignalRecorder::SignalRecorder(std::size_t size)
     time_values.resize(size);
     state_values.resize(size);
 
-    std::fill(begin(time_values), end(time_values), 0);
+    std::fill(begin(time_values), end(time_values), -100.0);
     std::fill(begin(state_values), end(state_values), 0);
 }
 

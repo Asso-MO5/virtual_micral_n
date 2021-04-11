@@ -37,8 +37,8 @@ TEST(ValueRecorder, can_be_paused)
 
     for (auto index = 0; index < SIZE; index += 1)
     {
-        ASSERT_THAT(recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(recorder.data_series()[index], Eq(0.f));
+        ASSERT_THAT(recorder.time_series()[index], Eq(-100.0));
+        ASSERT_THAT(recorder.data_series()[index], Eq(0.0));
     }
 }
 
@@ -74,10 +74,10 @@ TEST(ValueRecorder, can_be_resumed)
 
     for (auto index = 0; index < SIZE - 1; index += 1)
     {
-        ASSERT_THAT(recorder.time_series()[index], Eq(0.f));
-        ASSERT_THAT(recorder.data_series()[index], Eq(0.f));
+        ASSERT_THAT(recorder.time_series()[index], Eq(-100.0));
+        ASSERT_THAT(recorder.data_series()[index], Eq(0.0));
     }
 
-    ASSERT_THAT(recorder.time_series()[SIZE - 1], Eq(200.f));
+    ASSERT_THAT(recorder.time_series()[SIZE - 1], Eq(200.0));
     ASSERT_THAT(recorder.data_series()[SIZE - 1], Eq(static_cast<double>(0xf0f0)));
 }

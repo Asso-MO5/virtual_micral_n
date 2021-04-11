@@ -1,7 +1,6 @@
 * Panel and Console Card implementation
     * Implement the SUBST mechanism
     * Implement the AV? switch (Need to understand better)
-* The Ready C signal is "jumping" on display after its first change. Probably wrongly initialized.
 * Implement the Interrupt System on the Processor Board
   * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Implement the Stack card

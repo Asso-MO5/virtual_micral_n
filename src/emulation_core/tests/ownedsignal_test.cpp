@@ -5,11 +5,11 @@
 
 using namespace testing;
 
-TEST(OwnedSignal, is_initialized_low_and_at_unscheduled_time)
+TEST(OwnedSignal, is_initialized_low_and_at_time_0)
 {
     OwnedSignal signal;
     ASSERT_THAT(signal.get_state(), Eq(State::LOW));
-    ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::unscheduled()));
+    ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{0}));
 }
 
 TEST(OwnedSignal, can_be_deferenced)
