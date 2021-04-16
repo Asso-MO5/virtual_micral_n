@@ -1,14 +1,8 @@
 #include "InterruptController.h"
 
-InterruptController::InterruptController() {}
+#include "CPU8008.h"
 
-void InterruptController::wants_interrupt(const Edge& edge)
-{
-    if (is_rising(edge))
-    {
-        interrupt_is_scheduled = true;
-    }
-}
+InterruptController::InterruptController(std::shared_ptr<CPU8008> cpu) : cpu{std::move(cpu)} {}
 
 void InterruptController::signal_phase_1(const Edge& edge)
 {
@@ -23,7 +17,7 @@ void InterruptController::signal_phase_1(const Edge& edge)
     }
     else
     {
-        if (applying_interrupt && (latest_cpu_state == Constants8008::CpuState::T1I))
+        if (applying_interrupt && (*cpu->output_pins.state == Constants8008::CpuState::T1I))
         {
             interrupt_is_scheduled = false;
             applying_interrupt = false;
@@ -37,9 +31,10 @@ void InterruptController::register_interrupt_trigger(std::function<void(Edge)> c
     interrupt_callback = std::move(callback);
 }
 
-void InterruptController::on_state_value_change(Constants8008::CpuState old_value,
-                                                Constants8008::CpuState new_value,
-                                                Scheduling::counter_type time)
+void InterruptController::on_init_changed(const Edge& edge)
 {
-    latest_cpu_state = new_value;
+    if (is_rising(edge))
+    {
+        interrupt_is_scheduled = true;
+    }
 }

@@ -100,7 +100,7 @@ void PanelControl::display(Simulator& simulator)
 
         ImGui::BeginGroup();
         display_status_line(console_card);
-        display_av_init_line(simulator);
+        display_av_init_line(console_card);
 
         ImGui::EndGroup();
     }
@@ -216,10 +216,8 @@ void PanelControl::display_status_line(ConsoleCard& console_card)
     }
 }
 
-void PanelControl::display_av_init_line(Simulator& simulator)
+void PanelControl::display_av_init_line(ConsoleCard& console_card)
 {
-    const auto& scheduler = simulator.get_scheduler();
-
     bool av = false;
     auto av_pressed = add_impulse_switch("AV", &av, nullptr);
     ImGui::SameLine();
@@ -228,9 +226,6 @@ void PanelControl::display_av_init_line(Simulator& simulator)
     auto init_pressed = add_impulse_switch("INIT", &interrupt_value, nullptr);
     if (init_pressed && interrupt_value)
     {
-        auto time = scheduler.get_counter();
-        Edge::Front front = interrupt_value ? Edge::Front::RISING : Edge::Front::FALLING;
-        simulator.get_processor_card().get_interrupt_controller().wants_interrupt(
-                Edge{front, time});
+        console_card.press_interrupt();
     }
 }

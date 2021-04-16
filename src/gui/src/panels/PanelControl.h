@@ -20,7 +20,7 @@ private:
     void display_data_line(ConsoleCard& console_card);
     void display_control_line(ConsoleCard& console_card);
     static void display_status_line(ConsoleCard& console_card);
-    static void display_av_init_line(Simulator& simulator);
+    static void display_av_init_line(ConsoleCard& console_card);
 };
 
 #endif //MICRALN_PANELCONTROL_H

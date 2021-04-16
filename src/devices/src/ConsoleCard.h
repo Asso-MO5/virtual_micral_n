@@ -60,12 +60,15 @@ public:
 
     void set_switch_address(uint16_t i);
 
+    void press_interrupt();
+
 private:
     StartMode start_mode;
     std::shared_ptr<Pluribus> pluribus;
     Status status;
     uint16_t switch_address{};
     uint8_t switch_data{};
+    bool pending_interrupt{};
 
     void on_vdd(Edge edge);
     void on_phase_2(Edge edge);

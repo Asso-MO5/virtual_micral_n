@@ -139,7 +139,21 @@ void ConsoleCard::on_phase_2(Edge edge)
             }
         }
     }
+    else
+    {
+        if (pending_interrupt)
+        {
+            auto time = edge.time();
+
+            pluribus->init.request(this);
+            pluribus->init.set(State::HIGH, time, this);
+            pluribus->init.release(this); // TODO: release when acknowledge?
+
+            pending_interrupt = false;
+        }
+    }
 }
 
 void ConsoleCard::set_switch_data(uint8_t data) { switch_data = data; }
 void ConsoleCard::set_switch_address(uint16_t address) { switch_address = address; }
+void ConsoleCard::press_interrupt() { pending_interrupt = true; }

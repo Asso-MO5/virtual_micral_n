@@ -32,7 +32,6 @@ public:
     void step() override;
 
     [[nodiscard]] const CPU8008& get_cpu() const;
-    [[nodiscard]] InterruptController& get_interrupt_controller();
 
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
 

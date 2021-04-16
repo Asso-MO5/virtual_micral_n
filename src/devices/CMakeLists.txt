@@ -35,7 +35,7 @@ set(DEVICES_TEST_FILES
         tests/address_stack_test.cpp
         tests/instructions_8008_test.cpp
         tests/disassemble_8008_test.cpp
-        tests/interrupt_controller_test.cpp)
+        )
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
 target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)

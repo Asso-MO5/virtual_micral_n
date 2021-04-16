@@ -5,21 +5,21 @@
 
 #include <emulation_core/src/Edge.h>
 #include <functional>
+#include <memory>
+
+class CPU8008;
 
 class InterruptController
 {
 public:
-    explicit InterruptController();
+    explicit InterruptController(std::shared_ptr<CPU8008> cpu);
 
-    void wants_interrupt(const Edge& edge);
     void signal_phase_1(const Edge& edge);
     void register_interrupt_trigger(std::function<void(Edge)> callback);
-
-    void on_state_value_change(Constants8008::CpuState old_value, Constants8008::CpuState new_value,
-                               Scheduling::counter_type time);
+    void on_init_changed(const Edge& edge);
 
 private:
-    Constants8008::CpuState latest_cpu_state{};
+    std::shared_ptr<CPU8008> cpu;
     std::function<void(Edge)> interrupt_callback;
 
     bool interrupt_is_scheduled{};

@@ -18,7 +18,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     cpu = std::make_shared<CPU8008>(scheduler);
 
-    interrupt_controller = std::make_shared<InterruptController>();
+    interrupt_controller = std::make_shared<InterruptController>(cpu);
     automatic_startup = std::make_shared<AutomaticStart>(cpu);
 
     real_time_clock = std::make_shared<Clock>(100_hz); // Default factory configuration.
@@ -57,12 +57,6 @@ void ProcessorCard::connect_to_cpu()
     });
 
     cpu->register_sync_trigger([this](Edge edge) { cpu_sync_changed(edge); });
-
-    cpu->register_state_change([&](Constants8008::CpuState old_value,
-                                   Constants8008::CpuState new_value,
-                                   Scheduling::counter_type time) {
-        interrupt_controller->on_state_value_change(old_value, new_value, time);
-    });
 }
 
 void ProcessorCard::connect_to_pluribus()
@@ -95,6 +89,10 @@ void ProcessorCard::connect_to_pluribus()
         }
     });
 
+    pluribus->init.subscribe([this](Edge edge) {
+        interrupt_controller->on_init_changed(edge);
+    });
+
     cpu->data_pins.subscribe(
             [this](uint8_t old_value, uint8_t new_value, Scheduling::counter_type time) {
                 pluribus->data_bus_d0_7.set(new_value, time, this);
@@ -104,7 +102,6 @@ void ProcessorCard::connect_to_pluribus()
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }
 DoubleClock& ProcessorCard::get_clock() { return *clock; }
 Clock& ProcessorCard::get_rtc() { return *real_time_clock; }
-InterruptController& ProcessorCard::get_interrupt_controller() { return *interrupt_controller; }
 
 void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
                                       Constants8008::CpuState state, Scheduling::counter_type time)
@@ -205,7 +202,6 @@ void ProcessorCard::on_ready_change(Edge edge)
 
 void ProcessorCard::step()
 {
-
     assert(emit_t3prime_on_next_step &&
            "Currently, step() in the ProcessorCard only purpose is to emit t3prime.");
     emit_t3prime_on_next_step = false;
