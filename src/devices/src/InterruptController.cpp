@@ -1,40 +1,29 @@
 #include "InterruptController.h"
 
 #include "CPU8008.h"
+#include "Pluribus.h"
 
-InterruptController::InterruptController(std::shared_ptr<CPU8008> cpu) : cpu{std::move(cpu)} {}
+InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
+                                         std::shared_ptr<CPU8008> cpu)
+    : pluribus{std::move(pluribus)}, cpu{std::move(cpu)}
+{}
 
 void InterruptController::signal_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
-        if (interrupt_is_scheduled && !applying_interrupt)
+        if (is_high(*pluribus->init) && !applying_interrupt)
         {
-            interrupt_is_scheduled = false;
             applying_interrupt = true;
-            interrupt_callback(edge);
+            cpu->signal_interrupt(edge);
         }
     }
     else
     {
         if (applying_interrupt && (*cpu->output_pins.state == Constants8008::CpuState::T1I))
         {
-            interrupt_is_scheduled = false;
             applying_interrupt = false;
-            interrupt_callback(edge);
+            cpu->signal_interrupt(edge);
         }
-    }
-}
-
-void InterruptController::register_interrupt_trigger(std::function<void(Edge)> callback)
-{
-    interrupt_callback = std::move(callback);
-}
-
-void InterruptController::on_init_changed(const Edge& edge)
-{
-    if (is_rising(edge))
-    {
-        interrupt_is_scheduled = true;
     }
 }

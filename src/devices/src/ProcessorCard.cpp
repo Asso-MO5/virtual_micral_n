@@ -18,7 +18,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     cpu = std::make_shared<CPU8008>(scheduler);
 
-    interrupt_controller = std::make_shared<InterruptController>(cpu);
+    interrupt_controller = std::make_shared<InterruptController>(pluribus, cpu);
     automatic_startup = std::make_shared<AutomaticStart>(cpu);
 
     real_time_clock = std::make_shared<Clock>(100_hz); // Default factory configuration.
@@ -29,9 +29,6 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     combined_ready.request(this);
     combined_ready.subscribe([this](Edge edge) { cpu->signal_ready(edge); });
-
-    interrupt_controller->register_interrupt_trigger(
-            [this](Edge edge) { cpu->signal_interrupt(edge); });
 }
 
 void ProcessorCard::connect_to_clock()
@@ -87,10 +84,6 @@ void ProcessorCard::connect_to_pluribus()
             pluribus->ready.set(State::HIGH, 0, this);
             pluribus->ready.release(this);
         }
-    });
-
-    pluribus->init.subscribe([this](Edge edge) {
-        interrupt_controller->on_init_changed(edge);
     });
 
     cpu->data_pins.subscribe(

@@ -8,21 +8,19 @@
 #include <memory>
 
 class CPU8008;
+class Pluribus;
 
 class InterruptController
 {
 public:
-    explicit InterruptController(std::shared_ptr<CPU8008> cpu);
+    explicit InterruptController(std::shared_ptr<Pluribus> pluribus, std::shared_ptr<CPU8008> cpu);
 
     void signal_phase_1(const Edge& edge);
-    void register_interrupt_trigger(std::function<void(Edge)> callback);
-    void on_init_changed(const Edge& edge);
 
 private:
+    std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
-    std::function<void(Edge)> interrupt_callback;
 
-    bool interrupt_is_scheduled{};
     bool applying_interrupt{};
 };
 
