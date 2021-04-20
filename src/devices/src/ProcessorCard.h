@@ -59,6 +59,7 @@ private:
     uint16_t latched_address{};
     Constants8008::CycleControl latched_cycle_control{};
     bool emit_t3prime_on_next_step{};
+    bool t1i_cycle{};
     SignalReceiver& scheduler;
 
     DebugInfo debug_info;

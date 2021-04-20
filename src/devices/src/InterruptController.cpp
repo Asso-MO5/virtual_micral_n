@@ -27,3 +27,5 @@ void InterruptController::signal_phase_1(const Edge& edge)
         }
     }
 }
+
+bool InterruptController::has_instruction_to_inject() const { return false; }

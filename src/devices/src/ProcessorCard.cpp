@@ -207,19 +207,40 @@ void ProcessorCard::step()
 
 void ProcessorCard::on_phase_2(Edge edge)
 {
-    if (is_falling(edge) && is_high(*pluribus->t3))
-    {
-        if (latched_cycle_control == Constants8008::CycleControl::PCI ||
-            latched_cycle_control == Constants8008::CycleControl::PCR ||
-            latched_cycle_control == Constants8008::CycleControl::PCC)
-        {
-            auto read_data = *pluribus->data_bus_md0_7;
-            auto time = edge.time();
 
-            // TODO: find better timings
-            cpu->data_pins.request(this, time);
-            cpu->data_pins.set(read_data, time, this);
-            cpu->data_pins.release(this, time);
+    if (is_falling(edge))
+    {
+        if (is_high(*pluribus->t3))
+        {
+            if (latched_cycle_control == Constants8008::CycleControl::PCI ||
+                latched_cycle_control == Constants8008::CycleControl::PCR ||
+                latched_cycle_control == Constants8008::CycleControl::PCC)
+            {
+                auto time = edge.time();
+                if (t1i_cycle && interrupt_controller->has_instruction_to_inject())
+                {
+                    cpu->data_pins.request(this, time);
+                    cpu->data_pins.set(0x00, time, this);
+                    cpu->data_pins.release(this, time);
+                }
+                else
+                {
+                    auto read_data = *pluribus->data_bus_md0_7;
+
+                    // TODO: find better timings
+                    cpu->data_pins.request(this, time);
+                    cpu->data_pins.set(read_data, time, this);
+                    cpu->data_pins.release(this, time);
+                }
+            }
+        }
+        else if (*cpu->output_pins.state == Constants8008::CpuState::T1I)
+        {
+            t1i_cycle = true;
+        }
+        else if (*cpu->output_pins.state == Constants8008::CpuState::T1)
+        {
+            t1i_cycle = false;
         }
     }
 }

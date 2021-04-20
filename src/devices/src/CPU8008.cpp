@@ -414,7 +414,7 @@ void CPU8008::signal_vdd(Edge edge)
 void CPU8008::signal_interrupt(Edge edge)
 {
     input_pins.interrupt = edge.apply();
-    if (input_pins.interrupt == ::State::HIGH)
+    if (is_high(input_pins.interrupt))
     {
         // TODO: acknowledge the interruption with correct timing
 
