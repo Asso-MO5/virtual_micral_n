@@ -1,8 +1,9 @@
+* Fix display problem on INIT and RZGI signal plots
+* Implement the Interrupt System on the Processor Board
+    * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Panel and Console Card implementation
     * Implement the SUBST mechanism
     * Implement the AV? switch (Need to understand better)
-* Implement the Interrupt System on the Processor Board
-  * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Implement the Stack card
 * Implement the I/O cards
 * Once the interrupt system and I/O cards are there, implement the watch-dog.

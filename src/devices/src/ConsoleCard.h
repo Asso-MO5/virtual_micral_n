@@ -76,6 +76,7 @@ private:
     void on_sync(Edge edge);
 
     void set_step_mode();
+    void on_rzgi(Edge edge);
 };
 
 #endif //MICRALN_CONSOLECARD_H

@@ -21,8 +21,12 @@ public:
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
-
     bool applying_interrupt{};
+
+    void request_signals();
+    void connect_values();
+    void cpu_state_changed(Constants8008::CpuState state, Constants8008::CpuState state1,
+                           unsigned long time);
 };
 
 #endif //MICRALN_INTERRUPTCONTROLLER_H

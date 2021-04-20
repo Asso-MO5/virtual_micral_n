@@ -133,6 +133,8 @@ void Simulator::register_signals()
     auto& rtc = processor_card->get_rtc();
 
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
+    auto& rzgi_recorder =
+            recorders.create_and_get_signal_recorder("RZGI", window_time_frame_in_s, 50 * 4);
     auto& init_recorder =
             recorders.create_and_get_signal_recorder("INIT", window_time_frame_in_s, 50 * 4);
     auto& ready_recorder =
@@ -181,6 +183,7 @@ void Simulator::register_signals()
     connect_recorder(rtc.phase, rtc_recorder);
 
     connect_recorder(pluribus->init, init_recorder);
+    connect_recorder(pluribus->rzgi, rzgi_recorder);
 }
 
 void Simulator::register_values()

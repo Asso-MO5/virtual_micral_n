@@ -17,6 +17,7 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus,
     pluribus->t3.subscribe([this](Edge edge) { on_t3(edge); });
     pluribus->sync.subscribe([this](Edge edge) { on_sync(edge); });
     pluribus->vdd.subscribe([this](Edge edge) { on_vdd(edge); });
+    pluribus->rzgi.subscribe([this](Edge edge) { on_rzgi(edge); });
 }
 
 ConsoleCard::Status ConsoleCard::get_status() const { return status; }
@@ -147,7 +148,6 @@ void ConsoleCard::on_phase_2(Edge edge)
 
             pluribus->init.request(this);
             pluribus->init.set(State::HIGH, time, this);
-            pluribus->init.release(this); // TODO: release when acknowledge?
 
             pending_interrupt = false;
         }
@@ -157,3 +157,12 @@ void ConsoleCard::on_phase_2(Edge edge)
 void ConsoleCard::set_switch_data(uint8_t data) { switch_data = data; }
 void ConsoleCard::set_switch_address(uint16_t address) { switch_address = address; }
 void ConsoleCard::press_interrupt() { pending_interrupt = true; }
+
+void ConsoleCard::on_rzgi(Edge edge)
+{
+    if (is_falling(edge) && is_high(*pluribus->init))
+    {
+        pluribus->init.set(State::LOW, edge.time(), this);
+        pluribus->init.release(this);
+    }
+}
