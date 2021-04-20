@@ -291,7 +291,7 @@ void CPU8008::schedule_change_cpu_state(unsigned long edge_time)
         case CpuState::STOPPED:
             if (interrupt_pending)
             {
-                interrupt(edge_time);
+                enter_interrupt(edge_time);
             }
             break;
         case CpuState::WAIT:
@@ -335,7 +335,7 @@ void CPU8008::schedule_change_cpu_state(unsigned long edge_time)
                     // TODO: Instruction Jammed goes to TI1?
                     if (is_instruction_complete() && interrupt_pending)
                     {
-                        interrupt(edge_time);
+                        enter_interrupt(edge_time);
                     }
                     else
                     {
@@ -357,7 +357,7 @@ void CPU8008::schedule_change_cpu_state(unsigned long edge_time)
                 // TODO: Instruction Jammed goes to TI1?
                 if (is_instruction_complete() && interrupt_pending)
                 {
-                    interrupt(edge_time);
+                    enter_interrupt(edge_time);
                 }
                 else
                 {
@@ -376,7 +376,7 @@ void CPU8008::schedule_change_cpu_state(unsigned long edge_time)
             assert(cycle_ended);
             if (interrupt_pending)
             {
-                interrupt(edge_time);
+                enter_interrupt(edge_time);
             }
             else
             {
@@ -873,7 +873,7 @@ bool CPU8008::is_instruction_complete() const
     return next_cycle_control == Constants8008::CycleControl::PCI;
 }
 
-void CPU8008::interrupt(Scheduling::counter_type edge_time)
+void CPU8008::enter_interrupt(Scheduling::counter_type edge_time)
 {
     interrupt_pending = false;
 
