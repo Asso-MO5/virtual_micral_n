@@ -222,7 +222,7 @@ void PanelControl::display_av_init_line(ConsoleCard& console_card)
     auto av_pressed = add_impulse_switch("AV", &av, nullptr);
     ImGui::SameLine();
 
-    bool interrupt_value = false;
+    static bool interrupt_value = false;
     auto init_pressed = add_impulse_switch("INIT", &interrupt_value, nullptr);
     if (init_pressed && interrupt_value)
     {
