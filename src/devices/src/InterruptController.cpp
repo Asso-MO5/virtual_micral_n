@@ -29,7 +29,8 @@ void InterruptController::signal_phase_1(const Edge& edge)
         if (is_high(*pluribus->init) && !applying_interrupt)
         {
             applying_interrupt = true;
-            cpu->signal_interrupt(edge);
+            cpu->input_pins.interrupt.request(this);
+            cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
         }
     }
 }
@@ -41,7 +42,8 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
 {
     if (new_state == Constants8008::CpuState::T1I)
     {
-        cpu->signal_interrupt(Edge{Edge::Front::FALLING, time});
+        cpu->input_pins.interrupt.set(State::LOW, time, this);
+        cpu->input_pins.interrupt.release(this);
         pluribus->rzgi.set(State::HIGH, time, this);
     }
     else if (old_state == Constants8008::CpuState::T1I)

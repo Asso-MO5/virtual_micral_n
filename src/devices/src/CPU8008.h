@@ -37,11 +37,11 @@ public:
 
     struct InputPins
     {
-        ::State interrupt;
-        ::State ready{State::HIGH};
-        ::State phase_1;
-        ::State phase_2;
-        ::State vdd;
+        OwnedSignal interrupt;
+        ::State ready{State::HIGH}; // TODO: turn into OwnedSignals
+        ::State phase_1{};
+        ::State phase_2{};
+        ::State vdd{};
     };
 
     struct HiddenRegisters
@@ -82,7 +82,6 @@ public:
     void signal_phase_1(Edge edge);
     void signal_phase_2(Edge edge);
     void signal_vdd(Edge edge);
-    void signal_interrupt(Edge edge);
     void signal_ready(Edge edge);
 
     void register_sync_trigger(std::function<void(Edge)> callback);
@@ -103,9 +102,9 @@ public:
 
     OwnedValue<uint8_t> data_pins{};
     OutputPins output_pins{};
+    InputPins input_pins{};
 
 private:
-    InputPins input_pins{};
     AddressStack address_stack;
     HiddenRegisters hidden_registers{};
     uint8_t flags[static_cast<size_t>(Flags::MAX)]{};
@@ -127,6 +126,8 @@ private:
 
     InstructionTableFor8008 instruction_table;
     InstructionTableFor8008::DecodedInstruction decoded_instruction;
+
+    void on_interrupt(Edge edge);
 
     void on_signal_11_raising(Scheduling::counter_type edge_time);
     void on_signal_12_raising(Scheduling::counter_type edge_time);

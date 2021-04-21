@@ -2,7 +2,8 @@
 
 #include <devices/src/CPU8008.h>
 
-AutomaticStart::AutomaticStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move(cpu)) {}
+AutomaticStart::AutomaticStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move(cpu)) {
+}
 
 void AutomaticStart::signal_phase_1(const Edge& edge)
 {
@@ -11,11 +12,13 @@ void AutomaticStart::signal_phase_1(const Edge& edge)
         counter += 1;
         if (counter == 20)
         {
-            cpu->signal_interrupt({Edge::Front::RISING, edge.time()});
+            cpu->input_pins.interrupt.request(this);
+            cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
         }
         if (counter == 22)
         {
-            cpu->signal_interrupt(Edge{Edge::Front::FALLING, edge.time()});
+            cpu->input_pins.interrupt.set(State::LOW, edge.time(), this);
+            cpu->input_pins.interrupt.release(this);
         }
     }
 }

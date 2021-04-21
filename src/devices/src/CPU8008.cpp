@@ -36,6 +36,8 @@ CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
 {
     output_pins.sync.request(this);
     output_pins.state.request(this, 0);
+
+    input_pins.interrupt.subscribe([this](Edge edge) { on_interrupt(edge); });
 }
 
 void CPU8008::step()
@@ -411,10 +413,9 @@ void CPU8008::signal_vdd(Edge edge)
         set_next_activation_time(Scheduling::unscheduled());
     }
 }
-void CPU8008::signal_interrupt(Edge edge)
+void CPU8008::on_interrupt(Edge edge)
 {
-    input_pins.interrupt = edge.apply();
-    if (is_high(input_pins.interrupt))
+    if (is_high(*input_pins.interrupt))
     {
         // TODO: acknowledge the interruption with correct timing
 
