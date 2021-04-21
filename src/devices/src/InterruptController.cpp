@@ -29,13 +29,21 @@ void InterruptController::on_phase_1(const Edge& edge)
         if (is_high(*pluribus->init) && !applying_interrupt)
         {
             applying_interrupt = true;
+            pending_int_level_0 = true;
             cpu->input_pins.interrupt.request(this);
             cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
         }
     }
 }
 
-bool InterruptController::has_instruction_to_inject() const { return false; }
+bool InterruptController::has_instruction_to_inject() const { return pending_int_level_0; }
+void InterruptController::reset_interrupt(uint8_t) { pending_int_level_0 = false; }
+
+uint8_t InterruptController::get_instruction_to_inject() const
+{
+    return 0x05; // RST $00
+}
+
 void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
                                             Constants8008::CpuState new_state,
                                             Scheduling::counter_type time)

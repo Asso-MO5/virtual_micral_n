@@ -630,7 +630,8 @@ void CPU8008::execute_t4()
             address_stack.set_high_pc(hidden_registers.a);
             break;
         case CycleActionsFor8008::Push_And_Reg_a_to_PC_H:
-            assert(cycle_control == CycleControl::PCR);
+            assert(cycle_control == CycleControl::PCR ||
+                   cycle_control == CycleControl::PCI); // PCI for RST only
             address_stack.push();
             address_stack.set_high_pc(hidden_registers.a);
             break;

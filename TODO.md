@@ -1,5 +1,6 @@
 * Implement the Interrupt System on the Processor Board
-    * Jam RST 0 instruction on Level 0 Interrupt.
+* Why the values on D0-D7 when jamming an RST 0 by INIT?
+* Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
 * Panel and Console Card implementation
     * Implement the SUBST mechanism
     * Implement the AV? switch (Need to understand better)

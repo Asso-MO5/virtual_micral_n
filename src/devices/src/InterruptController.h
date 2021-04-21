@@ -17,11 +17,14 @@ public:
 
     void on_phase_1(const Edge& edge);
     [[nodiscard]] bool has_instruction_to_inject() const;
+    [[nodiscard]] uint8_t get_instruction_to_inject() const;
+    void reset_interrupt(uint8_t interrupt_level);
 
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
     bool applying_interrupt{};
+    bool pending_int_level_0{}; // TODO: change this to an array of pending interrupt levels
 
     void request_signals();
     void connect_values();

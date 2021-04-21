@@ -220,9 +220,12 @@ void ProcessorCard::on_phase_2(Edge edge)
                 auto time = edge.time();
                 if (t1i_cycle && interrupt_controller->has_instruction_to_inject())
                 {
+                    auto instruction_to_inject = interrupt_controller->get_instruction_to_inject();
                     cpu->data_pins.request(this, time);
-                    cpu->data_pins.set(0x00, time, this);
+                    cpu->data_pins.set(instruction_to_inject, time, this);
                     cpu->data_pins.release(this, time);
+
+                    interrupt_controller->reset_interrupt(0);
                 }
                 else
                 {
