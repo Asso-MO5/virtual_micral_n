@@ -159,7 +159,9 @@ void ProcessorCard::cpu_sync_changed(Edge edge)
     if (edge == Edge{Edge::Front::FALLING})
     {
         auto cpu_state = *cpu->output_pins.state;
-        if (cpu_state == Constants8008::CpuState::T1)
+
+        // TODO: Verify if the address is also sent on the BUS after an interruption
+        if (cpu_state == Constants8008::CpuState::T1 || cpu_state == Constants8008::CpuState::T1I)
         {
             latched_address &= 0xff00;
             latched_address |= cpu->data_pins.get_value();
