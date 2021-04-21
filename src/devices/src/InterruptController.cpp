@@ -42,8 +42,11 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
 {
     if (new_state == Constants8008::CpuState::T1I)
     {
-        cpu->input_pins.interrupt.set(State::LOW, time, this);
-        cpu->input_pins.interrupt.release(this);
+        if (applying_interrupt)
+        {
+            cpu->input_pins.interrupt.set(State::LOW, time, this);
+            cpu->input_pins.interrupt.release(this);
+        }
         pluribus->rzgi.set(State::HIGH, time, this);
     }
     else if (old_state == Constants8008::CpuState::T1I)

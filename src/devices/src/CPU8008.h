@@ -38,10 +38,11 @@ public:
     struct InputPins
     {
         OwnedSignal interrupt;
-        ::State ready{State::HIGH}; // TODO: turn into OwnedSignals
-        ::State phase_1{};
-        ::State phase_2{};
-        ::State vdd{};
+        OwnedSignal ready{State::HIGH};
+        // ::State ready{State::HIGH};
+//        ::State phase_1{}; // These are not used
+//        ::State phase_2{};
+        ::State vdd{}; // TODO: turn into OwnedSignals
     };
 
     struct HiddenRegisters
@@ -82,7 +83,6 @@ public:
     void signal_phase_1(Edge edge);
     void signal_phase_2(Edge edge);
     void signal_vdd(Edge edge);
-    void signal_ready(Edge edge);
 
     void register_sync_trigger(std::function<void(Edge)> callback);
 

@@ -27,8 +27,9 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     connect_to_cpu();
     connect_to_clock();
 
+    cpu->input_pins.ready.request(this);
     combined_ready.request(this);
-    combined_ready.subscribe([this](Edge edge) { cpu->signal_ready(edge); });
+    combined_ready.subscribe([this](Edge edge) { cpu->input_pins.ready.apply(edge, this); });
 }
 
 void ProcessorCard::connect_to_clock()
