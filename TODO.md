@@ -1,4 +1,3 @@
-* The first INIT while in STEP is acknowledge, should not.
 * Implement the Interrupt System on the Processor Board
     * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Panel and Console Card implementation
