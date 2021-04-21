@@ -7,7 +7,7 @@ SignalRecorder& RecorderCollection::create_and_get_signal_recorder(const std::st
     assert((recorders.find(signal_name) == std::end(recorders)) && "Signal already created");
 
     auto number_of_events =
-            static_cast<size_t>(std::max(3.0, time_frame_in_s * projected_event_frequency));
+            static_cast<size_t>(std::max(5.0, time_frame_in_s * projected_event_frequency));
     general_time_frame_in_s = std::min(general_time_frame_in_s, time_frame_in_s);
 
     auto new_signal_recorder = std::make_shared<SignalRecorder>(number_of_events);
