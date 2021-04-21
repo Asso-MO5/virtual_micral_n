@@ -22,7 +22,7 @@ void InterruptController::connect_values()
     });
 }
 
-void InterruptController::signal_phase_1(const Edge& edge)
+void InterruptController::on_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {

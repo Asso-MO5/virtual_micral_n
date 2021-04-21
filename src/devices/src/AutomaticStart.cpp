@@ -2,10 +2,9 @@
 
 #include <devices/src/CPU8008.h>
 
-AutomaticStart::AutomaticStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move(cpu)) {
-}
+AutomaticStart::AutomaticStart(std::shared_ptr<CPU8008> cpu) : cpu(std::move(cpu)) {}
 
-void AutomaticStart::signal_phase_1(const Edge& edge)
+void AutomaticStart::on_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
@@ -23,7 +22,4 @@ void AutomaticStart::signal_phase_1(const Edge& edge)
     }
 }
 
-void AutomaticStart::signal_vdd(const Edge& edge)
-{
-    counter = 0;
-}
+void AutomaticStart::on_vdd(const Edge& edge) { counter = 0; }

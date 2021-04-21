@@ -15,7 +15,7 @@ class InterruptController
 public:
     explicit InterruptController(std::shared_ptr<Pluribus> pluribus, std::shared_ptr<CPU8008> cpu);
 
-    void signal_phase_1(const Edge& edge);
+    void on_phase_1(const Edge& edge);
     [[nodiscard]] bool has_instruction_to_inject() const;
 
 private:

@@ -33,8 +33,8 @@ void ProcessorCard::connect_to_clock()
 {
     clock->phase_1.subscribe([this](Edge edge) {
         cpu->signal_phase_1(edge);
-        automatic_startup->signal_phase_1(edge);
-        interrupt_controller->signal_phase_1(edge);
+        automatic_startup->on_phase_1(edge);
+        interrupt_controller->on_phase_1(edge);
     });
 
     clock->phase_2.subscribe([this](Edge edge) {
@@ -75,7 +75,7 @@ void ProcessorCard::connect_to_pluribus()
     cpu->input_pins.vdd.request(this);
     pluribus->vdd.subscribe([this](Edge edge) {
         cpu->input_pins.vdd.apply(edge, this);
-        automatic_startup->signal_vdd(edge);
+        automatic_startup->on_vdd(edge);
 
         if (is_rising(edge))
         {

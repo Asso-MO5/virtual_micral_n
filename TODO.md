@@ -1,5 +1,5 @@
 * Implement the Interrupt System on the Processor Board
-    * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
+    * Jam RST 0 instruction on Level 0 Interrupt.
 * Panel and Console Card implementation
     * Implement the SUBST mechanism
     * Implement the AV? switch (Need to understand better)

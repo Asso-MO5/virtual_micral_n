@@ -13,8 +13,8 @@ class AutomaticStart
 public:
     explicit AutomaticStart(std::shared_ptr<CPU8008> cpu);
 
-    void signal_phase_1(const Edge& edge);
-    void signal_vdd(const Edge& edge);
+    void on_phase_1(const Edge& edge);
+    void on_vdd(const Edge& edge);
 
 private:
     std::shared_ptr<CPU8008> cpu;
