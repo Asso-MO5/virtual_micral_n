@@ -32,14 +32,6 @@ void InterruptController::signal_phase_1(const Edge& edge)
             cpu->signal_interrupt(edge);
         }
     }
-    else
-    {
-        if (applying_interrupt && (*cpu->output_pins.state == Constants8008::CpuState::T1I))
-        {
-            applying_interrupt = false;
-            cpu->signal_interrupt(edge);
-        }
-    }
 }
 
 bool InterruptController::has_instruction_to_inject() const { return false; }
@@ -49,11 +41,12 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
 {
     if (new_state == Constants8008::CpuState::T1I)
     {
+        cpu->signal_interrupt(Edge{Edge::Front::FALLING, time});
         pluribus->rzgi.set(State::HIGH, time, this);
     }
     else if (old_state == Constants8008::CpuState::T1I)
     {
-
         pluribus->rzgi.set(State::LOW, time, this);
+        applying_interrupt = false;
     }
 }

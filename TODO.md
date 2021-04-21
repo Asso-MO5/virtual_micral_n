@@ -1,3 +1,4 @@
+* Change signal_interrupt to a OwnedSignal modification on the InterruptController 
 * Implement the Interrupt System on the Processor Board
     * Improve the InterruptAtStart as the Interrupt circuit of the Processor Board
 * Panel and Console Card implementation
