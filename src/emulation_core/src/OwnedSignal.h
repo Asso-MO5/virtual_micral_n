@@ -28,6 +28,9 @@ public:
     using counter_type = Scheduling::counter_type;
     using callback_type = std::function<void(Edge)>;
 
+    OwnedSignal() = default;
+    OwnedSignal(State initial_state);
+
     [[nodiscard]] State get_state() const;
     State operator*() const;
     [[nodiscard]] counter_type get_latest_change_time() const;

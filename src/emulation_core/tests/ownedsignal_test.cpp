@@ -12,6 +12,14 @@ TEST(OwnedSignal, is_initialized_low_and_at_time_0)
     ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{0}));
 }
 
+TEST(OwnedSignal, can_be_initialized_high_and_at_time_0)
+{
+    OwnedSignal signal{State::HIGH};
+    ASSERT_THAT(signal.get_state(), Eq(State::HIGH));
+    ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{0}));
+}
+
+
 TEST(OwnedSignal, can_be_deferenced)
 {
     OwnedSignal signal;
