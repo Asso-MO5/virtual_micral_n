@@ -38,11 +38,12 @@ CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
     output_pins.state.request(this, 0);
 
     input_pins.interrupt.subscribe([this](Edge edge) { on_interrupt(edge); });
+    input_pins.vdd.subscribe([this](Edge edge) { on_vdd(edge); });
 }
 
 void CPU8008::step()
 {
-    assert((input_pins.vdd == ::State::HIGH) && "CPU without power should not be scheduled");
+    assert(is_high(*input_pins.vdd) && "CPU without power should not be scheduled");
 
     if (next_events.empty())
     {
@@ -227,7 +228,7 @@ void CPU8008::on_signal_22_falling(Scheduling::counter_type edge_time)
 
 void CPU8008::signal_phase_1(Edge edge)
 {
-    if (input_pins.vdd == ::State::LOW)
+    if (is_low(*input_pins.vdd))
     {
         set_next_activation_time(Scheduling::unscheduled());
         return;
@@ -255,7 +256,7 @@ void CPU8008::signal_phase_1(Edge edge)
 
 void CPU8008::signal_phase_2(Edge edge)
 {
-    if (input_pins.vdd == ::State::LOW)
+    if (is_low(*input_pins.vdd))
     {
         set_next_activation_time(Scheduling::unscheduled());
         return;
@@ -405,10 +406,10 @@ void CPU8008::schedule_next_event(Scheduling::counter_type edge_time)
     scheduler.change_schedule(get_id());
 }
 
-void CPU8008::signal_vdd(Edge edge)
+void CPU8008::on_vdd(Edge edge)
 {
     input_pins.vdd = edge.apply();
-    if (is_low(input_pins.vdd))
+    if (is_low(*input_pins.vdd))
     {
         set_next_activation_time(Scheduling::unscheduled());
     }
@@ -419,7 +420,7 @@ void CPU8008::on_interrupt(Edge edge)
     {
         // TODO: acknowledge the interruption with correct timing
 
-        if ((edge.time() - input_pins.vdd.last_change()) < BOOT_UP_TIME)
+        if ((edge.time() - input_pins.vdd.get_latest_change_time()) < BOOT_UP_TIME)
         {
             // TODO: set garbage in the CPU state. It's too early
         }

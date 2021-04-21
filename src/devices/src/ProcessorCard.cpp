@@ -15,12 +15,9 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     set_next_activation_time(Scheduling::unscheduled());
 
     clock = std::make_shared<DoubleClock>(500'000_hz);
-
     cpu = std::make_shared<CPU8008>(scheduler);
-
     interrupt_controller = std::make_shared<InterruptController>(pluribus, cpu);
     automatic_startup = std::make_shared<AutomaticStart>(cpu);
-
     real_time_clock = std::make_shared<Clock>(100_hz); // Default factory configuration.
 
     connect_to_pluribus();
@@ -75,8 +72,9 @@ void ProcessorCard::connect_to_pluribus()
     pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
     pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
 
+    cpu->input_pins.vdd.request(this);
     pluribus->vdd.subscribe([this](Edge edge) {
-        cpu->signal_vdd(edge);
+        cpu->input_pins.vdd.apply(edge, this);
         automatic_startup->signal_vdd(edge);
 
         if (is_rising(edge))

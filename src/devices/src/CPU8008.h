@@ -39,10 +39,9 @@ public:
     {
         OwnedSignal interrupt;
         OwnedSignal ready{State::HIGH};
-        // ::State ready{State::HIGH};
-//        ::State phase_1{}; // These are not used
-//        ::State phase_2{};
-        ::State vdd{}; // TODO: turn into OwnedSignals
+        // phase_1{}; // These are not used, but could be OwnedSignals.
+        // phase_2{}; // No necessity at the moment.
+        OwnedSignal vdd{};
     };
 
     struct HiddenRegisters
@@ -82,7 +81,6 @@ public:
 
     void signal_phase_1(Edge edge);
     void signal_phase_2(Edge edge);
-    void signal_vdd(Edge edge);
 
     void register_sync_trigger(std::function<void(Edge)> callback);
 
@@ -128,6 +126,7 @@ private:
     InstructionTableFor8008::DecodedInstruction decoded_instruction;
 
     void on_interrupt(Edge edge);
+    void on_vdd(Edge edge);
 
     void on_signal_11_raising(Scheduling::counter_type edge_time);
     void on_signal_12_raising(Scheduling::counter_type edge_time);
