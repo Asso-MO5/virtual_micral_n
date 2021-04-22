@@ -26,12 +26,19 @@ void InterruptController::on_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
-        if (is_high(*pluribus->init) && !applying_interrupt)
+        if (is_high(*pluribus->init))
         {
-            applying_interrupt = true;
             pending_int_level_0 = true;
-            cpu->input_pins.interrupt.request(this);
-            cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
+        }
+
+        if (!applying_interrupt)
+        {
+            if (pending_int_level_0)
+            {
+                applying_interrupt = true;
+                cpu->input_pins.interrupt.request(this);
+                cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
+            }
         }
     }
 }
