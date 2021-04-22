@@ -21,7 +21,8 @@ public:
     void on_phase_1(const Edge& edge);
     [[nodiscard]] bool has_instruction_to_inject() const;
     [[nodiscard]] uint8_t get_instruction_to_inject() const;
-    void reset_interrupt(uint8_t interrupt_level);
+
+    void reset_lowest_interrupt();
 
 private:
     std::shared_ptr<Pluribus> pluribus;
@@ -36,7 +37,8 @@ private:
 
     void read_required_int_from_bus(OwnedSignal& signal, uint8_t level);
     [[nodiscard]] bool has_a_requested_interrupt() const;
-    [[nodiscard]] uint8_t highest_level_interrupt() const;
+    [[nodiscard]] uint8_t lowest_level_interrupt() const;
+    void reset_interrupt(uint8_t interrupt_level);
 
     void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState new_state,
                            unsigned long time);

@@ -225,7 +225,7 @@ void ProcessorCard::on_phase_2(Edge edge)
                     cpu->data_pins.set(instruction_to_inject, time, this);
                     cpu->data_pins.release(this, time);
 
-                    interrupt_controller->reset_interrupt(0);
+                    interrupt_controller->reset_lowest_interrupt();
                 }
                 else
                 {

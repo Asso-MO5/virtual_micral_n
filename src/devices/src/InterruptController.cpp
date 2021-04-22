@@ -58,7 +58,7 @@ bool InterruptController::has_a_requested_interrupt() const
                        [](auto b) { return b; });
 }
 
-uint8_t InterruptController::highest_level_interrupt() const
+uint8_t InterruptController::lowest_level_interrupt() const
 {
     return static_cast<uint8_t>(std::find_if(begin(requested_interrupts), end(requested_interrupts),
                                              [](auto b) { return b; }) -
@@ -67,12 +67,13 @@ uint8_t InterruptController::highest_level_interrupt() const
 
 bool InterruptController::has_instruction_to_inject() const { return has_a_requested_interrupt(); }
 void InterruptController::reset_interrupt(uint8_t level) { requested_interrupts[level] = false; }
+void InterruptController::reset_lowest_interrupt() {reset_interrupt(lowest_level_interrupt());}
 
 uint8_t InterruptController::get_instruction_to_inject() const
 {
     assert(has_instruction_to_inject() &&
            "No instruction to inject. Asking for the instruction is invalid.");
-    return 0x05 | ((highest_level_interrupt() << 3) & 0b00111000); // RST
+    return 0x05 | ((lowest_level_interrupt() << 3) & 0b00111000); // RST
 }
 
 void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
