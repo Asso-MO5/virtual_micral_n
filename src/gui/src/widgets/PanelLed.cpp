@@ -14,7 +14,7 @@ namespace widgets
 
     const ImVec4 LED_GREEN_ON = ImVec4(0.0f, 1.0f, 0.f, 1.0f);
 
-    void display_led(bool value, LedColor color_type)
+    void display_led(bool value, LedColor color_type, float intensity)
     {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems)
@@ -41,12 +41,12 @@ namespace widgets
         assert(color_type == GREEN); // Only color at now
         auto color = LED_GREEN_ON;
 
-        if (!value)
-        {
-            color.x *= 0.2f;
-            color.y *= 0.2f;
-            color.z *= 0.2f;
-        }
+        auto color_modifier = value ? std::max(intensity, 0.2f) : 0.2f;
+
+        color.x *= color_modifier;
+        color.y *= color_modifier;
+        color.z *= color_modifier;
+
         draw_list->AddCircleFilled(circle_position, radius, ImGui::GetColorU32(color));
     }
 
