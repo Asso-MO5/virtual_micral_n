@@ -29,7 +29,7 @@ public:
     using callback_type = std::function<void(Edge)>;
 
     OwnedSignal() = default;
-    OwnedSignal(State initial_state);
+    explicit OwnedSignal(State initial_state);
 
     [[nodiscard]] State get_state() const;
     State operator*() const;
@@ -49,5 +49,8 @@ private:
 
     void set_and_broadcast(State new_state, counter_type time);
 };
+
+inline bool is_high(const OwnedSignal& signal) { return is_high(*signal); }
+inline bool is_low(const OwnedSignal& signal) { return is_low(*signal); }
 
 #endif //MICRALN_OWNEDSIGNAL_H

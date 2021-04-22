@@ -26,7 +26,7 @@ void InterruptController::on_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
-        if (is_high(*pluribus->init))
+        if (is_high(pluribus->init))
         {
             pending_int_level_0 = true;
         }

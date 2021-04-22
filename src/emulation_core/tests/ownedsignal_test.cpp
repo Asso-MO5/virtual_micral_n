@@ -19,7 +19,6 @@ TEST(OwnedSignal, can_be_initialized_high_and_at_time_0)
     ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{0}));
 }
 
-
 TEST(OwnedSignal, can_be_deferenced)
 {
     OwnedSignal signal;
@@ -101,4 +100,16 @@ TEST(OwnedSignal, can_follow_an_wdge)
 
     ASSERT_THAT(signal.get_state(), Eq(State::HIGH));
     ASSERT_THAT(signal.get_latest_change_time(), Eq(Scheduling::counter_type{300}));
+}
+
+TEST(OwnedSignal, predicate_functions)
+{
+    OwnedSignal state_low{State::LOW};
+    OwnedSignal state_high{State::HIGH};
+
+    ASSERT_TRUE(is_high(state_high));
+    ASSERT_FALSE(is_low(state_high));
+
+    ASSERT_FALSE(is_high(state_low));
+    ASSERT_TRUE(is_low(state_low));
 }

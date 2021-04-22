@@ -73,7 +73,7 @@ void ConsoleCard::on_sync(Edge edge)
     status.is_waiting = *pluribus->wait == State::HIGH;
     status.is_stopped = *pluribus->stop == State::HIGH;
 
-    if (is_falling(edge) && is_high(*pluribus->t2))
+    if (is_falling(edge) && is_high(pluribus->t2))
     {
         if (status.trap && !status.stepping)
         {
@@ -87,7 +87,7 @@ void ConsoleCard::on_phase_2(Edge edge)
     if (is_falling(edge))
     {
         auto time = edge.time();
-        if (is_high(*pluribus->t2))
+        if (is_high(pluribus->t2))
         {
             if (status.stepping)
             {
@@ -119,7 +119,7 @@ void ConsoleCard::on_phase_2(Edge edge)
             }
         }
 
-        if (is_high(*pluribus->t3prime))
+        if (is_high(pluribus->t3prime))
         {
             status.data = pluribus->data_bus_md0_7.get_value();
             status.address = *pluribus->address_bus_s0_s13;
@@ -160,7 +160,7 @@ void ConsoleCard::press_interrupt() { pending_interrupt = true; }
 
 void ConsoleCard::on_rzgi(Edge edge)
 {
-    if (is_falling(edge) && is_high(*pluribus->init))
+    if (is_falling(edge) && is_high(pluribus->init))
     {
         pluribus->init.set(State::LOW, edge.time(), this);
         pluribus->init.release(this);

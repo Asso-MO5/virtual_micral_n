@@ -211,7 +211,7 @@ void ProcessorCard::on_phase_2(Edge edge)
 
     if (is_falling(edge))
     {
-        if (is_high(*pluribus->t3))
+        if (is_high(pluribus->t3))
         {
             if (latched_cycle_control == Constants8008::CycleControl::PCI ||
                 latched_cycle_control == Constants8008::CycleControl::PCR ||

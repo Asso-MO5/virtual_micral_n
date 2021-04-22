@@ -10,6 +10,8 @@
 class CPU8008;
 class Pluribus;
 
+const size_t INTERRUPT_LEVEL_COUNT = 8;
+
 class InterruptController
 {
 public:
@@ -25,6 +27,9 @@ private:
     std::shared_ptr<CPU8008> cpu;
     bool applying_interrupt{};
     bool pending_int_level_0{}; // TODO: change this to an array of pending interrupt levels
+    std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts;
+    // enabled_interrupts
+    // interruption_are_masked
 
     void request_signals();
     void connect_values();

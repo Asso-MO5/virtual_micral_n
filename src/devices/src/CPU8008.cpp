@@ -43,7 +43,7 @@ CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
 
 void CPU8008::step()
 {
-    assert(is_high(*input_pins.vdd) && "CPU without power should not be scheduled");
+    assert(is_high(input_pins.vdd) && "CPU without power should not be scheduled");
 
     if (next_events.empty())
     {
@@ -408,15 +408,15 @@ void CPU8008::schedule_next_event(Scheduling::counter_type edge_time)
 
 void CPU8008::on_vdd(Edge edge)
 {
-    input_pins.vdd = edge.apply();
-    if (is_low(*input_pins.vdd))
+    if (is_low(input_pins.vdd))
     {
         set_next_activation_time(Scheduling::unscheduled());
     }
 }
+
 void CPU8008::on_interrupt(Edge edge)
 {
-    if (is_high(*input_pins.interrupt))
+    if (is_high(input_pins.interrupt))
     {
         // TODO: acknowledge the interruption with correct timing
 
