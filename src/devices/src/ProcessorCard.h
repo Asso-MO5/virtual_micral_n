@@ -74,6 +74,7 @@ private:
     void connect_to_pluribus();
     void connect_to_cpu();
     void connect_to_clock();
+    void connect_to_rtc();
 };
 
 #endif //MICRALN_PROCESSORCARD_H

@@ -133,6 +133,10 @@ void Simulator::register_signals()
     auto& rtc = processor_card->get_rtc();
 
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
+    auto& aint7_recorder =
+            recorders.create_and_get_signal_recorder("AINT7", window_time_frame_in_s, 50 * 4);
+    auto& bi7_recorder =
+            recorders.create_and_get_signal_recorder("BI7", window_time_frame_in_s, 50 * 4);
     auto& rzgi_recorder =
             recorders.create_and_get_signal_recorder("RZGI", window_time_frame_in_s, 50 * 4);
     auto& init_recorder =
@@ -184,6 +188,9 @@ void Simulator::register_signals()
 
     connect_recorder(pluribus->init, init_recorder);
     connect_recorder(pluribus->rzgi, rzgi_recorder);
+
+    connect_recorder(pluribus->bi7, bi7_recorder);
+    connect_recorder(pluribus->aint7, aint7_recorder);
 }
 
 void Simulator::register_values()

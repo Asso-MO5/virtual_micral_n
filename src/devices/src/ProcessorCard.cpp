@@ -23,6 +23,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     connect_to_pluribus();
     connect_to_cpu();
     connect_to_clock();
+    connect_to_rtc();
 
     cpu->input_pins.ready.request(this);
     combined_ready.request(this);
@@ -89,6 +90,28 @@ void ProcessorCard::connect_to_pluribus()
             [this](uint8_t old_value, uint8_t new_value, Scheduling::counter_type time) {
                 pluribus->data_bus_d0_7.set(new_value, time, this);
             });
+}
+
+void ProcessorCard::connect_to_rtc()
+{
+    // The connection between RTC and bi7 is permanent for a given setting.
+    // It's a soldered jumper on the Processor Board.
+
+    pluribus->bi7.request(this);
+
+    real_time_clock->phase.subscribe([this](Edge edge) {
+        if (is_low(pluribus->bi7) && is_rising(edge) && automatic_startup->is_ready())
+        {
+            pluribus->bi7.apply(edge, this);
+        }
+    });
+
+    pluribus->aint7.subscribe([this](Edge edge) {
+        if (is_rising(edge))
+        {
+            pluribus->bi7.set(State::LOW, edge.time(), this);
+        }
+    });
 }
 
 const CPU8008& ProcessorCard::get_cpu() const { return *cpu; }

@@ -18,8 +18,10 @@ void AutomaticStart::on_phase_1(const Edge& edge)
         {
             cpu->input_pins.interrupt.set(State::LOW, edge.time(), this);
             cpu->input_pins.interrupt.release(this);
+            ready = true;
         }
     }
 }
 
 void AutomaticStart::on_vdd(const Edge& edge) { counter = 0; }
+bool AutomaticStart::is_ready() const { return ready; }

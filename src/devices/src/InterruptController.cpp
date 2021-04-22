@@ -11,7 +11,17 @@ InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
     connect_values();
 }
 
-void InterruptController::request_signals() { pluribus->rzgi.request(this); }
+void InterruptController::request_signals() {
+    pluribus->rzgi.request(this);
+    // TODO: Hideous. Could probably use an indirection array
+    pluribus->aint1.request(this);
+    pluribus->aint2.request(this);
+    pluribus->aint3.request(this);
+    pluribus->aint4.request(this);
+    pluribus->aint5.request(this);
+    pluribus->aint6.request(this);
+    pluribus->aint7.request(this);
+}
 
 void InterruptController::connect_values()
 {
@@ -67,7 +77,7 @@ uint8_t InterruptController::lowest_level_interrupt() const
 
 bool InterruptController::has_instruction_to_inject() const { return has_a_requested_interrupt(); }
 void InterruptController::reset_interrupt(uint8_t level) { requested_interrupts[level] = false; }
-void InterruptController::reset_lowest_interrupt() {reset_interrupt(lowest_level_interrupt());}
+void InterruptController::reset_lowest_interrupt() { reset_interrupt(lowest_level_interrupt()); }
 
 uint8_t InterruptController::get_instruction_to_inject() const
 {
@@ -87,11 +97,65 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
             cpu->input_pins.interrupt.set(State::LOW, time, this);
             cpu->input_pins.interrupt.release(this);
         }
-        pluribus->rzgi.set(State::HIGH, time, this);
+        // TODO: Hideous. Could probably use an indirection array
+        switch (lowest_level_interrupt())
+        {
+            case 0:
+                pluribus->rzgi.set(State::HIGH, time, this);
+                break;
+            case 1:
+                pluribus->aint1.set(State::HIGH, time, this);
+                break;
+            case 2:
+                pluribus->aint2.set(State::HIGH, time, this);
+                break;
+            case 3:
+                pluribus->aint3.set(State::HIGH, time, this);
+                break;
+            case 4:
+                pluribus->aint4.set(State::HIGH, time, this);
+                break;
+            case 5:
+                pluribus->aint5.set(State::HIGH, time, this);
+                break;
+            case 6:
+                pluribus->aint6.set(State::HIGH, time, this);
+                break;
+            case 7:
+                pluribus->aint7.set(State::HIGH, time, this);
+                break;
+        }
     }
     else if (old_state == Constants8008::CpuState::T1I)
     {
-        pluribus->rzgi.set(State::LOW, time, this);
+        // TODO: Hideous. Could probably use an indirection array
+        switch (lowest_level_interrupt())
+        {
+            case 0:
+                pluribus->rzgi.set(State::LOW, time, this);
+                break;
+            case 1:
+                pluribus->aint1.set(State::LOW, time, this);
+                break;
+            case 2:
+                pluribus->aint2.set(State::LOW, time, this);
+                break;
+            case 3:
+                pluribus->aint3.set(State::LOW, time, this);
+                break;
+            case 4:
+                pluribus->aint4.set(State::LOW, time, this);
+                break;
+            case 5:
+                pluribus->aint5.set(State::LOW, time, this);
+                break;
+            case 6:
+                pluribus->aint6.set(State::LOW, time, this);
+                break;
+            case 7:
+                pluribus->aint7.set(State::LOW, time, this);
+                break;
+        }
         applying_interrupt = false;
     }
 }
