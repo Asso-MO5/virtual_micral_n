@@ -82,7 +82,8 @@ Simulator::Simulator(ConfigROM rom_config)
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
     io_controller = std::make_shared<IOController>(processor_card->get_cpu(), pluribus);
-    console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Manual);
+    console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Manual,
+                                                 ConsoleCard::RecordMode::Record);
 
     auto& clock = processor_card->get_clock();
     clock.phase_1.subscribe([this](Edge edge) { io_controller->signal_phase_1(edge); });

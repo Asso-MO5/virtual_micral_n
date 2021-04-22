@@ -16,11 +16,18 @@ public:
         Manual,
     };
 
-    explicit ConsoleCard(std::shared_ptr<Pluribus> pluribus, StartMode start_mode);
+    enum RecordMode
+    {
+        DontRecord,
+        Record,
+    };
+
+    ConsoleCard(std::shared_ptr<Pluribus> pluribus, StartMode start_mode, RecordMode record_mode);
     ~ConsoleCard() override = default;
 
     void step() override;
-    enum StepMode
+
+    enum StepMode : uint8_t
     {
         Instruction,
         Cycle,
@@ -28,26 +35,44 @@ public:
 
     struct Status
     {
-        bool automatic;
-        bool stepping;
-        bool trap;
-        bool substitution;
+        bool automatic{};
+        bool stepping{};
+        bool trap{};
+        bool substitution{};
+
+        bool is_waiting{};
+        bool is_stopped{};
+
+        bool is_op_cycle{};
+        bool is_read_cycle{};
+        bool is_io_cycle{};
+        bool is_write_cycle{};
+
+        uint16_t address{};
+        uint8_t data{};
 
         StepMode step_mode{Instruction};
+    };
 
-        bool is_waiting;
-        bool is_stopped;
+    class StatusHistory
+    {
+    public:
+        using StatusContainer = std::vector<Status>;
 
-        bool is_op_cycle;
-        bool is_read_cycle;
-        bool is_io_cycle;
-        bool is_write_cycle;
+        explicit StatusHistory(size_t size);
 
-        uint8_t data;
-        uint16_t address;
+        void push(const ConsoleCard::Status& status);
+        void reset();
+
+        [[nodiscard]] const StatusContainer& get_history() const;
+
+    private:
+        StatusContainer history;
     };
 
     [[nodiscard]] Status get_status() const;
+    [[nodiscard]] const StatusHistory::StatusContainer& get_status_history() const;
+    void reset_history();
 
     void press_automatic();
     void press_stepping();
@@ -66,13 +91,14 @@ private:
     StartMode start_mode;
     std::shared_ptr<Pluribus> pluribus;
     Status status;
+    StatusHistory status_history;
+
     uint16_t switch_address{};
     uint8_t switch_data{};
     bool pending_interrupt{};
 
     void on_vdd(Edge edge);
     void on_phase_2(Edge edge);
-    void on_t3(Edge edge);
     void on_sync(Edge edge);
 
     void set_step_mode();
