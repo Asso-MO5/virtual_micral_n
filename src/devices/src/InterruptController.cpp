@@ -22,18 +22,27 @@ void InterruptController::connect_values()
     });
 }
 
+void InterruptController::read_required_int_from_bus(OwnedSignal& signal, uint8_t level)
+{
+    requested_interrupts[level] = requested_interrupts[level] | is_high(signal);
+}
+
 void InterruptController::on_phase_1(const Edge& edge)
 {
     if (is_rising(edge))
     {
-        if (is_high(pluribus->init))
-        {
-            pending_int_level_0 = true;
-        }
+        read_required_int_from_bus(pluribus->init, 0);
+        read_required_int_from_bus(pluribus->bi1, 1);
+        read_required_int_from_bus(pluribus->bi2, 2);
+        read_required_int_from_bus(pluribus->bi3, 3);
+        read_required_int_from_bus(pluribus->bi4, 4);
+        read_required_int_from_bus(pluribus->bi5, 5);
+        read_required_int_from_bus(pluribus->bi6, 6);
+        read_required_int_from_bus(pluribus->bi7, 7);
 
         if (!applying_interrupt)
         {
-            if (pending_int_level_0)
+            if (has_a_requested_interrupt())
             {
                 applying_interrupt = true;
                 cpu->input_pins.interrupt.request(this);
@@ -43,12 +52,27 @@ void InterruptController::on_phase_1(const Edge& edge)
     }
 }
 
-bool InterruptController::has_instruction_to_inject() const { return pending_int_level_0; }
-void InterruptController::reset_interrupt(uint8_t) { pending_int_level_0 = false; }
+bool InterruptController::has_a_requested_interrupt() const
+{
+    return std::any_of(begin(requested_interrupts), end(requested_interrupts),
+                       [](auto b) { return b; });
+}
+
+uint8_t InterruptController::highest_level_interrupt() const
+{
+    return static_cast<uint8_t>(std::find_if(begin(requested_interrupts), end(requested_interrupts),
+                                             [](auto b) { return b; }) -
+                                begin(requested_interrupts));
+}
+
+bool InterruptController::has_instruction_to_inject() const { return has_a_requested_interrupt(); }
+void InterruptController::reset_interrupt(uint8_t level) { requested_interrupts[level] = false; }
 
 uint8_t InterruptController::get_instruction_to_inject() const
 {
-    return 0x05; // RST $00
+    assert(has_instruction_to_inject() &&
+           "No instruction to inject. Asking for the instruction is invalid.");
+    return 0x05 | ((highest_level_interrupt() << 3) & 0b00111000); // RST
 }
 
 void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,

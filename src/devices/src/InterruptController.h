@@ -3,12 +3,13 @@
 
 #include "Constants8008.h"
 
-#include <emulation_core/src/Edge.h>
 #include <functional>
 #include <memory>
 
 class CPU8008;
 class Pluribus;
+class OwnedSignal;
+class Edge;
 
 const size_t INTERRUPT_LEVEL_COUNT = 8;
 
@@ -26,14 +27,18 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
     bool applying_interrupt{};
-    bool pending_int_level_0{}; // TODO: change this to an array of pending interrupt levels
-    std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts;
+    std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts{};
     // enabled_interrupts
     // interruption_are_masked
 
     void request_signals();
     void connect_values();
-    void cpu_state_changed(Constants8008::CpuState state, Constants8008::CpuState state1,
+
+    void read_required_int_from_bus(OwnedSignal& signal, uint8_t level);
+    [[nodiscard]] bool has_a_requested_interrupt() const;
+    [[nodiscard]] uint8_t highest_level_interrupt() const;
+
+    void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState new_state,
                            unsigned long time);
 };
 
