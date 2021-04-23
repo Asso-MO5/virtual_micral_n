@@ -1,5 +1,4 @@
 * Implement the Interrupt System on the Processor Board
-  * Clean the big switch cases
   * First instruction after a RST should not be interruptable.
   * Implement Masking
   * Step blocks when entering RST 38 : probably because of the first instruction gets interrupted.

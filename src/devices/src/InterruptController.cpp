@@ -5,22 +5,21 @@
 
 InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
                                          std::shared_ptr<CPU8008> cpu)
-    : pluribus{std::move(pluribus)}, cpu{std::move(cpu)}
+    : pluribus{std::move(pluribus)}, cpu{std::move(cpu)},
+      pluribus_int_ack{&this->pluribus->rzgi,  &this->pluribus->aint1, &this->pluribus->aint2,
+                       &this->pluribus->aint3, &this->pluribus->aint4, &this->pluribus->aint5,
+                       &this->pluribus->aint6, &this->pluribus->aint7}
 {
     request_signals();
     connect_values();
 }
 
-void InterruptController::request_signals() {
-    pluribus->rzgi.request(this);
-    // TODO: Hideous. Could probably use an indirection array
-    pluribus->aint1.request(this);
-    pluribus->aint2.request(this);
-    pluribus->aint3.request(this);
-    pluribus->aint4.request(this);
-    pluribus->aint5.request(this);
-    pluribus->aint6.request(this);
-    pluribus->aint7.request(this);
+void InterruptController::request_signals()
+{
+    for (auto& ack_line : pluribus_int_ack)
+    {
+        ack_line->request(this);
+    }
 }
 
 void InterruptController::connect_values()
@@ -97,65 +96,23 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
             cpu->input_pins.interrupt.set(State::LOW, time, this);
             cpu->input_pins.interrupt.release(this);
         }
-        // TODO: Hideous. Could probably use an indirection array
-        switch (lowest_level_interrupt())
+
+        if (has_a_requested_interrupt())
         {
-            case 0:
-                pluribus->rzgi.set(State::HIGH, time, this);
-                break;
-            case 1:
-                pluribus->aint1.set(State::HIGH, time, this);
-                break;
-            case 2:
-                pluribus->aint2.set(State::HIGH, time, this);
-                break;
-            case 3:
-                pluribus->aint3.set(State::HIGH, time, this);
-                break;
-            case 4:
-                pluribus->aint4.set(State::HIGH, time, this);
-                break;
-            case 5:
-                pluribus->aint5.set(State::HIGH, time, this);
-                break;
-            case 6:
-                pluribus->aint6.set(State::HIGH, time, this);
-                break;
-            case 7:
-                pluribus->aint7.set(State::HIGH, time, this);
-                break;
+            auto interrupt_level_to_rise = lowest_level_interrupt();
+            assert(interrupt_level_to_rise < pluribus_int_ack.size());
+            pluribus_int_ack[interrupt_level_to_rise]->set(State::HIGH, time, this);
         }
     }
     else if (old_state == Constants8008::CpuState::T1I)
     {
-        // TODO: Hideous. Could probably use an indirection array
-        switch (lowest_level_interrupt())
+        auto interrupt_level_to_lower = lowest_level_interrupt();
+        // The inequality is based on the implementation of lowest_level_interrupt()... not very good
+        if (interrupt_level_to_lower < pluribus_int_ack.size())
         {
-            case 0:
-                pluribus->rzgi.set(State::LOW, time, this);
-                break;
-            case 1:
-                pluribus->aint1.set(State::LOW, time, this);
-                break;
-            case 2:
-                pluribus->aint2.set(State::LOW, time, this);
-                break;
-            case 3:
-                pluribus->aint3.set(State::LOW, time, this);
-                break;
-            case 4:
-                pluribus->aint4.set(State::LOW, time, this);
-                break;
-            case 5:
-                pluribus->aint5.set(State::LOW, time, this);
-                break;
-            case 6:
-                pluribus->aint6.set(State::LOW, time, this);
-                break;
-            case 7:
-                pluribus->aint7.set(State::LOW, time, this);
-                break;
+            pluribus_int_ack[interrupt_level_to_lower]->set(State::LOW, time, this);
         }
+
         applying_interrupt = false;
     }
 }
