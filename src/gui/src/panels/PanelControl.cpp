@@ -15,7 +15,9 @@ using namespace widgets;
 
 namespace
 {
-    std::array<int, 16> value_to_display_bits(uint16_t value, size_t bus_width)
+    float HISTORY_REMANENCE = 100.f;
+
+    std::array<int, 16> value_to_display_as_bits(uint16_t value, size_t bus_width)
     {
         std::array<int, 16> all_bits{};
         for (int i = 0; i < 16; i += 1)
@@ -36,8 +38,9 @@ namespace
                                [](auto a, auto b) { return a << 1 | b; });
     }
 
-    template<typename switch_array>
-    void display_led_and_switches(std::array<int, 16> all_bits, switch_array& all_switches)
+    template<typename switch_array, typename led_value_type>
+    void display_led_and_switches(std::array<led_value_type, 16> all_bits,
+                                  switch_array& all_switches)
     {
         const auto bus_width = all_switches.size();
         auto count = 0;
@@ -49,10 +52,10 @@ namespace
                 ImGui::Text(" ");
                 ImGui::SameLine();
             }
-            const bool bit_value = all_bits[count];
+            const float bit_value = all_bits[count];
 
             ImGui::BeginGroup();
-            display_led(bit_value, GREEN);
+            display_led(static_cast<float>(bit_value), GREEN);
             display_control_button("B", &value, TOGGLE);
             ImGui::EndGroup();
             ImGui::SameLine();
@@ -77,6 +80,33 @@ namespace
         bool impulse = (*switch_value != previous_value) && *switch_value;
 
         return impulse;
+    }
+
+    std::array<float, 16>
+    compute_remanence(const ConsoleCard& console_card, size_t bus_width,
+                      const std::function<uint16_t(const ConsoleCard::Status&)>& data_selector)
+    {
+        std::array<float, 16> accumulated_bits{};
+
+        const auto& history = console_card.get_status_history();
+        for (const auto& historic_status : history)
+        {
+            uint16_t historic_display_value = data_selector(historic_status);
+            std::array<int, 16> all_bits{
+                    value_to_display_as_bits(historic_display_value, bus_width)};
+
+            // Accumulate values on all bits with a remanence factor.
+            std::transform(begin(accumulated_bits), end(accumulated_bits), begin(all_bits),
+                           begin(accumulated_bits),
+                           [](const auto& a, const auto& b) { return a + b * HISTORY_REMANENCE; });
+        }
+        // Final value is the average for all bits, maximum 1.f
+        std::transform(begin(accumulated_bits), end(accumulated_bits), begin(accumulated_bits),
+                       [&history](const auto& a) {
+                           return std::min(1.f, a / static_cast<float>(history.size()));
+                       });
+
+        return accumulated_bits;
     }
 
 } // namespace
@@ -106,6 +136,8 @@ void PanelControl::display(Simulator& simulator)
     }
 
     ImGui::End();
+
+    console_card.reset_history();
 }
 
 void PanelControl::display_address_line(ConsoleCard& console_card)
@@ -115,8 +147,19 @@ void PanelControl::display_address_line(ConsoleCard& console_card)
 
     const auto& status = console_card.get_status();
     uint16_t display_value = status.address;
-    std::array<int, 16> all_bits{value_to_display_bits(display_value, input_address.size())};
-    display_led_and_switches(all_bits, input_address);
+
+    if (display_mode == Instant)
+    {
+        std::array<int, 16> all_bits{value_to_display_as_bits(display_value, input_address.size())};
+        display_led_and_switches(all_bits, input_address);
+    }
+    else
+    {
+        auto accumulated_bits =
+                compute_remanence(console_card, input_address.size(),
+                                  [](const ConsoleCard::Status& status) { return status.address; });
+        display_led_and_switches(accumulated_bits, input_address);
+    }
     ImGui::EndGroup();
 
     auto numeric_data = bits_to_value(input_address);
@@ -135,8 +178,19 @@ void PanelControl::display_data_line(ConsoleCard& console_card)
 
     uint16_t display_value = status.data;
 
-    std::array<int, 16> all_bits{value_to_display_bits(display_value, input_data.size())};
-    display_led_and_switches(all_bits, input_data);
+    if (display_mode == Instant)
+    {
+        std::array<int, 16> all_bits{value_to_display_as_bits(display_value, input_data.size())};
+        display_led_and_switches(all_bits, input_data);
+    }
+    else
+    {
+        auto accumulated_bits =
+                compute_remanence(console_card, input_data.size(),
+                                  [](const ConsoleCard::Status& status) { return status.data; });
+        display_led_and_switches(accumulated_bits, input_data);
+    }
+
     ImGui::EndGroup();
 
     auto numeric_data = bits_to_value(input_data);
@@ -196,12 +250,10 @@ void PanelControl::display_status_line(ConsoleCard& console_card)
 
     bool is_waiting = status.is_waiting;
     bool is_stopped = status.is_stopped;
-    const bool info_values[] = {!(is_waiting || is_stopped), is_waiting,
-                                is_stopped,
-                                status.is_op_cycle,
-                                status.is_read_cycle,
-                                status.is_io_cycle,
-                                status.is_write_cycle};
+    const bool info_values[] = {
+            !(is_waiting || is_stopped), is_waiting,           is_stopped,
+            status.is_op_cycle,          status.is_read_cycle, status.is_io_cycle,
+            status.is_write_cycle};
 
     assert(IM_ARRAYSIZE(INFORMATION_NAMES) == IM_ARRAYSIZE(info_values));
 
@@ -228,4 +280,8 @@ void PanelControl::display_av_init_line(ConsoleCard& console_card)
     {
         console_card.press_interrupt();
     }
+}
+void PanelControl::set_display_mode(PanelControl::DisplayMode mew_display_mode)
+{
+    display_mode = mew_display_mode;
 }

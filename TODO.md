@@ -2,7 +2,7 @@
   * Clean the big switch cases
   * First instruction after a RST should not be interruptable.
   * Implement Masking
-* Implement remanence of LEDs
+  * Step blocks when entering RST 38 : probably because of the first instruction gets interrupted.
 * Why the values on D0-D7 when jamming an RST 0 by INIT?
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
 * Panel and Console Card implementation
@@ -11,6 +11,7 @@
 * Implement the Stack card
 * Implement the I/O cards
 * Once the interrupt system and I/O cards are there, implement the watch-dog.
+* Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a Debuggers for GUI information (but can be use in CLI also)
   * Debugger that references memory, to display memory cards information
   * Debugger that references all cards to associate to specific debug panel.

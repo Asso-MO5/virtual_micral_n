@@ -8,7 +8,7 @@ namespace widgets
         GREEN,
     };
 
-    void display_led(bool value, LedColor color_type, float intensity = 1.f);
+    void display_led(float intensity, LedColor color_type);
 }
 
 #endif //MICRALN_PANELLED_H
