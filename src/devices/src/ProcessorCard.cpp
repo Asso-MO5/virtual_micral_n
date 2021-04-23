@@ -18,7 +18,8 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
-    interrupt_controller = std::make_shared<InterruptController>(pluribus, cpu);
+    bus_address_decoder = std::make_shared<BusAddressDecoder>(cpu, pluribus);
+    interrupt_controller = std::make_shared<InterruptController>(pluribus, cpu, bus_address_decoder);
     automatic_startup = std::make_shared<AutomaticStart>(cpu);
     real_time_clock = std::make_shared<Clock>(100_hz); // Default factory configuration.
 
@@ -31,7 +32,6 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     combined_ready.request(this);
     combined_ready.subscribe([this](Edge edge) { cpu->input_pins.ready.apply(edge, this); });
 
-    bus_address_decoder = std::make_shared<BusAddressDecoder>(cpu, pluribus);
 }
 
 ProcessorCard::~ProcessorCard() = default;

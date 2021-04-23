@@ -1,5 +1,6 @@
 #include "InterruptController.h"
 
+#include "BusAddressDecoder.h"
 #include "CPU8008.h"
 #include "Pluribus.h"
 
@@ -11,8 +12,10 @@ namespace
 } // namespace
 
 InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
-                                         std::shared_ptr<CPU8008> cpu)
-    : pluribus{std::move(pluribus)}, cpu{std::move(cpu)},
+                                         std::shared_ptr<CPU8008> cpu,
+                                         std::shared_ptr<BusAddressDecoder> bus_address_decoder)
+    : pluribus{std::move(pluribus)}, cpu{std::move(cpu)}, bus_address_decoder{std::move(
+                                                                  bus_address_decoder)},
       pluribus_int_ack{&this->pluribus->rzgi,  &this->pluribus->aint1, &this->pluribus->aint2,
                        &this->pluribus->aint3, &this->pluribus->aint4, &this->pluribus->aint5,
                        &this->pluribus->aint6, &this->pluribus->aint7}
@@ -74,7 +77,8 @@ void InterruptController::on_t3_prime(Edge edge)
 {
     if (is_rising(edge))
     {
-        //if (latched_cycle_control == Constants8008::CycleControl::PCI)
+        auto cycle_control = bus_address_decoder->get_latched_cycle_control();
+        if (cycle_control == Constants8008::CycleControl::PCI)
         {
             auto data_on_bus = *pluribus->data_bus_md0_7;
 
