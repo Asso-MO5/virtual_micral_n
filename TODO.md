@@ -1,6 +1,7 @@
 * Implement the Interrupt System on the Processor Board
   * Implement Masking
   * Step blocks when entering RST 38 : probably because of the first instruction gets interrupted and MAS cannot be executed
+  * Extract the CycleControl decoding to be shared between the ProcessorCard and the InterruptController
 * Why the values on D0-D7 when jamming an RST 0 by INIT?
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
 * Panel and Console Card implementation

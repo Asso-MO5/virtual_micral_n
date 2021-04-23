@@ -27,7 +27,8 @@ set(DEVICES_FILES
         src/MemoryCard.cpp src/MemoryCard.h
         src/PluribusHelpers.cpp src/PluribusHelpers.h
         src/PluribusConfiguration.cpp src/PluribusConfiguration.h
-        src/InterruptCircuit.cpp src/InterruptCircuit.h)
+        src/InterruptCircuit.cpp src/InterruptCircuit.h
+        src/BusAddressDecoder.cpp src/BusAddressDecoder.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp

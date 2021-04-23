@@ -3,6 +3,13 @@
 #include "CPU8008.h"
 #include "Pluribus.h"
 
+namespace
+{
+    const uint8_t MAS_INSTRUCTION = 0b11010010;
+    const uint8_t DMS_INSTRUCTION = 0b11110110;
+    const uint8_t REI_INSTRUCTION = 0b00011111;
+} // namespace
+
 InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
                                          std::shared_ptr<CPU8008> cpu)
     : pluribus{std::move(pluribus)}, cpu{std::move(cpu)},
@@ -29,6 +36,8 @@ void InterruptController::connect_values()
                                       Scheduling::counter_type time) {
         cpu_state_changed(old_state, new_state, time);
     });
+
+    pluribus->t3prime.subscribe([this](Edge edge) { on_t3_prime(edge); });
 }
 
 void InterruptController::read_required_int_from_bus(OwnedSignal& signal, uint8_t level)
@@ -56,6 +65,29 @@ void InterruptController::on_phase_1(const Edge& edge)
                 applying_interrupt = true;
                 cpu->input_pins.interrupt.request(this);
                 cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
+            }
+        }
+    }
+}
+
+void InterruptController::on_t3_prime(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        //if (latched_cycle_control == Constants8008::CycleControl::PCI)
+        {
+            auto data_on_bus = *pluribus->data_bus_md0_7;
+
+            switch (data_on_bus)
+            {
+                case MAS_INSTRUCTION:
+                    break;
+                case DMS_INSTRUCTION:
+                    break;
+                case REI_INSTRUCTION:
+                    break;
+                default:
+                    break;
             }
         }
     }

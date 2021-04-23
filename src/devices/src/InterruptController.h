@@ -18,11 +18,11 @@ class InterruptController
 public:
     explicit InterruptController(std::shared_ptr<Pluribus> pluribus, std::shared_ptr<CPU8008> cpu);
 
-    void on_phase_1(const Edge& edge);
     [[nodiscard]] bool has_instruction_to_inject() const;
     [[nodiscard]] uint8_t get_instruction_to_inject() const;
 
     void reset_lowest_interrupt();
+    void on_phase_1(const Edge& edge);
 
 private:
     std::shared_ptr<Pluribus> pluribus;
@@ -37,6 +37,8 @@ private:
 
     void request_signals();
     void connect_values();
+
+    void on_t3_prime(Edge edge);
 
     void read_required_int_from_bus(OwnedSignal& signal, uint8_t level);
     [[nodiscard]] bool has_a_requested_interrupt() const;

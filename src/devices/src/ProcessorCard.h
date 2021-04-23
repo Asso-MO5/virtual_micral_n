@@ -1,6 +1,7 @@
 #ifndef MICRALN_PROCESSORCARD_H
 #define MICRALN_PROCESSORCARD_H
 
+#include "BusAddressDecoder.h"
 #include "Constants8008.h"
 
 #include <emulation_core/src/ConnectedData.h>
@@ -62,8 +63,7 @@ private:
 
     // Inner workings
     OwnedSignal combined_ready{};
-    uint16_t latched_address{};
-    Constants8008::CycleControl latched_cycle_control{};
+    std::shared_ptr<BusAddressDecoder> bus_address_decoder{};
     bool emit_t3prime_on_next_step{};
     bool t1i_cycle{};
 

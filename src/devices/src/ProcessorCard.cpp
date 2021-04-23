@@ -1,6 +1,7 @@
 #include "ProcessorCard.h"
 
 #include "AutomaticStart.h"
+#include "BusAddressDecoder.h"
 #include "CPU8008.h"
 #include "Clock.h"
 #include "DoubleClock.h"
@@ -29,6 +30,8 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     cpu->input_pins.ready.request(this);
     combined_ready.request(this);
     combined_ready.subscribe([this](Edge edge) { cpu->input_pins.ready.apply(edge, this); });
+
+    bus_address_decoder = std::make_shared<BusAddressDecoder>(cpu, pluribus);
 }
 
 ProcessorCard::~ProcessorCard() = default;
@@ -66,9 +69,6 @@ void ProcessorCard::connect_to_pluribus()
     pluribus->t2.request(this);
     pluribus->t3.request(this);
     pluribus->t3prime.request(this);
-    pluribus->cc0.request(this);
-    pluribus->cc1.request(this);
-    pluribus->address_bus_s0_s13.request(this, 0);
     pluribus->sync.request(this);
     pluribus->data_bus_d0_7.request(this, 0);
 
@@ -173,40 +173,7 @@ void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, un
     }
 }
 
-void ProcessorCard::cpu_sync_changed(Edge edge)
-{
-    if (edge == Edge{Edge::Front::FALLING})
-    {
-        auto cpu_state = *cpu->output_pins.state;
-
-        // TODO: Verify if the address is also sent on the BUS after an interruption
-        if (cpu_state == Constants8008::CpuState::T1 || cpu_state == Constants8008::CpuState::T1I)
-        {
-            latched_address &= 0xff00;
-            latched_address |= cpu->data_pins.get_value();
-        }
-        else if (cpu_state == Constants8008::CpuState::T2)
-        {
-            auto read_value = cpu->data_pins.get_value();
-
-            latched_address &= 0x00ff;
-            latched_address |= (read_value & 0x3f) << 8;
-
-            latched_cycle_control =
-                    static_cast<Constants8008::CycleControl>(read_value & 0b11000000);
-
-            auto cc0 = (read_value & 0b10000000) >> 7;
-            auto cc1 = (read_value & 0b01000000) >> 6;
-
-            auto time = edge.time();
-
-            pluribus->address_bus_s0_s13.set(latched_address, time, this);
-            pluribus->cc0.set(cc0, time, this);
-            pluribus->cc1.set(cc1, time, this);
-        }
-    }
-    pluribus->sync.apply(edge, this);
-}
+void ProcessorCard::cpu_sync_changed(Edge edge) { pluribus->sync.apply(edge, this); }
 
 void ProcessorCard::on_ready(Edge edge)
 {
@@ -231,9 +198,10 @@ void ProcessorCard::on_phase_2(Edge edge)
     {
         if (is_high(pluribus->t3))
         {
-            if (latched_cycle_control == Constants8008::CycleControl::PCI ||
-                latched_cycle_control == Constants8008::CycleControl::PCR ||
-                latched_cycle_control == Constants8008::CycleControl::PCC)
+            auto cycle_control = bus_address_decoder->get_latched_cycle_control();
+            if (cycle_control == Constants8008::CycleControl::PCI ||
+                cycle_control == Constants8008::CycleControl::PCR ||
+                cycle_control == Constants8008::CycleControl::PCC)
             {
                 auto time = edge.time();
                 if (t1i_cycle && interrupt_controller->has_instruction_to_inject())
