@@ -27,11 +27,13 @@ public:
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
-    bool applying_interrupt{};
     std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts{};
     std::array<OwnedSignal*, INTERRUPT_LEVEL_COUNT> pluribus_int_ack{};
     // enabled_interrupts
     // interruption_are_masked
+
+    bool applying_interrupt{};
+    uint8_t instruction_protection{};
 
     void request_signals();
     void connect_values();
@@ -43,6 +45,11 @@ private:
 
     void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState new_state,
                            unsigned long time);
+
+    // Instruction protection after an interruption routine
+    void start_instruction_protection();
+    void update_instruction_protection();
+    [[nodiscard]] bool is_instruction_protected() const;
 };
 
 #endif //MICRALN_INTERRUPTCONTROLLER_H

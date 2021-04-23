@@ -38,7 +38,7 @@ void InterruptController::read_required_int_from_bus(OwnedSignal& signal, uint8_
 
 void InterruptController::on_phase_1(const Edge& edge)
 {
-    if (is_rising(edge))
+    if (is_rising(edge) && !is_instruction_protected())
     {
         read_required_int_from_bus(pluribus->init, 0);
         read_required_int_from_bus(pluribus->bi1, 1);
@@ -103,6 +103,8 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
             assert(interrupt_level_to_rise < pluribus_int_ack.size());
             pluribus_int_ack[interrupt_level_to_rise]->set(State::HIGH, time, this);
         }
+
+        start_instruction_protection();
     }
     else if (old_state == Constants8008::CpuState::T1I)
     {
@@ -114,5 +116,20 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
         }
 
         applying_interrupt = false;
+    }
+
+    if (new_state == Constants8008::CpuState::T1)
+    {
+        update_instruction_protection();
+    }
+}
+
+void InterruptController::start_instruction_protection() { instruction_protection = 1; }
+bool InterruptController::is_instruction_protected() const { return instruction_protection > 0; }
+void InterruptController::update_instruction_protection()
+{
+    if (instruction_protection > 0)
+    {
+        instruction_protection = instruction_protection - 1;
     }
 }

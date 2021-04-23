@@ -1,7 +1,6 @@
 * Implement the Interrupt System on the Processor Board
-  * First instruction after a RST should not be interruptable.
   * Implement Masking
-  * Step blocks when entering RST 38 : probably because of the first instruction gets interrupted.
+  * Step blocks when entering RST 38 : probably because of the first instruction gets interrupted and MAS cannot be executed
 * Why the values on D0-D7 when jamming an RST 0 by INIT?
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
 * Panel and Console Card implementation
