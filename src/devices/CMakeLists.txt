@@ -26,7 +26,8 @@ set(DEVICES_FILES
         src/ProcessorCard.cpp src/ProcessorCard.h
         src/MemoryCard.cpp src/MemoryCard.h
         src/PluribusHelpers.cpp src/PluribusHelpers.h
-        src/PluribusConfiguration.cpp src/PluribusConfiguration.h)
+        src/PluribusConfiguration.cpp src/PluribusConfiguration.h
+        src/InterruptCircuit.cpp src/InterruptCircuit.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
@@ -35,6 +36,7 @@ set(DEVICES_TEST_FILES
         tests/address_stack_test.cpp
         tests/instructions_8008_test.cpp
         tests/disassemble_8008_test.cpp
+        tests/interrupt_circuit_test.cpp
         )
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
