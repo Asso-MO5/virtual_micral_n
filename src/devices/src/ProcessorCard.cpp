@@ -72,8 +72,8 @@ void ProcessorCard::connect_to_pluribus()
     pluribus->sync.request(this);
     pluribus->data_bus_d0_7.request(this, 0);
 
-    pluribus->ready_console.subscribe([this](Edge edge) { on_ready_change(edge); });
-    pluribus->ready.subscribe([this](Edge edge) { on_ready_change(edge); });
+    pluribus->ready_console.subscribe([this](Edge edge) { on_ready(edge); });
+    pluribus->ready.subscribe([this](Edge edge) { on_ready(edge); });
     pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
 
     cpu->input_pins.vdd.request(this);
@@ -208,7 +208,7 @@ void ProcessorCard::cpu_sync_changed(Edge edge)
     pluribus->sync.apply(edge, this);
 }
 
-void ProcessorCard::on_ready_change(Edge edge)
+void ProcessorCard::on_ready(Edge edge)
 {
     combined_ready.set((*pluribus->ready_console) && (*pluribus->ready), edge.time(), this);
 }
@@ -227,7 +227,6 @@ void ProcessorCard::step()
 
 void ProcessorCard::on_phase_2(Edge edge)
 {
-
     if (is_falling(edge))
     {
         if (is_high(pluribus->t3))

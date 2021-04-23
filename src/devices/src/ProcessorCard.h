@@ -72,7 +72,7 @@ private:
     void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState state,
                            Scheduling::counter_type time);
     void cpu_sync_changed(Edge edge);
-    void on_ready_change(Edge edge);
+    void on_ready(Edge edge);
     void on_phase_2(Edge edge);
     void apply_signal_on_bus(const Constants8008::CpuState& state, unsigned long time);
 
