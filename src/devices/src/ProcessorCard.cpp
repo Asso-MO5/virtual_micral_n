@@ -1,12 +1,13 @@
 #include "ProcessorCard.h"
-#include "Clock.h"
 
-#include <devices/src/AutomaticStart.h>
-#include <devices/src/CPU8008.h>
-#include <devices/src/DoubleClock.h>
-#include <devices/src/InterruptController.h>
-#include <devices/src/Pluribus.h>
-#include <emulation_core/src/DataBus.h>
+#include "AutomaticStart.h"
+#include "CPU8008.h"
+#include "Clock.h"
+#include "DoubleClock.h"
+#include "InterruptCircuit.h"
+#include "InterruptController.h"
+#include "Pluribus.h"
+
 #include <utility>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
@@ -29,6 +30,8 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     combined_ready.request(this);
     combined_ready.subscribe([this](Edge edge) { cpu->input_pins.ready.apply(edge, this); });
 }
+
+ProcessorCard::~ProcessorCard() = default;
 
 void ProcessorCard::connect_to_clock()
 {
@@ -97,19 +100,12 @@ void ProcessorCard::connect_to_rtc()
     // The connection between RTC and bi7 is permanent for a given setting.
     // It's a soldered jumper on the Processor Board.
 
-    pluribus->bi7.request(this);
+    bi7_interrupt_controller = std::make_unique<InterruptCircuit>(pluribus->bi7, pluribus->aint7);
 
     real_time_clock->phase.subscribe([this](Edge edge) {
         if (is_low(pluribus->bi7) && is_rising(edge) && automatic_startup->is_ready())
         {
-            pluribus->bi7.apply(edge, this);
-        }
-    });
-
-    pluribus->aint7.subscribe([this](Edge edge) {
-        if (is_rising(edge))
-        {
-            pluribus->bi7.set(State::LOW, edge.time(), this);
+            bi7_interrupt_controller->trigger(edge.time());
         }
     });
 }

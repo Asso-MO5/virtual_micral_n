@@ -9,13 +9,14 @@
 #include <emulation_core/src/Schedulable.h>
 #include <memory>
 
-class Pluribus;
-class CPU8008;
-class InterruptController;
 class AutomaticStart;
-class DoubleClock;
-class DataBus;
+class CPU8008;
 class Clock;
+class DataBus;
+class DoubleClock;
+class InterruptCircuit;
+class InterruptController;
+class Pluribus;
 
 class ProcessorCard : public SchedulableImpl
 {
@@ -27,7 +28,7 @@ public:
     };
 
     explicit ProcessorCard(Config config);
-    ~ProcessorCard() override = default;
+    ~ProcessorCard() override;
 
     void step() override;
 
@@ -47,20 +48,24 @@ public:
     [[nodiscard]] const DebugInfo& get_debug_info() const;
 
 private:
+    // Received as parameters
     std::shared_ptr<Pluribus> pluribus;
+    SignalReceiver& scheduler;
+
+    // Constructed devices
     std::shared_ptr<DoubleClock> clock{};
     std::shared_ptr<CPU8008> cpu{};
-    std::shared_ptr<InterruptController> interrupt_controller;
-    std::shared_ptr<AutomaticStart> automatic_startup;
-    std::shared_ptr<Clock> real_time_clock;
+    std::shared_ptr<InterruptController> interrupt_controller{};
+    std::shared_ptr<AutomaticStart> automatic_startup{};
+    std::shared_ptr<Clock> real_time_clock{};
+    std::unique_ptr<InterruptCircuit> bi7_interrupt_controller{};
 
-    OwnedSignal combined_ready;
-
+    // Inner workings
+    OwnedSignal combined_ready{};
     uint16_t latched_address{};
     Constants8008::CycleControl latched_cycle_control{};
     bool emit_t3prime_on_next_step{};
     bool t1i_cycle{};
-    SignalReceiver& scheduler;
 
     DebugInfo debug_info;
 
