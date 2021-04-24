@@ -6,9 +6,9 @@
 #include <functional>
 #include <memory>
 
-class BusAddressDecoder;
 class CPU8008;
 class Edge;
+class GeneralAddressRegister;
 class OwnedSignal;
 class Pluribus;
 
@@ -18,7 +18,7 @@ class InterruptController
 {
 public:
     explicit InterruptController(std::shared_ptr<Pluribus> pluribus, std::shared_ptr<CPU8008> cpu,
-                                 std::shared_ptr<BusAddressDecoder> bus_address_decoder);
+                                 std::shared_ptr<GeneralAddressRegister> bus_address_decoder);
 
     [[nodiscard]] bool has_instruction_to_inject() const;
     [[nodiscard]] uint8_t get_instruction_to_inject() const;
@@ -29,7 +29,7 @@ public:
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
-    std::shared_ptr<BusAddressDecoder> bus_address_decoder;
+    std::shared_ptr<GeneralAddressRegister> bus_address_decoder;
     std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts{};
     std::array<OwnedSignal*, INTERRUPT_LEVEL_COUNT> pluribus_int_ack{};
     uint8_t enabled_interrupts_mask{};

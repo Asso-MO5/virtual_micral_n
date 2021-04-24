@@ -1,10 +1,10 @@
 #include "ProcessorCard.h"
 
 #include "AutomaticStart.h"
-#include "BusAddressDecoder.h"
 #include "CPU8008.h"
 #include "Clock.h"
 #include "DoubleClock.h"
+#include "GeneralAddressRegister.h"
 #include "InterruptCircuit.h"
 #include "InterruptController.h"
 #include "Pluribus.h"
@@ -18,7 +18,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     clock = std::make_shared<DoubleClock>(500'000_hz);
     cpu = std::make_shared<CPU8008>(scheduler);
-    bus_address_decoder = std::make_shared<BusAddressDecoder>(cpu, pluribus);
+    bus_address_decoder = std::make_shared<GeneralAddressRegister>(cpu, pluribus);
     interrupt_controller = std::make_shared<InterruptController>(pluribus, cpu, bus_address_decoder);
     automatic_startup = std::make_shared<AutomaticStart>(cpu);
     real_time_clock = std::make_shared<Clock>(100_hz); // Default factory configuration.

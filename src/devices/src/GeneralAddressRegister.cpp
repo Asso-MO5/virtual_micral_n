@@ -1,9 +1,9 @@
-#include "BusAddressDecoder.h"
+#include "GeneralAddressRegister.h"
 
 #include "CPU8008.h"
 #include "Pluribus.h"
 
-BusAddressDecoder::BusAddressDecoder(std::shared_ptr<CPU8008> cpu, std::shared_ptr<Pluribus> pluribus)
+GeneralAddressRegister::GeneralAddressRegister(std::shared_ptr<CPU8008> cpu, std::shared_ptr<Pluribus> pluribus)
     : cpu{std::move(cpu)}, pluribus{std::move(pluribus)}
 {
     this->cpu->register_sync_trigger([this](Edge edge) { on_sync(edge); });
@@ -13,7 +13,7 @@ BusAddressDecoder::BusAddressDecoder(std::shared_ptr<CPU8008> cpu, std::shared_p
     this->pluribus->address_bus_s0_s13.request(this, 0);
 }
 
-void BusAddressDecoder::on_sync(Edge edge)
+void GeneralAddressRegister::on_sync(Edge edge)
 {
     if (edge == Edge{Edge::Front::FALLING})
     {
@@ -47,9 +47,9 @@ void BusAddressDecoder::on_sync(Edge edge)
     }
 }
 
-uint16_t BusAddressDecoder::get_latched_address() const { return latched_address; }
+uint16_t GeneralAddressRegister::get_latched_address() const { return latched_address; }
 
-Constants8008::CycleControl BusAddressDecoder::get_latched_cycle_control() const
+Constants8008::CycleControl GeneralAddressRegister::get_latched_cycle_control() const
 {
     return latched_cycle_control;
 }

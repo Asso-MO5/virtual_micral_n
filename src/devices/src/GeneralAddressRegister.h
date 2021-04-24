@@ -1,5 +1,5 @@
-#ifndef MICRALN_BUSADDRESSDECODER_H
-#define MICRALN_BUSADDRESSDECODER_H
+#ifndef MICRALN_GENERALADDRESSREGISTER_H
+#define MICRALN_GENERALADDRESSREGISTER_H
 
 #include "Constants8008.h"
 
@@ -9,10 +9,10 @@
 class CPU8008;
 class Pluribus;
 
-class BusAddressDecoder
+class GeneralAddressRegister
 {
 public:
-    explicit BusAddressDecoder(std::shared_ptr<CPU8008> cpu, std::shared_ptr<Pluribus>);
+    explicit GeneralAddressRegister(std::shared_ptr<CPU8008> cpu, std::shared_ptr<Pluribus>);
 
     [[nodiscard]] uint16_t get_latched_address() const;
     [[nodiscard]] Constants8008::CycleControl get_latched_cycle_control() const;
@@ -26,4 +26,4 @@ private:
     void on_sync(Edge edge);
 };
 
-#endif //MICRALN_BUSADDRESSDECODER_H
+#endif //MICRALN_GENERALADDRESSREGISTER_H

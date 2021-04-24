@@ -1,7 +1,7 @@
 #include "InterruptController.h"
 
-#include "BusAddressDecoder.h"
 #include "CPU8008.h"
+#include "GeneralAddressRegister.h"
 #include "Pluribus.h"
 
 namespace
@@ -14,7 +14,7 @@ namespace
 
 InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
                                          std::shared_ptr<CPU8008> cpu,
-                                         std::shared_ptr<BusAddressDecoder> bus_address_decoder)
+                                         std::shared_ptr<GeneralAddressRegister> bus_address_decoder)
     : pluribus{std::move(pluribus)}, cpu{std::move(cpu)}, bus_address_decoder{std::move(
                                                                   bus_address_decoder)},
       pluribus_int_ack{&this->pluribus->rzgi,  &this->pluribus->aint1, &this->pluribus->aint2,

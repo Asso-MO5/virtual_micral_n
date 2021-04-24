@@ -1,8 +1,8 @@
 #ifndef MICRALN_PROCESSORCARD_H
 #define MICRALN_PROCESSORCARD_H
 
-#include "BusAddressDecoder.h"
 #include "Constants8008.h"
+#include "GeneralAddressRegister.h"
 
 #include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
@@ -63,7 +63,7 @@ private:
 
     // Inner workings
     OwnedSignal combined_ready{};
-    std::shared_ptr<BusAddressDecoder> bus_address_decoder{};
+    std::shared_ptr<GeneralAddressRegister> bus_address_decoder{};
     bool emit_t3prime_on_next_step{};
     bool t1i_cycle{};
 

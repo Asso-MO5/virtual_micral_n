@@ -28,7 +28,7 @@ set(DEVICES_FILES
         src/PluribusHelpers.cpp src/PluribusHelpers.h
         src/PluribusConfiguration.cpp src/PluribusConfiguration.h
         src/InterruptCircuit.cpp src/InterruptCircuit.h
-        src/BusAddressDecoder.cpp src/BusAddressDecoder.h)
+        src/GeneralAddressRegister.cpp src/GeneralAddressRegister.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
