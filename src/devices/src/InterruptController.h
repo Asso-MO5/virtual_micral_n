@@ -33,7 +33,7 @@ private:
     std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts{};
     std::array<OwnedSignal*, INTERRUPT_LEVEL_COUNT> pluribus_int_ack{};
     // enabled_interrupts
-    // interruption_are_masked
+    bool interruption_are_enabled{};
 
     bool applying_interrupt{};
     uint8_t instruction_protection{};

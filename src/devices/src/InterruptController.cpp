@@ -61,9 +61,10 @@ void InterruptController::on_phase_1(const Edge& edge)
         read_required_int_from_bus(pluribus->bi6, 6);
         read_required_int_from_bus(pluribus->bi7, 7);
 
-        if (!applying_interrupt)
+        if (!applying_interrupt && has_a_requested_interrupt())
         {
-            if (has_a_requested_interrupt())
+            auto interrupt_level = lowest_level_interrupt();
+            if (interruption_are_enabled || interrupt_level == 0) // INT $0 Cannot be masked
             {
                 applying_interrupt = true;
                 cpu->input_pins.interrupt.request(this);
@@ -85,10 +86,11 @@ void InterruptController::on_t3_prime(Edge edge)
             switch (data_on_bus)
             {
                 case MAS_INSTRUCTION:
+                    interruption_are_enabled = false;
                     break;
                 case DMS_INSTRUCTION:
-                    break;
                 case REI_INSTRUCTION:
+                    interruption_are_enabled = true;
                     break;
                 default:
                     break;
