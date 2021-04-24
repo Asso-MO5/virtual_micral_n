@@ -32,7 +32,7 @@ private:
     std::shared_ptr<BusAddressDecoder> bus_address_decoder;
     std::array<bool, INTERRUPT_LEVEL_COUNT> requested_interrupts{};
     std::array<OwnedSignal*, INTERRUPT_LEVEL_COUNT> pluribus_int_ack{};
-    // enabled_interrupts
+    uint8_t enabled_interrupts_mask{};
     bool interruption_are_enabled{};
     bool pending_out_17{};
 
@@ -46,6 +46,7 @@ private:
     void on_signal(Edge edge);
 
     void read_required_int_from_bus(OwnedSignal& signal, uint8_t level);
+    [[nodiscard]] std::array<bool, INTERRUPT_LEVEL_COUNT> get_masked_requested() const;
     [[nodiscard]] bool has_a_requested_interrupt() const;
     [[nodiscard]] uint8_t lowest_level_interrupt() const;
     void reset_interrupt(uint8_t interrupt_level);

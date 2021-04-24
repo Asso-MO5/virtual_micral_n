@@ -112,22 +112,38 @@ void InterruptController::on_signal(Edge edge)
         {
             // The interrupt controller looks at what the CPU is pushing on the data bus.
             auto data_on_bus = *pluribus->data_bus_d0_7;
+            enabled_interrupts_mask = data_on_bus;
             pending_out_17 = false;
         }
     }
 }
 
+std::array<bool, INTERRUPT_LEVEL_COUNT> InterruptController::get_masked_requested() const
+{
+    std::array<bool, INTERRUPT_LEVEL_COUNT> masked_requested{};
+
+    masked_requested[0] = requested_interrupts[0]; // Level 0 cannot be disabled
+    for (auto level = 1; level < INTERRUPT_LEVEL_COUNT; level++)
+    {
+        bool mask = (enabled_interrupts_mask >> level) & 1;
+        masked_requested[level] = requested_interrupts[level] && mask;
+    }
+
+    return masked_requested;
+}
+
 bool InterruptController::has_a_requested_interrupt() const
 {
-    return std::any_of(begin(requested_interrupts), end(requested_interrupts),
-                       [](auto b) { return b; });
+    auto masked_requested = get_masked_requested();
+    return std::any_of(begin(masked_requested), end(masked_requested), [](auto b) { return b; });
 }
 
 uint8_t InterruptController::lowest_level_interrupt() const
 {
-    return static_cast<uint8_t>(std::find_if(begin(requested_interrupts), end(requested_interrupts),
-                                             [](auto b) { return b; }) -
-                                begin(requested_interrupts));
+    auto masked_requested = get_masked_requested();
+    return static_cast<uint8_t>(
+            std::find_if(begin(masked_requested), end(masked_requested), [](auto b) { return b; }) -
+            begin(masked_requested));
 }
 
 bool InterruptController::has_instruction_to_inject() const { return has_a_requested_interrupt(); }
