@@ -34,6 +34,7 @@ private:
     std::array<OwnedSignal*, INTERRUPT_LEVEL_COUNT> pluribus_int_ack{};
     // enabled_interrupts
     bool interruption_are_enabled{};
+    bool pending_out_17{};
 
     bool applying_interrupt{};
     uint8_t instruction_protection{};
@@ -42,6 +43,7 @@ private:
     void connect_values();
 
     void on_t3_prime(Edge edge);
+    void on_signal(Edge edge);
 
     void read_required_int_from_bus(OwnedSignal& signal, uint8_t level);
     [[nodiscard]] bool has_a_requested_interrupt() const;

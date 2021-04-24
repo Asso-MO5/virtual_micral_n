@@ -9,6 +9,7 @@ namespace
     const uint8_t MAS_INSTRUCTION = 0b11010010;
     const uint8_t DMS_INSTRUCTION = 0b11110110;
     const uint8_t REI_INSTRUCTION = 0b00011111;
+    const uint8_t OUT17_INSTRUCTION = 0b01111111;
 } // namespace
 
 InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
@@ -41,6 +42,7 @@ void InterruptController::connect_values()
     });
 
     pluribus->t3prime.subscribe([this](Edge edge) { on_t3_prime(edge); });
+    pluribus->sync.subscribe([this](Edge edge) { on_signal(edge); });
 }
 
 void InterruptController::read_required_int_from_bus(OwnedSignal& signal, uint8_t level)
@@ -92,9 +94,25 @@ void InterruptController::on_t3_prime(Edge edge)
                 case REI_INSTRUCTION:
                     interruption_are_enabled = true;
                     break;
+                case OUT17_INSTRUCTION:
+                    pending_out_17 = true;
+                    break;
                 default:
                     break;
             }
+        }
+    }
+}
+
+void InterruptController::on_signal(Edge edge)
+{
+    if (is_falling(edge) && is_low(pluribus->t2) && is_low(pluribus->t3))
+    {
+        if (pending_out_17)
+        {
+            // The interrupt controller looks at what the CPU is pushing on the data bus.
+            auto data_on_bus = *pluribus->data_bus_d0_7;
+            pending_out_17 = false;
         }
     }
 }
