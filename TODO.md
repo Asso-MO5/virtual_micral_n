@@ -1,5 +1,3 @@
-* Why the values on D0-D7 when jamming an RST 0 by INIT?
-* Once the interrupt system is there, implement the watch-dog.
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
 * Panel and Console Card implementation
     * Implement the SUBST mechanism

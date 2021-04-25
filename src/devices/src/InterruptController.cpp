@@ -12,9 +12,9 @@ namespace
     const uint8_t OUT17_INSTRUCTION = 0b01111111;
 } // namespace
 
-InterruptController::InterruptController(std::shared_ptr<Pluribus> pluribus,
-                                         std::shared_ptr<CPU8008> cpu,
-                                         std::shared_ptr<GeneralAddressRegister> bus_address_decoder)
+InterruptController::InterruptController(
+        std::shared_ptr<Pluribus> pluribus, std::shared_ptr<CPU8008> cpu,
+        std::shared_ptr<GeneralAddressRegister> bus_address_decoder)
     : pluribus{std::move(pluribus)}, cpu{std::move(cpu)}, bus_address_decoder{std::move(
                                                                   bus_address_decoder)},
       pluribus_int_ack{&this->pluribus->rzgi,  &this->pluribus->aint1, &this->pluribus->aint2,
@@ -113,6 +113,7 @@ void InterruptController::on_signal(Edge edge)
             // The interrupt controller looks at what the CPU is pushing on the data bus.
             auto data_on_bus = *pluribus->data_bus_d0_7;
             enabled_interrupts_mask = data_on_bus;
+            watchdog_on = !(enabled_interrupts_mask & 1);
             pending_out_17 = false;
         }
     }
@@ -195,6 +196,8 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
         update_instruction_protection();
     }
 }
+
+bool InterruptController::is_watchdog_on() const { return watchdog_on; }
 
 void InterruptController::start_instruction_protection() { instruction_protection = 1; }
 bool InterruptController::is_instruction_protected() const { return instruction_protection > 0; }

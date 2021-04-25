@@ -26,6 +26,8 @@ public:
     void reset_lowest_interrupt();
     void on_phase_1(const Edge& edge);
 
+    [[nodiscard]] bool is_watchdog_on() const;
+
 private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<CPU8008> cpu;
@@ -37,6 +39,7 @@ private:
     bool pending_out_17{};
 
     bool applying_interrupt{};
+    bool watchdog_on;
     uint8_t instruction_protection{};
 
     void request_signals();

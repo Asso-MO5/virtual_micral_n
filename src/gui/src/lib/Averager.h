@@ -9,7 +9,7 @@ template<typename ValueType, std::size_t size>
 class Averager
 {
 public:
-    void push(int new_value)
+    void push(ValueType new_value)
     {
         values[next_index] = new_value;
         next_index = (next_index + 1) % size;

@@ -43,6 +43,7 @@ public:
     struct DebugInfo
     {
         Scheduling::counter_type clock_pulse{};
+        bool watchdog_on{};
     };
 
     void install_debug_info();
