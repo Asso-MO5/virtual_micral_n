@@ -31,6 +31,7 @@ set(EMULATION_CORE_TEST_FILES
         tests/ownedvalue_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
+set_warnings(${EMULATION_LIB_NAME})
 
 add_executable(${EMULATION_TEST_NAME} ${EMULATION_CORE_TEST_FILES})
 set_target_properties(${EMULATION_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)

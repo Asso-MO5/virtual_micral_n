@@ -42,6 +42,7 @@ set(DEVICES_TEST_FILES
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
 target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)
+set_warnings(${DEVICES_LIB_NAME})
 
 add_executable(${DEVICES_TEST_NAME} ${DEVICES_TEST_FILES})
 set_target_properties(${DEVICES_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)

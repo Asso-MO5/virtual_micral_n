@@ -7,7 +7,25 @@ project(MicralN
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Tools
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
+
+function(set_warnings target)
+    if(MSVC)
+        # Not tested yet
+        # target_compile_options(${target} PRIVATE /W4 /WX)
+    elseif(UNIX)  # TODO: probably too large, but will do at the moment
+        target_compile_options(${target} PRIVATE
+                -Wall
+                -Werror
+                -Wno-unused-but-set-variable  # TODO: Because of assert(), could be solved by debug blocks
+                -Wno-unknown-pragmas
+                -Wno-unused-variable  # TODO: Because of string constants not used on the CLI
+                )
+    else()
+        message(WARNING "Warning as Error not set on this platform. Check the main CMakeLists.txt")
+    endif()
+endfunction()
 
 # Avoid extensions
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)

@@ -42,6 +42,7 @@ set_target_properties(${GUI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(${GUI_EXE_NAME} ${EMULATOR_LIB_NAME} ${GUI_LIB_NAME} SDL2 OpenGL glfw ${DEARIMGUI_LIB_NAME})
 target_include_directories(${GUI_EXE_NAME} PRIVATE ${SDL2_INCLUDE_DIRS}) # Because of the ImGui Backend uses #include <SDL.h> directly
 target_include_directories(${GUI_EXE_NAME} PRIVATE ../)
+set_warnings(${GUI_EXE_NAME})
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${GUI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)

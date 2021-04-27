@@ -24,6 +24,8 @@ if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     message("IPO activated for ${CLI_EXE_NAME}")
 endif()
 
+set_warnings(${CLI_EXE_NAME})
+
 add_executable(${CLI_TEST_EXE_NAME} ${CLI_TEST_FILES})
 target_link_libraries(${CLI_TEST_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} gtest gtest_main)
 
