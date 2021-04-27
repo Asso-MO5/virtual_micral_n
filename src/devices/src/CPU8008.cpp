@@ -408,7 +408,7 @@ void CPU8008::schedule_next_event(Scheduling::counter_type edge_time)
 
 void CPU8008::on_vdd(Edge edge)
 {
-    if (is_low(input_pins.vdd))
+    if (is_falling(edge))
     {
         set_next_activation_time(Scheduling::unscheduled());
     }
