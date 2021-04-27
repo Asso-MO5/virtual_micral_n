@@ -89,7 +89,7 @@ int main(int, char**)
 
         simulator.step(average_frame_time_in_ms, controller.get_state());
 
-        done = context.process_events([](const SDL_Event& event) {
+        done = context.process_events([](const SDL_Event& ) {
             // Handle custom events.
         });
 

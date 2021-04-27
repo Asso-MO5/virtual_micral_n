@@ -124,7 +124,7 @@ std::array<bool, INTERRUPT_LEVEL_COUNT> InterruptController::get_masked_requeste
     std::array<bool, INTERRUPT_LEVEL_COUNT> masked_requested{};
 
     masked_requested[0] = requested_interrupts[0]; // Level 0 cannot be disabled
-    for (auto level = 1; level < INTERRUPT_LEVEL_COUNT; level++)
+    for (size_t level = 1; level < INTERRUPT_LEVEL_COUNT; level++)
     {
         bool mask = (enabled_interrupts_mask >> level) & 1;
         masked_requested[level] = requested_interrupts[level] && mask;

@@ -17,7 +17,7 @@ namespace
 
 ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus,
                          ConsoleCard::StartMode start_mode, RecordMode record_mode)
-    : pluribus{std::move(given_pluribus)}, start_mode{start_mode},
+    : start_mode{start_mode}, pluribus{std::move(given_pluribus)},
       status_history{record_mode == DontRecord ? 1 : HISTORY_SIZE}
 {
     set_next_activation_time(Scheduling::unscheduled());
@@ -192,10 +192,7 @@ void ConsoleCard::on_rzgi(Edge edge)
 
 ConsoleCard::StatusHistory::StatusHistory(size_t size) { history.reserve(size); }
 
-void ConsoleCard::StatusHistory::reset()
-{
-    history.clear();
-}
+void ConsoleCard::StatusHistory::reset() { history.clear(); }
 void ConsoleCard::StatusHistory::push(const ConsoleCard::Status& status_to_record)
 {
     if (history.size() < history.capacity())

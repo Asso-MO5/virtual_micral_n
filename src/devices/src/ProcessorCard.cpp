@@ -12,7 +12,7 @@
 #include <utility>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
-    : scheduler{config.scheduler}, pluribus{std::move(config.pluribus)}
+    : pluribus{std::move(config.pluribus)}, scheduler{config.scheduler}
 {
     set_next_activation_time(Scheduling::unscheduled());
 
@@ -90,7 +90,7 @@ void ProcessorCard::connect_to_pluribus()
     });
 
     cpu->data_pins.subscribe(
-            [this](uint8_t old_value, uint8_t new_value, Scheduling::counter_type time) {
+            [this](uint8_t, uint8_t new_value, Scheduling::counter_type time) {
                 pluribus->data_bus_d0_7.set(new_value, time, this);
             });
 }

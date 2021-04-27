@@ -119,11 +119,11 @@ void connect_recorder(OwnedSignal& signal, SignalRecorder& recorder)
 template<typename ValueType>
 void connect_recorder(OwnedValue<ValueType>& value, ValueRecorder& recorder)
 {
-    value.subscribe([&recorder](ValueType old_value, ValueType new_value,
+    value.subscribe([&recorder](ValueType, ValueType new_value,
                                 Scheduling::counter_type time) { recorder.add(new_value, time); });
 
     value.subscribe_to_owner(
-            [&recorder](void* old_owner, void* new_owner, Scheduling::counter_type time) {
+            [&recorder](void*, void* new_owner, Scheduling::counter_type time) {
                 recorder.change_owner(new_owner, time);
             });
 }
