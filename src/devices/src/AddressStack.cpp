@@ -37,8 +37,11 @@ void AddressStack::push() { stack_index = (stack_index + 1) % stack.size(); }
 
 void AddressStack::pop()
 {
-    stack_index = (stack_index - 1);
-    if (stack_index < 0)
+    if (stack_index > 0)
+    {
+        stack_index = (stack_index - 1);
+    }
+    else
     {
         stack_index = stack.size() - 1;
     }
