@@ -37,7 +37,7 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
         case InstructionNameFor8008::LrI:
         case InstructionNameFor8008::LMI:
         case InstructionNameFor8008::ALU_OPI: {
-            auto value_address = address + 1;
+            auto value_address = static_cast<size_t>(address + 1);
             if (value_address >= memory_view.size())
             {
                 return {DECODING_ERROR, 1};
@@ -59,7 +59,7 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
         case InstructionNameFor8008::CAL:
         case InstructionNameFor8008::CFc:
         case InstructionNameFor8008::CTc: {
-            auto value_address = address + 2;
+            auto value_address = static_cast<size_t>(address + 2);
             if (value_address >= memory_view.size())
             {
                 return {DECODING_ERROR, 1};
