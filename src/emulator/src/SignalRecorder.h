@@ -12,6 +12,7 @@ class SignalRecorder : public Recorder
 {
 public:
     explicit SignalRecorder(std::size_t size);
+    virtual ~SignalRecorder() = default;
 
     void add(Edge edge);
 

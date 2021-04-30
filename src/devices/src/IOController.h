@@ -4,7 +4,7 @@
 #include <memory>
 
 class CPU8008;
-class Edge;
+struct Edge;
 class Pluribus;
 
 class IOController

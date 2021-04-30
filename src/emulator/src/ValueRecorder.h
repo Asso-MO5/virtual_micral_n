@@ -16,6 +16,7 @@ public:
 
     explicit ValueRecorder(std::size_t size, uint8_t bus_width,
                            OwnerTracking track_owners = TRACK_OWNERS);
+    virtual ~ValueRecorder() = default;
 
     void add(uint16_t value, Scheduling::counter_type time);
     void change_owner(void* owner, Scheduling::counter_type time);

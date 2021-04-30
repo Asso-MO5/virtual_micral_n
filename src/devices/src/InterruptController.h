@@ -7,7 +7,7 @@
 #include <memory>
 
 class CPU8008;
-class Edge;
+struct Edge;
 class GeneralAddressRegister;
 class OwnedSignal;
 class Pluribus;
