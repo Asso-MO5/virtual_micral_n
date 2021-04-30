@@ -11,19 +11,11 @@ set(CMAKE_CXX_STANDARD 17)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 function(set_warnings target)
-    if(MSVC)
-        # Not tested yet
-        # target_compile_options(${target} PRIVATE /W4 /WX)
-    elseif(UNIX)  # TODO: probably too large, but will do at the moment
-        target_compile_options(${target} PRIVATE
-                -Wall
-                -Werror
-                -Wno-unused-but-set-variable  # TODO: Because of assert(), could be solved by debug blocks
-                -Wno-unknown-pragmas
-                -Wno-unused-variable  # TODO: Because of string constants not used on the CLI
-                )
+    if(DEFINED ENV{MICRAL_WARNINGS})
+        separate_arguments(WARNING_PARAMETERS NATIVE_COMMAND $ENV{MICRAL_WARNINGS} )
+        target_compile_options(${target} PRIVATE ${WARNING_PARAMETERS})
     else()
-        message(WARNING "Warning as Error not set on this platform. Check the main CMakeLists.txt")
+        message(STATUS "MICRAL_WARNINGS environment variable not found. No specific warning setup done.")
     endif()
 endfunction()
 

@@ -1,9 +1,11 @@
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
+* Externalize BUILD variables depending on plateforms
 * Panel and Console Card implementation
     * Implement the SUBST mechanism
     * Implement the AV? switch (Need to understand better)
 * Implement the Stack card
 * Implement the I/O cards
+* Implement the Serial card
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a Debuggers for GUI information (but can be use in CLI also)
   * Debugger that references memory, to display memory cards information

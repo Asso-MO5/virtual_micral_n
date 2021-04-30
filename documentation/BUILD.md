@@ -25,6 +25,19 @@ cmake ../ # or cmake ../ -DCMAKE_BUILD_TYPE=Debug
 make
 ```
 
+The CMAKE reacts to these environment variables:
+
+* MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
+  * For GCC: MICRAL_WARNINGS="-Wall -Werror -Wno-unused-but-set-variable -Wno-unknown-pragmas -Wno-unused-variable"
+  * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
+  * For Windows: not tested yet
+
+Reasons for exceptions:
+
+* unused-but-set-variable is some asserts, could be resolved with debug only blocks
+* no-unused-variable, because of string constants not used on the CLI, could be resolved by spliting the headers
+* no-unknown-pragmas, because some pragmas are used for static analysis
+
 The executable are generated in
 ```shell
 src/cli/micral_cli
