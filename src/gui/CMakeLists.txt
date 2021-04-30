@@ -46,7 +46,7 @@ set_warnings(${GUI_EXE_NAME})
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${GUI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-    message("IPO activated for ${GUI_EXE_NAME}")
+    message(STATUS "IPO activated for ${GUI_EXE_NAME}")
 endif()
 
 

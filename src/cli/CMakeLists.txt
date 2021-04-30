@@ -21,7 +21,7 @@ target_include_directories(${CLI_EXE_NAME} PRIVATE ../)
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${CLI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-    message("IPO activated for ${CLI_EXE_NAME}")
+    message(STATUS "IPO activated for ${CLI_EXE_NAME}")
 endif()
 
 set_warnings(${CLI_EXE_NAME})
