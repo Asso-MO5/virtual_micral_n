@@ -4,7 +4,6 @@
 #include "gui/src/widgets/PanelSwitch.h"
 
 #include <devices/src/ConsoleCard.h>
-#include <devices/src/IOController.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>

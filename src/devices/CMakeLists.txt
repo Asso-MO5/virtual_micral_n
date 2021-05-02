@@ -20,7 +20,6 @@ set(DEVICES_FILES
         src/Disassemble8008.cpp src/Disassemble8008.h
         src/MemoryView.h
         src/InterruptController.cpp src/InterruptController.h
-        src/IOController.cpp src/IOController.h
         src/ConsoleCard.cpp src/ConsoleCard.h
         src/Pluribus.cpp src/Pluribus.h
         src/ProcessorCard.cpp src/ProcessorCard.h

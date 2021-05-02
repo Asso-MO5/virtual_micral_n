@@ -47,7 +47,6 @@ public:
     void step(float average_frame_time_in_ms, SimulationRunType controller_state);
 
     [[nodiscard]] const Scheduler& get_scheduler() const;
-    [[nodiscard]] IOController& get_io_controller();
     [[nodiscard]] const ProcessorCard& get_processor_card() const;
     [[nodiscard]] const Pluribus& get_pluribus() const;
 
@@ -64,7 +63,6 @@ private:
 
     std::shared_ptr<MemoryCard> memory_card_1;
     std::shared_ptr<MemoryCard> memory_card_2;
-    std::shared_ptr<IOController> io_controller;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;

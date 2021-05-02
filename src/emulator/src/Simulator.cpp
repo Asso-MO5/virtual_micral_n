@@ -3,7 +3,6 @@
 #include <devices/src/CPU8008.h>
 #include <devices/src/Clock.h>
 #include <devices/src/ConsoleCard.h>
-#include <devices/src/IOController.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
@@ -81,14 +80,8 @@ Simulator::Simulator(ConfigROM rom_config)
     MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
-    io_controller = std::make_shared<IOController>(processor_card->get_cpu(), pluribus);
     console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Manual,
                                                  ConsoleCard::RecordMode::Record);
-
-    auto& clock = processor_card->get_clock();
-    clock.phase_1.subscribe([this](Edge edge) { io_controller->signal_phase_1(edge); });
-    clock.phase_2.subscribe([this](Edge edge) { io_controller->signal_phase_2(edge); });
-    pluribus->sync.subscribe([this](Edge edge) { io_controller->signal_sync(edge); });
 
     register_signals();
     register_values();
@@ -119,13 +112,13 @@ void connect_recorder(OwnedSignal& signal, SignalRecorder& recorder)
 template<typename ValueType>
 void connect_recorder(OwnedValue<ValueType>& value, ValueRecorder& recorder)
 {
-    value.subscribe([&recorder](ValueType, ValueType new_value,
-                                Scheduling::counter_type time) { recorder.add(new_value, time); });
+    value.subscribe([&recorder](ValueType, ValueType new_value, Scheduling::counter_type time) {
+        recorder.add(new_value, time);
+    });
 
-    value.subscribe_to_owner(
-            [&recorder](void*, void* new_owner, Scheduling::counter_type time) {
-                recorder.change_owner(new_owner, time);
-            });
+    value.subscribe_to_owner([&recorder](void*, void* new_owner, Scheduling::counter_type time) {
+        recorder.change_owner(new_owner, time);
+    });
 }
 
 void Simulator::register_signals()
@@ -325,7 +318,6 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
-IOController& Simulator::get_io_controller() { return *io_controller; }
 const ProcessorCard& Simulator::get_processor_card() const { return *processor_card; }
 ProcessorCard& Simulator::get_processor_card() { return *processor_card; }
 
