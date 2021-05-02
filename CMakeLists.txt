@@ -106,10 +106,12 @@ endif()
 set(EMULATION_LIB_NAME "emulation_core")
 set(DEVICES_LIB_NAME "devices")
 set(EMULATOR_LIB_NAME "emulator")
+set(MCS8_LIB_NAME "mcs8")
 
-add_subdirectory(src/emulation_core)
+add_subdirectory(src/mcs8)
 add_subdirectory(src/devices)
 add_subdirectory(src/emulator)
+add_subdirectory(src/emulation_core)
 add_subdirectory(src/cli)
 
 if(${SDL2_FOUND} AND ${OPENGL_FOUND})
