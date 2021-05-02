@@ -1,7 +1,7 @@
 #ifndef MICRALN_INTERRUPTCONTROLLER_H
 #define MICRALN_INTERRUPTCONTROLLER_H
 
-#include "Constants8008.h"
+#include <mcs8/src/Constants8008.h>
 
 #include <functional>
 #include <memory>

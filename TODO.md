@@ -6,6 +6,8 @@
 * Implement the Stack card
 * Implement the I/O cards
 * Implement the Serial card
+* MemoryViewer system to verify. It's weird to have it in mcs8 library
+* PluribusHelper, shouldn't it be MCS8 Helper ?
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a Debuggers for GUI information (but can be use in CLI also)
   * Debugger that references memory, to display memory cards information
@@ -15,7 +17,6 @@
   * Frequency
   * Optional connection to BI7
 * Create a Standalone bundle exporter
-* Extract 8008 tools to a lib, to ease writing an assembly/disassembly
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.
 * Extract 8008 instruction decoding so it can also serve in a disassembler or other tools
 * Possible optimization

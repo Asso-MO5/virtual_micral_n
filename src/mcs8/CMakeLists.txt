@@ -10,10 +10,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(MCS8_TEST_NAME ${MCS8_LIB_NAME}_tests)
 
 set(MCS8_FILES
-        src/dummy.cpp)
+        src/Constants8008.h
+        src/MemoryView.h
+        src/Instructions8008.h src/Instructions8008.cpp
+        src/Disassemble8008.h src/Disassemble8008.cpp
+        )
 
 set(MCS8_TEST_FILES
-        tests/dummy.cpp
+        tests/disassemble_8008_test.cpp
+        tests/instructions_8008_test.cpp
         )
 
 add_library(${MCS8_LIB_NAME} ${MCS8_FILES})

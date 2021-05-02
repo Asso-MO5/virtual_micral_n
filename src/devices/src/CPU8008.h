@@ -2,14 +2,15 @@
 #define MICRALN_CPU8008_H
 
 #include "AddressStack.h"
-#include "Constants8008.h"
-#include "Instructions8008.h"
 
-#include <array>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
+#include <mcs8/src/Constants8008.h>
+#include <mcs8/src/Instructions8008.h>
+
+#include <array>
 #include <functional>
 #include <queue>
 

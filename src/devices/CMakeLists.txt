@@ -15,10 +15,6 @@ set(DEVICES_FILES
         src/DoubleClock.cpp src/DoubleClock.h
         src/AddressStack.cpp src/AddressStack.h
         src/AutomaticStart.cpp src/AutomaticStart.h
-        src/Instructions8008.cpp src/Instructions8008.h
-        src/Constants8008.h
-        src/Disassemble8008.cpp src/Disassemble8008.h
-        src/MemoryView.h
         src/InterruptController.cpp src/InterruptController.h
         src/ConsoleCard.cpp src/ConsoleCard.h
         src/Pluribus.cpp src/Pluribus.h
@@ -34,18 +30,19 @@ set(DEVICES_TEST_FILES
         tests/8008_test.cpp
         tests/double_clock_test.cpp
         tests/address_stack_test.cpp
-        tests/instructions_8008_test.cpp
-        tests/disassemble_8008_test.cpp
         tests/interrupt_circuit_test.cpp
         )
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
 target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)
 set_warnings(${DEVICES_LIB_NAME})
+target_link_libraries(${DEVICES_LIB_NAME} INTERFACE ${MCS8_LIB_NAME})
 
 add_executable(${DEVICES_TEST_NAME} ${DEVICES_TEST_FILES})
 set_target_properties(${DEVICES_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(${DEVICES_TEST_NAME} PRIVATE gtest gtest_main gmock PUBLIC ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME})
+target_link_libraries(${DEVICES_TEST_NAME}
+        PRIVATE gtest gtest_main gmock
+        PUBLIC ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} ${MCS8_LIB_NAME})
 target_include_directories(${DEVICES_TEST_NAME} PRIVATE src/)
 target_include_directories(${DEVICES_TEST_NAME} PRIVATE ../)
 

@@ -1,10 +1,10 @@
 #ifndef MICRALN_MEMORYCARD_H
 #define MICRALN_MEMORYCARD_H
 
-#include "Constants8008.h"
-
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
+#include <mcs8/src/Constants8008.h>
+
 #include <memory>
 #include <vector>
 
@@ -78,6 +78,5 @@ private:
 
 MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11);
 MemoryCardConfiguration get_ram_2k_configuration(bool s13, bool s12, bool s11);
-
 
 #endif //MICRALN_MEMORYCARD_H

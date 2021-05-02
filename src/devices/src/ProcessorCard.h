@@ -1,18 +1,18 @@
 #ifndef MICRALN_PROCESSORCARD_H
 #define MICRALN_PROCESSORCARD_H
 
-#include "Constants8008.h"
 #include "GeneralAddressRegister.h"
 
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/Schedulable.h>
+#include <mcs8/src/Constants8008.h>
+
 #include <memory>
 
 class AutomaticStart;
 class CPU8008;
 class Clock;
-class DataBus;
 class DoubleClock;
 class InterruptCircuit;
 class InterruptController;

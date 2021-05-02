@@ -10,9 +10,10 @@
 #include "gui/src/panels/PanelProcessorCard.h"
 #include "gui/src/panels/PanelSignals.h"
 
-#include <devices/src/Disassemble8008.h>
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
+#include <mcs8/src/Disassemble8008.h>
+
 #include <imgui.h>
 
 static const int WINDOW_WIDTH = 1280;
@@ -89,7 +90,7 @@ int main(int, char**)
 
         simulator.step(average_frame_time_in_ms, controller.get_state());
 
-        done = context.process_events([](const SDL_Event& ) {
+        done = context.process_events([](const SDL_Event&) {
             // Handle custom events.
         });
 

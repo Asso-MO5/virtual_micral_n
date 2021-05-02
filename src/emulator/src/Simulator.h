@@ -5,13 +5,11 @@
 
 #include <devices/src/DoubleClock.h>
 #include <devices/src/MemoryCard.h>
-#include <devices/src/MemoryView.h>
 #include <emulation_core/src/Scheduler.h>
 #include <emulator/src/SignalRecorder.h>
 #include <emulator/src/SimulationRunType.h>
+#include <mcs8/src/MemoryView.h>
 
-class DataBus;
-class IOController;
 class ConsoleCard;
 class ProcessorCard;
 class Pluribus;
