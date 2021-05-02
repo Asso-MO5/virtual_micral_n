@@ -15,6 +15,24 @@ Emulation devices can react with two different manner to a signal. They can reac
 or sending a signal. They can also ask to be scheduled for a future reaction to a received signal. The latter
 way is slower and more performance consuming, but allows playing with the device delays.
 
+## Global architecture of the project
+
+The project is composed of different sub-projects:
+
+Executables:
+
+  * `cli` is a program aimed at launching an emulation from the command line,
+  * `gui` is a program aimed at launching a full study environment with graphical feedbacks.
+
+Libraries:
+
+  * `devices` implements the devices used by the Micral N: the cards, the Pluribus, and some
+components on the cards, like the CPU or the Clock.
+    - Note: there are still some tools dependent on the devices, like the disassembler for the 8008
+    that are present in this project. An objective is to place them on a specialized library.
+  * `emulation_code` implements the core of the emulator, with the 
+
+
 ## Signals
 
 All signals in the simulation are asserted *logically* (HIGH means asserted) rather than *physically* (which depends on

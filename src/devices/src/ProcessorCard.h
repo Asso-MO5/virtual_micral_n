@@ -4,7 +4,6 @@
 #include "Constants8008.h"
 #include "GeneralAddressRegister.h"
 
-#include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/Schedulable.h>

@@ -6,7 +6,6 @@
 #include "Instructions8008.h"
 
 #include <array>
-#include <emulation_core/src/ConnectedData.h>
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>

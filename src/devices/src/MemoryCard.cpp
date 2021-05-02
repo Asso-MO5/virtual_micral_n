@@ -3,7 +3,6 @@
 #include "Pluribus.h"
 #include "PluribusHelpers.h"
 
-#include <emulation_core/src/DataBus.h>
 #include <utility>
 
 namespace
