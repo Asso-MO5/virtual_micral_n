@@ -30,10 +30,14 @@ Libraries:
 components on the cards, like the CPU or the Clock.
     - Note: there are still some tools dependent on the devices, like the disassembler for the 8008
     that are present in this project. An objective is to place them on a specialized library.
-  * `emulation_code` implements the core of the emulator, with the 
-
+  * `emulation_core` implements the core of the emulator, with the scheduling and synchronisation system.
+  * `emulator` implements the emulator itself, which ties together the `devices` and puts into use
+    the `emulation_core` bricks to run the emulated system. 
 
 ## Signals
+
+`OwnedSignal` and `OwnedValue` are typically used as public members of the object. They indeed are
+part of the public interface for the outside world, and any object could claim exclusive write control on it.
 
 All signals in the simulation are asserted *logically* (HIGH means asserted) rather than *physically* (which depends on
 the signal implementations). For example, ```READY/``` and ```INTERRUPT/``` are physically asserted LOW for the 8008,
