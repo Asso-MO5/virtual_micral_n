@@ -73,10 +73,16 @@ namespace
 {
     uint8_t match_for_32_32(uint16_t address)
     {
-        // With this computation, the channel is matched modulo 8.
-        uint8_t s13_to_s11 = ((address >> 11) << 5) & 0b11100000;
-        uint8_t s2 = ((address >> 2)) & 0b00000100;
-        return s13_to_s11 | s2;
+        if (is_input(address))
+        {
+            uint8_t s2 = ((address >> 2)) & 0b00000001;
+            return s2 | 0b11111110;
+        }
+        else
+        {
+            uint8_t s13_to_s11 = ((address >> 11) << 5) & 0b11100000;
+            return s13_to_s11 | 0b00011111;
+        }
     }
 
     uint8_t match_for_64_inputs(uint16_t address)
@@ -99,13 +105,16 @@ bool IOCard::is_addressed(uint16_t address) const
     switch (configuration.mode)
     {
         case IOCardConfiguration::Input_32_Output_32: {
-            return match_for_32_32(address) == configuration.address_mask;
+            return (match_for_32_32(address) & configuration.address_mask) ==
+                   configuration.address_mask;
         }
         case IOCardConfiguration::Input_64: {
-            return match_for_64_inputs(address) == configuration.address_mask;
+            return (match_for_64_inputs(address) & configuration.address_mask) ==
+                   configuration.address_mask;
         }
         case IOCardConfiguration::Output_64: {
-            return match_for_64_outputs(address) == configuration.address_mask;
+            return (match_for_64_outputs(address) & configuration.address_mask) ==
+                   configuration.address_mask;
         }
     }
     return false;
