@@ -3,7 +3,6 @@
 
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
-#include <mcs8/src/Constants8008.h>
 
 #include <memory>
 #include <vector>

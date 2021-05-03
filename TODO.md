@@ -1,17 +1,19 @@
 ### Implementation
 
 * Implement the Stack card
-  * Pluribus part
-  * Usage into the emulator configuration
   * Panel for GUI
   * Control through I/O
   * Peripheral side
+  * Channel Mode
+* Implement the I/O cards
+  * 32 Inputs, 32 Outputs
+  * 64 Outputs
+  * 64 Inputs
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
 * Panel and Console Card implementation
   * Implement the SUBST mechanism
   * Implement the AV switch (Need to understand better)
   * Implement both back panel switches
-* Implement the I/O cards
 * Implement the Serial card
   
 ### Architecture
