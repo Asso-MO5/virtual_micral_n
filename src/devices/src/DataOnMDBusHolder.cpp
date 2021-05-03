@@ -23,6 +23,7 @@ void DataOnMDBusHolder::release_bus(Scheduling::counter_type time)
 {
     pluribus.data_bus_md0_7.release(this, time);
     pluribus.ready.release(this);
+    is_emitting_data = false;
 }
 
 bool DataOnMDBusHolder::is_holding_bus() const { return is_emitting_data; }
