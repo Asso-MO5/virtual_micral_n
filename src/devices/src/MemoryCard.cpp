@@ -1,7 +1,6 @@
 #include "MemoryCard.h"
 
 #include "Pluribus.h"
-#include "PluribusHelpers.h"
 
 #include <utility>
 
@@ -59,7 +58,7 @@ void MemoryCard::on_t2(Edge edge)
 {
     if (is_falling(edge))
     {
-        auto [address, cycle_control] = read_address_bus();
+        auto [address, cycle_control] = decode_address_on_bus(*pluribus);
         if ((cycle_control == Constants8008::CycleControl::PCI ||
              cycle_control == Constants8008::CycleControl::PCR) &&
             is_addressed(address))
@@ -85,7 +84,7 @@ void MemoryCard::on_t3prime(Edge edge)
 {
     if (is_falling(edge))
     {
-        auto [address, cycle_control] = read_address_bus();
+        auto [address, cycle_control] = decode_address_on_bus(*pluribus);
         if (cycle_control == Constants8008::CycleControl::PCW && is_addressed(address))
         {
             auto data_on_bus = pluribus->data_bus_d0_7.get_value();
@@ -97,18 +96,6 @@ void MemoryCard::on_t3prime(Edge edge)
             }
         }
     }
-}
-
-std::tuple<uint16_t, Constants8008::CycleControl> MemoryCard::read_address_bus()
-{
-    uint16_t address = *pluribus->address_bus_s0_s13 & 0x3fff;
-
-    auto cc0 = *pluribus->cc0;
-    auto cc1 = *pluribus->cc1;
-
-    Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
-
-    return std::make_tuple(address, cycleControl);
 }
 
 bool MemoryCard::is_addressed(uint16_t address)

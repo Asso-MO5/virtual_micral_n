@@ -47,4 +47,8 @@ public:
     OwnedValue<uint16_t> address_bus_s0_s13{};
 };
 
+Constants8008::CycleControl cycle_control_from_cc(State cc0, State cc1);
+std::tuple<uint16_t, Constants8008::CycleControl> decode_address_on_bus(const Pluribus & pluribus);
+
+
 #endif //MICRALN_PLURIBUS_H

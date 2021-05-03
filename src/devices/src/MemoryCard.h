@@ -68,7 +68,6 @@ private:
     void on_t3(Edge edge);
     void on_t3prime(Edge edge);
 
-    std::tuple<uint16_t, Constants8008::CycleControl> read_address_bus();
     bool is_addressed(uint16_t address);
     void latch_read_data(uint16_t address);
     void set_data_size();

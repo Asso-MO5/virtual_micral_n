@@ -10,11 +10,12 @@
 #include <emulator/src/SimulationRunType.h>
 #include <mcs8/src/MemoryView.h>
 
+class AutomaticStart;
 class ConsoleCard;
+class MemoryCard;
 class ProcessorCard;
 class Pluribus;
-class AutomaticStart;
-class MemoryCard;
+class StackChannelCard;
 
 class SimulatorMemoryView : public MemoryView
 {
@@ -64,6 +65,7 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;
+    std::shared_ptr<StackChannelCard> stack_channel_card;
 
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;

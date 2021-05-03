@@ -1,7 +1,6 @@
 #include "ConsoleCard.h"
-#include "PluribusHelpers.h"
 
-#include <devices/src/Pluribus.h>
+#include "Pluribus.h"
 
 #include <utility>
 

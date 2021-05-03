@@ -20,10 +20,10 @@ set(DEVICES_FILES
         src/Pluribus.cpp src/Pluribus.h
         src/ProcessorCard.cpp src/ProcessorCard.h
         src/MemoryCard.cpp src/MemoryCard.h
-        src/PluribusHelpers.cpp src/PluribusHelpers.h
         src/PluribusConfiguration.cpp src/PluribusConfiguration.h
         src/InterruptCircuit.cpp src/InterruptCircuit.h
-        src/GeneralAddressRegister.cpp src/GeneralAddressRegister.h)
+        src/GeneralAddressRegister.cpp src/GeneralAddressRegister.h
+        src/StackChannelCard.cpp src/StackChannelCard.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp

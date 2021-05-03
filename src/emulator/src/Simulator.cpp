@@ -6,6 +6,8 @@
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
+#include <devices/src/StackChannelCard.h>
+
 #include <fstream>
 
 namespace
@@ -82,6 +84,17 @@ Simulator::Simulator(ConfigROM rom_config)
 
     console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Manual,
                                                  ConsoleCard::RecordMode::Record);
+
+    StackChannelCard::Config stack_channel_config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = StackChannelCardConfiguration::Stack,
+                    .memory_size = 256,
+                    .input_address = 0x06,
+                    .output_address = 0x16,
+            }};
+    stack_channel_card = std::make_shared<StackChannelCard>(stack_channel_config);
 
     register_signals();
     register_values();
