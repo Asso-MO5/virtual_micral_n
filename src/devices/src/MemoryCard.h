@@ -9,6 +9,7 @@
 #include <vector>
 
 class Pluribus;
+class DataOnMDBusHolder;
 
 namespace MemoryConstants
 {
@@ -42,7 +43,7 @@ public:
     };
 
     explicit MemoryCard(const Config& config);
-    ~MemoryCard() override = default;
+    ~MemoryCard() override;
 
     void load_data(std::vector<uint8_t> data);
 
@@ -55,21 +56,19 @@ public:
 
 private:
     SignalReceiver& scheduler;
-
     std::shared_ptr<Pluribus> pluribus;
-    std::vector<uint8_t> data;
-
     MemoryCardConfiguration configuration;
 
-    uint8_t latched_data{};
-    bool is_emitting_data{false};
+    std::unique_ptr<DataOnMDBusHolder> output_data_holder;
+
+    std::vector<uint8_t> data;
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);
     void on_t3prime(Edge edge);
 
     bool is_addressed(uint16_t address);
-    void latch_read_data(uint16_t address);
+    [[nodiscard]] uint8_t get_data(uint16_t address) const;
     void set_data_size();
 
     [[nodiscard]] AddressingSize get_addressing_size() const;

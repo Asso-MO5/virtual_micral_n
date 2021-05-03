@@ -1,5 +1,6 @@
 #include "MemoryCard.h"
 
+#include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
 
 #include <utility>
@@ -12,6 +13,8 @@ namespace
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
     : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration{config.configuration}
 {
+    output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
+
     set_next_activation_time(Scheduling::unscheduled());
 
     set_data_size();
@@ -20,6 +23,8 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
     pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime((edge)); });
 }
+
+MemoryCard::~MemoryCard() = default;
 
 void MemoryCard::load_data(std::vector<uint8_t> data_to_load)
 {
@@ -43,13 +48,7 @@ void MemoryCard::set_data_size()
 void MemoryCard::step()
 {
     auto time = get_next_activation_time();
-
-    pluribus->data_bus_md0_7.set(latched_data, time, this);
-    is_emitting_data = true;
-
-    pluribus->ready.request(this);
-    pluribus->ready.set(State::HIGH, time, this); // Reminder: setting the logical
-                                                  // not physical value, for signals.
+    output_data_holder->place_data(time);
 
     set_next_activation_time(Scheduling::unscheduled());
 }
@@ -64,8 +63,9 @@ void MemoryCard::on_t2(Edge edge)
             is_addressed(address))
         {
             // This is the end of T2, schedule the data emission
-            latch_read_data(address);
-            pluribus->data_bus_md0_7.request(this, edge.time());
+            auto data_to_send = get_data(address);
+            output_data_holder->take_bus(edge.time(), data_to_send);
+
             set_next_activation_time(edge.time() + MEMORY_READ_DELAY);
             scheduler.change_schedule(get_id());
         }
@@ -73,10 +73,9 @@ void MemoryCard::on_t2(Edge edge)
 }
 void MemoryCard::on_t3(Edge edge)
 {
-    if (is_falling(edge) && is_emitting_data)
+    if (is_falling(edge) && output_data_holder->is_holding_bus())
     {
-        pluribus->data_bus_md0_7.release(this, edge.time());
-        pluribus->ready.release(this);
+        output_data_holder->release_bus(edge.time());
     }
 }
 
@@ -113,12 +112,12 @@ bool MemoryCard::is_addressed(uint16_t address)
     return s13 == selection_mask[0] && s12 == selection_mask[1];
 }
 
-void MemoryCard::latch_read_data(uint16_t address)
+uint8_t MemoryCard::get_data(uint16_t address) const
 {
     auto address_on_card = (get_addressing_size() == AddressingSize::Card2k) ? (address & 0x7ff)
                                                                              : (address & 0xfff);
 
-    latched_data = data[address_on_card];
+    return data[address_on_card];
 }
 
 MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
