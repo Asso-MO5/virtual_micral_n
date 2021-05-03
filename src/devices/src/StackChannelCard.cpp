@@ -1,8 +1,7 @@
 #include "StackChannelCard.h"
 
 #include "Pluribus.h"
-
-#include <iostream>
+#include "DataOnMDBusHolder.h"
 
 namespace
 {
@@ -12,9 +11,12 @@ namespace
 } // namespace
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
-    : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration(config.configuration)
+    : scheduler{config.scheduler}, pluribus{config.pluribus},
+      configuration(config.configuration)
 {
     assert(configuration.memory_size > 0 && "The memory size must not be 0");
+
+    output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
     set_next_activation_time(Scheduling::unscheduled());
     set_data_size();
@@ -23,17 +25,14 @@ StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
 }
 
+StackChannelCard::~StackChannelCard() = default;
+
 void StackChannelCard::step()
 {
     // Note: currently, the only step action is to send data on md0-md7.
     // If other actions happen, this will have to be changed.
-    auto time = get_next_activation_time();
-
-    pluribus->data_bus_md0_7.set(latched_data, time, this);
-    is_emitting_data = true;
-
-    pluribus->ready.request(this);
-    pluribus->ready.set(State::HIGH, time, this);
+    const auto time = get_next_activation_time();
+    output_data_holder->place_data(time);
 
     set_next_activation_time(Scheduling::unscheduled());
 }
@@ -50,8 +49,9 @@ void StackChannelCard::on_t2(Edge edge)
             if (is_input(address))
             {
                 // This is the end of T2, schedule the data emission
-                pop_data();
-                pluribus->data_bus_md0_7.request(this, edge.time());
+                auto data_to_send = pop_data();
+                output_data_holder->take_bus(edge.time(), data_to_send);
+
                 set_next_activation_time(edge.time() + STACK_MEMORY_READ_DELAY);
                 scheduler.change_schedule(get_id());
             }
@@ -64,16 +64,13 @@ void StackChannelCard::on_t2(Edge edge)
 }
 void StackChannelCard::on_t3(Edge edge)
 {
-    //TODO: duplicated code with MemoryCard, to extract
-    //The whole "emitting a data on md0-md7" is the same.
-    if (is_falling(edge) && is_emitting_data)
+    if (is_falling(edge) && output_data_holder->is_holding_bus())
     {
-        pluribus->data_bus_md0_7.release(this, edge.time());
-        pluribus->ready.release(this);
+        output_data_holder->release_bus(edge.time());
     }
 }
 
-void StackChannelCard::pop_data()
+uint8_t StackChannelCard::pop_data()
 {
     if (data_pointer > 0)
     {
@@ -83,7 +80,7 @@ void StackChannelCard::pop_data()
     {
         data_pointer = data.size() - 1;
     }
-    latched_data = data[data_pointer];
+    return data[data_pointer];
 }
 
 bool StackChannelCard::is_addressed(uint16_t address) const

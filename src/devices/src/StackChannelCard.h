@@ -9,6 +9,7 @@
 #include <vector>
 
 class Pluribus;
+class DataOnMDBusHolder;
 
 struct StackChannelCardConfiguration
 {
@@ -35,7 +36,7 @@ public:
     };
 
     explicit StackChannelCard(const Config& config);
-    ~StackChannelCard() override = default;
+    ~StackChannelCard() override;
 
     void step() override;
 
@@ -48,16 +49,15 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     StackChannelCardConfiguration configuration;
 
+    std::unique_ptr<DataOnMDBusHolder> output_data_holder;
+
     std::vector<uint8_t> data;
     size_t data_pointer{};
-
-    uint8_t latched_data{};
-    bool is_emitting_data{false};
 
     void set_data_size();
     void on_t2(Edge edge);
     void on_t3(Edge edge);
-    void pop_data();
+    uint8_t pop_data();
     void push_data(uint16_t address);
     [[nodiscard]] bool is_addressed(uint16_t address) const;
 };

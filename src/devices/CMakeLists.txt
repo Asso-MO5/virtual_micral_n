@@ -23,7 +23,8 @@ set(DEVICES_FILES
         src/PluribusConfiguration.cpp src/PluribusConfiguration.h
         src/InterruptCircuit.cpp src/InterruptCircuit.h
         src/GeneralAddressRegister.cpp src/GeneralAddressRegister.h
-        src/StackChannelCard.cpp src/StackChannelCard.h)
+        src/StackChannelCard.cpp src/StackChannelCard.h
+        src/DataOnMDBusHolder.cpp src/DataOnMDBusHolder.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
