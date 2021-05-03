@@ -3,6 +3,7 @@
 #include <devices/src/CPU8008.h>
 #include <devices/src/Clock.h>
 #include <devices/src/ConsoleCard.h>
+#include <devices/src/IOCard.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
@@ -96,6 +97,14 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_card = std::make_shared<StackChannelCard>(stack_channel_config);
 
+    IOCard::Config io_card_config{.scheduler = scheduler,
+                                  .pluribus = pluribus,
+                                  .configuration = {
+                                          .mode = IOCardConfiguration::Input_32_Output_32,
+                                          .address_mask = 0b01000001, // 010 for Output, 1 for Input
+                                  }};
+    io_card = std::make_shared<IOCard>(io_card_config);
+
     register_signals();
     register_values();
     pause_all_recorders();
@@ -109,6 +118,8 @@ Simulator::Simulator(ConfigROM rom_config)
     scheduler.add(console_card);
     scheduler.add(memory_card_1);
     scheduler.add(memory_card_2);
+    scheduler.add(stack_channel_card);
+    scheduler.add(io_card);
 
     memory_view.add_memory_card(memory_card_1);
     memory_view.add_memory_card(memory_card_2);

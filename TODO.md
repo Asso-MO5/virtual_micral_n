@@ -1,50 +1,57 @@
+### Bugs
+
+* It happens that BI7 is asserted but AINT7 never occurs.
+    * It seems to happen that the AINT signal doesn't trigger is the interrupt level got masked during the interruption
+
 ### Implementation
 
 * Implement the Stack card
-  * Panel for GUI
-  * Control through I/O
-  * Peripheral side
-  * Channel Mode
+    * Panel for GUI
+    * Control through I/O
+    * Peripheral side
+    * Channel Mode
 * Implement the I/O cards
-  * 32 Inputs, 32 Outputs
-  * 64 Outputs
-  * 64 Inputs
-* Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for an assembler)
+    * 32 Inputs, 32 Outputs
+    * 64 Outputs
+    * 64 Inputs
+* Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
+  an assembler)
 * Panel and Console Card implementation
-  * Implement the SUBST mechanism
-  * Implement the AV switch (Need to understand better)
-  * Implement both back panel switches
+    * Implement the SUBST mechanism
+    * Implement the AV switch (Need to understand better)
+    * Implement both back panel switches
 * Implement the Serial card
-  
+
 ### Architecture
-  
+
 * MemoryViewer system to verify. It's weird to have it in mcs8 library
 * PluribusHelper, shouldn't it be MCS8 Helper ?
-  
+
 ### Improvements
 
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a Debuggers for GUI information (but can be use in CLI also)
-  * Debugger that references memory, to display memory cards information
-  * Debugger that references all cards to associate to specific debug panel.
+    * Debugger that references memory, to display memory cards information
+    * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.
 * Add configuration of the RTC
-  * Frequency
-  * Optional connection to BI7
+    * Frequency
+    * Optional connection to BI7
 
 ### Build
+
 * Create a Standalone bundle exporter
-  
+
 ### Possible optimization
 
 * SignalRecorder makes a lot of costly memcpy.
-  * This is the top 1 when profiling
+    * This is the top 1 when profiling
 * The Panels (Panels/Disassembly) are constantly re-updated, which is slow (especially for the PanelMemory)
-  * This is high in the profiling
+    * This is high in the profiling
 * Access to Debug Memory/Disassembly makes a lot of redundant computation
-  * when getting the data
-  * when computing the display
+    * when getting the data
+    * when computing the display
 * Scheduler
     * Change the sort everything into a forward only sort. Or a dumb selection... Or something else
     * Globally, the back signaling on every timing change is not efficient nor practical not pretty.
