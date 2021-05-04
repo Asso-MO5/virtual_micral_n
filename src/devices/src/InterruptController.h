@@ -39,6 +39,7 @@ private:
     bool pending_out_17{};
 
     bool applying_interrupt{};
+    uint8_t current_interrupt{};
     bool watchdog_on;
     uint8_t instruction_protection{};
 

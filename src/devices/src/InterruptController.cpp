@@ -69,6 +69,9 @@ void InterruptController::on_phase_1(const Edge& edge)
             if (interruption_are_enabled || interrupt_level == 0) // INT $0 Cannot be masked
             {
                 applying_interrupt = true;
+                current_interrupt = interrupt_level;
+                assert(current_interrupt < pluribus_int_ack.size());
+
                 cpu->input_pins.interrupt.request(this);
                 cpu->input_pins.interrupt.set(State::HIGH, edge.time(), this);
             }
@@ -164,31 +167,30 @@ void InterruptController::cpu_state_changed(Constants8008::CpuState old_state,
 {
     if (new_state == Constants8008::CpuState::T1I)
     {
+        // TI1 cycle starts, 8008 INT is reset
         if (applying_interrupt)
         {
             cpu->input_pins.interrupt.set(State::LOW, time, this);
             cpu->input_pins.interrupt.release(this);
         }
 
-        if (has_a_requested_interrupt())
+        // TI1 cycle starts, ACK is set
+        if (applying_interrupt)
         {
-            auto interrupt_level_to_rise = lowest_level_interrupt();
-            assert(interrupt_level_to_rise < pluribus_int_ack.size());
-            pluribus_int_ack[interrupt_level_to_rise]->set(State::HIGH, time, this);
+            assert(current_interrupt < pluribus_int_ack.size());
+            pluribus_int_ack[current_interrupt]->set(State::HIGH, time, this);
         }
 
         start_instruction_protection();
     }
     else if (old_state == Constants8008::CpuState::T1I)
     {
-        auto interrupt_level_to_lower = lowest_level_interrupt();
-        // The inequality is based on the implementation of lowest_level_interrupt()... not very good
-        if (interrupt_level_to_lower < pluribus_int_ack.size())
+        if (applying_interrupt)
         {
-            pluribus_int_ack[interrupt_level_to_lower]->set(State::LOW, time, this);
+            assert(current_interrupt < pluribus_int_ack.size());
+            pluribus_int_ack[current_interrupt]->set(State::LOW, time, this);
+            applying_interrupt = false;
         }
-
-        applying_interrupt = false;
     }
 
     if (new_state == Constants8008::CpuState::T1)
