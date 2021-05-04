@@ -740,7 +740,7 @@ void CPU8008::execute_t5()
                 {
                     int16_t intermediate = static_cast<int16_t>(register_A) -
                                            static_cast<int16_t>(hidden_registers.b);
-                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 0;
                     scratch_pad_memory[static_cast<size_t>(Register::A)] =
                             static_cast<uint8_t>(intermediate);
                     update_flags(register_A);
@@ -751,7 +751,7 @@ void CPU8008::execute_t5()
                     int16_t intermediate = static_cast<int16_t>(register_A) -
                                            static_cast<int16_t>(hidden_registers.b) -
                                            flags[static_cast<size_t>(Flags::Carry)];
-                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 0;
                     scratch_pad_memory[static_cast<size_t>(Register::A)] =
                             static_cast<uint8_t>(intermediate);
                     update_flags(register_A);
