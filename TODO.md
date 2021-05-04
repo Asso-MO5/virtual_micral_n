@@ -1,7 +1,6 @@
 ### Bugs
 
-* It happens that BI7 is asserted but AINT7 never occurs.
-    * It seems to happen that the AINT signal doesn't trigger is the interrupt level got masked during the interruption
+* When using the TRAP mode, the exception are perturbated and the Boot ROM stalls.
 
 ### Implementation
 
