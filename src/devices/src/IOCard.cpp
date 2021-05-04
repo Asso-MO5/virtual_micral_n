@@ -11,7 +11,7 @@ namespace
     constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
 
     // TODO: temporary dummy data waiting for real data fetch from peripheral
-    const uint8_t DUMMY_DATA = 0x80;
+    const uint8_t DUMMY_DATA = 0x94;
 } // namespace
 
 IOCard::IOCard(const IOCard::Config& config)
@@ -105,8 +105,9 @@ bool IOCard::is_addressed(uint16_t address) const
     switch (configuration.mode)
     {
         case IOCardConfiguration::Input_32_Output_32: {
-            return (match_for_32_32(address) & configuration.address_mask) ==
-                   configuration.address_mask;
+            uint8_t group = ((address >> 8) & 0b00001110) >> 1;
+            return group == 0 && (match_for_32_32(address) & configuration.address_mask) ==
+                                         configuration.address_mask;
         }
         case IOCardConfiguration::Input_64: {
             return (match_for_64_inputs(address) & configuration.address_mask) ==
