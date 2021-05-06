@@ -1,7 +1,3 @@
-### Bugs
-
-* When using the TRAP mode, the exception are perturbated and the Boot ROM stalls.
-
 ### Implementation
 
 * Implement the Stack card

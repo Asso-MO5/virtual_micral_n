@@ -89,14 +89,6 @@ void ConsoleCard::on_sync(Edge edge)
     status.is_waiting = *pluribus->wait == State::HIGH;
     status.is_stopped = *pluribus->stop == State::HIGH;
 
-    if (is_falling(edge) && is_high(pluribus->t2))
-    {
-        if (status.trap && !status.stepping)
-        {
-            pluribus->ready_console.set(State::LOW, edge.time(), this);
-        }
-    }
-
     if (is_rising(edge))
     {
         status_history.push(status);
@@ -108,19 +100,20 @@ void ConsoleCard::on_phase_2(Edge edge)
     if (is_falling(edge))
     {
         auto time = edge.time();
-        if (is_high(pluribus->t2))
+        if (is_high(pluribus->t2) && is_low(pluribus->sync))
         {
+            auto cc0 = *pluribus->cc0;
+            auto cc1 = *pluribus->cc1;
+            Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
+
+            status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
+            status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
+            status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
+            status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
+            status.address = *pluribus->address_bus_s0_s13;
+
             if (status.stepping)
             {
-                auto cc0 = *pluribus->cc0;
-                auto cc1 = *pluribus->cc1;
-                Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
-
-                status.is_op_cycle = cycleControl == Constants8008::CycleControl::PCI;
-                status.is_read_cycle = cycleControl == Constants8008::CycleControl::PCR;
-                status.is_io_cycle = cycleControl == Constants8008::CycleControl::PCC;
-                status.is_write_cycle = cycleControl == Constants8008::CycleControl::PCW;
-
                 switch (status.step_mode)
                 {
                     case Instruction:
@@ -138,27 +131,19 @@ void ConsoleCard::on_phase_2(Edge edge)
                         break;
                 }
             }
+            else if (status.trap)
+            {
+                if (status.is_op_cycle && (status.address == switch_address))
+                {
+                    pluribus->ready_console.set(State::LOW, edge.time(), this);
+                    set_step_mode();
+                }
+            }
         }
 
         if (is_high(pluribus->t3prime))
         {
             status.data = pluribus->data_bus_md0_7.get_value();
-            status.address = *pluribus->address_bus_s0_s13;
-
-            if (status.trap && status.is_op_cycle)
-            {
-                if (status.address == switch_address)
-                {
-                    set_step_mode();
-                }
-                else
-                {
-                    if (!status.stepping)
-                    {
-                        pluribus->ready_console.set(State::HIGH, time, this);
-                    }
-                }
-            }
         }
     }
     else
