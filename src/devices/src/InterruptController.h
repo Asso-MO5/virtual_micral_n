@@ -40,14 +40,14 @@ private:
 
     bool applying_interrupt{};
     uint8_t current_interrupt{};
-    bool watchdog_on;
+    bool watchdog_on{};
     uint8_t instruction_protection{};
 
     void request_signals();
     void connect_values();
 
     void on_t3_prime(Edge edge);
-    void on_signal(Edge edge);
+    void on_sync(Edge edge);
 
     void read_required_int_from_bus(OwnedSignal& signal, uint8_t level);
     [[nodiscard]] std::array<bool, INTERRUPT_LEVEL_COUNT> get_masked_requested() const;

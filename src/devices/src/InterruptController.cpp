@@ -42,7 +42,7 @@ void InterruptController::connect_values()
     });
 
     pluribus->t3prime.subscribe([this](Edge edge) { on_t3_prime(edge); });
-    pluribus->sync.subscribe([this](Edge edge) { on_signal(edge); });
+    pluribus->sync.subscribe([this](Edge edge) { on_sync(edge); });
 }
 
 void InterruptController::read_required_int_from_bus(OwnedSignal& signal, uint8_t level)
@@ -107,7 +107,7 @@ void InterruptController::on_t3_prime(Edge edge)
     }
 }
 
-void InterruptController::on_signal(Edge edge)
+void InterruptController::on_sync(Edge edge)
 {
     if (is_falling(edge) && is_low(pluribus->t2) && is_low(pluribus->t3))
     {
