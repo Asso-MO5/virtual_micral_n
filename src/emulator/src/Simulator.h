@@ -66,7 +66,8 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;
-    std::shared_ptr<StackChannelCard> stack_channel_card;
+    std::shared_ptr<StackChannelCard> stack_channel_5_card;
+    std::shared_ptr<StackChannelCard> stack_channel_6_card;
     std::shared_ptr<IOCard> io_card;
 
     SimulatorMemoryView memory_view;

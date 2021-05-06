@@ -86,7 +86,7 @@ Simulator::Simulator(ConfigROM rom_config)
     console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Manual,
                                                  ConsoleCard::RecordMode::Record);
 
-    StackChannelCard::Config stack_channel_config{
+    StackChannelCard::Config stack_channel_6_config{
             .scheduler = scheduler,
             .pluribus = pluribus,
             .configuration = {
@@ -95,7 +95,18 @@ Simulator::Simulator(ConfigROM rom_config)
                     .input_address = 0x06,
                     .output_address = 0x16,
             }};
-    stack_channel_card = std::make_shared<StackChannelCard>(stack_channel_config);
+    stack_channel_6_card = std::make_shared<StackChannelCard>(stack_channel_6_config);
+
+    StackChannelCard::Config stack_channel_5_config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = StackChannelCardConfiguration::Stack,
+                    .memory_size = 256,
+                    .input_address = 0x05,
+                    .output_address = 0x15,
+            }};
+    stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
     IOCard::Config io_card_config{.scheduler = scheduler,
                                   .pluribus = pluribus,
@@ -118,7 +129,8 @@ Simulator::Simulator(ConfigROM rom_config)
     scheduler.add(console_card);
     scheduler.add(memory_card_1);
     scheduler.add(memory_card_2);
-    scheduler.add(stack_channel_card);
+    scheduler.add(stack_channel_6_card);
+    scheduler.add(stack_channel_5_card);
     scheduler.add(io_card);
 
     memory_view.add_memory_card(memory_card_1);
