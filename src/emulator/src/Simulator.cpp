@@ -355,11 +355,14 @@ const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 
 const MemoryView& Simulator::get_memory_view() { return memory_view; }
 const ProcessorCard& Simulator::get_processor_card() const { return *processor_card; }
-ProcessorCard& Simulator::get_processor_card() { return *processor_card; }
 
 ConsoleCard& Simulator::get_console_card() { return *console_card; }
 const RecorderCollection& Simulator::get_recorders() const { return recorders; }
 const Pluribus& Simulator::get_pluribus() const { return *pluribus; }
+const StackChannelCard& Simulator::get_stack_channel_card(int card_number) const
+{
+    return card_number == 0 ? *stack_channel_5_card : *stack_channel_6_card;
+}
 
 void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& memory_card)
 {

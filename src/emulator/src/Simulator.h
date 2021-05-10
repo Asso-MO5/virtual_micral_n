@@ -49,9 +49,7 @@ public:
     [[nodiscard]] const Scheduler& get_scheduler() const;
     [[nodiscard]] const ProcessorCard& get_processor_card() const;
     [[nodiscard]] const Pluribus& get_pluribus() const;
-
-    // TODO: remove the shortcut usages of accessing the processor card (it should be const)
-    [[nodiscard]] ProcessorCard& get_processor_card(); // Normally for debug only
+    [[nodiscard]] const StackChannelCard& get_stack_channel_card(int card_number) const;
 
     const MemoryView& get_memory_view();
     const RecorderCollection& get_recorders() const;

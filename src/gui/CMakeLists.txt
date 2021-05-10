@@ -27,8 +27,10 @@ set(GUI_FILES src/main.cpp
         src/panels/PanelSignals.cpp src/panels/PanelSignals.h
         src/ValuePlot.cpp src/ValuePlot.h
         src/Plot.cpp src/Plot.h
-        src/PlotStructures.h src/panels/PanelProcessorCard.cpp
-        src/panels/PanelProcessorCard.h)
+        src/PlotStructures.h
+        src/panels/PanelProcessorCard.cpp src/panels/PanelProcessorCard.h
+        src/panels/PanelStackChannelCard.cpp src/panels/PanelStackChannelCard.h
+        src/widgets/PanelMemoryDisplay.h)
 
 set(GUI_FILES_LIB src/lib/Averager.cpp src/lib/Averager.h)
 

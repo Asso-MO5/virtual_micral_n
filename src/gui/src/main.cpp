@@ -9,6 +9,7 @@
 #include "gui/src/panels/PanelPluribus.h"
 #include "gui/src/panels/PanelProcessorCard.h"
 #include "gui/src/panels/PanelSignals.h"
+#include "gui/src/panels/PanelStackChannelCard.h"
 
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
@@ -123,6 +124,8 @@ int main(int, char**)
         panel_control.display(simulator);
         display_signals_panel(simulator);
         display_processor_card_panel(simulator);
+        display_stack_channel_card_panel(simulator, 0);
+        display_stack_channel_card_panel(simulator, 1);
 
         controller.update();
         context.render_frame();
