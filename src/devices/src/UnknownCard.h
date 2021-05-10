@@ -33,6 +33,16 @@ private:
     std::shared_ptr<IOCard> io_card;
     UnknownCardConfiguration configuration;
 
+    struct Status
+    {
+        bool is_ready{};
+        bool sending_to_channel{};
+        bool end_of_send_cycle{};
+        uint8_t bytes_to_send;
+    };
+
+    Status status;
+
     void on_input_4(Edge edge);
     void on_input_5(Edge edge);
     void on_input_6(Edge edge);

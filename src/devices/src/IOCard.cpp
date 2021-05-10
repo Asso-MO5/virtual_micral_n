@@ -44,7 +44,12 @@ IOCard::~IOCard() = default;
 
 void IOCard::initialize_terminals()
 {
-    for (auto index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
+    for (size_t index = 0; index < first_owned_terminal; ++index)
+    {
+        ack_terminals[index].subscribe([index, this](Edge edge) { on_input_signal(index, edge); });
+    }
+
+    for (size_t index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
     {
         data_terminals[index].request(this, OwnedValue<uint8_t>::counter_type{0});
         ack_terminals[index].request(this);
@@ -226,6 +231,13 @@ uint8_t IOCard::address_to_input_number(uint16_t address) const
            "Input makes sense only for a card supporting Input.");
 
     uint8_t s0_to_s2 = address & 0b00000111;
+
+    if (configuration.mode == IOCardConfiguration::Input_32_Output_32 &&
+        (configuration.address_selection & 0b1))
+    {
+        s0_to_s2 -= 4;
+    }
+
     return s0_to_s2;
 }
 
@@ -234,6 +246,19 @@ using namespace std;
 uint8_t IOCard::get_from_peripheral(uint16_t address, Scheduling::counter_type time)
 {
     const uint8_t input_number = address_to_input_number(address);
-    cout << "<-- Wants data from: " << hex << static_cast<uint32_t>(input_number) << endl;
-    return 0x00;
+    assert((input_number < first_owned_terminal) && "Cannot fetch data on an output channel.");
+
+    const uint8_t data = latched_input_data[input_number];
+
+    cout << "<-- Reads data from: " << hex << static_cast<uint32_t>(input_number) << " : " << hex
+         << static_cast<uint32_t>(data) << endl;
+    return data;
+}
+
+void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
+{
+    assert((signal_index < first_owned_terminal) && "Cannot receive data on an output channel.");
+
+    auto data = data_terminals[signal_index].get_value();
+    latched_input_data[signal_index] = data;
 }

@@ -68,11 +68,13 @@ private:
 
     size_t first_owned_terminal{};
     std::array<Scheduling::counter_type, IOCardConstants::TERMINAL_COUNT> next_time_for_ack_low;
+    std::array<uint8_t, IOCardConstants::TERMINAL_COUNT> latched_input_data;
 
     void initialize_terminals();
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);
+    void on_input_signal(uint8_t signal_index, Edge edge);
     void update_next_activation_time();
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;

@@ -1,11 +1,5 @@
 ### Implementation
 
-* Implement an extractor of Signal from an OwnedValue for a specific bit position.
-* Implement the I/O cards
-  * Implement the I/O translation to external port
-    * Implements the AC/ signal for output
-    * Implements the AC/ signal for input
-  * Implement the Interrupts for the I/O cards
 * Implement the Stack card
   * Control through I/O
   * Peripheral side
@@ -14,6 +8,8 @@
   * Connection with the I/O card
   * Connection with the Channel card
   * Implement delays
+* Implement the I/O cards
+  * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
   an assembler)
 * Panel and Console Card implementation
@@ -21,6 +17,7 @@
   * Implement the AV switch (Need to understand better)
   * Implement both back panel switches
 * Implement the Serial card
+* Implement a possibility to subscribe to a specific bit on an OwnedValue?
 
 ### Architecture
 
