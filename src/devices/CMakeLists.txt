@@ -24,7 +24,9 @@ set(DEVICES_FILES
         src/InterruptCircuit.cpp src/InterruptCircuit.h
         src/GeneralAddressRegister.cpp src/GeneralAddressRegister.h
         src/StackChannelCard.cpp src/StackChannelCard.h
-        src/DataOnMDBusHolder.cpp src/DataOnMDBusHolder.h src/IOCard.cpp src/IOCard.h)
+        src/DataOnMDBusHolder.cpp src/DataOnMDBusHolder.h
+        src/IOCard.cpp src/IOCard.h
+        src/UnknownCard.cpp src/UnknownCard.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
