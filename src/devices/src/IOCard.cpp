@@ -1,7 +1,8 @@
 #include "IOCard.h"
-
 #include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
+
+#include <iostream>
 
 namespace
 {
@@ -10,9 +11,6 @@ namespace
 
     // TODO: Duplicated from StackChannelCard
     constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
-
-    // TODO: temporary dummy data waiting for real data fetch from peripheral
-    const uint8_t DUMMY_DATA = 0x94;
 } // namespace
 
 IOCard::IOCard(const IOCard::Config& config)
@@ -87,7 +85,7 @@ void IOCard::on_t2(Edge edge)
             if (is_input(address))
             {
                 // This is the end of T2, schedule the data emission
-                auto data_to_send = DUMMY_DATA;
+                auto data_to_send = get_from_peripheral(address, edge.time());
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
                 next_time_to_place_data = edge.time() + IO_CARD_DELAY;
@@ -219,4 +217,23 @@ void IOCard::send_to_peripheral(uint16_t address, Scheduling::counter_type time)
     next_time_for_ack_low[output_number] = time + ACK_APPLIED_PERIOD;
 
     update_next_activation_time();
+}
+
+uint8_t IOCard::address_to_input_number(uint16_t address) const
+{
+    assert((configuration.mode == IOCardConfiguration::Input_32_Output_32 ||
+            configuration.mode == IOCardConfiguration::Input_64) &&
+           "Input makes sense only for a card supporting Input.");
+
+    uint8_t s0_to_s2 = address & 0b00000111;
+    return s0_to_s2;
+}
+
+using namespace std;
+
+uint8_t IOCard::get_from_peripheral(uint16_t address, Scheduling::counter_type time)
+{
+    const uint8_t input_number = address_to_input_number(address);
+    cout << "<-- Wants data from: " << hex << static_cast<uint32_t>(input_number) << endl;
+    return 0x00;
 }

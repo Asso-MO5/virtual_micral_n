@@ -77,7 +77,9 @@ private:
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;
     [[nodiscard]] uint8_t address_to_output_number(uint16_t address) const;
+    [[nodiscard]] uint8_t address_to_input_number(uint16_t address) const;
     void send_to_peripheral(uint16_t address, Scheduling::counter_type time);
+    uint8_t get_from_peripheral(uint16_t address, Scheduling::counter_type time);
 };
 
 #endif //MICRALN_IOCARD_H
