@@ -63,7 +63,7 @@ public:
     OwnedValue<uint8_t> input_data; // CSx/ or ESx/
 
     // Outputs with Peripheral
-    OwnedSignal in_transfer;         // BT/
+    OwnedSignal in_transfer;         // BT/ (or ACK/ ?)
     OwnedSignal output_strobe;       // STDO/
     OwnedValue<uint8_t> output_data; // CDx/ or SDx/
 
