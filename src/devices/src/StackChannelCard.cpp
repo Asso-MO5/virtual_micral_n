@@ -17,6 +17,8 @@ StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
 
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
+    initialize_terminals();
+
     set_next_activation_time(Scheduling::unscheduled());
     set_data_size();
 
@@ -25,6 +27,26 @@ StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
 }
 
 StackChannelCard::~StackChannelCard() = default;
+
+void StackChannelCard::initialize_terminals()
+{
+    //    OwnedValue<uint8_t> input_data; // CSx/ or ESx/
+
+    apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer_address(edge); });
+    apply_counter.subscribe([this](Edge edge) { on_apply_counter(edge); });
+    data_transfer.subscribe([this](Edge edge) { on_data_transfer(edge); });
+
+    // Just needs to read the value? Or are there side effects like resetting the counter?
+    // direction.subscribe([this](Edge edge) { on_direction_change(edge); });
+
+    // Output with I/O
+    current_pointer_address.request(this, Scheduling::counter_type{0});
+
+    // Outputs with Peripheral
+    in_transfer.request(this);
+    output_strobe.request(this);
+    output_data.request(this, Scheduling::counter_type{0});
+}
 
 void StackChannelCard::step()
 {
@@ -45,10 +67,12 @@ void StackChannelCard::on_t2(Edge edge)
         auto [address, cycle_control] = decode_address_on_bus(*pluribus);
         if ((cycle_control == Constants8008::CycleControl::PCC) && is_addressed(address))
         {
+            const auto time = edge.time();
             if (is_input(address))
             {
                 // This is the end of T2, schedule the data emission
-                auto data_to_send = pop_data();
+                auto data_to_send = pop_data_to_bus(time);
+
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
                 set_next_activation_time(edge.time() + STACK_MEMORY_READ_DELAY);
@@ -56,7 +80,7 @@ void StackChannelCard::on_t2(Edge edge)
             }
             else
             {
-                push_data(address);
+                push_data_from_bus(address, time);
             }
         }
     }
@@ -69,7 +93,7 @@ void StackChannelCard::on_t3(Edge edge)
     }
 }
 
-uint8_t StackChannelCard::pop_data()
+uint8_t StackChannelCard::pop_data(Scheduling::counter_type time)
 {
     if (data_pointer > 0)
     {
@@ -79,7 +103,15 @@ uint8_t StackChannelCard::pop_data()
     {
         data_pointer = data.size() - 1;
     }
+    current_pointer_address.set(data_pointer, time, this);
+
     return data[data_pointer];
+}
+
+uint8_t StackChannelCard::pop_data_to_bus(Scheduling::counter_type time)
+{
+    data_counter = 0;
+    return pop_data(time);
 }
 
 bool StackChannelCard::is_addressed(uint16_t address) const
@@ -90,13 +122,20 @@ bool StackChannelCard::is_addressed(uint16_t address) const
                              : (output_address == configuration.output_address);
 }
 
-void StackChannelCard::push_data(uint16_t address)
+void StackChannelCard::push_data(uint8_t out_data, Scheduling::counter_type time)
+{
+    data[data_pointer] = out_data;
+    data_pointer = (data_pointer + 1) % data.size();
+    current_pointer_address.set(data_pointer, time, this);
+}
+
+void StackChannelCard::push_data_from_bus(uint16_t address, Scheduling::counter_type time)
 {
     assert(!is_input(address));
     const auto out_data = static_cast<uint8_t>(address & 0xff);
 
-    data[data_pointer] = out_data;
-    data_pointer = (data_pointer + 1) % data.size();
+    data_counter = 0;
+    push_data(out_data, time);
 }
 
 uint8_t StackChannelCard::get_data_at(uint16_t address) const { return data[address]; }
@@ -106,4 +145,40 @@ StackChannelCard::DebugData StackChannelCard::get_debug_data() const
             static_cast<uint16_t>(data.size()),
             data_pointer,
     };
+}
+
+void StackChannelCard::on_apply_pointer_address(Edge edge)
+{
+    data_pointer = new_pointer_address.get_value();
+    data_counter = 0;
+}
+
+void StackChannelCard::on_apply_counter(Edge edge) { data_counter = new_counter.get_value(); }
+
+void StackChannelCard::on_data_transfer(Edge edge)
+{
+    const auto time = edge.time();
+
+    if (data_counter == 0)
+    {
+        return;
+    }
+
+    data_counter -= 1;
+
+    if (*direction == State::HIGH)
+    {
+        // Writing to the Stack
+        push_data(input_data.get_value(), time);
+    }
+    else
+    {
+        // Reading from the Stack
+        // TODO: To be implemented
+    }
+
+    if (data_counter == 0)
+    {
+        // TODO: raise end of transfer
+    }
 }

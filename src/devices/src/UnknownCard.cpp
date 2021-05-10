@@ -3,11 +3,13 @@
 
 #include "IOCard.h"
 #include "Pluribus.h"
+#include "StackChannelCard.h"
 
 using namespace std;
 
 UnknownCard::UnknownCard(const Config& config)
-    : scheduler{config.scheduler}, io_card{config.io_card}, configuration(config.configuration)
+    : scheduler{config.scheduler}, io_card{config.io_card}, stack_channel{config.stack_channel},
+      configuration(config.configuration)
 {
     io_card->data_terminals[2].request(this, Scheduling::counter_type{0});
     io_card->ack_terminals[2].request(this);

@@ -121,6 +121,7 @@ Simulator::Simulator(ConfigROM rom_config)
 
     UnknownCard::Config unknown_card_config{.scheduler = scheduler,
                                             .io_card = io_card,
+                                            .stack_channel = stack_channel_5_card,
                                             .configuration = {}};
     unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
 

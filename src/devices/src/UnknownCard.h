@@ -8,6 +8,7 @@
 #include <memory>
 
 class IOCard;
+class StackChannelCard;
 
 struct UnknownCardConfiguration
 {
@@ -20,6 +21,7 @@ public:
     {
         SignalReceiver& scheduler;
         std::shared_ptr<IOCard> io_card;
+        std::shared_ptr<StackChannelCard> stack_channel;
         UnknownCardConfiguration configuration;
     };
 
@@ -31,6 +33,7 @@ public:
 private:
     SignalReceiver& scheduler;
     std::shared_ptr<IOCard> io_card;
+    std::shared_ptr<StackChannelCard> stack_channel;
     UnknownCardConfiguration configuration;
 
     struct Status

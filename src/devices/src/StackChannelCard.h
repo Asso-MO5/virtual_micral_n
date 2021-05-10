@@ -2,6 +2,8 @@
 #define MICRALN_STACKCHANNELCARD_H
 
 #include <emulation_core/src/Edge.h>
+#include <emulation_core/src/OwnedSignal.h>
+#include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
 
 #include <memory>
@@ -39,6 +41,32 @@ public:
 
     void step() override;
 
+    // Unknown direction with I/O
+    OwnedSignal transfer_cycle; // TC/
+
+    // Output with... I/O or Peripheral, depending on the paragraph
+    OwnedSignal end_of_transfer; // BTB/ or FTB/
+
+    // Inputs with I/O
+    OwnedValue<uint16_t> new_pointer_address; // PAx/
+    OwnedSignal apply_pointer_address;        // LOAD/
+
+    OwnedValue<uint16_t> new_counter; // PRx/
+    OwnedSignal apply_counter;        // STPC/ or STR/
+
+    // Outputs with I/O
+    OwnedValue<uint16_t> current_pointer_address; // Ax/
+
+    // Inputs with Peripheral
+    OwnedSignal direction;          // IN/OUT/
+    OwnedSignal data_transfer;      // DT/ or DE/
+    OwnedValue<uint8_t> input_data; // CSx/ or ESx/
+
+    // Outputs with Peripheral
+    OwnedSignal in_transfer;         // BT/
+    OwnedSignal output_strobe;       // STDO/
+    OwnedValue<uint8_t> output_data; // CDx/ or SDx/
+
     // For debugging purposes
     struct DebugData
     {
@@ -58,13 +86,23 @@ private:
 
     std::vector<uint8_t> data;
     uint16_t data_pointer{};
+    uint16_t data_counter{};
 
     void set_data_size();
+
     void on_t2(Edge edge);
     void on_t3(Edge edge);
-    uint8_t pop_data();
-    void push_data(uint16_t address);
+    void on_apply_pointer_address(Edge edge);
+    void on_apply_counter(Edge edge);
+
+    uint8_t pop_data_to_bus(Scheduling::counter_type time);
+    void push_data_from_bus(uint16_t address, Scheduling::counter_type time);
+    uint8_t pop_data(Scheduling::counter_type time);
+    void push_data(uint8_t out_data, Scheduling::counter_type time);
+
     [[nodiscard]] bool is_addressed(uint16_t address) const;
+    void initialize_terminals();
+    void on_data_transfer(Edge edge);
 };
 
 #endif //MICRALN_STACKCHANNELCARD_H
