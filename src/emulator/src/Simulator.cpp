@@ -125,8 +125,8 @@ Simulator::Simulator(ConfigROM rom_config)
                                             .configuration = {}};
     unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
 
-    register_signals();
-    register_values();
+    connect_signal_recorders();
+    connect_value_recorders();
     pause_all_recorders();
     resume_all_recorders();
 
@@ -167,7 +167,7 @@ void connect_recorder(OwnedValue<ValueType>& value, ValueRecorder& recorder)
     });
 }
 
-void Simulator::register_signals()
+void Simulator::connect_signal_recorders()
 {
     auto& clock = processor_card->get_clock();
     auto& rtc = processor_card->get_rtc();
@@ -233,7 +233,7 @@ void Simulator::register_signals()
     connect_recorder(pluribus->aint7, aint7_recorder);
 }
 
-void Simulator::register_values()
+void Simulator::connect_value_recorders()
 {
     const double window_time_frame_in_s = 20.f / 1000.f / 1000.f;
 

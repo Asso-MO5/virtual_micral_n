@@ -75,8 +75,8 @@ private:
 
     MemoryCard::Config get_memory_card_rom_2k_config(bool s13, bool s12, bool s11);
     MemoryCard::Config get_memory_card_ram_2k_config(bool s13, bool s12, bool s11);
-    void register_signals();
-    void register_values();
+    void connect_signal_recorders();
+    void connect_value_recorders();
     void pause_all_recorders();
     void resume_all_recorders();
 };
