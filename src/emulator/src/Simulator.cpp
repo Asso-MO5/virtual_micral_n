@@ -112,7 +112,8 @@ Simulator::Simulator(ConfigROM rom_config)
                                   .pluribus = pluribus,
                                   .configuration = {
                                           .mode = IOCardConfiguration::Input_32_Output_32,
-                                          .address_mask = 0b01000001, // 010 for Output, 1 for Input
+                                          .address_mask = 0b10100001, // 101 for Output, 1 for Input
+                                          // This correspond to usage from the Boot ROM.
                                   }};
     io_card = std::make_shared<IOCard>(io_card_config);
 

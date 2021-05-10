@@ -23,9 +23,21 @@ IOCard::IOCard(const IOCard::Config& config)
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
+
+    acquire_values();
 }
 
 IOCard::~IOCard() = default;
+
+void IOCard::acquire_values()
+{
+    size_t first_owned_value_to_acquire =
+            configuration.mode == IOCardConfiguration::Input_32_Output_32 ? 4 : 0;
+    for (auto index = first_owned_value_to_acquire; index < 8; ++index)
+    {
+        data_terminals[index].request(this, OwnedValue<uint8_t>::counter_type{0});
+    }
+}
 
 void IOCard::step()
 {
@@ -54,7 +66,7 @@ void IOCard::on_t2(Edge edge)
             }
             else
             {
-                // TODO: Send data to peripheral
+                send_to_peripheral(address, edge.time());
             }
         }
     }
@@ -75,6 +87,12 @@ namespace
     {
         if (is_input(address))
         {
+            uint8_t group = ((address >> 8) & 0b00001110) >> 1;
+            if (group != 0)
+            {
+                return 0;
+            }
+
             uint8_t s2 = ((address >> 2)) & 0b00000001;
             return s2 | 0b11111110;
         }
@@ -105,9 +123,8 @@ bool IOCard::is_addressed(uint16_t address) const
     switch (configuration.mode)
     {
         case IOCardConfiguration::Input_32_Output_32: {
-            uint8_t group = ((address >> 8) & 0b00001110) >> 1;
-            return group == 0 && (match_for_32_32(address) & configuration.address_mask) ==
-                                         configuration.address_mask;
+            return (match_for_32_32(address) & configuration.address_mask) ==
+                   configuration.address_mask;
         }
         case IOCardConfiguration::Input_64: {
             return (match_for_64_inputs(address) & configuration.address_mask) ==
@@ -119,4 +136,43 @@ bool IOCard::is_addressed(uint16_t address) const
         }
     }
     return false;
+}
+
+uint8_t IOCard::address_to_output_number(uint16_t address) const
+{
+    assert((configuration.mode == IOCardConfiguration::Input_32_Output_32 ||
+            configuration.mode == IOCardConfiguration::Output_64) &&
+           "Output makes sense only for a card supporting Output.");
+
+    if (configuration.mode == IOCardConfiguration::Input_32_Output_32)
+    {
+        uint8_t s9_to_s10 = (address >> 9) & 0b11;
+        return s9_to_s10;
+    }
+    else
+    {
+        assert(configuration.mode == IOCardConfiguration::Output_64);
+        uint8_t s9_to_s11 = (address >> 9) & 0b111;
+        return s9_to_s11;
+    }
+}
+
+void IOCard::send_to_peripheral(uint16_t address, Scheduling::counter_type time)
+{
+    using namespace std;
+    // The data to send in on the lower part of the address
+    const uint8_t data = address & 0xff;
+    uint8_t output_number = address_to_output_number(address);
+
+    assert(((configuration.mode == IOCardConfiguration::Input_32_Output_32 && output_number < 4) ||
+            (configuration.mode == IOCardConfiguration::Output_64 && output_number < 8)) &&
+           "The output address doesn't match the card type. It shouldn't have been "
+           "addressed.");
+
+    if (configuration.mode == IOCardConfiguration::Input_32_Output_32)
+    {
+        output_number += 4; // First 4 values are for inputs.
+    }
+
+    data_terminals[output_number].set(data, time, this);
 }

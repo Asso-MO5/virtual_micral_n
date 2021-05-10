@@ -2,6 +2,8 @@
 #define MICRALN_IOCARD_H
 
 #include <emulation_core/src/Edge.h>
+#include <emulation_core/src/OwnedSignal.h>
+#include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
 
 #include <memory>
@@ -45,6 +47,11 @@ public:
 
     void step() override;
 
+    // For 32/32 cards, the 4 first are for inputs, the 4 others for outputs
+    std::array<OwnedValue<uint8_t>, 8> data_terminals;
+    std::array<OwnedSignal, 8> ack_terminals;
+    OwnedSignal interrupt_terminal;
+
 private:
     SignalReceiver& scheduler;
     std::shared_ptr<Pluribus> pluribus;
@@ -52,10 +59,14 @@ private:
 
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
 
+    void acquire_values();
+
     void on_t2(Edge edge);
     void on_t3(Edge edge);
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;
+    [[nodiscard]] uint8_t address_to_output_number(uint16_t address) const;
+    void send_to_peripheral(uint16_t address, Scheduling::counter_type time);
 };
 
 #endif //MICRALN_IOCARD_H
