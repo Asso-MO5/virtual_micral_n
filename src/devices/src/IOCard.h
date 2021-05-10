@@ -32,6 +32,11 @@ struct IOCardConfiguration
     uint8_t address_selection{};
 };
 
+namespace IOCardConstants
+{
+    const size_t TERMINAL_COUNT = 8;
+}
+
 class IOCard : public SchedulableImpl
 {
 public:
@@ -48,8 +53,8 @@ public:
     void step() override;
 
     // For 32/32 cards, the 4 first are for inputs, the 4 others for outputs
-    std::array<OwnedValue<uint8_t>, 8> data_terminals;
-    std::array<OwnedSignal, 8> ack_terminals;
+    std::array<OwnedValue<uint8_t>, IOCardConstants::TERMINAL_COUNT> data_terminals;
+    std::array<OwnedSignal, IOCardConstants::TERMINAL_COUNT> ack_terminals;
     OwnedSignal interrupt_terminal;
 
 private:
@@ -59,10 +64,16 @@ private:
 
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
 
-    void acquire_values();
+    Scheduling::counter_type next_time_to_place_data;
+
+    size_t first_owned_terminal{};
+    std::array<Scheduling::counter_type, IOCardConstants::TERMINAL_COUNT> next_time_for_ack_low;
+
+    void initialize_terminals();
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);
+    void update_next_activation_time();
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;
     [[nodiscard]] uint8_t address_to_output_number(uint16_t address) const;

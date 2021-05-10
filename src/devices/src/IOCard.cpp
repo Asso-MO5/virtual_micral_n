@@ -6,6 +6,7 @@
 namespace
 {
     const Scheduling::counter_type IO_CARD_DELAY = 20;
+    const Scheduling::counter_type ACK_APPLIED_PERIOD = 200;
 
     // TODO: Duplicated from StackChannelCard
     constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
@@ -19,32 +20,60 @@ IOCard::IOCard(const IOCard::Config& config)
 {
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
-    set_next_activation_time(Scheduling::unscheduled());
+    next_time_to_place_data = Scheduling::unscheduled();
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
 
-    acquire_values();
+    switch (configuration.mode)
+    {
+        case IOCardConfiguration::Input_32_Output_32:
+            first_owned_terminal = 4;
+            break;
+        case IOCardConfiguration::Input_64:
+            first_owned_terminal = IOCardConstants::TERMINAL_COUNT;
+            break;
+        case IOCardConfiguration::Output_64:
+            first_owned_terminal = 0;
+            break;
+    }
+
+    initialize_terminals();
+    update_next_activation_time();
 }
 
 IOCard::~IOCard() = default;
 
-void IOCard::acquire_values()
+void IOCard::initialize_terminals()
 {
-    size_t first_owned_value_to_acquire =
-            configuration.mode == IOCardConfiguration::Input_32_Output_32 ? 4 : 0;
-    for (auto index = first_owned_value_to_acquire; index < 8; ++index)
+    for (auto index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
     {
         data_terminals[index].request(this, OwnedValue<uint8_t>::counter_type{0});
+        ack_terminals[index].request(this);
+        next_time_for_ack_low[index] = Scheduling::unscheduled();
     }
 }
 
 void IOCard::step()
 {
     const auto time = get_next_activation_time();
-    output_data_holder->place_data(time);
 
-    set_next_activation_time(Scheduling::unscheduled());
+    if (time == next_time_to_place_data)
+    {
+        output_data_holder->place_data(time);
+        next_time_to_place_data = Scheduling::unscheduled();
+    }
+
+    for (auto index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
+    {
+        if (time == next_time_for_ack_low[index])
+        {
+            ack_terminals[index].set(State::LOW, time, this);
+            next_time_for_ack_low[index] = Scheduling::unscheduled();
+        }
+    }
+
+    update_next_activation_time();
 }
 
 void IOCard::on_t2(Edge edge)
@@ -61,8 +90,9 @@ void IOCard::on_t2(Edge edge)
                 auto data_to_send = DUMMY_DATA;
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
+                next_time_to_place_data = edge.time() + IO_CARD_DELAY;
                 set_next_activation_time(edge.time() + IO_CARD_DELAY);
-                scheduler.change_schedule(get_id());
+                update_next_activation_time();
             }
             else
             {
@@ -79,6 +109,18 @@ void IOCard::on_t3(Edge edge)
     {
         output_data_holder->release_bus(edge.time());
     }
+}
+
+void IOCard::update_next_activation_time()
+{
+    auto next_activation_time = next_time_to_place_data;
+    for (auto index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
+    {
+        next_activation_time = std::min(next_activation_time, next_time_for_ack_low[index]);
+    }
+
+    set_next_activation_time(next_activation_time);
+    scheduler.change_schedule(get_id());
 }
 
 namespace
@@ -172,4 +214,9 @@ void IOCard::send_to_peripheral(uint16_t address, Scheduling::counter_type time)
     }
 
     data_terminals[output_number].set(data, time, this);
+    ack_terminals[output_number].set(State::HIGH, time, this);
+
+    next_time_for_ack_low[output_number] = time + ACK_APPLIED_PERIOD;
+
+    update_next_activation_time();
 }

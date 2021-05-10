@@ -8,6 +8,7 @@
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
+#include <devices/src/UnknownCard.h>
 
 #include <fstream>
 
@@ -108,14 +109,20 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
-    IOCard::Config io_card_config{.scheduler = scheduler,
-                                  .pluribus = pluribus,
-                                  .configuration = {
-                                          .mode = IOCardConfiguration::Input_32_Output_32,
-                                          .address_selection = 0b10100001, // 101 for Output, 1 for Input
-                                          // This correspond to usage from the Boot ROM.
-                                  }};
+    IOCard::Config io_card_config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = IOCardConfiguration::Input_32_Output_32,
+                    .address_selection = 0b10100001, // 101 for Output, 1 for Input
+                                                     // This correspond to usage from the Boot ROM.
+            }};
     io_card = std::make_shared<IOCard>(io_card_config);
+
+    UnknownCard::Config unknown_card_config{.scheduler = scheduler,
+                                            .io_card = io_card,
+                                            .configuration = {}};
+    unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
 
     register_signals();
     register_values();
@@ -133,6 +140,7 @@ Simulator::Simulator(ConfigROM rom_config)
     scheduler.add(stack_channel_6_card);
     scheduler.add(stack_channel_5_card);
     scheduler.add(io_card);
+    scheduler.add(unknown_card);
 
     memory_view.add_memory_card(memory_card_1);
     memory_view.add_memory_card(memory_card_2);
