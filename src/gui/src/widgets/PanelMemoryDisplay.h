@@ -24,7 +24,7 @@ void memory_display(const char* widget_name, const MemoryDisplayParameters& para
     char_view.back() = 0;
     uint16_t memory_line = 0;
 
-    ImGui::Begin(widget_name);
+    ImGui::BeginChild(widget_name);
 
     while (address < end_address)
     {
@@ -59,7 +59,7 @@ void memory_display(const char* widget_name, const MemoryDisplayParameters& para
         }
     }
 
-    ImGui::End();
+    ImGui::EndChild();
 }
 
 #endif //MICRALN_PANELMEMORYDISPLAY_H

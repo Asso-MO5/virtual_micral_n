@@ -1,7 +1,7 @@
 #include "StackChannelCard.h"
 
-#include "Pluribus.h"
 #include "DataOnMDBusHolder.h"
+#include "Pluribus.h"
 
 namespace
 {
@@ -11,8 +11,7 @@ namespace
 } // namespace
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
-    : scheduler{config.scheduler}, pluribus{config.pluribus},
-      configuration(config.configuration)
+    : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration(config.configuration)
 {
     assert(configuration.memory_size > 0 && "The memory size must not be 0");
 
@@ -100,5 +99,11 @@ void StackChannelCard::push_data(uint16_t address)
     data_pointer = (data_pointer + 1) % data.size();
 }
 
-uint16_t StackChannelCard::get_size() const { return data.size(); }
-uint8_t StackChannelCard::get_data_at(uint16_t address) const { return data[data_pointer]; }
+uint8_t StackChannelCard::get_data_at(uint16_t address) const { return data[address]; }
+StackChannelCard::DebugData StackChannelCard::get_debug_data() const
+{
+    return {
+            static_cast<uint16_t>(data.size()),
+            data_pointer,
+    };
+}
