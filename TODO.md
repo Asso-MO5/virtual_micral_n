@@ -1,10 +1,9 @@
 ### Implementation
 
 * Implement the I/O cards
-  * 32 Inputs, 32 Outputs
-  * 64 Outputs
-  * 64 Inputs
   * Implement the I/O translation to external port
+    * Implements the AC/ signal for output
+    * Implements the AC/ signal for input
   * Implement the Interrupts for the I/O cards
 * Implement the Stack card
   * Control through I/O

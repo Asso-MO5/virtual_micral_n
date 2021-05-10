@@ -83,37 +83,37 @@ void IOCard::on_t3(Edge edge)
 
 namespace
 {
-    uint8_t match_for_32_32(uint16_t address)
+    bool match_for_32_32(uint16_t address, uint8_t selection)
     {
         if (is_input(address))
         {
             uint8_t group = ((address >> 8) & 0b00001110) >> 1;
             if (group != 0)
             {
-                return 0;
+                return false;
             }
 
             uint8_t s2 = ((address >> 2)) & 0b00000001;
-            return s2 | 0b11111110;
+            return s2 == (selection & 0b00000001);
         }
         else
         {
             uint8_t s13_to_s11 = ((address >> 11) << 5) & 0b11100000;
-            return s13_to_s11 | 0b00011111;
+            return s13_to_s11 == (selection & 0b11100000);
         }
     }
 
-    uint8_t match_for_64_inputs(uint16_t address)
+    bool match_for_64_inputs(uint16_t address, uint8_t selection)
     {
         uint8_t s11_to_s9 = ((address >> 9) << 5) & 0b11100000;
         uint8_t s7_to_s3 = (address >> 3) & 0b00011111;
-        return s11_to_s9 | s7_to_s3;
+        return (s11_to_s9 | s7_to_s3) == selection;
     }
 
-    uint8_t match_for_64_outputs(uint16_t address)
+    bool match_for_64_outputs(uint16_t address, uint8_t selection)
     {
         uint8_t s13_to_s12 = ((address >> 12) << 6) & 0b11000000;
-        return s13_to_s12;
+        return (s13_to_s12 & 0b11000000) == selection;
     }
 
 } // namespace
@@ -123,16 +123,13 @@ bool IOCard::is_addressed(uint16_t address) const
     switch (configuration.mode)
     {
         case IOCardConfiguration::Input_32_Output_32: {
-            return (match_for_32_32(address) & configuration.address_mask) ==
-                   configuration.address_mask;
+            return match_for_32_32(address, configuration.address_selection);
         }
         case IOCardConfiguration::Input_64: {
-            return (match_for_64_inputs(address) & configuration.address_mask) ==
-                   configuration.address_mask;
+            return match_for_64_inputs(address, configuration.address_selection);
         }
         case IOCardConfiguration::Output_64: {
-            return (match_for_64_outputs(address) & configuration.address_mask) ==
-                   configuration.address_mask;
+            return match_for_64_outputs(address, configuration.address_selection);
         }
     }
     return false;

@@ -29,7 +29,7 @@ struct IOCardConfiguration
     // - using S11|S10|S9|S7|S6|S5|S4|S3
     // 64 outputs selects on S12 and S13 (needs 2 bits)
     // - using S13|S12|x|x|x|x|x|x
-    uint8_t address_mask{};
+    uint8_t address_selection{};
 };
 
 class IOCard : public SchedulableImpl
