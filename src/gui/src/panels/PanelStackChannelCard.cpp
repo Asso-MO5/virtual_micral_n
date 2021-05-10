@@ -20,6 +20,8 @@ void display_stack_channel_card_panel(const Simulator& simulator, uint8_t card_n
 
     ImGui::Begin(title_stream.str().c_str());
 
+    ImGui::Text("Pointer: %04x", debug_data.data_pointer);
+
     auto memory_parameters =
             MemoryDisplayParameters{.start_address = 0x0000,
                                     .highlighted_memory = debug_data.data_pointer,
