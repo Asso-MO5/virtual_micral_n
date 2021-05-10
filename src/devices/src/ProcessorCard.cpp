@@ -252,4 +252,4 @@ void ProcessorCard::install_debug_info()
     });
 }
 
-const ProcessorCard::DebugInfo& ProcessorCard::get_debug_info() const { return debug_info; }
+const ProcessorCard::DebugData& ProcessorCard::get_debug_data() const { return debug_info; }

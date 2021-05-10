@@ -31,7 +31,7 @@ uint64_t get_average_frequency(const Simulator& simulator,
     if (scheduler.get_counter() > 0)
     {
         static uint64_t previous_pulse_count = 0;
-        const auto& clock_1_pulse = simulator.get_processor_card().get_debug_info().clock_pulse;
+        const auto& clock_1_pulse = simulator.get_processor_card().get_debug_data().clock_pulse;
 
         uint64_t immediate_frequency = 0;
         if (average_frame_time_in_ms > 0)

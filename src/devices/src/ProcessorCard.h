@@ -39,14 +39,14 @@ public:
     DoubleClock& get_clock();
     Clock& get_rtc();
 
-    struct DebugInfo
+    struct DebugData
     {
         Scheduling::counter_type clock_pulse{};
         bool watchdog_on{};
     };
 
     void install_debug_info();
-    [[nodiscard]] const DebugInfo& get_debug_info() const;
+    [[nodiscard]] const DebugData& get_debug_data() const;
 
 private:
     // Received as parameters
@@ -67,7 +67,7 @@ private:
     bool emit_t3prime_on_next_step{};
     bool t1i_cycle{};
 
-    DebugInfo debug_info;
+    DebugData debug_info;
 
     void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState state,
                            Scheduling::counter_type time);

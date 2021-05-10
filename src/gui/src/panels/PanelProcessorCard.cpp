@@ -9,7 +9,7 @@
 void display_processor_card_panel(const Simulator& simulator)
 {
     const auto& scheduler = simulator.get_scheduler();
-    const auto& debug_info = simulator.get_processor_card().get_debug_info();
+    const auto& debug_info = simulator.get_processor_card().get_debug_data();
 
     ImGui::Begin("Processor Card");
 

@@ -12,7 +12,7 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     static bool running_update = true;
 
     const auto& scheduler = simulator.get_scheduler();
-    const auto& clock_pulse = simulator.get_processor_card().get_debug_info().clock_pulse;
+    const auto& clock_pulse = simulator.get_processor_card().get_debug_data().clock_pulse;
     const auto& cpu = simulator.get_processor_card().get_cpu();
 
     ImGui::Begin("8008");
