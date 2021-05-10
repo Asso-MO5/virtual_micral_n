@@ -3,7 +3,6 @@
 
 #include "Scheduling.h"
 
-#include <devices/src/MemoryCard.h>
 #include <exception>
 #include <functional>
 #include <string>

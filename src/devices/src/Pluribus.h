@@ -3,6 +3,8 @@
 
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>
+#include <mcs8/src/Constants8008.h>
+
 #include <memory>
 
 class Pluribus
@@ -48,7 +50,6 @@ public:
 };
 
 Constants8008::CycleControl cycle_control_from_cc(State cc0, State cc1);
-std::tuple<uint16_t, Constants8008::CycleControl> decode_address_on_bus(const Pluribus & pluribus);
-
+std::tuple<uint16_t, Constants8008::CycleControl> decode_address_on_bus(const Pluribus& pluribus);
 
 #endif //MICRALN_PLURIBUS_H
