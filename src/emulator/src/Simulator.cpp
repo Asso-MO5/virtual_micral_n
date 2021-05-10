@@ -281,16 +281,22 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
     {
         auto& cpu = processor_card->get_cpu();
 
-        if (controller_state == RUNNING)
+        if (controller_state == RUNNING || controller_state == RUNNING_SLOW)
         {
             auto start_point = scheduler.get_counter();
 
             float time_to_simulation = average_frame_time_in_ms;
+
             if (average_frame_time_in_ms > 17.f)
             {
                 time_to_simulation = (16.6f / average_frame_time_in_ms) * 16.f;
             }
             auto time_in_ns = time_to_simulation * 1000.f * 1000.f;
+
+            if (controller_state == RUNNING_SLOW)
+            {
+                time_in_ns = std::max(time_in_ns / 100.f, 1.f);
+            }
 
             uint64_t end_point = start_point + (static_cast<uint64_t>(time_in_ns));
 
@@ -299,7 +305,7 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
                 scheduler.step();
             }
         }
-        else if (controller_state == RUNNING_SLOW)
+        else if (controller_state == RUNNING_VERY_SLOW)
         {
             scheduler.step();
         }

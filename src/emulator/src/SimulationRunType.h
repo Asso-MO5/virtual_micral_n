@@ -4,6 +4,7 @@
 enum SimulationRunType {
     RUNNING,
     RUNNING_SLOW,
+    RUNNING_VERY_SLOW,
     PAUSED,
     STEP_ONE_CLOCK,
     STEP_ONE_STATE,
