@@ -98,17 +98,7 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_6_card = std::make_shared<StackChannelCard>(stack_channel_6_config);
 
-    StackChannelCard::Config stack_channel_5_config{
-            .scheduler = scheduler,
-            .pluribus = pluribus,
-            .configuration = {
-                    .mode = StackChannelCardConfiguration::Stack,
-                    .memory_size = 256,
-                    .input_address = 0x05,
-                    .output_address = 0x15,
-            }};
-    stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
-
+    // IO Card for Unknown Peripheral
     IOCard::Config io_card_config{
             .scheduler = scheduler,
             .pluribus = pluribus,
@@ -118,6 +108,20 @@ Simulator::Simulator(ConfigROM rom_config)
                                                      // This correspond to usage from the Boot ROM.
             }};
     io_card = std::make_shared<IOCard>(io_card_config);
+
+    // StackChannel for Unknown Peripheral
+    StackChannelCard::Config stack_channel_5_config{
+            .scheduler = scheduler,
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = StackChannelCardConfiguration::Stack,
+                    .memory_size = 256,
+                    .input_address = 0x05,
+                    .output_address = 0x15,
+                    .io_card = io_card,
+                    .new_counter_terminal = 5,
+            }};
+    stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
     UnknownCard::Config unknown_card_config{.scheduler = scheduler,
                                             .io_card = io_card,

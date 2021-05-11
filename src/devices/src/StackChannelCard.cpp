@@ -1,6 +1,7 @@
 #include "StackChannelCard.h"
 
 #include "DataOnMDBusHolder.h"
+#include "IOCard.h"
 #include "Pluribus.h"
 
 namespace
@@ -18,6 +19,7 @@ StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
     initialize_terminals();
+    initialize_io_card_connections();
 
     set_next_activation_time(Scheduling::unscheduled());
     set_data_size();
@@ -30,10 +32,7 @@ StackChannelCard::~StackChannelCard() = default;
 
 void StackChannelCard::initialize_terminals()
 {
-    //    OwnedValue<uint8_t> input_data; // CSx/ or ESx/
-
     apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer_address(edge); });
-    apply_counter.subscribe([this](Edge edge) { on_apply_counter(edge); });
     data_transfer.subscribe([this](Edge edge) { on_data_transfer(edge); });
 
     // Just needs to read the value? Or are there side effects like resetting the counter?
@@ -46,6 +45,15 @@ void StackChannelCard::initialize_terminals()
     in_transfer.request(this);
     output_strobe.request(this);
     output_data.request(this, Scheduling::counter_type{0});
+}
+
+void StackChannelCard::initialize_io_card_connections()
+{
+    if (configuration.io_card)
+    {
+        configuration.io_card->ack_terminals[configuration.new_counter_terminal].subscribe(
+                [this](Edge edge) { on_apply_counter(edge); });
+    }
 }
 
 void StackChannelCard::step()
@@ -144,6 +152,7 @@ StackChannelCard::DebugData StackChannelCard::get_debug_data() const
     return {
             static_cast<uint16_t>(data.size()),
             data_pointer,
+            data_counter,
     };
 }
 
@@ -153,7 +162,13 @@ void StackChannelCard::on_apply_pointer_address(Edge edge)
     data_counter = 0;
 }
 
-void StackChannelCard::on_apply_counter(Edge edge) { data_counter = new_counter.get_value(); }
+void StackChannelCard::on_apply_counter(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        data_counter = *configuration.io_card->data_terminals[configuration.new_counter_terminal];
+    }
+}
 
 void StackChannelCard::on_data_transfer(Edge edge)
 {

@@ -15,7 +15,6 @@ UnknownCard::UnknownCard(const Config& config)
     io_card->ack_terminals[2].request(this);
 
     io_card->ack_terminals[4].subscribe([this](Edge edge) { on_input_4(edge); });
-    io_card->ack_terminals[5].subscribe([this](Edge edge) { on_input_5(edge); });
     io_card->ack_terminals[6].subscribe([this](Edge edge) { on_input_6(edge); });
     io_card->ack_terminals[7].subscribe([this](Edge edge) { on_input_7(edge); });
 
@@ -43,8 +42,8 @@ void UnknownCard::step()
 
             cout << "ALL SENT" << endl;
 
-            io_card->data_terminals[2].set(0b00000000, time, this);
-            io_card->ack_terminals[2].set(State::HIGH, time, this);
+//            io_card->data_terminals[2].set(0b00000000, time, this);
+//            io_card->ack_terminals[2].set(State::HIGH, time, this);
 
             status.end_of_send_cycle = true;
 
@@ -77,14 +76,7 @@ void UnknownCard::on_input_4(Edge edge)
              << static_cast<uint32_t>(io_card->data_terminals[4].get_value()) << endl;
     }
 }
-void UnknownCard::on_input_5(Edge edge)
-{
-    if (is_rising(edge))
-    {
-        cout << "Received on 1: " << hex
-             << static_cast<uint32_t>(io_card->data_terminals[5].get_value()) << endl;
-    }
-}
+
 void UnknownCard::on_input_6(Edge edge)
 {
     if (is_rising(edge))

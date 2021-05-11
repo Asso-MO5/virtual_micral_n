@@ -47,7 +47,6 @@ private:
     Status status;
 
     void on_input_4(Edge edge);
-    void on_input_5(Edge edge);
     void on_input_6(Edge edge);
     void on_input_7(Edge edge);
 };

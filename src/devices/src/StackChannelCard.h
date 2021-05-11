@@ -11,6 +11,7 @@
 
 class Pluribus;
 class DataOnMDBusHolder;
+class IOCard;
 
 struct StackChannelCardConfiguration
 {
@@ -24,6 +25,14 @@ struct StackChannelCardConfiguration
     uint16_t memory_size{};
     uint8_t input_address{};
     uint8_t output_address{};
+
+    // An optional connection to an io card for controls.
+    // At the moment, only one card is used for all I/O controls.
+    std::shared_ptr<IOCard> io_card{};
+
+    // Inputs with I/O
+    // STPC/ or STR/ for Apply, PRx/ for value
+    uint8_t new_counter_terminal; // The terminal on the I/O card
 };
 
 class StackChannelCard : public SchedulableImpl
@@ -51,9 +60,6 @@ public:
     OwnedValue<uint16_t> new_pointer_address; // PAx/
     OwnedSignal apply_pointer_address;        // LOAD/
 
-    OwnedValue<uint16_t> new_counter; // PRx/
-    OwnedSignal apply_counter;        // STPC/ or STR/
-
     // Outputs with I/O
     OwnedValue<uint16_t> current_pointer_address; // Ax/
 
@@ -72,6 +78,7 @@ public:
     {
         uint16_t memory_size;
         uint16_t data_pointer;
+        uint16_t data_counter;
     };
 
     [[nodiscard]] DebugData get_debug_data() const;
@@ -103,6 +110,7 @@ private:
     [[nodiscard]] bool is_addressed(uint16_t address) const;
     void initialize_terminals();
     void on_data_transfer(Edge edge);
+    void initialize_io_card_connections();
 };
 
 #endif //MICRALN_STACKCHANNELCARD_H
