@@ -114,12 +114,13 @@ Simulator::Simulator(ConfigROM rom_config)
             .scheduler = scheduler,
             .pluribus = pluribus,
             .configuration = {
-                    .mode = StackChannelCardConfiguration::Stack,
+                    .mode = StackChannelCardConfiguration::Channel,
                     .memory_size = 256,
                     .input_address = 0x05,
                     .output_address = 0x15,
                     .io_card = io_card,
                     .new_counter_terminal = 5,
+                    .control_terminal = 4,
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 

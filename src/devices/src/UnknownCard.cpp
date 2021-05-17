@@ -14,8 +14,10 @@ UnknownCard::UnknownCard(const Config& config)
     io_card->data_terminals[2].request(this, Scheduling::counter_type{0});
     io_card->ack_terminals[2].request(this);
 
-    io_card->ack_terminals[4].subscribe([this](Edge edge) { on_input_4(edge); });
+    // Connected to OUT $E
     io_card->ack_terminals[6].subscribe([this](Edge edge) { on_input_6(edge); });
+
+    // Connected to OUT $F
     io_card->ack_terminals[7].subscribe([this](Edge edge) { on_input_7(edge); });
 
     stack_channel->input_data.request(this, Scheduling::counter_type{0});
@@ -46,15 +48,6 @@ void UnknownCard::step()
 
     set_next_activation_time(std::min(next_signals_to_lower.time_for_data_transfer,
                                       next_signals_to_lower.time_for_ack_2));
-}
-
-void UnknownCard::on_input_4(Edge edge)
-{
-    if (is_rising(edge))
-    {
-        cout << "Received on 0: " << hex
-             << static_cast<uint32_t>(io_card->data_terminals[4].get_value()) << endl;
-    }
 }
 
 void UnknownCard::on_input_6(Edge edge)
@@ -151,7 +144,8 @@ void UnknownCard::on_transfer_enabled(Edge edge)
             stack_channel->input_data.set(status.bytes_to_send, time, this);
             stack_channel->data_transfer.set(State::HIGH, time, this);
 
-            next_signals_to_lower.time_for_data_transfer = edge.time() + Scheduling::counter_type{100};
+            next_signals_to_lower.time_for_data_transfer =
+                    edge.time() + Scheduling::counter_type{100};
             set_next_activation_time(edge.time() + Scheduling::counter_type{100});
 
             scheduler.change_schedule(get_id());

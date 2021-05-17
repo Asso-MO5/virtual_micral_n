@@ -35,8 +35,8 @@ void StackChannelCard::initialize_terminals()
     apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer_address(edge); });
     data_transfer.subscribe([this](Edge edge) { on_data_transfer(edge); });
 
-    // TODO: connect to the I/O card for controlling the value
-    // direction.subscribe([this](Edge edge) { on_direction_change(edge); });
+    direction.request(this);
+    transfer_cycle.request(this);
 
     // Output with I/O
     current_pointer_address.request(this, Scheduling::counter_type{0});
@@ -56,6 +56,9 @@ void StackChannelCard::initialize_io_card_connections()
     {
         configuration.io_card->ack_terminals[configuration.new_counter_terminal].subscribe(
                 [this](Edge edge) { on_apply_counter(edge); });
+
+        configuration.io_card->ack_terminals[configuration.control_terminal].subscribe(
+                [this](Edge edge) { on_io_commands(edge); });
     }
 }
 
@@ -188,7 +191,7 @@ void StackChannelCard::on_apply_counter(Edge edge)
 
 void StackChannelCard::on_data_transfer(Edge edge)
 {
-    if (is_rising(edge))
+    if (is_rising(edge) && is_high(transfer_cycle))
     {
         const auto time = edge.time();
 
@@ -222,6 +225,21 @@ void StackChannelCard::on_data_transfer(Edge edge)
             // TODO: verify this and when it's lowered. It's probably more a pulse
             end_of_transfer.set(State::LOW, time, this);
         }
+    }
+}
+
+void StackChannelCard::on_io_commands(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        const auto value = *configuration.io_card->data_terminals[configuration.control_terminal];
+        const auto time = edge.time();
+
+        const auto direction_bit = value & 0b00010000; // Arbitrary... To check.
+        direction.set(direction_bit ? State::HIGH : State::LOW, time, this);
+
+        const auto cycle_bit = value & 0b00000001; // Arbitrary... To check.
+        transfer_cycle.set(cycle_bit ? State::HIGH : State::LOW, time, this);
     }
 }
 

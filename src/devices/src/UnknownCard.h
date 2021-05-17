@@ -40,7 +40,6 @@ private:
     {
         bool is_ready{};
         bool sending_to_channel{};
-        bool end_of_send_cycle{};
         uint8_t bytes_to_send;
     };
 
@@ -53,7 +52,6 @@ private:
     Status status;
     NextSignalToLower next_signals_to_lower;
 
-    void on_input_4(Edge edge);
     void on_input_6(Edge edge);
     void on_input_7(Edge edge);
 

@@ -33,6 +33,10 @@ struct StackChannelCardConfiguration
     // Inputs with I/O
     // STPC/ or STR/ for Apply, PRx/ for value
     uint8_t new_counter_terminal; // The terminal on the I/O card
+
+    // Control with I/O
+    // Value bit 0 and 4 for at least Direction (IN/OUT/) and maybe TC/ (transfer cycle)
+    uint8_t control_terminal;
 };
 
 class StackChannelCard : public SchedulableImpl
@@ -71,7 +75,7 @@ public:
     OwnedValue<uint8_t> input_data; // CSx/ or ESx/
 
     // Outputs with Peripheral
-    OwnedSignal transfer_allowed;         // BT/ (or ACK/ ?)
+    OwnedSignal transfer_allowed;    // BT/ (or ACK/ ?)
     OwnedSignal output_strobe;       // STDO/
     OwnedValue<uint8_t> output_data; // CDx/ or SDx/
 
@@ -103,6 +107,7 @@ private:
     void on_t3(Edge edge);
     void on_apply_pointer_address(Edge edge);
     void on_apply_counter(Edge edge);
+    void on_io_commands(Edge edge);
 
     uint8_t pop_data_to_bus(Scheduling::counter_type time);
     void push_data_from_bus(uint16_t address, Scheduling::counter_type time);

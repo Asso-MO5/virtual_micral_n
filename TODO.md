@@ -1,15 +1,9 @@
 ### Implementation
 
 * Create an Auto Signal that changes states after some times, and have a schedule
-* Implement the transfer
-  * Control the direction from the I/O card
 * Implement the Stack card
-  * Control through I/O
-  * Peripheral side
-  * Channel Mode
+  * Channel Mode (still needs to be understood)
 * Implement the Unknown Device
-  * Connection with the I/O card
-  * Connection with the Channel card
   * Implement delays
 * Implement the I/O cards
   * Implement the Interrupts for the I/O cards
