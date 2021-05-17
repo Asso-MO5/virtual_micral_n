@@ -1,12 +1,8 @@
 ### Implementation
 
+* Create an Auto Signal that changes states after some times, and have a schedule
 * Implement the transfer
-  * Plug the channel for the counter to the StackChannelCard (from the Simulator)
-  * Apply Direction before starting.
-  * When the counter is > 0, then the Channel will assert ACK/BT
-  * When ACK/ (aka BT/) is asserted, then the peripheral applies daa to ESx and
-    asserts DE/ and will wait for ACK/ to drop and raise again.
-  * When end of transfer is asserted, the transfer stops.
+  * Control the direction from the I/O card
 * Implement the Stack card
   * Control through I/O
   * Peripheral side

@@ -18,6 +18,11 @@ UnknownCard::UnknownCard(const Config& config)
     io_card->ack_terminals[6].subscribe([this](Edge edge) { on_input_6(edge); });
     io_card->ack_terminals[7].subscribe([this](Edge edge) { on_input_7(edge); });
 
+    stack_channel->input_data.request(this, Scheduling::counter_type{0});
+    stack_channel->data_transfer.request(this);
+
+    stack_channel->transfer_allowed.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
+
     set_next_activation_time(Scheduling::unscheduled());
 }
 
@@ -27,45 +32,20 @@ void UnknownCard::step()
 {
     const auto time = get_next_activation_time();
 
-    if (is_high(io_card->ack_terminals[2]))
+    if (next_signals_to_lower.time_for_ack_2 == time)
     {
         io_card->ack_terminals[2].set(State::LOW, time, this);
-        set_next_activation_time(Scheduling::unscheduled());
+        next_signals_to_lower.time_for_ack_2 = Scheduling::unscheduled();
     }
 
-    if (status.sending_to_channel)
+    if (next_signals_to_lower.time_for_data_transfer == time)
     {
-        if (status.bytes_to_send == 0)
-        {
-            status.sending_to_channel = false;
-            status.is_ready = false;
-
-            cout << "ALL SENT" << endl;
-
-//            io_card->data_terminals[2].set(0b00000000, time, this);
-//            io_card->ack_terminals[2].set(State::HIGH, time, this);
-
-            status.end_of_send_cycle = true;
-
-            set_next_activation_time(time + Scheduling::counter_type{100});
-        }
-        else if (status.bytes_to_send > 0)
-        {
-            cout << static_cast<uint32_t>(status.bytes_to_send) << endl;
-            status.bytes_to_send -= 1;
-            set_next_activation_time(time + Scheduling::counter_type{100});
-        }
+        stack_channel->data_transfer.set(State::LOW, time, this);
+        next_signals_to_lower.time_for_data_transfer = Scheduling::unscheduled();
     }
-    else if (status.end_of_send_cycle)
-    {
-        status.end_of_send_cycle = false;
 
-        set_next_activation_time(Scheduling::unscheduled());
-    }
-    else
-    {
-        set_next_activation_time(Scheduling::unscheduled());
-    }
+    set_next_activation_time(std::min(next_signals_to_lower.time_for_data_transfer,
+                                      next_signals_to_lower.time_for_ack_2));
 }
 
 void UnknownCard::on_input_4(Edge edge)
@@ -105,10 +85,10 @@ void UnknownCard::on_input_7(Edge edge)
 
         // ROM outputs 1 on bit 6 of $f (3) (in pulses)
         // ROM waits for asserted bit 7 on channel 6
-        //  When the device is ready, it sends a 1 om bit 7 of channel 6
-        // ROM outputs 1 on bit 6 and 5 of $f (3) (asks for transfer from the Device ?)
+        //  When the device is ready, it sends a 1 om bit 7 of channel 6 (=2)
+        // ROM outputs 1 on bit 6 and 5 of $f (3 -> 7) (asks for transfer from the Device ?)
         // ROM outputs 1 on bit 0 and 4 of $c (0) (???)
-        // ROM outputs 1 on bit 6 and 5 of $f (3) or'd with E (on 5 bits) (asks for transfer from the Device with an address ?)
+        // ROM outputs 1 on bit 6 and 5 of $f (3 -> 7) or'd with E (on 5 bits) (asks for transfer from the Device with an address ?)
         // ROM outputs $82 on port $d -> Most probably the counter for the Channel Card (input on $5).
         // ROM waits for un-asserted bit 0 and bit 1 on channel 6
         //  When the device is done with the transfer to the Channel Card, bit 0 and bit 1 of channel 6 are low
@@ -126,7 +106,10 @@ void UnknownCard::on_input_7(Edge edge)
                 status.is_ready = true;
                 io_card->data_terminals[2].set(0b10000011, edge.time(), this);
                 io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);
+
+                next_signals_to_lower.time_for_ack_2 = edge.time() + Scheduling::counter_type{100};
                 set_next_activation_time(edge.time() + Scheduling::counter_type{100});
+
                 scheduler.change_schedule(get_id());
             }
             if (data & 0b00100000)
@@ -140,8 +123,6 @@ void UnknownCard::on_input_7(Edge edge)
                     cout << "GO - ";
                     status.sending_to_channel = true;
                     status.bytes_to_send = 81;
-                    set_next_activation_time(edge.time() + Scheduling::counter_type{100});
-                    scheduler.change_schedule(get_id());
                 }
                 else
                 {
@@ -154,5 +135,32 @@ void UnknownCard::on_input_7(Edge edge)
 
         assert(((data & 0b10000000) == 0) &&
                "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
+    }
+}
+
+void UnknownCard::on_transfer_enabled(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        if (status.sending_to_channel)
+        {
+            const auto time = edge.time();
+
+            status.bytes_to_send -= 1;
+
+            stack_channel->input_data.set(status.bytes_to_send, time, this);
+            stack_channel->data_transfer.set(State::HIGH, time, this);
+
+            next_signals_to_lower.time_for_data_transfer = edge.time() + Scheduling::counter_type{100};
+            set_next_activation_time(edge.time() + Scheduling::counter_type{100});
+
+            scheduler.change_schedule(get_id());
+
+            if (status.bytes_to_send == 0)
+            {
+                status.sending_to_channel = false;
+                status.is_ready = false;
+            }
+        }
     }
 }

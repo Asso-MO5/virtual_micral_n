@@ -44,11 +44,20 @@ private:
         uint8_t bytes_to_send;
     };
 
+    struct NextSignalToLower
+    {
+        Scheduling::counter_type time_for_ack_2{Scheduling::unscheduled()};
+        Scheduling::counter_type time_for_data_transfer{Scheduling::unscheduled()};
+    };
+
     Status status;
+    NextSignalToLower next_signals_to_lower;
 
     void on_input_4(Edge edge);
     void on_input_6(Edge edge);
     void on_input_7(Edge edge);
+
+    void on_transfer_enabled(Edge edge);
 };
 
 #endif //MICRALN_UNKNOWNCARD_H

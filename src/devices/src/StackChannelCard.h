@@ -51,6 +51,8 @@ public:
     void step() override;
 
     // Unknown direction with I/O
+    // It could be an input and that would explain with the ROM sends 0x11 (1 for direction,
+    // and one for "transfer cycle" ?
     OwnedSignal transfer_cycle; // TC/
 
     // Output with... I/O or Peripheral, depending on the paragraph
@@ -69,7 +71,7 @@ public:
     OwnedValue<uint8_t> input_data; // CSx/ or ESx/
 
     // Outputs with Peripheral
-    OwnedSignal in_transfer;         // BT/ (or ACK/ ?)
+    OwnedSignal transfer_allowed;         // BT/ (or ACK/ ?)
     OwnedSignal output_strobe;       // STDO/
     OwnedValue<uint8_t> output_data; // CDx/ or SDx/
 
@@ -111,6 +113,7 @@ private:
     void initialize_terminals();
     void on_data_transfer(Edge edge);
     void initialize_io_card_connections();
+    void stop_transfer_state(Scheduling::counter_type time);
 };
 
 #endif //MICRALN_STACKCHANNELCARD_H

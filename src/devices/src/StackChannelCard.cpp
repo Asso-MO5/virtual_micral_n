@@ -35,16 +35,19 @@ void StackChannelCard::initialize_terminals()
     apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer_address(edge); });
     data_transfer.subscribe([this](Edge edge) { on_data_transfer(edge); });
 
-    // Just needs to read the value? Or are there side effects like resetting the counter?
+    // TODO: connect to the I/O card for controlling the value
     // direction.subscribe([this](Edge edge) { on_direction_change(edge); });
 
     // Output with I/O
     current_pointer_address.request(this, Scheduling::counter_type{0});
 
     // Outputs with Peripheral
-    in_transfer.request(this);
+    transfer_allowed.request(this);
     output_strobe.request(this);
     output_data.request(this, Scheduling::counter_type{0});
+
+    // Output with ???
+    end_of_transfer.request(this);
 }
 
 void StackChannelCard::initialize_io_card_connections()
@@ -95,9 +98,17 @@ void StackChannelCard::on_t2(Edge edge)
 }
 void StackChannelCard::on_t3(Edge edge)
 {
+    const auto time = edge.time();
+
     if (is_falling(edge) && output_data_holder->is_holding_bus())
     {
-        output_data_holder->release_bus(edge.time());
+        output_data_holder->release_bus(time);
+    }
+
+    // TODO: this signal is chosen randomly, could by SYNC/ could be something else
+    if (is_falling(edge) && data_counter > 0 && is_low(transfer_allowed))
+    {
+        transfer_allowed.set(State::HIGH, time, this);
     }
 }
 
@@ -119,6 +130,8 @@ uint8_t StackChannelCard::pop_data(Scheduling::counter_type time)
 uint8_t StackChannelCard::pop_data_to_bus(Scheduling::counter_type time)
 {
     data_counter = 0;
+    stop_transfer_state(time);
+
     return pop_data(time);
 }
 
@@ -143,6 +156,8 @@ void StackChannelCard::push_data_from_bus(uint16_t address, Scheduling::counter_
     const auto out_data = static_cast<uint8_t>(address & 0xff);
 
     data_counter = 0;
+    stop_transfer_state(time);
+
     push_data(out_data, time);
 }
 
@@ -160,6 +175,7 @@ void StackChannelCard::on_apply_pointer_address(Edge edge)
 {
     data_pointer = new_pointer_address.get_value();
     data_counter = 0;
+    stop_transfer_state(edge.time());
 }
 
 void StackChannelCard::on_apply_counter(Edge edge)
@@ -172,28 +188,44 @@ void StackChannelCard::on_apply_counter(Edge edge)
 
 void StackChannelCard::on_data_transfer(Edge edge)
 {
-    const auto time = edge.time();
-
-    if (data_counter == 0)
+    if (is_rising(edge))
     {
-        return;
-    }
+        const auto time = edge.time();
 
-    data_counter -= 1;
+        if (data_counter == 0)
+        {
+            return;
+        }
 
-    if (*direction == State::HIGH)
-    {
-        // Writing to the Stack
-        push_data(input_data.get_value(), time);
-    }
-    else
-    {
-        // Reading from the Stack
-        // TODO: To be implemented
-    }
+        data_counter -= 1;
 
-    if (data_counter == 0)
-    {
-        // TODO: raise end of transfer
+        if (*direction == State::HIGH)
+        {
+            // Writing to the Stack
+            push_data(input_data.get_value(), time);
+        }
+        else
+        {
+            // Reading from the Stack
+            // TODO: To be implemented
+        }
+
+        transfer_allowed.set(State::LOW, time, this);
+
+        if (data_counter == 0)
+        {
+            // TODO: verify this and when it's lowered. It's probably more a pulse
+            end_of_transfer.set(State::HIGH, time, this);
+        }
+        else
+        {
+            // TODO: verify this and when it's lowered. It's probably more a pulse
+            end_of_transfer.set(State::LOW, time, this);
+        }
     }
+}
+
+void StackChannelCard::stop_transfer_state(Scheduling::counter_type time)
+{
+    transfer_allowed.set(State::LOW, time, this);
 }
