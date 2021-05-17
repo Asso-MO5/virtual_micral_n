@@ -40,7 +40,7 @@ private:
     {
         bool is_ready{};
         bool sending_to_channel{};
-        uint8_t bytes_to_send;
+        uint8_t index_on_disk{};
     };
 
     struct NextSignalToLower
@@ -56,6 +56,7 @@ private:
     void on_input_7(Edge edge);
 
     void on_transfer_enabled(Edge edge);
+    void on_end_of_transfer(Edge edge);
 };
 
 #endif //MICRALN_UNKNOWNCARD_H

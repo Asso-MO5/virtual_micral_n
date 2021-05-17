@@ -2,7 +2,7 @@
 #include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
 
-#include <iostream>
+// #include <iostream>
 
 namespace
 {
@@ -90,7 +90,7 @@ void IOCard::on_t2(Edge edge)
             if (is_input(address))
             {
                 // This is the end of T2, schedule the data emission
-                auto data_to_send = get_from_peripheral(address, edge.time());
+                auto data_to_send = get_from_peripheral(address);
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
                 next_time_to_place_data = edge.time() + IO_CARD_DELAY;
@@ -243,15 +243,15 @@ uint8_t IOCard::address_to_input_number(uint16_t address) const
 
 using namespace std;
 
-uint8_t IOCard::get_from_peripheral(uint16_t address, Scheduling::counter_type time)
+uint8_t IOCard::get_from_peripheral(uint16_t address)
 {
     const uint8_t input_number = address_to_input_number(address);
     assert((input_number < first_owned_terminal) && "Cannot fetch data on an output channel.");
 
     const uint8_t data = latched_input_data[input_number];
 
-    cout << "<-- Reads data from: " << hex << static_cast<uint32_t>(input_number) << " : " << hex
-         << static_cast<uint32_t>(data) << endl;
+    //cout << "<-- Reads data from: " << hex << static_cast<uint32_t>(input_number) << " : " << hex
+    //     << static_cast<uint32_t>(data) << endl;
     return data;
 }
 

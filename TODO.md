@@ -4,7 +4,10 @@
 * Implement the Stack card
   * Channel Mode (still needs to be understood)
 * Implement the Unknown Device
-  * Implement delays
+  * Implement delays (on reading disk)
+  * Add a way to set input data
+  * Understand the CRC
+  * Make a tool to create data
 * Implement the I/O cards
   * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for

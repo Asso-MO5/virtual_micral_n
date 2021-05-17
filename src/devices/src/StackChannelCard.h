@@ -60,6 +60,10 @@ public:
     OwnedSignal transfer_cycle; // TC/
 
     // Output with... I/O or Peripheral, depending on the paragraph
+    // At now, the bet is on Peripheral because it allows it to understand the asked transfer
+    // is finished (rather than stalling on the lack of ACK/), and ROM is polling for a value
+    // that seems to also be used to ask for the readiness of the peripheral
+    // Note that the I/O card terminal could be as well split for Stack Channel and Peripheral...
     OwnedSignal end_of_transfer; // BTB/ or FTB/
 
     // Inputs with I/O

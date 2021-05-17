@@ -7,6 +7,20 @@
 
 using namespace std;
 
+namespace
+{
+    uint8_t disk_data[] = {
+            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E', 'L', 'L', 'O', 'W', 'O',
+            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',
+            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H',
+            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R',
+            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O',
+            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E',
+            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',
+            'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',
+    };
+}
+
 UnknownCard::UnknownCard(const Config& config)
     : scheduler{config.scheduler}, io_card{config.io_card}, stack_channel{config.stack_channel},
       configuration(config.configuration)
@@ -24,6 +38,7 @@ UnknownCard::UnknownCard(const Config& config)
     stack_channel->data_transfer.request(this);
 
     stack_channel->transfer_allowed.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
+    stack_channel->end_of_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
 
     set_next_activation_time(Scheduling::unscheduled());
 }
@@ -115,7 +130,16 @@ void UnknownCard::on_input_7(Edge edge)
                 {
                     cout << "GO - ";
                     status.sending_to_channel = true;
-                    status.bytes_to_send = 81;
+                    status.index_on_disk = 0;
+
+                    io_card->data_terminals[2].set(0b00000011, edge.time(), this);
+                    io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);
+
+                    next_signals_to_lower.time_for_ack_2 =
+                            edge.time() + Scheduling::counter_type{100};
+                    set_next_activation_time(edge.time() + Scheduling::counter_type{100});
+
+                    scheduler.change_schedule(get_id());
                 }
                 else
                 {
@@ -138,10 +162,10 @@ void UnknownCard::on_transfer_enabled(Edge edge)
         if (status.sending_to_channel)
         {
             const auto time = edge.time();
+            const auto data_to_send = disk_data[status.index_on_disk];
+            status.index_on_disk += 1;
 
-            status.bytes_to_send -= 1;
-
-            stack_channel->input_data.set(status.bytes_to_send, time, this);
+            stack_channel->input_data.set(data_to_send, time, this);
             stack_channel->data_transfer.set(State::HIGH, time, this);
 
             next_signals_to_lower.time_for_data_transfer =
@@ -150,11 +174,29 @@ void UnknownCard::on_transfer_enabled(Edge edge)
 
             scheduler.change_schedule(get_id());
 
-            if (status.bytes_to_send == 0)
+            if (status.index_on_disk >= sizeof(disk_data))
             {
                 status.sending_to_channel = false;
                 status.is_ready = false;
             }
         }
+    }
+}
+
+void UnknownCard::on_end_of_transfer(Edge edge)
+{
+    if (is_rising(edge) && status.sending_to_channel)
+    {
+        status.sending_to_channel = false;
+        status.is_ready = false;
+
+        io_card->data_terminals[2].set(0b00000000, edge.time(), this);
+        io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);
+
+        next_signals_to_lower.time_for_ack_2 =
+                edge.time() + Scheduling::counter_type{100};
+        set_next_activation_time(edge.time() + Scheduling::counter_type{100});
+
+        scheduler.change_schedule(get_id());
     }
 }
