@@ -57,6 +57,9 @@ void StackChannelCard::initialize_io_card_connections()
         configuration.io_card->ack_terminals[configuration.new_counter_terminal].subscribe(
                 [this](Edge edge) { on_apply_counter(edge); });
 
+        configuration.io_card->ack_terminals[configuration.new_pointer_terminal].subscribe(
+                [this](Edge edge) { on_apply_pointer(edge); });
+
         configuration.io_card->ack_terminals[configuration.control_terminal].subscribe(
                 [this](Edge edge) { on_io_commands(edge); });
     }
@@ -191,7 +194,7 @@ void StackChannelCard::on_apply_counter(Edge edge)
 
 void StackChannelCard::on_data_transfer(Edge edge)
 {
-    if (is_rising(edge) && is_high(transfer_cycle))
+    if (is_rising(edge))
     {
         const auto time = edge.time();
 
@@ -228,18 +231,29 @@ void StackChannelCard::on_data_transfer(Edge edge)
     }
 }
 
+void StackChannelCard::on_apply_pointer(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        const auto value =
+                *configuration.io_card->data_terminals[configuration.new_pointer_terminal];
+
+        data_pointer = value;
+    }
+}
+
 void StackChannelCard::on_io_commands(Edge edge)
 {
     if (is_rising(edge))
     {
         const auto value = *configuration.io_card->data_terminals[configuration.control_terminal];
-        const auto time = edge.time();
 
-        const auto direction_bit = value & 0b00010000; // Arbitrary... To check.
+        const auto time = edge.time();
+        const auto direction_bit = value & 0b00000100;
         direction.set(direction_bit ? State::HIGH : State::LOW, time, this);
 
-        const auto cycle_bit = value & 0b00000001; // Arbitrary... To check.
-        transfer_cycle.set(cycle_bit ? State::HIGH : State::LOW, time, this);
+        assert((value - 0b00000100 == 0) &&
+               "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
     }
 }
 

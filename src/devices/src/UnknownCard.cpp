@@ -25,11 +25,13 @@ UnknownCard::UnknownCard(const Config& config)
     : scheduler{config.scheduler}, io_card{config.io_card}, stack_channel{config.stack_channel},
       configuration(config.configuration)
 {
+    // Connected to IN $0/$FE
     io_card->data_terminals[2].request(this, Scheduling::counter_type{0});
     io_card->ack_terminals[2].request(this);
 
-    // Connected to OUT $E
-    io_card->ack_terminals[6].subscribe([this](Edge edge) { on_input_6(edge); });
+    // Connected to IN $0/$FF
+    io_card->data_terminals[3].request(this, Scheduling::counter_type{0});
+    io_card->ack_terminals[3].request(this);
 
     // Connected to OUT $F
     io_card->ack_terminals[7].subscribe([this](Edge edge) { on_input_7(edge); });
@@ -55,30 +57,22 @@ void UnknownCard::step()
         next_signals_to_lower.time_for_ack_2 = Scheduling::unscheduled();
     }
 
+    if (next_signals_to_lower.time_for_ack_3 == time)
+    {
+        io_card->ack_terminals[3].set(State::LOW, time, this);
+        next_signals_to_lower.time_for_ack_3 = Scheduling::unscheduled();
+    }
+
     if (next_signals_to_lower.time_for_data_transfer == time)
     {
         stack_channel->data_transfer.set(State::LOW, time, this);
         next_signals_to_lower.time_for_data_transfer = Scheduling::unscheduled();
     }
 
-    set_next_activation_time(std::min(next_signals_to_lower.time_for_data_transfer,
-                                      next_signals_to_lower.time_for_ack_2));
-}
-
-void UnknownCard::on_input_6(Edge edge)
-{
-    if (is_rising(edge))
-    {
-        const uint8_t data = io_card->data_terminals[6].get_value();
-
-        if (data & 0b00000100)
-        {
-            cout << "Starts the device" << endl;
-        }
-
-        assert((data - 0b00000100 == 0) &&
-               "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
-    }
+    auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
+                                    next_signals_to_lower.time_for_ack_2);
+    next_activation = std::min(next_activation, next_signals_to_lower.time_for_ack_3);
+    set_next_activation_time(next_activation);
 }
 
 void UnknownCard::on_input_7(Edge edge)
@@ -131,6 +125,14 @@ void UnknownCard::on_input_7(Edge edge)
                     cout << "GO - ";
                     status.sending_to_channel = true;
                     status.index_on_disk = 0;
+
+                    // Sends $00 on the INP $/$ff channel.
+                    // No idea what it describes, this is just to avoid a $94 constant status
+                    io_card->data_terminals[3].set(0b00000000, edge.time(), this);
+                    io_card->ack_terminals[3].set(State::HIGH, edge.time(), this);
+
+                    next_signals_to_lower.time_for_ack_3 =
+                            edge.time() + Scheduling::counter_type{100};
 
                     io_card->data_terminals[2].set(0b00000011, edge.time(), this);
                     io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);
@@ -190,13 +192,20 @@ void UnknownCard::on_end_of_transfer(Edge edge)
         status.sending_to_channel = false;
         status.is_ready = false;
 
+        // Sends $94 on the INP $/$ff channel.
+        // No idea what it describes, but that's what the ROM expects
+        io_card->data_terminals[3].set(0b10010100, edge.time(), this);
+        io_card->ack_terminals[3].set(State::HIGH, edge.time(), this);
+
+        next_signals_to_lower.time_for_ack_3 = edge.time() + Scheduling::counter_type{100};
+        //set_next_activation_time(edge.time() + Scheduling::counter_type{100});
+        //scheduler.change_schedule(get_id());
+
         io_card->data_terminals[2].set(0b00000000, edge.time(), this);
         io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);
 
-        next_signals_to_lower.time_for_ack_2 =
-                edge.time() + Scheduling::counter_type{100};
+        next_signals_to_lower.time_for_ack_2 = edge.time() + Scheduling::counter_type{100};
         set_next_activation_time(edge.time() + Scheduling::counter_type{100});
-
         scheduler.change_schedule(get_id());
     }
 }

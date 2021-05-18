@@ -34,6 +34,10 @@ struct StackChannelCardConfiguration
     // STPC/ or STR/ for Apply, PRx/ for value
     uint8_t new_counter_terminal; // The terminal on the I/O card
 
+    // Inputs with I/O
+    // Change pointer value
+    uint8_t new_pointer_terminal;
+
     // Control with I/O
     // Value bit 0 and 4 for at least Direction (IN/OUT/) and maybe TC/ (transfer cycle)
     uint8_t control_terminal;
@@ -111,6 +115,7 @@ private:
     void on_t3(Edge edge);
     void on_apply_pointer_address(Edge edge);
     void on_apply_counter(Edge edge);
+    void on_apply_pointer(Edge edge);
     void on_io_commands(Edge edge);
 
     uint8_t pop_data_to_bus(Scheduling::counter_type time);

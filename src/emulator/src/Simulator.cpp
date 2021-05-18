@@ -120,7 +120,8 @@ Simulator::Simulator(ConfigROM rom_config)
                     .output_address = 0x15,
                     .io_card = io_card,
                     .new_counter_terminal = 5,
-                    .control_terminal = 4,
+                    .new_pointer_terminal = 4,
+                    .control_terminal = 6,
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
