@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 function(set_warnings target)
     if(DEFINED ENV{MICRAL_WARNINGS})
-        separate_arguments(WARNING_PARAMETERS NATIVE_COMMAND $ENV{MICRAL_WARNINGS} )
+        separate_arguments(WARNING_PARAMETERS NATIVE_COMMAND $ENV{MICRAL_WARNINGS})
         target_compile_options(${target} PRIVATE ${WARNING_PARAMETERS})
     else()
         message(STATUS "MICRAL_WARNINGS environment variable not found. No specific warning setup done.")
@@ -71,6 +71,8 @@ find_package(OpenGL REQUIRED)
 # Google Test
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(extern/googletest)
+set_target_properties(gtest PROPERTIES CXX_CLANG_TIDY "")
+set_target_properties(gtest_main PROPERTIES CXX_CLANG_TIDY "")
 
 # Threads
 # set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -84,6 +86,7 @@ set(LOGURU_FILES extern/loguru/loguru.cpp)
 add_library(${LOGURU_LIB_NAME} ${LOGURU_FILES})
 target_include_directories(${LOGURU_LIB_NAME} PUBLIC extern/loguru/)
 target_link_libraries(${LOGURU_LIB_NAME} INTERFACE Threads::Threads dl)
+set_target_properties(${LOGURU_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "")
 
 # DearImGUI
 set(DEARIMGUI_LIB_NAME "dearimgui")
@@ -97,6 +100,7 @@ set(DEARIMGUI_FILES
 add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
 target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
 target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
+set_target_properties(${DEARIMGUI_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "")
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
@@ -128,3 +132,33 @@ else()
         message(WARNING "OpenGL not present")
     endif()
 endif()
+
+
+# Prepare CppCheck
+# Done at the end to avoid automatic cppcheck on each individual file
+if(UNIX)
+    # Configuration not done yet for other platforms.
+    find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+    if(CMAKE_CXX_CPPCHECK)
+        message(STATUS "Configuring cppcheck.")
+        list(
+                APPEND CMAKE_CXX_CPPCHECK
+                "--enable=all"
+                "--inconclusive"
+                "--error-exitcode=1"
+                "--std=c++20"
+                "--template=gcc"
+                #            "--force"
+                "--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppressions.txt"
+                "-iextern"
+                "src/"
+        )
+
+        add_custom_target(ANALYZE_CPPCHECK DEPENDS micral_cli micral_gui
+                COMMAND ${CMAKE_CXX_CPPCHECK}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                COMMENT "Static code analysis using ${CPP_CHECK_VERSION}"
+                )
+    endif()
+endif()
+
