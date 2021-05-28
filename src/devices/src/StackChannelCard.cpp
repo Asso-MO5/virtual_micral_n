@@ -73,9 +73,8 @@ void StackChannelCard::step()
     if (next_step_command.time_to_place_data == time)
     {
         output_data_holder->place_data(time);
+        next_step_command.time_to_place_data = Scheduling::unscheduled();
     }
-
-    set_next_activation_time(Scheduling::unscheduled());
 
     if (next_step_command.time_for_ack_3 == time)
     {
@@ -106,7 +105,11 @@ void StackChannelCard::on_t2(Edge edge)
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
                 next_step_command.time_to_place_data = edge.time() + STACK_MEMORY_READ_DELAY;
-                set_next_activation_time(next_step_command.time_to_place_data);
+
+                const auto next_activation = std::min(next_step_command.time_to_place_data,
+                                                      next_step_command.time_for_ack_3);
+                set_next_activation_time(next_activation);
+
                 scheduler.change_schedule(get_id());
             }
             else
@@ -202,7 +205,8 @@ void StackChannelCard::on_apply_counter(Edge edge)
 {
     if (is_rising(edge))
     {
-        data_counter = *configuration.io_card->data_terminals[configuration.new_counter_terminal];
+        data_counter =
+                *configuration.io_card->data_terminals[configuration.new_counter_terminal];
     }
 }
 
@@ -278,10 +282,17 @@ void StackChannelCard::stop_transfer_state(Scheduling::counter_type time)
 
 void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter_type time)
 {
-    configuration.io_card->data_terminals[3].set(new_pointer & 0xff, time, this);
-    configuration.io_card->ack_terminals[3].set(State::HIGH, time, this);
+    data_pointer = new_pointer;
+    if (configuration.io_card)
+    {
+        configuration.io_card->data_terminals[3].set(new_pointer & 0xff, time, this);
+        configuration.io_card->ack_terminals[3].set(State::HIGH, time, this);
 
-    next_step_command.time_for_ack_3 = time + Scheduling::counter_type{100};
-    set_next_activation_time(next_step_command.time_for_ack_3);
-    scheduler.change_schedule(get_id());
+        next_step_command.time_for_ack_3 = time + Scheduling::counter_type{100};
+
+        const auto next_activation =
+                std::min(next_step_command.time_to_place_data, next_step_command.time_for_ack_3);
+        set_next_activation_time(next_activation);
+        scheduler.change_schedule(get_id());
+    }
 }
