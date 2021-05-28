@@ -1,3 +1,11 @@
+### Bug
+
+* The set next activation times on the UnknownCard and StackChannelCard might be
+wrong, because a new event changes the current next event time. The implementation
+  of the event scheduling for Cards should fix that.
+* It could be also at SchedulableImpl that the computation is done.
+* Or Cards could have internal Schedulers (or mini scheduler?)
+
 ### Implementation
 
 * Create an Auto Signal that changes states after some times, and has a schedule
