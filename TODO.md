@@ -7,7 +7,15 @@
 * Implement the Unknown Device
     * Implement delays (on reading disk)
     * Add a way to set input data
-    * Understand the CRC
+    * Implement tool for computing the CRC
+      ```c++
+        const auto data = disk_data[status.index_on_disk];
+        const auto crc = crc_of_sent_data;
+        const auto for_carry =
+                ((data ^ crc) ^ 0xff) & ((data + crc) ^ data);
+        const std::uint8_t carry = (for_carry & 0x80) ? 1 : 0;
+        crc_of_sent_data = crc + data + carry;
+      ```
     * Make a tool to create data
 * Implement the I/O cards
     * Implement the Interrupts for the I/O cards
