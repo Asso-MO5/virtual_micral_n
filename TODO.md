@@ -1,21 +1,22 @@
 ### Implementation
 
-* Create an Auto Signal that changes states after some times, and have a schedule
+* Create an Auto Signal that changes states after some times, and has a schedule
 * Implement the Stack card
-  * Channel Mode (still needs to be understood)
+    * Sets parameter for the new pointer address sent to I/O card.
+    * Channel Mode (still needs to be understood)
 * Implement the Unknown Device
-  * Implement delays (on reading disk)
-  * Add a way to set input data
-  * Understand the CRC
-  * Make a tool to create data
+    * Implement delays (on reading disk)
+    * Add a way to set input data
+    * Understand the CRC
+    * Make a tool to create data
 * Implement the I/O cards
-  * Implement the Interrupts for the I/O cards
+    * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
   an assembler)
 * Panel and Console Card implementation
-  * Implement the SUBST mechanism
-  * Implement the AV switch (Need to understand better)
-  * Implement both back panel switches
+    * Implement the SUBST mechanism
+    * Implement the AV switch (Need to understand better)
+    * Implement both back panel switches
 * Implement the Serial card
 * Implement a possibility to subscribe to a specific bit on an OwnedValue?
 
@@ -26,6 +27,8 @@
 
 ### Improvements
 
+* The non-PLURIBUS with I/O cards should be ordered: card subscribing are asking.
+  Signals should never be "pushed". Currently, some are pushed, some are subscribed.
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a Debuggers for GUI information (but can be use in CLI also)
     * Debugger that references memory, to display memory cards information

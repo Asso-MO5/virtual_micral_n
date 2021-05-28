@@ -10,14 +10,14 @@ using namespace std;
 namespace
 {
     uint8_t disk_data[] = {
-            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E', 'L', 'L', 'O', 'W', 'O',
-            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',
-            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H',
-            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R',
-            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O',
-            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E',
-            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',
-            'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',
+            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H',  'E', 'L', 'L', 'O', 'W', 'O',
+            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R',  'L', 'D', 'H', 'E', 'L', 'L',
+            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O',  'W', 'O', 'R', 'L', 'D', 'H',
+            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E',  'L', 'L', 'O', 'W', 'O', 'R',
+            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D', 'H', 'E', 'L', 'L', 'O',
+            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O', 'R', 'L', 'D', 'H', 'E',
+            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L', 'O', 'W', 'O', 'R', 'L',
+            'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x8d,
     };
 }
 
@@ -28,10 +28,6 @@ UnknownCard::UnknownCard(const Config& config)
     // Connected to IN $0/$FE
     io_card->data_terminals[2].request(this, Scheduling::counter_type{0});
     io_card->ack_terminals[2].request(this);
-
-    // Connected to IN $0/$FF
-    io_card->data_terminals[3].request(this, Scheduling::counter_type{0});
-    io_card->ack_terminals[3].request(this);
 
     // Connected to OUT $F
     io_card->ack_terminals[7].subscribe([this](Edge edge) { on_input_7(edge); });
@@ -57,21 +53,14 @@ void UnknownCard::step()
         next_signals_to_lower.time_for_ack_2 = Scheduling::unscheduled();
     }
 
-    if (next_signals_to_lower.time_for_ack_3 == time)
-    {
-        io_card->ack_terminals[3].set(State::LOW, time, this);
-        next_signals_to_lower.time_for_ack_3 = Scheduling::unscheduled();
-    }
-
     if (next_signals_to_lower.time_for_data_transfer == time)
     {
         stack_channel->data_transfer.set(State::LOW, time, this);
         next_signals_to_lower.time_for_data_transfer = Scheduling::unscheduled();
     }
 
-    auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
-                                    next_signals_to_lower.time_for_ack_2);
-    next_activation = std::min(next_activation, next_signals_to_lower.time_for_ack_3);
+    const auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
+                                          next_signals_to_lower.time_for_ack_2);
     set_next_activation_time(next_activation);
 }
 
@@ -84,17 +73,6 @@ void UnknownCard::on_input_7(Edge edge)
         // Bit 5: Next Chunk
         // Bit 4: First round of E
         // Bit 0-3: Counter
-
-        // ROM outputs 1 on bit 6 of $f (3) (in pulses)
-        // ROM waits for asserted bit 7 on channel 6
-        //  When the device is ready, it sends a 1 om bit 7 of channel 6 (=2)
-        // ROM outputs 1 on bit 6 and 5 of $f (3 -> 7) (asks for transfer from the Device ?)
-        // ROM outputs 1 on bit 0 and 4 of $c (0) (???)
-        // ROM outputs 1 on bit 6 and 5 of $f (3 -> 7) or'd with E (on 5 bits) (asks for transfer from the Device with an address ?)
-        // ROM outputs $82 on port $d -> Most probably the counter for the Channel Card (input on $5).
-        // ROM waits for un-asserted bit 0 and bit 1 on channel 6
-        //  When the device is done with the transfer to the Channel Card, bit 0 and bit 1 of channel 6 are low
-        // ROM reads on channel 5, it must by $94
 
         const uint8_t data = io_card->data_terminals[7].get_value();
 
@@ -125,14 +103,6 @@ void UnknownCard::on_input_7(Edge edge)
                     cout << "GO - ";
                     status.sending_to_channel = true;
                     status.index_on_disk = 0;
-
-                    // Sends $00 on the INP $/$ff channel.
-                    // No idea what it describes, this is just to avoid a $94 constant status
-                    io_card->data_terminals[3].set(0b00000000, edge.time(), this);
-                    io_card->ack_terminals[3].set(State::HIGH, edge.time(), this);
-
-                    next_signals_to_lower.time_for_ack_3 =
-                            edge.time() + Scheduling::counter_type{100};
 
                     io_card->data_terminals[2].set(0b00000011, edge.time(), this);
                     io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);
@@ -191,15 +161,6 @@ void UnknownCard::on_end_of_transfer(Edge edge)
     {
         status.sending_to_channel = false;
         status.is_ready = false;
-
-        // Sends $94 on the INP $/$ff channel.
-        // No idea what it describes, but that's what the ROM expects
-        io_card->data_terminals[3].set(0b10010100, edge.time(), this);
-        io_card->ack_terminals[3].set(State::HIGH, edge.time(), this);
-
-        next_signals_to_lower.time_for_ack_3 = edge.time() + Scheduling::counter_type{100};
-        //set_next_activation_time(edge.time() + Scheduling::counter_type{100});
-        //scheduler.change_schedule(get_id());
 
         io_card->data_terminals[2].set(0b00000000, edge.time(), this);
         io_card->ack_terminals[2].set(State::HIGH, edge.time(), this);

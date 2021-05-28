@@ -38,9 +38,6 @@ void StackChannelCard::initialize_terminals()
     direction.request(this);
     transfer_cycle.request(this);
 
-    // Output with I/O
-    current_pointer_address.request(this, Scheduling::counter_type{0});
-
     // Outputs with Peripheral
     transfer_allowed.request(this);
     output_strobe.request(this);
@@ -62,17 +59,33 @@ void StackChannelCard::initialize_io_card_connections()
 
         configuration.io_card->ack_terminals[configuration.control_terminal].subscribe(
                 [this](Edge edge) { on_io_commands(edge); });
+
+        // Connected to IN $0/$FF
+        configuration.io_card->data_terminals[3].request(this, Scheduling::counter_type{0});
+        configuration.io_card->ack_terminals[3].request(this);
     }
 }
 
 void StackChannelCard::step()
 {
-    // Note: currently, the only step action is to send data on md0-md7.
-    // If other actions happen, this will have to be changed.
     const auto time = get_next_activation_time();
-    output_data_holder->place_data(time);
+
+    if (next_step_command.time_to_place_data == time)
+    {
+        output_data_holder->place_data(time);
+    }
 
     set_next_activation_time(Scheduling::unscheduled());
+
+    if (next_step_command.time_for_ack_3 == time)
+    {
+        configuration.io_card->ack_terminals[3].set(State::LOW, time, this);
+        next_step_command.time_for_ack_3 = Scheduling::unscheduled();
+    }
+
+    const auto next_activation =
+            std::min(next_step_command.time_to_place_data, next_step_command.time_for_ack_3);
+    set_next_activation_time(next_activation);
 }
 
 void StackChannelCard::set_data_size() { data.resize(configuration.memory_size); }
@@ -92,7 +105,8 @@ void StackChannelCard::on_t2(Edge edge)
 
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
-                set_next_activation_time(edge.time() + STACK_MEMORY_READ_DELAY);
+                next_step_command.time_to_place_data = edge.time() + STACK_MEMORY_READ_DELAY;
+                set_next_activation_time(next_step_command.time_to_place_data);
                 scheduler.change_schedule(get_id());
             }
             else
@@ -128,7 +142,7 @@ uint8_t StackChannelCard::pop_data(Scheduling::counter_type time)
     {
         data_pointer = data.size() - 1;
     }
-    current_pointer_address.set(data_pointer, time, this);
+    set_new_pointer(data_pointer, time);
 
     return data[data_pointer];
 }
@@ -153,7 +167,7 @@ void StackChannelCard::push_data(uint8_t out_data, Scheduling::counter_type time
 {
     data[data_pointer] = out_data;
     data_pointer = (data_pointer + 1) % data.size();
-    current_pointer_address.set(data_pointer, time, this);
+    set_new_pointer(data_pointer, time);
 }
 
 void StackChannelCard::push_data_from_bus(uint16_t address, Scheduling::counter_type time)
@@ -260,4 +274,14 @@ void StackChannelCard::on_io_commands(Edge edge)
 void StackChannelCard::stop_transfer_state(Scheduling::counter_type time)
 {
     transfer_allowed.set(State::LOW, time, this);
+}
+
+void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter_type time)
+{
+    configuration.io_card->data_terminals[3].set(new_pointer & 0xff, time, this);
+    configuration.io_card->ack_terminals[3].set(State::HIGH, time, this);
+
+    next_step_command.time_for_ack_3 = time + Scheduling::counter_type{100};
+    set_next_activation_time(next_step_command.time_for_ack_3);
+    scheduler.change_schedule(get_id());
 }

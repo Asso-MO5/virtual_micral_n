@@ -46,7 +46,6 @@ private:
     struct NextSignalToLower
     {
         Scheduling::counter_type time_for_ack_2{Scheduling::unscheduled()};
-        Scheduling::counter_type time_for_ack_3{Scheduling::unscheduled()};
         Scheduling::counter_type time_for_data_transfer{Scheduling::unscheduled()};
     };
 

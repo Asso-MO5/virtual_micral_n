@@ -74,9 +74,6 @@ public:
     OwnedValue<uint16_t> new_pointer_address; // PAx/
     OwnedSignal apply_pointer_address;        // LOAD/
 
-    // Outputs with I/O
-    OwnedValue<uint16_t> current_pointer_address; // Ax/
-
     // Inputs with Peripheral
     OwnedSignal direction;          // IN/OUT/
     OwnedSignal data_transfer;      // DT/ or DE/
@@ -109,6 +106,14 @@ private:
     uint16_t data_pointer{};
     uint16_t data_counter{};
 
+    struct NextStepCommand
+    {
+        Scheduling::counter_type time_for_ack_3{Scheduling::unscheduled()};
+        Scheduling::counter_type time_to_place_data{Scheduling::unscheduled()};
+    };
+
+    NextStepCommand next_step_command;
+
     void set_data_size();
 
     void on_t2(Edge edge);
@@ -117,6 +122,8 @@ private:
     void on_apply_counter(Edge edge);
     void on_apply_pointer(Edge edge);
     void on_io_commands(Edge edge);
+
+    void set_new_pointer(uint16_t new_pointer, Scheduling::counter_type time);
 
     uint8_t pop_data_to_bus(Scheduling::counter_type time);
     void push_data_from_bus(uint16_t address, Scheduling::counter_type time);
