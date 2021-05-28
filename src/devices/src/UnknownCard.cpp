@@ -10,13 +10,13 @@ using namespace std;
 namespace
 {
     uint8_t disk_data[] = {
-            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H',  'E', 'L', 'L', 'O', 'W', 'O',
-            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R',  'L', 'D', 'H', 'E', 'L', 'L',
-            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O',  'W', 'O', 'R', 'L', 'D', 'H',
-            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E',  'L', 'L', 'O', 'W', 'O', 'R',
-            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D', 'H', 'E', 'L', 'L', 'O',
-            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O', 'R', 'L', 'D', 'H', 'E',
-            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L', 'O', 'W', 'O', 'R', 'L',
+            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E',  'L', 'L', 'O', 'W', 'O',
+            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D', 'H', 'E', 'L', 'L',
+            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O', 'R', 'L', 'D', 'H',
+            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L', 'O', 'W', 'O', 'R',
+            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',  'H', 'E', 'L', 'L', 'O',
+            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O',  'R', 'L', 'D', 'H', 'E',
+            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O', 'W', 'O', 'R', 'L',
             'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x8d,
     };
 }
@@ -137,19 +137,21 @@ void UnknownCard::on_transfer_enabled(Edge edge)
             const auto data_to_send = disk_data[status.index_on_disk];
             status.index_on_disk += 1;
 
-            stack_channel->input_data.set(data_to_send, time, this);
-            stack_channel->data_transfer.set(State::HIGH, time, this);
-
-            next_signals_to_lower.time_for_data_transfer =
-                    edge.time() + Scheduling::counter_type{100};
-            set_next_activation_time(edge.time() + Scheduling::counter_type{100});
-
-            scheduler.change_schedule(get_id());
-
             if (status.index_on_disk >= sizeof(disk_data))
             {
                 status.sending_to_channel = false;
                 status.is_ready = false;
+            }
+            else
+            {
+                stack_channel->input_data.set(data_to_send, time, this);
+                stack_channel->data_transfer.set(State::HIGH, time, this);
+
+                next_signals_to_lower.time_for_data_transfer =
+                        edge.time() + Scheduling::counter_type{100};
+                set_next_activation_time(edge.time() + Scheduling::counter_type{100});
+
+                scheduler.change_schedule(get_id());
             }
         }
     }
