@@ -55,6 +55,11 @@
 
 ### Improvements
 
+* Add Architecture.md in documentation/ explaining and linking to local library documentation
+  and with a dependency diagram (generated from cmake).
+* Remove the cppcheck warnings
+* Add a clang-tidy configuration
+* Sets cppcheck and clang-tidy to a CI
 * The non-PLURIBUS with I/O cards should be ordered: card subscribing are asking.
   Signals should never be "pushed". Currently, some are pushed, some are subscribed.
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
