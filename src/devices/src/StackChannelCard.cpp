@@ -205,8 +205,14 @@ void StackChannelCard::on_apply_counter(Edge edge)
 {
     if (is_rising(edge))
     {
-        data_counter =
-                *configuration.io_card->data_terminals[configuration.new_counter_terminal];
+        data_counter = *configuration.io_card->data_terminals[configuration.new_counter_terminal];
+        if (configuration.mode == StackChannelCardConfiguration::Channel)
+        {
+            // TODO: this is weird and probably not what really happens.
+            // The fact is that the boot ROM expects one byte more that what it asked for...
+            // ... or it can be that the analysis is wrong for the moment.
+            data_counter += 1;
+        }
     }
 }
 
