@@ -57,6 +57,9 @@
 
 * Add Architecture.md in documentation/ explaining and linking to local library documentation
   and with a dependency diagram (generated from cmake).
+* Add a check that parse every README.md from libraries and check that names in backquotes
+  are actual names found in the code. Also check that every class name in the code is
+  referenced at least once in a (local?) README.md. It could also produce a cross-reference file.
 * Remove the cppcheck warnings
 * Add a clang-tidy configuration
 * Sets cppcheck and clang-tidy to a CI
