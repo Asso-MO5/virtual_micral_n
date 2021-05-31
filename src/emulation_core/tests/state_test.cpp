@@ -12,13 +12,23 @@ TEST(State, is_time_stamped_when_assigned)
     ASSERT_THAT(state.last_change(), Eq(0));
 }
 
-TEST(State, can_be_inverted)
+TEST(State, can_be_inverted_from_low_to_high)
 {
     State state{State::LOW, Scheduling::counter_type{}};
 
     state.invert(Scheduling::counter_type{1000});
 
     ASSERT_THAT(state, State::HIGH);
+    ASSERT_THAT(state.last_change(), Eq(1000));
+}
+
+TEST(State, can_be_inverted_from_high_to_low)
+{
+    State state{State::HIGH, Scheduling::counter_type{}};
+
+    state.invert(Scheduling::counter_type{1000});
+
+    ASSERT_THAT(state, State::LOW);
     ASSERT_THAT(state.last_change(), Eq(1000));
 }
 
