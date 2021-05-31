@@ -1,18 +1,30 @@
 ### Bug
 
 * The set next activation times on the UnknownCard and StackChannelCard might be
-wrong, because a new event changes the current next event time. The implementation
-  of the event scheduling for Cards should fix that.
-* It could be also at SchedulableImpl that the computation is done.
-* Or Cards could have internal Schedulers (or mini scheduler?)
+  wrong, because a new event changes the current next event time. The implementation
+  of ScheduledSignal will solve this. 
 
 ### Implementation
 
-* Create an Auto Signal that changes states after some times, and has a schedule
+* Create an ScheduledSignal that changes states after some times, and has a schedule
+  * ScheduledSignal is a Schedulable
+  * ScheduledSignal is a SubSchedulable
+  * First it can be used in step() while computing the min of all schedulables
+  * Then the principle of sub schedulables should be set on every schedulable.
+  * The ScheduledSignal gets an apply delay and an apply duration.
+  * At the given time, it applies the signal (parameter is HIGH or LOW for applying)
+  * After the given duration, it stops applying the signal
+  * If a new scheduling is asked before it is completed, it asserts.
+* Implement a way for I/O and peripheral to be connected
+  * A bus
+  * Takes both cards to be connected.
+  * Connects the signals in the right direction.
+  * Created from the Simulator
+  * Cards present their signals, output and input.
 * Implement the Stack card
     * Sets parameter for the new pointer address sent to I/O card.
     * Channel Mode (still needs to be understood)
-* Implement the Unknown Device
+* Implement the Unknown Device (which is the Disk Controller)
     * Implement delays (on reading disk)
     * Add a way to set input data
     * Implement tool for computing the CRC
