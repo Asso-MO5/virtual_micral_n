@@ -10,13 +10,13 @@ using namespace std;
 namespace
 {
     uint8_t disk_data[] = {
-            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E',  'L', 'L', 'O', 'W', 'O',
-            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D', 'H', 'E', 'L', 'L',
-            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O', 'R', 'L', 'D', 'H',
-            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L', 'O', 'W', 'O', 'R',
-            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',  'H', 'E', 'L', 'L', 'O',
-            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O',  'R', 'L', 'D', 'H', 'E',
-            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O', 'W', 'O', 'R', 'L',
+            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E',  'L',  'L', 'O', 'W', 'O',
+            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D',  'H', 'E', 'L', 'L',
+            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O',  'R', 'L', 'D', 'H',
+            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L',  'O', 'W', 'O', 'R',
+            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',  'H',  'E', 'L', 'L', 'O',
+            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O',  'R',  'L', 'D', 'H', 'E',
+            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O',  'W', 'O', 'R', 'L',
             'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x7c, 0x00,
     };
 }
@@ -76,10 +76,12 @@ void UnknownCard::on_input_7(Edge edge)
 
         const uint8_t data = io_card->data_terminals[7].get_value();
 
-        if (data & 0b01000000)
+        if (data & 0b01000000 || data & 0b00100000)
         {
+            auto command = static_cast<std::uint16_t>(data >> 4);
             cout << "--> ";
-            cout << "REQ - ";
+            cout << "REQ (";
+            cout << command << ") ";
 
             if (!status.is_ready)
             {
@@ -91,10 +93,6 @@ void UnknownCard::on_input_7(Edge edge)
                 set_next_activation_time(edge.time() + Scheduling::counter_type{100});
 
                 scheduler.change_schedule(get_id());
-            }
-            if (data & 0b00100000)
-            {
-                cout << "HANDSHAKE - ";
             }
             if (data & 0b00010000)
             {
@@ -120,6 +118,10 @@ void UnknownCard::on_input_7(Edge edge)
             }
             cout << "E: " << static_cast<uint32_t>(data & 0b1111);
             cout << endl;
+        }
+        else if (data == 0)
+        {
+            cout << "STOP - 00" << endl;
         }
 
         assert(((data & 0b10000000) == 0) &&
