@@ -20,9 +20,9 @@ public:
         return sum / actual_count; }
 
 private:
-    std::array<ValueType, size> values;
-    std::size_t next_index;
-    std::size_t actual_count;
+    std::array<ValueType, size> values{};
+    std::size_t next_index{};
+    std::size_t actual_count{};
 };
 
 #endif //MICRALN_AVERAGER_H

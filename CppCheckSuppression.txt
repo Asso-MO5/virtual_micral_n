@@ -1,0 +1,9 @@
+*:imgui.h
+passedByValue:*.cpp
+useInitializationList:src/devices/src/IOCard.cpp
+funcArgNamesDifferent:src/devices/src/MemoryCard.cpp
+
+useInitializationList:src/mcs8/src/Instructions8008.cpp
+
+noExplicitConstructor:src/emulation_core/src/State.h
+noExplicitConstructor:src/emulation_core/src/Edge.h

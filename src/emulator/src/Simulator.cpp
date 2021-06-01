@@ -375,7 +375,7 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
 
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
 
-const MemoryView& Simulator::get_memory_view() { return memory_view; }
+const MemoryView& Simulator::get_memory_view() const { return memory_view; }
 const ProcessorCard& Simulator::get_processor_card() const { return *processor_card; }
 
 ConsoleCard& Simulator::get_console_card() { return *console_card; }

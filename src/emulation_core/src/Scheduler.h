@@ -16,7 +16,7 @@ public:
     void add(const schedulable_ptr& schedulable);
     void step();
 
-    void change_schedule(Scheduling::schedulable_id schedulable);
+    void change_schedule(Scheduling::schedulable_id schedulable) override;
 
     [[nodiscard]] Scheduling::counter_type get_counter() const;
 

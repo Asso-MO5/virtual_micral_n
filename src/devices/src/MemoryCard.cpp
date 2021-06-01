@@ -108,7 +108,7 @@ bool MemoryCard::is_addressed(uint16_t address)
         return false;
     }
 
-    auto& selection_mask = configuration.selection_mask;
+    const auto& selection_mask = configuration.selection_mask;
     return s13 == selection_mask[0] && s12 == selection_mask[1];
 }
 

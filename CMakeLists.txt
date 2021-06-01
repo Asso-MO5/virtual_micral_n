@@ -100,7 +100,7 @@ set(DEARIMGUI_FILES
 add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
 target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
 target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
-set_target_properties(${DEARIMGUI_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "")
+set_target_properties(${DEARIMGUI_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "" CMAKE_CXX_CPPCHECK "")
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
@@ -149,7 +149,7 @@ if(UNIX)
                 "--std=c++20"
                 "--template=gcc"
                 #            "--force"
-                "--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppressions.txt"
+                "--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppression.txt"
                 "-iextern"
                 "src/"
         )

@@ -81,9 +81,9 @@ public:
     void press_instruction();
     void press_cycle();
 
-    void set_switch_data(uint8_t i);
+    void set_switch_data(uint8_t data);
 
-    void set_switch_address(uint16_t i);
+    void set_switch_address(uint16_t address);
 
     void press_interrupt();
 

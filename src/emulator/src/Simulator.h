@@ -52,7 +52,7 @@ public:
     [[nodiscard]] const Pluribus& get_pluribus() const;
     [[nodiscard]] const StackChannelCard& get_stack_channel_card(int card_number) const;
 
-    const MemoryView& get_memory_view();
+    const MemoryView& get_memory_view() const;
     const RecorderCollection& get_recorders() const;
 
     ConsoleCard& get_console_card();

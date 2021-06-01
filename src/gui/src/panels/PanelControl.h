@@ -9,7 +9,7 @@ class ConsoleCard;
 class PanelControl
 {
 public:
-    void display(Simulator& controller);
+    void display(Simulator& simulator);
 
     enum DisplayMode
     {

@@ -66,7 +66,7 @@ void ImGui_SDL_GL_Context::start_imgui_frame()
 
 bool ImGui_SDL_GL_Context::process_events(void (*function)(const SDL_Event&))
 {
-    ImGuiIO& io = ImGui::GetIO();
+    const ImGuiIO& io = ImGui::GetIO();
     bool done = false;
 
     SDL_Event event;
@@ -96,7 +96,7 @@ void ImGui_SDL_GL_Context::render_frame()
     SDL_GL_SwapWindow(window);
 }
 
-bool ImGui_SDL_GL_Context::wants_to_quit(SDL_Event& event)
+bool ImGui_SDL_GL_Context::wants_to_quit(const SDL_Event& event)
 {
     bool sdl_quit = event.type == SDL_QUIT;
     bool sdl_window_close = event.type == SDL_WINDOWEVENT &&

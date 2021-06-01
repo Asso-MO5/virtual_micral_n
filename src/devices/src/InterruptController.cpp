@@ -151,8 +151,11 @@ uint8_t InterruptController::lowest_level_interrupt() const
 }
 
 bool InterruptController::has_instruction_to_inject() const { return has_a_requested_interrupt(); }
-void InterruptController::reset_interrupt(uint8_t level) { requested_interrupts[level] = false; }
 void InterruptController::reset_lowest_interrupt() { reset_interrupt(lowest_level_interrupt()); }
+void InterruptController::reset_interrupt(uint8_t interrupt_level)
+{
+    requested_interrupts[interrupt_level] = false;
+}
 
 uint8_t InterruptController::get_instruction_to_inject() const
 {
