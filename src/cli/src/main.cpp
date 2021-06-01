@@ -6,8 +6,6 @@
 #include <loguru.hpp>
 #include <stdexcept>
 
-const char* STATE_STRINGS[] = {"WAIT", "T3", "T1", "STOPPED", "T2", "T5", "T1I", "T4"};
-
 int main(int argc, char** argv)
 {
 #ifdef NDEBUG
@@ -39,7 +37,7 @@ int main(int argc, char** argv)
               "8008 sync: %i, state: %s, D0-D7: %02x, (CPU PC: %04x, IR: %02x, reg.a: %02x, "
               "reg.b: %02x, A(%02x) B(%02x) C(%02x) D(%02x) E(%02x) H(%02x) L(%02x))",
               static_cast<State::Type>(cpu.output_pins.sync.get_state()),
-              STATE_STRINGS[static_cast<size_t>(*cpu.output_pins.state)],
+              STATE_NAMES[static_cast<size_t>(*cpu.output_pins.state)],
               pluribus.data_bus_d0_7.get_value(),
               cpu_debug_data.address_stack.stack[cpu_debug_data.address_stack.stack_index],
               cpu_debug_data.instruction_register, cpu_debug_data.hidden_registers.a,
