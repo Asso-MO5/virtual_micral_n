@@ -8,7 +8,8 @@ present in the depot.
 Merge Requests must pass the checks of the build system and pass a review.
 
 If you have a code contribution, look at the [BUILD](BUILD.md) documentation to set up
-your development environment.
+your development environment. You should also look for information about the
+general [Principles and Architecture](documentation/Architecture.md) file.
 
 Contributors are referenced in the [CONTRIBUTORS](CONTRIBUTORS.md) file, in the case the
 repository is separated from its history.
@@ -37,7 +38,7 @@ Coding Conventions
 The project uses C++20.
 
 Care must be taken about the dependencies. Libraries already form a first level
-of dependency tree that you can check in the [ARCHITECTURE](documentation/Architecture.md)
+of dependency tree that you can check in the [dependencies](documentation/Dependencies.md)
 file (yet to be written).
 
 Submitted C++ code files must be formatted with the project .clang-format. There's
