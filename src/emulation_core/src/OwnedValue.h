@@ -16,6 +16,11 @@ protected:
     std::string msg;
 };
 
+/* An OwnedValue is a signal that devices can own by request.
+ *
+ * Each modification of the value must prove ownership.
+ * OwnedValue can be subscribed to.
+ */
 template<typename ValueType>
 class OwnedValue
 {

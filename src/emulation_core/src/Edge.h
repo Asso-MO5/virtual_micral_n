@@ -6,6 +6,11 @@
 #include <cassert>
 #include <cstdint>
 
+/*
+ * Edge represents a change of State. It also holds the time this change happened.
+ *
+ * Testing Edge is generally done through two predicate free functions: `is_rising` and `is_falling`
+ */
 struct Edge
 {
     using Type = uint8_t;

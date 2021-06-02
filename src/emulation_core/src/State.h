@@ -6,6 +6,12 @@
 #include <algorithm>
 #include <cstdint>
 
+/*
+ * State holds a LOW or HIGH value, representing a logical state in a device or a bus.
+ * It also holds the time of its latest change of value.
+ *
+ * Testing State is generally done through two predicate free functions: `is_high` and `is_low`
+ */
 struct State
 {
     using Type = uint8_t;

@@ -8,6 +8,13 @@
 
 class Schedulable;
 
+/*
+ * A Scheduler takes a series a Schedulable and will call their step() method when their
+ * activation time is due.
+ *
+ * It's a SignalReceiver which can be signaled that a Schedulable changed its next activation
+ * time through `change_schedule`.
+ */
 class Scheduler : public SignalReceiver
 {
 public:

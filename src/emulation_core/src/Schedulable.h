@@ -3,6 +3,9 @@
 
 #include "Scheduling.h"
 
+/*
+ * A Schedulable is anything that can be scheduled by the Scheduler
+ */
 class Schedulable
 {
 public:
@@ -13,6 +16,9 @@ public:
     [[nodiscard]] virtual Scheduling::counter_type get_next_activation_time() const = 0;
 };
 
+/*
+ * SchedulableImpl is a facility with activation time and id implemented.
+ */
 class SchedulableImpl : public Schedulable
 {
 public:
