@@ -22,7 +22,6 @@ public:
 
 private:
     Frequency frequency;
-    std::function<void(Edge)> edge_callback = [](Edge) {};
 };
 
 #endif //MICRALN_CLOCK_H
