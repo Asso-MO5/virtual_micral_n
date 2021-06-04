@@ -29,10 +29,11 @@ void ScheduledSignal::step()
     }
 }
 
-void ScheduledSignal::launch(Scheduling::counter_type delay,
-                                     Scheduling::counter_type duration)
+void ScheduledSignal::launch(Scheduling::counter_type delay, Scheduling::counter_type duration,
+                             SignalReceiver& scheduler)
 {
     time_to_set_high = delay;
     time_to_set_low = delay + duration;
     set_next_activation_time(time_to_set_high);
+    // scheduler.change_schedule(get_id());
 }

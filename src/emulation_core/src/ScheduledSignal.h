@@ -6,16 +6,13 @@
 
 class OwnedSignal;
 
-//
-// Note: it's up to the user to warn the scheduler about the call to launch.
-// TODO: in a future system where the Scheduler will detect scheduled change, the note will be outdated
 class ScheduledSignal : public SchedulableImpl
 {
 public:
     explicit ScheduledSignal(OwnedSignal& signal);
     ~ScheduledSignal() override;
 
-    void launch(unsigned long delay, Scheduling::counter_type duration);
+    void launch(unsigned long delay, Scheduling::counter_type duration, SignalReceiver& scheduler);
 
     void step() override;
 
