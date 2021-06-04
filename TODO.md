@@ -91,5 +91,6 @@
 * Scheduler
     * Change the sort everything into a forward only sort. Or a dumb selection... Or something else
     * Globally, the back signaling on every timing change is not efficient nor practical not pretty.
+      * Re-sort after each step?
 * 8008: probably the priority queue is overkill too.
 * InstructionTableFor8008 for the disassembly and for the 8008 decoding are duplicated in memory.

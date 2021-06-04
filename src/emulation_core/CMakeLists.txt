@@ -17,14 +17,16 @@ set(EMULATION_CORE_FILES
         src/Frequency.h
         src/State.h src/State.cpp
         src/OwnedSignal.cpp src/OwnedSignal.h
-        src/OwnedValue.h)
+        src/OwnedValue.h
+        src/ScheduledSignal.cpp src/ScheduledSignal.h)
 
 set(EMULATION_CORE_TEST_FILES
         tests/scheduler_test.cpp
         tests/edge_test.cpp
         tests/state_test.cpp
         tests/owned_signal_test.cpp
-        tests/owned_value_test.cpp)
+        tests/owned_value_test.cpp
+        tests/scheduled_signal_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 set_warnings(${EMULATION_LIB_NAME})
