@@ -50,18 +50,27 @@ src/cli/micral_gui
 The CMake project prepares a `ANALYZE_CPPCHECK` target for the `Makefile` and `Ninja`
 generator. Passing cppcheck is not mandatory yet, but could be in the future.
 
+To analyze the project with CppCheck, you can use this :
+
+    cmake -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--inconclusive;--error-exitcode=1;--std=c++20;--template=gcc;--suppressions-list=../CppCheckSuppression.txt;-iextern;src/" .. # (doesn't work as intended)
+
+or
+
+    cppcheck --enable=all --inconclusive --error-exitcode=1 --std=c++20 --template=gcc --suppressions-list=CppCheckSuppression.txt -iextern src/ # Works as intented
+
 To analyze the project with Clang Tidy, you can use this :
 
     cmake -DCMAKE_CXX_CLANG_TIDY="clang-tidy;-checks=-*,clang-analyzer-cplusplus*,cppcoreguidelines-*,modernize-*,portability-,*readability-*" ..
 
-Passing clang-tidy is not mandatory at the moment (it's too global and gives warning about externals, and is
-not well tuned for the project).
+Passing clang-tidy is not mandatory at the moment (it's too global and gives warning about externals, and is not well
+tuned for the project).
 
 ### Dependency viewer
 
 You can generate a module dependency view with `cmake --graphviz=deps.dot ..` in a build directory.
 
-Turn into a SVG file with `dot -Tsvg -o deps.dot.svg deps.dot`. You need [graphviz](https://graphviz.org/) command `dot` for tis.
+Turn into a SVG file with `dot -Tsvg -o deps.dot.svg deps.dot`. You need [graphviz](https://graphviz.org/) command `dot`
+for tis.
 
 ## Build for Clion
 
