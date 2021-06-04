@@ -46,6 +46,10 @@ to manipulate frequency.
 `OwnedSignal` and `OwnedValue` are typically used as public members of the object. They indeed are
 part of the public interface for the outside world, and any object could claim exclusive write control on it.
 
+The principle of *owning* is a logical concept. The real system just puts
+the voltage low. It's a very handy tool though, to detect coherency of
+data flow when the system is put in place.
+
 All signals in the simulation are asserted *logically* (HIGH means asserted) rather than *physically* (which depends on
 the signal implementations). For example, ```READY/``` and ```INTERRUPT/``` are physically asserted LOW for the 8008,
 but in the simulation, they are asserted HIGH.
