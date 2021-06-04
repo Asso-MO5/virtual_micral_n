@@ -23,8 +23,8 @@ set(EMULATION_CORE_TEST_FILES
         tests/scheduler_test.cpp
         tests/edge_test.cpp
         tests/state_test.cpp
-        tests/ownedsignal_test.cpp
-        tests/ownedvalue_test.cpp)
+        tests/owned_signal_test.cpp
+        tests/owned_value_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 set_warnings(${EMULATION_LIB_NAME})
