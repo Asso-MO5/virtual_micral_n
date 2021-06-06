@@ -1,15 +1,8 @@
-### Bug
-
-* The set next activation times on the UnknownCard and StackChannelCard might be
-  wrong, because a new event changes the current next event time. The implementation
-  of ScheduledSignal will solve this. 
-
 ### Implementation
 
 * Create an ScheduledSignal that changes states after some times, and has a schedule
-  * ScheduledSignal is a SubSchedulable
   * DONE: First it can be used in step() while computing the min of all schedulables
-  * OR ALMOST: Then the principle of sub schedulables should be set on every schedulable.
+  * DONE: Then the principle of sub schedulables should be set on every schedulable.
   * Then removes the signals for change of schedule.
   * If a new scheduling is asked before it is completed, it asserts.
   * Create a ScheduledValue, on the same principle.

@@ -142,13 +142,13 @@ Simulator::Simulator(ConfigROM rom_config)
     pause_all_recorders();
     resume_all_recorders();
 
-    for (auto& sub : processor_card->get_sub_schedulables())
+    std::shared_ptr<Schedulable> schedulable_with_subs[] = {processor_card, unknown_card};
+    for (auto& schedulable : schedulable_with_subs)
     {
-        scheduler.add(sub);
-    }
-    for (auto& sub : unknown_card->get_sub_schedulables())
-    {
-        scheduler.add(sub);
+        for (auto& sub : schedulable->get_sub_schedulables())
+        {
+            scheduler.add(sub);
+        }
     }
 
     scheduler.add(processor_card);
