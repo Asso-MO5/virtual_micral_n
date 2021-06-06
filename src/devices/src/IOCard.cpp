@@ -14,7 +14,8 @@ namespace
 } // namespace
 
 IOCard::IOCard(const IOCard::Config& config)
-    : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration(config.configuration)
+    : change_schedule{config.change_schedule}, pluribus{config.pluribus},
+      configuration{config.configuration}
 {
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
@@ -123,7 +124,7 @@ void IOCard::update_next_activation_time()
     }
 
     set_next_activation_time(next_activation_time);
-    scheduler.change_schedule(get_id());
+    change_schedule(get_id());
 }
 
 namespace

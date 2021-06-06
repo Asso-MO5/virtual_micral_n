@@ -15,7 +15,7 @@ namespace MemoryConstants
 {
     constexpr const size_t SELECTION_BIT_COUNT = 3;
     constexpr const size_t MAXIMUM_PAGES = 8;
-} // namespace MemoryConstants
+}
 
 struct MemoryCardConfiguration
 {
@@ -37,7 +37,7 @@ public:
 
     struct Config
     {
-        SignalReceiver& scheduler;
+        Scheduling::change_schedule_cb change_schedule;
         std::shared_ptr<Pluribus> pluribus;
         MemoryCardConfiguration configuration;
     };
@@ -55,7 +55,7 @@ public:
     [[nodiscard]] uint8_t get_data_at(uint16_t address) const;
 
 private:
-    SignalReceiver& scheduler;
+    Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<Pluribus> pluribus;
     MemoryCardConfiguration configuration;
 

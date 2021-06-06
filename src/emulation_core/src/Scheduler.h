@@ -15,7 +15,7 @@ class Schedulable;
  * It's a SignalReceiver which can be signaled that a Schedulable changed its next activation
  * time through `change_schedule`.
  */
-class Scheduler : public SignalReceiver
+class Scheduler
 {
 public:
     using schedulable_ptr = std::shared_ptr<Schedulable>;
@@ -23,7 +23,7 @@ public:
     void add(const schedulable_ptr& schedulable);
     void step();
 
-    void change_schedule(Scheduling::schedulable_id schedulable) override;
+    void change_schedule(Scheduling::schedulable_id schedulable);
 
     [[nodiscard]] Scheduling::counter_type get_counter() const;
 

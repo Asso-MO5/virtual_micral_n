@@ -69,7 +69,8 @@ Simulator::Simulator(ConfigROM rom_config)
     pluribus = std::make_shared<Pluribus>();
 
     ProcessorCard::Config processor_card_config{
-            .scheduler = scheduler,
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
     };
 
@@ -88,7 +89,8 @@ Simulator::Simulator(ConfigROM rom_config)
                                                  ConsoleCard::RecordMode::Record);
 
     StackChannelCard::Config stack_channel_6_config{
-            .scheduler = scheduler,
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
             .configuration = {
                     .mode = StackChannelCardConfiguration::Stack,
@@ -100,7 +102,8 @@ Simulator::Simulator(ConfigROM rom_config)
 
     // IO Card for Unknown Peripheral
     IOCard::Config io_card_config{
-            .scheduler = scheduler,
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
             .configuration = {
                     .mode = IOCardConfiguration::Input_32_Output_32,
@@ -111,7 +114,8 @@ Simulator::Simulator(ConfigROM rom_config)
 
     // StackChannel for Unknown Peripheral
     StackChannelCard::Config stack_channel_5_config{
-            .scheduler = scheduler,
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
             .configuration = {
                     .mode = StackChannelCardConfiguration::Channel,
@@ -125,10 +129,12 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
-    UnknownCard::Config unknown_card_config{.scheduler = scheduler,
-                                            .io_card = io_card,
-                                            .stack_channel = stack_channel_5_card,
-                                            .configuration = {}};
+    UnknownCard::Config unknown_card_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .io_card = io_card,
+            .stack_channel = stack_channel_5_card,
+            .configuration = {}};
     unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
 
     connect_signal_recorders();
@@ -274,9 +280,11 @@ void Simulator::resume_all_recorders()
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {
     auto configuration = ::get_rom_2k_configuration(s13, s12, s11);
-    auto construction_config = MemoryCard::Config{.scheduler = scheduler,
-                                                  .pluribus = pluribus,
-                                                  .configuration = configuration};
+    auto construction_config = MemoryCard::Config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = configuration};
     return construction_config;
 }
 
@@ -284,7 +292,8 @@ MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, 
 {
     auto configuration = ::get_ram_2k_configuration(s13, s12, s11);
     auto construction_config = MemoryCard::Config{
-            .scheduler = scheduler,
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
             .configuration = configuration,
     };

@@ -32,7 +32,8 @@ bool operator<(const CPU8008::NextEventType& a, const CPU8008::NextEventType& b)
     return std::get<0>(a) > std::get<0>(b);
 }
 
-CPU8008::CPU8008(SignalReceiver& scheduler) : scheduler(scheduler)
+CPU8008::CPU8008(Scheduling::change_schedule_cb change_schedule_cb)
+    : change_schedule(std::move(change_schedule_cb))
 {
     output_pins.sync.request(this);
     output_pins.state.request(this, 0);
@@ -403,7 +404,7 @@ void CPU8008::schedule_next_event(Scheduling::counter_type edge_time)
         auto& next_event = next_events.top();
         set_next_activation_time(std::get<0>(next_event));
     }
-    scheduler.change_schedule(get_id());
+    change_schedule(get_id());
 }
 
 void CPU8008::on_vdd(Edge edge)

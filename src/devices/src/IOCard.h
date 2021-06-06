@@ -42,7 +42,7 @@ class IOCard : public SchedulableImpl
 public:
     struct Config
     {
-        SignalReceiver& scheduler;
+        Scheduling::change_schedule_cb change_schedule;
         std::shared_ptr<Pluribus> pluribus;
         IOCardConfiguration configuration;
     };
@@ -58,7 +58,7 @@ public:
     OwnedSignal interrupt_terminal;
 
 private:
-    SignalReceiver& scheduler;
+    Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<Pluribus> pluribus;
     IOCardConfiguration configuration;
 

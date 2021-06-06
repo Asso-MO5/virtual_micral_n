@@ -12,12 +12,12 @@
 #include <utility>
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
-    : pluribus{std::move(config.pluribus)}, scheduler{config.scheduler}
+    : pluribus{std::move(config.pluribus)}, change_schedule{config.change_schedule}
 {
     set_next_activation_time(Scheduling::unscheduled());
 
     clock = std::make_shared<DoubleClock>(500'000_hz);
-    cpu = std::make_shared<CPU8008>(scheduler);
+    cpu = std::make_shared<CPU8008>(change_schedule);
     bus_address_decoder = std::make_shared<GeneralAddressRegister>(cpu, pluribus);
     interrupt_controller =
             std::make_shared<InterruptController>(pluribus, cpu, bus_address_decoder);
@@ -89,10 +89,9 @@ void ProcessorCard::connect_to_pluribus()
         }
     });
 
-    cpu->data_pins.subscribe(
-            [this](uint8_t, uint8_t new_value, Scheduling::counter_type time) {
-                pluribus->data_bus_d0_7.set(new_value, time, this);
-            });
+    cpu->data_pins.subscribe([this](uint8_t, uint8_t new_value, Scheduling::counter_type time) {
+        pluribus->data_bus_d0_7.set(new_value, time, this);
+    });
 }
 
 void ProcessorCard::connect_to_rtc()
@@ -124,7 +123,7 @@ void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
         // T'3 is generated from the end of T2, not depending on T3.
         emit_t3prime_on_next_step = true;
         set_next_activation_time(time + 500);
-        scheduler.change_schedule(get_id());
+        change_schedule(get_id());
     }
 }
 

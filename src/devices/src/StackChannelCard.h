@@ -48,7 +48,7 @@ class StackChannelCard : public SchedulableImpl
 public:
     struct Config
     {
-        SignalReceiver& scheduler;
+        Scheduling::change_schedule_cb change_schedule;
         std::shared_ptr<Pluribus> pluribus;
         StackChannelCardConfiguration configuration;
     };
@@ -96,7 +96,7 @@ public:
     [[nodiscard]] uint8_t get_data_at(uint16_t address) const;
 
 private:
-    SignalReceiver& scheduler;
+    Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<Pluribus> pluribus;
     StackChannelCardConfiguration configuration;
 

@@ -73,7 +73,7 @@ public:
         Constants8008::CycleControl cycle_control;
     };
 
-    explicit CPU8008(SignalReceiver& scheduler);
+    explicit CPU8008(Scheduling::change_schedule_cb scheduler);
 
     [[nodiscard]] DebugData get_debug_data() const;
 
@@ -119,7 +119,7 @@ private:
     bool interrupt_pending{};
     bool cycle_ended{};
 
-    SignalReceiver& scheduler;
+    Scheduling::change_schedule_cb change_schedule;
     std::priority_queue<NextEventType, std::vector<NextEventType>> next_events;
 
     InstructionTableFor8008 instruction_table;

@@ -30,7 +30,7 @@ void ScheduledSignal::step()
 }
 
 void ScheduledSignal::launch(Scheduling::counter_type delay, Scheduling::counter_type duration,
-                             SignalReceiver& scheduler)
+                             Scheduling::change_schedule_cb change_schedule_cb)
 {
     time_to_set_high = delay;
     time_to_set_low = delay + duration;

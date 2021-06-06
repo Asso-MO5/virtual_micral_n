@@ -8,10 +8,11 @@
 namespace
 {
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
-} // namespace
+}
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
-    : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration{config.configuration}
+    : change_schedule{config.change_schedule}, pluribus{config.pluribus},
+      configuration{config.configuration}
 {
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
@@ -67,7 +68,7 @@ void MemoryCard::on_t2(Edge edge)
             output_data_holder->take_bus(edge.time(), data_to_send);
 
             set_next_activation_time(edge.time() + MEMORY_READ_DELAY);
-            scheduler.change_schedule(get_id());
+            change_schedule(get_id());
         }
     }
 }

@@ -12,7 +12,8 @@ public:
     explicit ScheduledSignal(OwnedSignal& signal);
     ~ScheduledSignal() override;
 
-    void launch(unsigned long delay, Scheduling::counter_type duration, SignalReceiver& scheduler);
+    void launch(unsigned long delay, Scheduling::counter_type duration,
+                Scheduling::change_schedule_cb change_schedule_cb);
 
     void step() override;
 

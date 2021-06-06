@@ -12,7 +12,8 @@ namespace
 } // namespace
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
-    : scheduler{config.scheduler}, pluribus{config.pluribus}, configuration(config.configuration)
+    : change_schedule{config.change_schedule}, pluribus{config.pluribus},
+      configuration(config.configuration)
 {
     assert(configuration.memory_size > 0 && "The memory size must not be 0");
 
@@ -110,7 +111,7 @@ void StackChannelCard::on_t2(Edge edge)
                                                       next_step_command.time_for_ack_3);
                 set_next_activation_time(next_activation);
 
-                scheduler.change_schedule(get_id());
+                change_schedule(get_id());
             }
             else
             {
@@ -299,6 +300,6 @@ void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter
         const auto next_activation =
                 std::min(next_step_command.time_to_place_data, next_step_command.time_for_ack_3);
         set_next_activation_time(next_activation);
-        scheduler.change_schedule(get_id());
+        change_schedule(get_id());
     }
 }

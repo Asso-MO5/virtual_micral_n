@@ -23,7 +23,7 @@ class ProcessorCard : public SchedulableImpl
 public:
     struct Config
     {
-        SignalReceiver& scheduler;
+        Scheduling::change_schedule_cb change_schedule;
         std::shared_ptr<Pluribus> pluribus;
     };
 
@@ -51,7 +51,7 @@ public:
 private:
     // Received as parameters
     std::shared_ptr<Pluribus> pluribus;
-    SignalReceiver& scheduler;
+    Scheduling::change_schedule_cb change_schedule;
 
     // Constructed devices
     std::shared_ptr<DoubleClock> clock{};

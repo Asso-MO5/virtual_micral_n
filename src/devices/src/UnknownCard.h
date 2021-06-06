@@ -18,7 +18,7 @@ class UnknownCard : public SchedulableImpl
 public:
     struct Config
     {
-        SignalReceiver& scheduler;
+        Scheduling::change_schedule_cb change_schedule;
         std::shared_ptr<IOCard> io_card;
         std::shared_ptr<StackChannelCard> stack_channel;
         UnknownCardConfiguration configuration;
@@ -30,7 +30,7 @@ public:
     void step() override;
 
 private:
-    SignalReceiver& scheduler;
+    Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<IOCard> io_card;
     std::shared_ptr<StackChannelCard> stack_channel;
     UnknownCardConfiguration configuration;
