@@ -3,11 +3,11 @@
 
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
-#include <emulation_core/src/ScheduledSignal.h>
 #include <memory>
 
 class IOCard;
 class StackChannelCard;
+class ScheduledSignal;
 
 struct UnknownCardConfiguration
 {
@@ -27,6 +27,8 @@ public:
     explicit UnknownCard(const Config& config);
     ~UnknownCard() override;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
+
     void step() override;
 
 private:
@@ -44,11 +46,10 @@ private:
 
     struct NextSignalToLower
     {
-        //Scheduling::counter_type time_for_ack_2{Scheduling::unscheduled()};
         Scheduling::counter_type time_for_data_transfer{Scheduling::unscheduled()};
     };
 
-    ScheduledSignal schedule_ack_2;
+    std::shared_ptr<ScheduledSignal> schedule_ack_2;
 
     Status status;
     NextSignalToLower next_signals_to_lower;

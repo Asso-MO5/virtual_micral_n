@@ -2,7 +2,7 @@
 
 #include "OwnedSignal.h"
 
-ScheduledSignal::ScheduledSignal(OwnedSignal& signal) : associated_signal(signal)
+ScheduledSignal::ScheduledSignal(OwnedSignal& signal) : associated_signal{signal}
 {
     associated_signal.request(this);
 
@@ -30,10 +30,10 @@ void ScheduledSignal::step()
 }
 
 void ScheduledSignal::launch(Scheduling::counter_type delay, Scheduling::counter_type duration,
-                             Scheduling::change_schedule_cb change_schedule_cb)
+                             Scheduling::change_schedule_cb change_schedule)
 {
     time_to_set_high = delay;
     time_to_set_low = delay + duration;
     set_next_activation_time(time_to_set_high);
-    // scheduler.change_schedule(get_id());
+    change_schedule(get_id());
 }

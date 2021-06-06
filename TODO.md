@@ -9,7 +9,7 @@
 * Create an ScheduledSignal that changes states after some times, and has a schedule
   * ScheduledSignal is a SubSchedulable
   * DONE: First it can be used in step() while computing the min of all schedulables
-  * Then the principle of sub schedulables should be set on every schedulable.
+  * OR ALMOST: Then the principle of sub schedulables should be set on every schedulable.
   * Then removes the signals for change of schedule.
   * If a new scheduling is asked before it is completed, it asserts.
   * Create a ScheduledValue, on the same principle.

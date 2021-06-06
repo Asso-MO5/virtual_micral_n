@@ -5,6 +5,8 @@
 #include "Pluribus.h"
 #include "StackChannelCard.h"
 
+#include <emulation_core/src/ScheduledSignal.h>
+
 using namespace std;
 
 namespace
@@ -23,9 +25,10 @@ namespace
 
 UnknownCard::UnknownCard(const Config& config)
     : change_schedule{config.change_schedule}, io_card{config.io_card},
-      stack_channel{config.stack_channel}, configuration{config.configuration},
-      schedule_ack_2{io_card->ack_terminals[2]}
+      stack_channel{config.stack_channel}, configuration{config.configuration}
 {
+    schedule_ack_2 = std::make_shared<ScheduledSignal>(io_card->ack_terminals[2]);
+
     // Connected to IN $0/$FE
     io_card->data_terminals[2].request(this, Scheduling::counter_type{0});
 
@@ -47,19 +50,13 @@ void UnknownCard::step()
 {
     const auto time = get_next_activation_time();
 
-    if (schedule_ack_2.get_next_activation_time() == time)
-    {
-        schedule_ack_2.step();
-    }
-
     if (next_signals_to_lower.time_for_data_transfer == time)
     {
         stack_channel->data_transfer.set(State::LOW, time, this);
         next_signals_to_lower.time_for_data_transfer = Scheduling::unscheduled();
     }
 
-    const auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
-                                          schedule_ack_2.get_next_activation_time());
+    const auto next_activation = next_signals_to_lower.time_for_data_transfer;
     set_next_activation_time(next_activation);
 }
 
@@ -87,12 +84,7 @@ void UnknownCard::on_input_7(Edge edge)
                 status.is_ready = true;
                 io_card->data_terminals[2].set(0b10000011, edge.time(), this);
 
-                schedule_ack_2.launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
-
-                const auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
-                                                      schedule_ack_2.get_next_activation_time());
-                set_next_activation_time(next_activation);
-                change_schedule(get_id());
+                schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
             }
             if (data & 0b00010000)
             {
@@ -104,14 +96,8 @@ void UnknownCard::on_input_7(Edge edge)
 
                     io_card->data_terminals[2].set(0b00000011, edge.time(), this);
 
-                    schedule_ack_2.launch(edge.time(), Scheduling::counter_type{100},
-                                          change_schedule);
-
-                    const auto next_activation =
-                            std::min(next_signals_to_lower.time_for_data_transfer,
-                                     schedule_ack_2.get_next_activation_time());
-                    set_next_activation_time(next_activation);
-                    change_schedule(get_id());
+                    schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100},
+                                           change_schedule);
                 }
                 else
                 {
@@ -153,10 +139,8 @@ void UnknownCard::on_transfer_enabled(Edge edge)
 
                 next_signals_to_lower.time_for_data_transfer =
                         edge.time() + Scheduling::counter_type{100};
-                const auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
-                                                      schedule_ack_2.get_next_activation_time());
-                set_next_activation_time(next_activation);
 
+                set_next_activation_time(next_signals_to_lower.time_for_data_transfer);
                 change_schedule(get_id());
             }
         }
@@ -172,11 +156,11 @@ void UnknownCard::on_end_of_transfer(Edge edge)
 
         io_card->data_terminals[2].set(0b00000000, edge.time(), this);
 
-        schedule_ack_2.launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
-
-        const auto next_activation = std::min(next_signals_to_lower.time_for_data_transfer,
-                                              schedule_ack_2.get_next_activation_time());
-        set_next_activation_time(next_activation);
-        change_schedule(get_id());
+        schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
     }
+}
+
+std::vector<std::shared_ptr<Schedulable>> UnknownCard::get_sub_schedulables()
+{
+    return {schedule_ack_2};
 }

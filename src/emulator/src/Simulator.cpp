@@ -146,6 +146,11 @@ Simulator::Simulator(ConfigROM rom_config)
     {
         scheduler.add(sub);
     }
+    for (auto& sub : unknown_card->get_sub_schedulables())
+    {
+        scheduler.add(sub);
+    }
+
     scheduler.add(processor_card);
     scheduler.add(console_card);
     scheduler.add(memory_card_1);
