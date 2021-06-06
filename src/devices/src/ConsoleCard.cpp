@@ -173,6 +173,8 @@ void ConsoleCard::on_rzgi(Edge edge)
     }
 }
 
+std::vector<std::shared_ptr<Schedulable>> ConsoleCard::get_sub_schedulables() { return {}; }
+
 ConsoleCard::StatusHistory::StatusHistory(size_t size) { history.reserve(size); }
 
 void ConsoleCard::StatusHistory::reset() { history.clear(); }

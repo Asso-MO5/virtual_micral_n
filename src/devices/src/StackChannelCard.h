@@ -56,6 +56,8 @@ public:
     explicit StackChannelCard(const Config& config);
     ~StackChannelCard() override;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
     void step() override;
 
     // Unknown direction with I/O

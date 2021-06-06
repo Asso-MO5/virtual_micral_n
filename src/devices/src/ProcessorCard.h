@@ -34,7 +34,7 @@ public:
 
     [[nodiscard]] const CPU8008& get_cpu() const;
 
-    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
     DoubleClock& get_clock();
     Clock& get_rtc();

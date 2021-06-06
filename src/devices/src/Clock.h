@@ -15,6 +15,8 @@ class Clock : public SchedulableImpl
 public:
     explicit Clock(Frequency frequency);
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
     void step() override;
     [[nodiscard]] State get_state() const;
 

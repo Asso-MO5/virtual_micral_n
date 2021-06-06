@@ -886,3 +886,8 @@ void CPU8008::register_state_change(state_callback_type callback)
 {
     output_pins.state.subscribe(callback);
 }
+
+std::vector<std::shared_ptr<Schedulable>> CPU8008::get_sub_schedulables()
+{
+    return {};
+}

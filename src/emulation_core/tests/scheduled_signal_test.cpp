@@ -5,15 +5,6 @@
 
 using namespace testing;
 
-namespace
-{
-    class SchedulerStub : public SignalReceiver
-    {
-    public:
-        void change_schedule(Scheduling::schedulable_id id) override {}
-    };
-} // namespace
-
 TEST(ScheduledSignal, takes_ownership_of_an_associated_owned_signal)
 {
     OwnedSignal signal;
@@ -50,12 +41,10 @@ TEST(ScheduledSignal, applies_to_signal_with_a_delay)
     const Scheduling::counter_type DELAY{200};
     const Scheduling::counter_type DURATION{1000};
 
-    SchedulerStub scheduler;
-
     OwnedSignal signal;
     ScheduledSignal scheduled_signal{signal};
 
-    scheduled_signal.launch(DELAY, DURATION, scheduler);
+    scheduled_signal.launch(DELAY, DURATION, [](Scheduling::schedulable_id) {});
     scheduled_signal.step();
 
     ASSERT_THAT(signal.get_state(), Eq(State::HIGH));
@@ -67,12 +56,10 @@ TEST(ScheduledSignal, releases_signal_after_the_duration)
     const Scheduling::counter_type DELAY{200};
     const Scheduling::counter_type DURATION{1000};
 
-    SchedulerStub scheduler;
-
     OwnedSignal signal;
     ScheduledSignal scheduled_signal{signal};
 
-    scheduled_signal.launch(DELAY, DURATION, scheduler);
+    scheduled_signal.launch(DELAY, DURATION, [](Scheduling::schedulable_id) {});
     scheduled_signal.step();
     scheduled_signal.step();
 

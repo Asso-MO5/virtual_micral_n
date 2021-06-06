@@ -3,6 +3,8 @@
 
 #include "Scheduling.h"
 
+#include <memory>
+
 /*
  * A Schedulable is anything that can be scheduled by the Scheduler
  */
@@ -14,6 +16,7 @@ public:
     virtual void set_id(Scheduling::schedulable_id) = 0;
     [[nodiscard]] virtual Scheduling::schedulable_id get_id() const = 0;
     [[nodiscard]] virtual Scheduling::counter_type get_next_activation_time() const = 0;
+    [[nodiscard]] virtual std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() = 0;
 };
 
 /*

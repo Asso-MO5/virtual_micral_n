@@ -27,7 +27,7 @@ public:
     explicit UnknownCard(const Config& config);
     ~UnknownCard() override;
 
-    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables();
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
     void step() override;
 

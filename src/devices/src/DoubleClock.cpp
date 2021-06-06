@@ -41,3 +41,8 @@ void DoubleClock::step()
 
 State DoubleClock::get_phase_1_state() const { return *phase_1; }
 State DoubleClock::get_phase_2_state() const { return *phase_2; }
+
+std::vector<std::shared_ptr<Schedulable>> DoubleClock::get_sub_schedulables()
+{
+    return {};
+}

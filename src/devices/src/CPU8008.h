@@ -77,6 +77,8 @@ public:
 
     [[nodiscard]] DebugData get_debug_data() const;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
     void step() override;
 
     void signal_phase_1(Edge edge);

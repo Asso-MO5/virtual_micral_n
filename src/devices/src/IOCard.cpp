@@ -263,3 +263,5 @@ void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
     auto data = data_terminals[signal_index].get_value();
     latched_input_data[signal_index] = data;
 }
+
+vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables() { return {}; }

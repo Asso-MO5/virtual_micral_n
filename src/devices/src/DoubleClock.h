@@ -20,6 +20,8 @@ public:
     OwnedSignal phase_1;
     OwnedSignal phase_2;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
 private:
     Frequency main_frequency;
     Scheduling::counter_type next_phase_1 = 0;

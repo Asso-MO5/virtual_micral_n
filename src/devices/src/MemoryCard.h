@@ -45,6 +45,8 @@ public:
     explicit MemoryCard(const Config& config);
     ~MemoryCard() override;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
     void load_data(std::vector<uint8_t> data);
 
     void step() override;

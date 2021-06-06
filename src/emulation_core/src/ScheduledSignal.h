@@ -12,8 +12,10 @@ public:
     explicit ScheduledSignal(OwnedSignal& signal);
     ~ScheduledSignal() override;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
     void launch(unsigned long delay, Scheduling::counter_type duration,
-                Scheduling::change_schedule_cb change_schedule_cb);
+                const Scheduling::change_schedule_cb& change_schedule_cb);
 
     void step() override;
 

@@ -14,6 +14,7 @@ public:
     void set_id(Scheduling::schedulable_id new_id) override { id = new_id; };
     Scheduling::schedulable_id get_id() const override { return id; };
     Scheduling::schedulable_id id{};
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override { return {}; }
 };
 
 TEST(Scheduler, newly_instantiated_starts_with_counter_at_0)

@@ -50,6 +50,8 @@ public:
     explicit IOCard(const Config& config);
     ~IOCard() override;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
+
     void step() override;
 
     // For 32/32 cards, the 4 first are for inputs, the 4 others for outputs

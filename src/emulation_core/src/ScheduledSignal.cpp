@@ -30,10 +30,12 @@ void ScheduledSignal::step()
 }
 
 void ScheduledSignal::launch(Scheduling::counter_type delay, Scheduling::counter_type duration,
-                             Scheduling::change_schedule_cb change_schedule)
+                             const Scheduling::change_schedule_cb& change_schedule)
 {
     time_to_set_high = delay;
     time_to_set_low = delay + duration;
     set_next_activation_time(time_to_set_high);
     change_schedule(get_id());
 }
+
+std::vector<std::shared_ptr<Schedulable>> ScheduledSignal::get_sub_schedulables() { return {}; }

@@ -303,3 +303,5 @@ void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter
         change_schedule(get_id());
     }
 }
+
+std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables() { return {}; }

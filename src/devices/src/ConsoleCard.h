@@ -25,6 +25,7 @@ public:
     ConsoleCard(std::shared_ptr<Pluribus> pluribus, StartMode start_mode, RecordMode record_mode);
     ~ConsoleCard() override = default;
 
+    std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
     void step() override;
 
     enum StepMode : uint8_t

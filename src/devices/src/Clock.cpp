@@ -17,3 +17,8 @@ void Clock::step()
 }
 
 State Clock::get_state() const { return phase.get_state(); }
+
+std::vector<std::shared_ptr<Schedulable>> Clock::get_sub_schedulables()
+{
+    return {};
+}
