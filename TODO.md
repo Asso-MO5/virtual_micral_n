@@ -13,6 +13,7 @@
   * Then removes the signals for change of schedule.
   * If a new scheduling is asked before it is completed, it asserts.
   * Create a ScheduledValue, on the same principle.
+  * It should be possible to subscribe to a ScheduledValue to generate the needed signal.
 * Implement a way for I/O and peripheral to be connected
   * A bus
   * Takes both cards to be connected.
