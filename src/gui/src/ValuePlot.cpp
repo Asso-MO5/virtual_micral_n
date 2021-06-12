@@ -5,25 +5,10 @@
 #endif
 #include <imgui_internal.h>
 
-#include <iomanip>
-#include <sstream>
-#include <string>
+#include <misc_utils/src/ToHex.h>
 
 #include "Plot.h"
 
-namespace
-{
-    template<typename IntType>
-    std::string to_hex(IntType value, size_t padding)
-    {
-        std::stringstream hex_value;
-        hex_value << " $" << std::setfill('0') << std::setw(padding) << std::hex
-                  << static_cast<int>(value);
-
-        return hex_value.str();
-    }
-
-} // namespace
 namespace ImGui
 {
     void PlotValue(const ImGui::PlotValueConfig& config)
@@ -45,7 +30,7 @@ namespace ImGui
 
         if (config.data_values.count > 0)
         {
-            const size_t padding = config.bus_width <= 8 ? 2 : 4;
+            const int padding = config.bus_width <= 8 ? 2 : 4;
             const auto [x_min, x_max, inverse_scale_x, inverse_scale_y] =
                     get_x_min_max_scales(config.data_values, config.scale);
 
@@ -64,7 +49,7 @@ namespace ImGui
                 auto value_position =
                         ImLerp(inner_bounding_box.Min, inner_bounding_box.Max, normalized_position);
 
-                auto value = to_hex(y_value, padding);
+                auto value = utils::to_hex(y_value, padding);
 
                 auto* text_start = value.c_str();
                 auto* text_end = text_start + value.size();

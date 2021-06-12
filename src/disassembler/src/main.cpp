@@ -42,7 +42,6 @@ int main()
         address += size;
     }
 
-    // TODO: extract to_hex
     // TODO: add specific Micral N instructions decoding
 
     return 0;

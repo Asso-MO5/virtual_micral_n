@@ -23,6 +23,7 @@ set(MCS8_TEST_FILES
 
 add_library(${MCS8_LIB_NAME} ${MCS8_FILES})
 target_include_directories(${MCS8_LIB_NAME} PRIVATE ../)
+target_link_libraries(${MCS8_LIB_NAME} ${MISC_UTILS_LIB_NAME})
 set_warnings(${MCS8_LIB_NAME})
 
 add_executable(${MCS8_TEST_NAME} ${MCS8_TEST_FILES})

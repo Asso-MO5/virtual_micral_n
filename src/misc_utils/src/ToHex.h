@@ -17,6 +17,17 @@ namespace utils
 
         return hex_value.str();
     }
+
+    template<typename IntType>
+    std::string to_hex(IntType value, int padding)
+    {
+        std::stringstream hex_value;
+        hex_value << "$" << std::setfill('0') << std::setw(padding) << std::hex
+                  << static_cast<int>(value);
+
+        return hex_value.str();
+    }
+
 }
 
 #endif //MICRALN_TOHEX_H
