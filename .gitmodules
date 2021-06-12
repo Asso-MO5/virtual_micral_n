@@ -7,3 +7,6 @@
 [submodule "extern/loguru"]
 	path = extern/loguru
 	url = https://github.com/emilk/loguru.git
+[submodule "extern/CLI11"]
+	path = extern/CLI11
+	url = https://github.com/CLIUtils/CLI11
