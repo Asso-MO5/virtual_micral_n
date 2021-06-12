@@ -20,7 +20,7 @@ void display_disassembly_panel(Simulator& simulator, Disassemble8008& disassembl
     const uint16_t end_address = address + simulator.get_memory_view().size();
     while (address < end_address)
     {
-        auto [instruction, size] = disassemble.get(address);
+        auto [instruction, size] = disassemble.get_as_string(address);
 
         ImGui::Text("%s $%04x:  %s", (address == latest_pci) ? ">" : " ", address,
                     instruction.c_str());

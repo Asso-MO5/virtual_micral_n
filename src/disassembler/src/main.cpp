@@ -35,12 +35,15 @@ int main()
 
     while (address < rom_view.size())
     {
-        auto [instruction, size] = disassemble.get(address);
+        auto [instruction, size] = disassemble.get_as_string(address);
 
         std::cout << instruction.c_str() << "\n";
 
         address += size;
     }
+
+    // TODO: extract to_hex
+    // TODO: add specific Micral N instructions decoding
 
     return 0;
 }

@@ -15,7 +15,8 @@ class Disassemble8008
 public:
     explicit Disassemble8008(const MemoryView & memory_view);
 
-    std::tuple<std::string, size_t> get(uint16_t address);
+    std::tuple<std::string, size_t> get_as_string(uint16_t address);
+    std::tuple<std::string, std::string, size_t> get_extended(uint16_t address);
 
 private:
     InstructionTableFor8008 instruction_table;

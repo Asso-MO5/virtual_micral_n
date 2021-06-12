@@ -21,13 +21,20 @@ namespace
 
 Disassemble8008::Disassemble8008(const MemoryView& memory_view) : memory_view(memory_view) {}
 
-std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
+std::tuple<std::string, size_t> Disassemble8008::get_as_string(uint16_t address)
+{
+    auto [text_opcode, operand, size] = get_extended(address);
+    text_opcode.append(operand);
+    return {text_opcode, size};
+}
+
+std::tuple<std::string, std::string, size_t> Disassemble8008::get_extended(uint16_t address)
 {
     auto decoded = instruction_table.decode_instruction(memory_view.get(address));
 
     if (decoded.instruction->name == InstructionNameFor8008::UNKNOWN)
     {
-        return {DECODING_ERROR, 1};
+        return {DECODING_ERROR, "", 1};
     }
 
     auto text_opcode = instruction_to_string(decoded);
@@ -40,13 +47,11 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
             auto value_address = static_cast<size_t>(address + 1);
             if (value_address >= memory_view.size())
             {
-                return {DECODING_ERROR, 1};
+                return {DECODING_ERROR, "", 1};
             }
             auto immediate_value = memory_view.get(value_address);
 
-            text_opcode.append(to_hex<int, 2>(immediate_value));
-
-            return {text_opcode, 2};
+            return {text_opcode, to_hex<int, 2>(immediate_value), 2};
         }
         default:;
     }
@@ -62,34 +67,33 @@ std::tuple<std::string, size_t> Disassemble8008::get(uint16_t address)
             auto value_address = static_cast<size_t>(address + 2);
             if (value_address >= memory_view.size())
             {
-                return {DECODING_ERROR, 1};
+                return {DECODING_ERROR, "", 1};
             }
             auto immediate_value =
                     memory_view.get(value_address) << 8 | memory_view.get(value_address - 1);
 
-            text_opcode.append(to_hex<int, 4>(immediate_value));
-
-            return {text_opcode, 3};
+            return {text_opcode, to_hex<int, 4>(immediate_value), 3};
         }
         default:;
     }
 
+    std::string operand;
     if (decoded.instruction->name == InstructionNameFor8008::RST)
     {
         int rst_address = (decoded.medium << 3);
-        text_opcode.append(to_hex<int, 2>(rst_address));
+        operand = to_hex<int, 2>(rst_address);
     }
     else if (decoded.instruction->name == InstructionNameFor8008::INP)
     {
         int device_address = (memory_view.get(address) & 0b00001110) >> 1;
-        text_opcode.append(to_hex<int, 1>(device_address));
+        operand = to_hex<int, 1>(device_address);
     }
 
     else if (decoded.instruction->name == InstructionNameFor8008::OUT)
     {
         int device_address = ((memory_view.get(address) & 0b00111110) >> 1) - 8;
-        text_opcode.append(to_hex<int, 1>(device_address));
+        operand = to_hex<int, 1>(device_address);
     }
 
-    return {text_opcode, 1};
+    return {text_opcode, operand, 1};
 }
