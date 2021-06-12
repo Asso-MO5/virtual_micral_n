@@ -98,6 +98,9 @@ add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
 target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
 target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
 
+# CLI11
+add_subdirectory(extern/CLI11)
+
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
 endif()

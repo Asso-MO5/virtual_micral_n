@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-FileReader::FileReader(const char* file_path)
+FileReader::FileReader(const std::filesystem::path& file_path)
 {
     std::fstream file;
     file.open(file_path, std::ios::in | std::ios::binary);

@@ -1,11 +1,5 @@
 ### Implementation
 
-* Disassembler:
-  * Factorize the Disassemble8008
-  * Add command line parser
-  * Add reading a specified file
-  * Add options for output (output listing, or ready to be re-assembled)
-  * Shouldn't MemoryView be a range ?
 * Create an ScheduledSignal that changes states after some times, and has a schedule
   * DONE: First it can be used in step() while computing the min of all schedulables
   * DONE: Then the principle of sub schedulables should be set on every schedulable.
@@ -72,6 +66,7 @@
 * Add configuration of the RTC
     * Frequency
     * Optional connection to BI7
+* Shouldn't MemoryView be a range ?
 
 ### Build
 

@@ -9,8 +9,8 @@
 #include <iostream>
 
 OutputLine::OutputLine(const Disassemble8008& disassembler, const MemoryView& rom_view,
-                       uint16_t address)
-    : rom_view{rom_view}, address{address}
+                       uint16_t address, std::uint16_t origin_address)
+    : rom_view{rom_view}, address{address}, origin_address{origin_address}
 {
     auto [dec_instruction, dec_operand, dec_size] = disassembler.get_extended(address);
 
@@ -33,7 +33,7 @@ void OutputLine::output_line(std::ostream& os) const
 
 void OutputLine::output_address(std::ostream& os) const
 {
-    auto address_as_hex_string = utils::to_hex<uint16_t, 4>(address);
+    auto address_as_hex_string = utils::to_hex<uint16_t, 4>(address + origin_address);
     os << std::setfill(' ') << std::setw(8) << std::left << address_as_hex_string;
 }
 

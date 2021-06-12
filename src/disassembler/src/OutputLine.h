@@ -9,7 +9,8 @@ class MemoryView;
 class OutputLine
 {
 public:
-    OutputLine(const Disassemble8008& disassembler, const MemoryView& rom_view, std::uint16_t address);
+    OutputLine(const Disassemble8008& disassembler, const MemoryView& rom_view,
+               std::uint16_t address, std::uint16_t origin_address);
 
     [[nodiscard]] bool is_end_of_block_instruction() const;
     [[nodiscard]] uint16_t get_instruction_size() const;
@@ -29,6 +30,7 @@ private:
     std::string operand;
     uint16_t size;
     uint16_t address;
+    uint16_t origin_address;
 };
 
 #endif //MICRALN_OUTPUTLINE_H

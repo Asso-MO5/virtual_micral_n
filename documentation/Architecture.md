@@ -23,6 +23,7 @@ Executables:
 
   * `cli` is a program aimed at launching an emulation from the command line,
   * `gui` is a program aimed at launching a full study environment with graphical feedbacks.
+  * `disassembler` is a 8008 disassembler that understands Micral N additional instructions.
 
 Libraries:
 
@@ -31,4 +32,7 @@ components on the cards, like the CPU or the Clock.
   * `mcs8` implements some tools specific to the 8008 micro-processor.
   * `emulation_core` implements the core of the emulator, with the scheduling and synchronisation system.
   * `emulator` implements the emulator itself, which ties together the `devices` and puts into use
-    the `emulation_core` bricks to run the emulated system. 
+    the `emulation_core` bricks to run the emulated system.
+  * `file_utils` is a library for file utilities.
+  * `misc_utils` is a library for miscellaneous utilities. Be careful: keep it simple. By its nature, it could attract
+    way too much utilities.

@@ -3,11 +3,12 @@
 
 #include <vector>
 #include <cstdint>
+#include <filesystem>
 
 class FileReader
 {
 public:
-    explicit FileReader(const char* file_path);
+    explicit FileReader(const std::filesystem::path& file_path);
 
     std::vector<uint8_t> data;
 };
