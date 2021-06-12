@@ -13,14 +13,15 @@ class MemoryView;
 class Disassemble8008
 {
 public:
-    explicit Disassemble8008(const MemoryView & memory_view);
+    explicit Disassemble8008(const MemoryView& memory_view);
 
-    std::tuple<std::string, size_t> get_as_string(uint16_t address);
-    std::tuple<std::string, std::string, std::uint16_t> get_extended(uint16_t address);
+    [[nodiscard]] std::tuple<std::string, size_t> get_as_string(uint16_t address) const;
+    [[nodiscard]] std::tuple<std::string, std::string, std::uint16_t>
+    get_extended(uint16_t address) const;
 
 private:
     InstructionTableFor8008 instruction_table;
-    const MemoryView & memory_view;
+    const MemoryView& memory_view;
 };
 
 #endif //MICRALN_DISASSEMBLE8008_H

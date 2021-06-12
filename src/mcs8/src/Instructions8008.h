@@ -146,7 +146,7 @@ struct InstructionTableFor8008
 
     InstructionTableFor8008();
 
-    DecodedInstruction decode_instruction(uint8_t opcode);
+    [[nodiscard]] DecodedInstruction decode_instruction(uint8_t opcode) const;
 
 private:
     std::vector<Instruction> instruction_table;
@@ -159,6 +159,6 @@ private:
     static constexpr CycleActionsFor8008::T5_Action T5(uint8_t actions);
 };
 
-std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction & instruction);
+std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& instruction);
 
 #endif //MICRALN_INSTRUCTIONS8008_H

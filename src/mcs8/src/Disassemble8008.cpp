@@ -10,7 +10,7 @@ namespace
 
 Disassemble8008::Disassemble8008(const MemoryView& memory_view) : memory_view(memory_view) {}
 
-std::tuple<std::string, size_t> Disassemble8008::get_as_string(uint16_t address)
+std::tuple<std::string, size_t> Disassemble8008::get_as_string(uint16_t address) const
 {
     auto [text_opcode, operand, size] = get_extended(address);
     if (!operand.empty())
@@ -20,7 +20,8 @@ std::tuple<std::string, size_t> Disassemble8008::get_as_string(uint16_t address)
     return {text_opcode, size};
 }
 
-std::tuple<std::string, std::string, std::uint16_t> Disassemble8008::get_extended(uint16_t address)
+std::tuple<std::string, std::string, std::uint16_t>
+Disassemble8008::get_extended(uint16_t address) const
 {
     auto decoded = instruction_table.decode_instruction(memory_view.get(address));
 

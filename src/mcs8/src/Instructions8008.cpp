@@ -5,7 +5,7 @@
 using namespace Constants8008;
 
 InstructionTableFor8008::DecodedInstruction
-InstructionTableFor8008::decode_instruction(uint8_t opcode)
+InstructionTableFor8008::decode_instruction(uint8_t opcode) const
 {
     static Instruction unknown_instruction{InstructionNameFor8008::UNKNOWN};
 
