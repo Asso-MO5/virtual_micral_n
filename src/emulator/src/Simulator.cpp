@@ -9,36 +9,10 @@
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
 #include <devices/src/UnknownCard.h>
-
-#include <fstream>
+#include <file_utils/src/FileReader.h>
 
 namespace
 {
-    class ReadRomData
-    {
-    public:
-        explicit ReadRomData(const char* file_path)
-        {
-            std::fstream file;
-            file.open(file_path, std::ios::in | std::ios::binary);
-            if (file)
-            {
-                file.seekg(0, std::ios::end);
-                auto file_size = file.tellg();
-                file.seekg(0, std::ios::beg);
-
-                data.resize(file_size);
-                file.read(reinterpret_cast<char*>(&data[0]), file_size);
-            }
-            else
-            {
-                throw std::runtime_error("Cannot open ROM file");
-            }
-        }
-
-        std::vector<uint8_t> data;
-    };
-
     std::vector<uint8_t> get_rom_data(ConfigROM& rom_config)
     {
         switch (rom_config)
@@ -47,19 +21,19 @@ namespace
                 return {0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
                         0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
             case LOOP_LOADS:
-                return ReadRomData("data/8008-loop-loads.bin").data;
+                return FileReader("data/8008-loop-loads.bin").data;
             case INPUT_OUTPUT:
-                return ReadRomData("data/8008-input-output.bin").data;
+                return FileReader("data/8008-input-output.bin").data;
             case HELLO_WORLD:
-                return ReadRomData("data/8008-hello-world.bin").data;
+                return FileReader("data/8008-hello-world.bin").data;
             case MICRAL_38_3F:
-                return ReadRomData("data/MIC_38_3F.BIN").data;
+                return FileReader("data/MIC_38_3F.BIN").data;
             case MICRAL_MIC_1:
-                return ReadRomData("data/MIC_1_EPROM_CARTE_MEM_4K.BIN").data;
+                return FileReader("data/MIC_1_EPROM_CARTE_MEM_4K.BIN").data;
         }
         return {};
     }
-} // namespace
+}
 
 Simulator::Simulator(ConfigROM rom_config)
 {
