@@ -1,11 +1,10 @@
+#include "OutputLine.h"
+
 #include <file_utils/src/FileReader.h>
 #include <mcs8/src/Disassemble8008.h>
 #include <mcs8/src/MemoryView.h>
-#include <misc_utils/src/ToHex.h>
 
 #include <iostream>
-#include <iomanip>
-#include <sstream>
 
 namespace
 {
@@ -24,7 +23,6 @@ namespace
     private:
         const data_container_type& data;
     };
-
 }
 
 int main()
@@ -38,33 +36,15 @@ int main()
 
     while (address < rom_view.size())
     {
-        auto [instruction, operand, size] = disassemble.get_extended(address);
-        auto address_as_hex_string = utils::to_hex<std::uint16_t, 4>(address);
+        OutputLine line(disassemble, rom_view, address);
+        std::cout << line << "\n";
 
-        std::cout << std::setfill(' ') << std::setw(8) << std::left << address_as_hex_string;
-
-        std::stringstream bytes;
-        for (std::uint16_t sub_address = address; sub_address < address + size; sub_address += 1)
-        {
-            bytes << std::setfill(' ') << std::setw(4) << std::left;
-            bytes << utils::to_hex<std::uint8_t, 2>(rom_view.get(sub_address));
-        }
-
-        std::cout << std::setfill(' ') << std::setw(16) << std::left << bytes.str();
-
-        std::cout << instruction.c_str();
-        if (!operand.empty())
-        {
-            std::cout << " " << operand.c_str();
-        }
-        std::cout << "\n";
-
-        if (instruction == "JMP" || instruction == "RET" || instruction == "REI")
+        if (line.is_end_of_block_instruction())
         {
             std::cout << "\n";
         }
 
-        address += size;
+        address += line.get_instruction_size();
     }
 
     return 0;

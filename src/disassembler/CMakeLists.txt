@@ -9,7 +9,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(DISASSEMBLER_EXE_NAME "disassembler")
 set(DISASSEMBLER_TEST_EXE_NAME ${DISASSEMBLER_EXE_NAME}_tests)
 
-set(DISASSEMBLER_FILES src/main.cpp)
+set(DISASSEMBLER_FILES
+        src/main.cpp
+        src/OutputLine.cpp src/OutputLine.h)
 set(DISASSEMBLER_TEST_FILES tests/main_test.cpp)
 
 add_executable(${DISASSEMBLER_EXE_NAME} ${DISASSEMBLER_FILES})
