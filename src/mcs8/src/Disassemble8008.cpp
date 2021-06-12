@@ -20,7 +20,7 @@ std::tuple<std::string, size_t> Disassemble8008::get_as_string(uint16_t address)
     return {text_opcode, size};
 }
 
-std::tuple<std::string, std::string, size_t> Disassemble8008::get_extended(uint16_t address)
+std::tuple<std::string, std::string, std::uint16_t> Disassemble8008::get_extended(uint16_t address)
 {
     auto decoded = instruction_table.decode_instruction(memory_view.get(address));
 
@@ -80,11 +80,26 @@ std::tuple<std::string, std::string, size_t> Disassemble8008::get_extended(uint1
         int device_address = (memory_view.get(address) & 0b00001110) >> 1;
         operand = utils::to_hex<int, 1>(device_address);
     }
-
     else if (decoded.instruction->name == InstructionNameFor8008::OUT)
     {
         int device_address = ((memory_view.get(address) & 0b00111110) >> 1) - 8;
         operand = utils::to_hex<int, 1>(device_address);
+    }
+    else if (decoded.instruction->name == InstructionNameFor8008::RET)
+    {
+        int middle = decoded.medium & 0b111;
+        if (middle == 3)
+        {
+            text_opcode = "REI";
+        }
+    }
+    else if (text_opcode == "LLL")
+    {
+        text_opcode = "DMS";
+    }
+    else if (text_opcode == "LCC")
+    {
+        text_opcode = "MAS";
     }
 
     return {text_opcode, operand, 1};
