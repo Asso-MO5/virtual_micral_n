@@ -113,6 +113,7 @@ add_subdirectory(src/devices)
 add_subdirectory(src/emulator)
 add_subdirectory(src/emulation_core)
 add_subdirectory(src/cli)
+add_subdirectory(src/disassembler)
 
 if(${SDL2_FOUND} AND ${OPENGL_FOUND})
     message(STATUS "Compiling GUI")
