@@ -1,5 +1,4 @@
-Emulation Core
-==============
+# Emulation Core
 
 As the name says, this library is about the tools that form the core of the emulation
 system.
