@@ -1,0 +1,7 @@
+{
+  "root_path": "../",
+  "markdown_files": [
+    "documentation/Architecture.md",
+    "src/**/README.md"
+  ]
+}
