@@ -9,8 +9,9 @@
 #include <memory>
 #include <vector>
 
-class Pluribus;
 class DataOnMDBusHolder;
+class Pluribus;
+class ScheduledSignal;
 
 struct IOCardConfiguration
 {
@@ -66,11 +67,13 @@ private:
 
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
 
-    Scheduling::counter_type next_time_to_place_data;
+    Scheduling::counter_type next_time_to_place_data_on_pluribus;
 
     size_t first_owned_terminal{};
-    std::array<Scheduling::counter_type, IOCardConstants::TERMINAL_COUNT> next_time_for_ack_low;
     std::array<uint8_t, IOCardConstants::TERMINAL_COUNT> latched_input_data;
+
+    std::array<std::shared_ptr<ScheduledSignal>, IOCardConstants::TERMINAL_COUNT>
+            scheduled_terminals_ACKs;
 
     void initialize_terminals();
 

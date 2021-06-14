@@ -2,6 +2,8 @@
 #include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
 
+#include <emulation_core/src/ScheduledSignal.h>
+
 namespace
 {
     const Scheduling::counter_type IO_CARD_DELAY = 20;
@@ -17,7 +19,7 @@ IOCard::IOCard(const IOCard::Config& config)
 {
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
 
-    next_time_to_place_data = Scheduling::unscheduled();
+    next_time_to_place_data_on_pluribus = Scheduling::unscheduled();
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
@@ -51,8 +53,7 @@ void IOCard::initialize_terminals()
     for (size_t index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
     {
         data_terminals[index].request(this, OwnedValue<uint8_t>::counter_type{0});
-        ack_terminals[index].request(this);
-        next_time_for_ack_low[index] = Scheduling::unscheduled();
+        scheduled_terminals_ACKs[index] = std::make_shared<ScheduledSignal>(ack_terminals[index]);
     }
 }
 
@@ -60,19 +61,10 @@ void IOCard::step()
 {
     const auto time = get_next_activation_time();
 
-    if (time == next_time_to_place_data)
+    if (time == next_time_to_place_data_on_pluribus)
     {
         output_data_holder->place_data(time);
-        next_time_to_place_data = Scheduling::unscheduled();
-    }
-
-    for (auto index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
-    {
-        if (time == next_time_for_ack_low[index])
-        {
-            ack_terminals[index].set(State::LOW, time, this);
-            next_time_for_ack_low[index] = Scheduling::unscheduled();
-        }
+        next_time_to_place_data_on_pluribus = Scheduling::unscheduled();
     }
 
     update_next_activation_time();
@@ -92,8 +84,7 @@ void IOCard::on_t2(Edge edge)
                 auto data_to_send = get_from_peripheral(address);
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
-                next_time_to_place_data = edge.time() + IO_CARD_DELAY;
-                set_next_activation_time(edge.time() + IO_CARD_DELAY);
+                next_time_to_place_data_on_pluribus = edge.time() + IO_CARD_DELAY;
                 update_next_activation_time();
             }
             else
@@ -115,13 +106,7 @@ void IOCard::on_t3(Edge edge)
 
 void IOCard::update_next_activation_time()
 {
-    auto next_activation_time = next_time_to_place_data;
-    for (auto index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
-    {
-        next_activation_time = std::min(next_activation_time, next_time_for_ack_low[index]);
-    }
-
-    set_next_activation_time(next_activation_time);
+    set_next_activation_time(next_time_to_place_data_on_pluribus);
     change_schedule(get_id());
 }
 
@@ -216,11 +201,7 @@ void IOCard::send_to_peripheral(uint16_t address, Scheduling::counter_type time)
     }
 
     data_terminals[output_number].set(data, time, this);
-    ack_terminals[output_number].set(State::HIGH, time, this);
-
-    next_time_for_ack_low[output_number] = time + ACK_APPLIED_PERIOD;
-
-    update_next_activation_time();
+    scheduled_terminals_ACKs[output_number]->launch(time, ACK_APPLIED_PERIOD, change_schedule);
 }
 
 uint8_t IOCard::address_to_input_number(uint16_t address) const
@@ -258,4 +239,13 @@ void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
     latched_input_data[signal_index] = data;
 }
 
-std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables() { return {}; }
+std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables()
+{
+    std::vector<std::shared_ptr<Schedulable>> sub_schedulables;
+    for (size_t index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
+    {
+        sub_schedulables.push_back(scheduled_terminals_ACKs[index]);
+    }
+
+    return sub_schedulables;
+}
