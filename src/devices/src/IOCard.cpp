@@ -185,7 +185,6 @@ uint8_t IOCard::address_to_output_number(uint16_t address) const
 
 void IOCard::send_to_peripheral(uint16_t address, Scheduling::counter_type time)
 {
-    using namespace std;
     // The data to send in on the lower part of the address
     const uint8_t data = address & 0xff;
     uint8_t output_number = address_to_output_number(address);
@@ -241,11 +240,5 @@ void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
 
 std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables()
 {
-    std::vector<std::shared_ptr<Schedulable>> sub_schedulables;
-    for (size_t index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
-    {
-        sub_schedulables.push_back(scheduled_terminals_ACKs[index]);
-    }
-
-    return sub_schedulables;
+    return {begin(scheduled_terminals_ACKs) + first_owned_terminal, end(scheduled_terminals_ACKs)};
 }
