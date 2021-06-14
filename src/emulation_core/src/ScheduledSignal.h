@@ -14,7 +14,7 @@ public:
 
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
-    void launch(unsigned long delay, Scheduling::counter_type duration,
+    void launch(unsigned long start_time, Scheduling::counter_type duration,
                 const Scheduling::change_schedule_cb& change_schedule_cb);
 
     void step() override;

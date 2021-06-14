@@ -29,11 +29,11 @@ void ScheduledSignal::step()
     }
 }
 
-void ScheduledSignal::launch(Scheduling::counter_type delay, Scheduling::counter_type duration,
+void ScheduledSignal::launch(Scheduling::counter_type start_time, Scheduling::counter_type duration,
                              const Scheduling::change_schedule_cb& change_schedule)
 {
-    time_to_set_high = delay;
-    time_to_set_low = delay + duration;
+    time_to_set_high = start_time;
+    time_to_set_low = start_time + duration;
     set_next_activation_time(time_to_set_high);
     change_schedule(get_id());
 }
