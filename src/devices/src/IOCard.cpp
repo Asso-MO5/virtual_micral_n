@@ -2,8 +2,6 @@
 #include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
 
-// #include <iostream>
-
 namespace
 {
     const Scheduling::counter_type IO_CARD_DELAY = 20;
@@ -11,7 +9,7 @@ namespace
 
     // TODO: Duplicated from StackChannelCard
     constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
-} // namespace
+}
 
 IOCard::IOCard(const IOCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
@@ -242,8 +240,6 @@ uint8_t IOCard::address_to_input_number(uint16_t address) const
     return s0_to_s2;
 }
 
-using namespace std;
-
 uint8_t IOCard::get_from_peripheral(uint16_t address)
 {
     const uint8_t input_number = address_to_input_number(address);
@@ -251,8 +247,6 @@ uint8_t IOCard::get_from_peripheral(uint16_t address)
 
     const uint8_t data = latched_input_data[input_number];
 
-    //cout << "<-- Reads data from: " << hex << static_cast<uint32_t>(input_number) << " : " << hex
-    //     << static_cast<uint32_t>(data) << endl;
     return data;
 }
 
@@ -264,4 +258,4 @@ void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
     latched_input_data[signal_index] = data;
 }
 
-vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables() { return {}; }
+std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables() { return {}; }
