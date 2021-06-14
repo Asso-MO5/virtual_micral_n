@@ -1,12 +1,6 @@
 ### Implementation
 
-* Create an ScheduledSignal that changes states after some times, and has a schedule
-  * DONE: First it can be used in step() while computing the min of all schedulables
-  * DONE: Then the principle of sub schedulables should be set on every schedulable.
-  * Then removes the signals for change of schedule.
-  * If a new scheduling is asked before it is completed, it asserts.
-  * Create a ScheduledValue, on the same principle.
-  * It should be possible to subscribe to a ScheduledValue to generate the needed signal.
+* Create an ScheduledValue that applies a value like a ScheduledSignal
 * Implement a way for I/O and peripheral to be connected
   * A bus
   * Takes both cards to be connected.

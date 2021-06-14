@@ -32,6 +32,8 @@ void ScheduledSignal::step()
 void ScheduledSignal::launch(Scheduling::counter_type start_time, Scheduling::counter_type duration,
                              const Scheduling::change_schedule_cb& change_schedule)
 {
+    assert(get_next_activation_time() == Scheduling::unscheduled() &&
+           "New signal cannot be launched when the previous is not finished.");
     time_to_set_high = start_time;
     time_to_set_low = start_time + duration;
     set_next_activation_time(time_to_set_high);
