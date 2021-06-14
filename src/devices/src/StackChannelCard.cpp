@@ -4,12 +4,14 @@
 #include "IOCard.h"
 #include "Pluribus.h"
 
+#include <emulation_core/src/ScheduledSignal.h>
+
 namespace
 {
     const Scheduling::counter_type STACK_MEMORY_READ_DELAY = 150;
 
     constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
-} // namespace
+}
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
@@ -63,7 +65,8 @@ void StackChannelCard::initialize_io_card_connections()
 
         // Connected to IN $0/$FF
         configuration.io_card->data_terminals[3].request(this, Scheduling::counter_type{0});
-        configuration.io_card->ack_terminals[3].request(this);
+        scheduled_ack_3 =
+                std::make_shared<ScheduledSignal>(configuration.io_card->ack_terminals[3]);
     }
 }
 
@@ -71,21 +74,12 @@ void StackChannelCard::step()
 {
     const auto time = get_next_activation_time();
 
-    if (next_step_command.time_to_place_data == time)
-    {
-        output_data_holder->place_data(time);
-        next_step_command.time_to_place_data = Scheduling::unscheduled();
-    }
+    assert(time_to_place_data_on_pluribus == time);
 
-    if (next_step_command.time_for_ack_3 == time)
-    {
-        configuration.io_card->ack_terminals[3].set(State::LOW, time, this);
-        next_step_command.time_for_ack_3 = Scheduling::unscheduled();
-    }
+    output_data_holder->place_data(time);
+    time_to_place_data_on_pluribus = Scheduling::unscheduled();
 
-    const auto next_activation =
-            std::min(next_step_command.time_to_place_data, next_step_command.time_for_ack_3);
-    set_next_activation_time(next_activation);
+    set_next_activation_time(time_to_place_data_on_pluribus);
 }
 
 void StackChannelCard::set_data_size() { data.resize(configuration.memory_size); }
@@ -105,12 +99,9 @@ void StackChannelCard::on_t2(Edge edge)
 
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
-                next_step_command.time_to_place_data = edge.time() + STACK_MEMORY_READ_DELAY;
+                time_to_place_data_on_pluribus = edge.time() + STACK_MEMORY_READ_DELAY;
 
-                const auto next_activation = std::min(next_step_command.time_to_place_data,
-                                                      next_step_command.time_for_ack_3);
-                set_next_activation_time(next_activation);
-
+                set_next_activation_time(time_to_place_data_on_pluribus);
                 change_schedule(get_id());
             }
             else
@@ -293,15 +284,15 @@ void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter
     if (configuration.io_card)
     {
         configuration.io_card->data_terminals[3].set(new_pointer & 0xff, time, this);
-        configuration.io_card->ack_terminals[3].set(State::HIGH, time, this);
-
-        next_step_command.time_for_ack_3 = time + Scheduling::counter_type{100};
-
-        const auto next_activation =
-                std::min(next_step_command.time_to_place_data, next_step_command.time_for_ack_3);
-        set_next_activation_time(next_activation);
-        change_schedule(get_id());
+        scheduled_ack_3->launch(time, Scheduling::counter_type{100}, change_schedule);
     }
 }
 
-std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables() { return {}; }
+std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables()
+{
+    if (configuration.io_card)
+    {
+        return {scheduled_ack_3};
+    }
+    return {};
+}

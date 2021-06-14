@@ -9,9 +9,10 @@
 #include <memory>
 #include <vector>
 
-class Pluribus;
 class DataOnMDBusHolder;
 class IOCard;
+class Pluribus;
+class ScheduledSignal;
 
 struct StackChannelCardConfiguration
 {
@@ -108,13 +109,8 @@ private:
     uint16_t data_pointer{};
     uint16_t data_counter{};
 
-    struct NextStepCommand
-    {
-        Scheduling::counter_type time_for_ack_3{Scheduling::unscheduled()};
-        Scheduling::counter_type time_to_place_data{Scheduling::unscheduled()};
-    };
-
-    NextStepCommand next_step_command;
+    Scheduling::counter_type time_to_place_data_on_pluribus{Scheduling::unscheduled()};
+    std::shared_ptr<ScheduledSignal> scheduled_ack_3;
 
     void set_data_size();
 
