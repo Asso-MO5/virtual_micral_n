@@ -1,6 +1,6 @@
 ### Implementation
 
-* Create an ScheduledValue that applies a value like a ScheduledSignal
+* Use the ScheduledAction in some cards
 * Implement a way for I/O and peripheral to be connected
   * A bus
   * Takes both cards to be connected.
