@@ -2,6 +2,7 @@
 #include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
 
+#include <emulation_core/src/ScheduledAction.h>
 #include <emulation_core/src/ScheduledSignal.h>
 
 namespace
@@ -18,8 +19,7 @@ IOCard::IOCard(const IOCard::Config& config)
       configuration{config.configuration}
 {
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
-
-    next_time_to_place_data_on_pluribus = Scheduling::unscheduled();
+    place_data_on_pluribus = std::make_shared<ScheduledAction>();
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
@@ -38,7 +38,8 @@ IOCard::IOCard(const IOCard::Config& config)
     }
 
     initialize_terminals();
-    update_next_activation_time();
+
+    set_next_activation_time(Scheduling::unscheduled());
 }
 
 IOCard::~IOCard() = default;
@@ -57,18 +58,7 @@ void IOCard::initialize_terminals()
     }
 }
 
-void IOCard::step()
-{
-    const auto time = get_next_activation_time();
-
-    if (time == next_time_to_place_data_on_pluribus)
-    {
-        output_data_holder->place_data(time);
-        next_time_to_place_data_on_pluribus = Scheduling::unscheduled();
-    }
-
-    update_next_activation_time();
-}
+void IOCard::step() {}
 
 void IOCard::on_t2(Edge edge)
 {
@@ -84,8 +74,11 @@ void IOCard::on_t2(Edge edge)
                 auto data_to_send = get_from_peripheral(address);
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
-                next_time_to_place_data_on_pluribus = edge.time() + IO_CARD_DELAY;
-                update_next_activation_time();
+                place_data_on_pluribus->schedule(
+                        [&](Scheduling::counter_type time) {
+                            output_data_holder->place_data(time);
+                        },
+                        edge.time() + IO_CARD_DELAY, change_schedule);
             }
             else
             {
@@ -102,12 +95,6 @@ void IOCard::on_t3(Edge edge)
     {
         output_data_holder->release_bus(edge.time());
     }
-}
-
-void IOCard::update_next_activation_time()
-{
-    set_next_activation_time(next_time_to_place_data_on_pluribus);
-    change_schedule(get_id());
 }
 
 namespace
@@ -240,5 +227,8 @@ void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
 
 std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables()
 {
-    return {begin(scheduled_terminals_ACKs) + first_owned_terminal, end(scheduled_terminals_ACKs)};
+    std::vector<std::shared_ptr<Schedulable>> sub_schedulables{
+            begin(scheduled_terminals_ACKs) + first_owned_terminal, end(scheduled_terminals_ACKs)};
+    sub_schedulables.push_back(place_data_on_pluribus);
+    return sub_schedulables;
 }

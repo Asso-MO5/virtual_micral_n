@@ -11,6 +11,7 @@
 
 class DataOnMDBusHolder;
 class Pluribus;
+class ScheduledAction;
 class ScheduledSignal;
 
 struct IOCardConfiguration
@@ -66,11 +67,10 @@ private:
     IOCardConfiguration configuration;
 
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
-
-    Scheduling::counter_type next_time_to_place_data_on_pluribus;
+    std::shared_ptr<ScheduledAction> place_data_on_pluribus;
 
     size_t first_owned_terminal{};
-    std::array<uint8_t, IOCardConstants::TERMINAL_COUNT> latched_input_data;
+    std::array<uint8_t, IOCardConstants::TERMINAL_COUNT> latched_input_data{};
 
     std::array<std::shared_ptr<ScheduledSignal>, IOCardConstants::TERMINAL_COUNT>
             scheduled_terminals_ACKs;
@@ -80,7 +80,6 @@ private:
     void on_t2(Edge edge);
     void on_t3(Edge edge);
     void on_input_signal(uint8_t signal_index, Edge edge);
-    void update_next_activation_time();
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;
     [[nodiscard]] uint8_t address_to_output_number(uint16_t address) const;
