@@ -4,6 +4,7 @@
 #include "IOCard.h"
 #include "Pluribus.h"
 
+#include <emulation_core/src/ScheduledAction.h>
 #include <emulation_core/src/ScheduledSignal.h>
 
 namespace
@@ -20,6 +21,7 @@ StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
     assert(configuration.memory_size > 0 && "The memory size must not be 0");
 
     output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
+    place_data_on_pluribus = std::make_shared<ScheduledAction>();
 
     initialize_terminals();
     initialize_io_card_connections();
@@ -70,17 +72,7 @@ void StackChannelCard::initialize_io_card_connections()
     }
 }
 
-void StackChannelCard::step()
-{
-    const auto time = get_next_activation_time();
-
-    assert(time_to_place_data_on_pluribus == time);
-
-    output_data_holder->place_data(time);
-    time_to_place_data_on_pluribus = Scheduling::unscheduled();
-
-    set_next_activation_time(time_to_place_data_on_pluribus);
-}
+void StackChannelCard::step() {}
 
 void StackChannelCard::set_data_size() { data.resize(configuration.memory_size); }
 
@@ -99,10 +91,11 @@ void StackChannelCard::on_t2(Edge edge)
 
                 output_data_holder->take_bus(edge.time(), data_to_send);
 
-                time_to_place_data_on_pluribus = edge.time() + STACK_MEMORY_READ_DELAY;
-
-                set_next_activation_time(time_to_place_data_on_pluribus);
-                change_schedule(get_id());
+                place_data_on_pluribus->schedule(
+                        [&](Scheduling::counter_type time) {
+                            output_data_holder->place_data(time);
+                        },
+                        time + STACK_MEMORY_READ_DELAY, change_schedule);
             }
             else
             {
@@ -292,7 +285,7 @@ std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables
 {
     if (configuration.io_card)
     {
-        return {scheduled_ack_3};
+        return {scheduled_ack_3, place_data_on_pluribus};
     }
-    return {};
+    return {place_data_on_pluribus};
 }

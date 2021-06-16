@@ -12,6 +12,7 @@
 class DataOnMDBusHolder;
 class IOCard;
 class Pluribus;
+class ScheduledAction;
 class ScheduledSignal;
 
 struct StackChannelCardConfiguration
@@ -104,13 +105,12 @@ private:
     StackChannelCardConfiguration configuration;
 
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
+    std::shared_ptr<ScheduledAction> place_data_on_pluribus;
+    std::shared_ptr<ScheduledSignal> scheduled_ack_3;
 
     std::vector<uint8_t> data;
     uint16_t data_pointer{};
     uint16_t data_counter{};
-
-    Scheduling::counter_type time_to_place_data_on_pluribus{Scheduling::unscheduled()};
-    std::shared_ptr<ScheduledSignal> scheduled_ack_3;
 
     void set_data_size();
 
