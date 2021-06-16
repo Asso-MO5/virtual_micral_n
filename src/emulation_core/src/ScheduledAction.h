@@ -17,7 +17,8 @@ public:
     void step() override;
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
-    void schedule(function_type function, Scheduling::counter_type time);
+    void schedule(function_type function, Scheduling::counter_type time,
+                  const Scheduling::change_schedule_cb& change_schedule);
 
 private:
     function_type associated_function;
