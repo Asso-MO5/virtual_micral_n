@@ -37,6 +37,7 @@ enum ConfigROM
     LOOP_LOADS,
     INPUT_OUTPUT,
     HELLO_WORLD,
+    HELLO_MO5,
     MICRAL_38_3F,
     MICRAL_MIC_1,
 };

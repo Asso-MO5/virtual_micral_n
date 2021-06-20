@@ -26,6 +26,8 @@ namespace
                 return FileReader("data/8008-input-output.bin").data;
             case HELLO_WORLD:
                 return FileReader("data/8008-hello-world.bin").data;
+            case HELLO_MO5:
+                return FileReader("data/8008-hello-mo5.bin").data;
             case MICRAL_38_3F:
                 return FileReader("data/MIC_38_3F.BIN").data;
             case MICRAL_MIC_1:
