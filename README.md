@@ -25,6 +25,8 @@ The emulator consists of several libraries with a dedicated objective to allow o
 executables to be built. For example, it could serve on a hardware panel reconstruction,
 or a graphical one, without all the debug tools. Even pushing it to a guided tour.
 
-Other projected use are an assembler and a disassembler.
+A small disassembler with support for Micral N dedicated instructions is also available.
+
+Other projected use is an assembler.
 
 We could think about a WASM target for easier access to everyone.
