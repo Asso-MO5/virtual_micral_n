@@ -1,0 +1,9 @@
+#ifndef MICRALN_IO_UNKNOWN_CONNECTOR_H
+#define MICRALN_IO_UNKNOWN_CONNECTOR_H
+
+class IO_Unknown_Connector
+{
+public:
+};
+
+#endif //MICRALN_IO_UNKNOWN_CONNECTOR_H
