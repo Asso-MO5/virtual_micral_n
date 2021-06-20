@@ -32,16 +32,9 @@ struct StackChannelCardConfiguration
     // At the moment, only one card is used for all I/O controls.
     std::shared_ptr<IOCard> io_card{};
 
-    // Inputs with I/O
-    // STPC/ or STR/ for Apply, PRx/ for value
-    uint8_t new_counter_terminal; // The terminal on the I/O card
-
-    // Inputs with I/O
-    // Change pointer value
-    uint8_t new_pointer_terminal;
-
     // Control with I/O
     // Value bit 0 and 4 for at least Direction (IN/OUT/) and maybe TC/ (transfer cycle)
+    // But wrong... most probably
     uint8_t control_terminal;
 };
 
@@ -77,6 +70,12 @@ public:
     // Inputs with I/O
     OwnedValue<uint16_t> new_pointer_address; // PAx/
     OwnedSignal apply_pointer_address;        // LOAD/
+
+    OwnedValue<uint16_t> new_counter_value; // PRx/
+    OwnedSignal apply_counter;              // STPC/ or STR/
+
+    // Outputs with I/O
+    OwnedValue<uint16_t> current_pointer_address; // Ax/
 
     // Inputs with Peripheral
     OwnedSignal direction;          // IN/OUT/

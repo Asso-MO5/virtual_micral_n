@@ -54,14 +54,10 @@ void StackChannelCard::initialize_terminals()
 
 void StackChannelCard::initialize_io_card_connections()
 {
+    apply_counter.subscribe([this](Edge edge) { on_apply_counter(edge); });
+    apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer(edge); });
     if (configuration.io_card)
     {
-        configuration.io_card->ack_terminals[configuration.new_counter_terminal].subscribe(
-                [this](Edge edge) { on_apply_counter(edge); });
-
-        configuration.io_card->ack_terminals[configuration.new_pointer_terminal].subscribe(
-                [this](Edge edge) { on_apply_pointer(edge); });
-
         configuration.io_card->ack_terminals[configuration.control_terminal].subscribe(
                 [this](Edge edge) { on_io_commands(edge); });
 
@@ -181,16 +177,19 @@ StackChannelCard::DebugData StackChannelCard::get_debug_data() const
 
 void StackChannelCard::on_apply_pointer_address(Edge edge)
 {
-    data_pointer = new_pointer_address.get_value();
-    data_counter = 0;
-    stop_transfer_state(edge.time());
+    if (is_rising(edge))
+    {
+        data_pointer = new_pointer_address.get_value();
+        data_counter = 0;
+        stop_transfer_state(edge.time());
+    }
 }
 
 void StackChannelCard::on_apply_counter(Edge edge)
 {
     if (is_rising(edge))
     {
-        data_counter = *configuration.io_card->data_terminals[configuration.new_counter_terminal];
+        data_counter = *new_counter_value;
         if (configuration.mode == StackChannelCardConfiguration::Channel)
         {
             // TODO: this is weird and probably not what really happens.
@@ -244,10 +243,7 @@ void StackChannelCard::on_apply_pointer(Edge edge)
 {
     if (is_rising(edge))
     {
-        const auto value =
-                *configuration.io_card->data_terminals[configuration.new_pointer_terminal];
-
-        data_pointer = value;
+        data_pointer = *new_pointer_address;
     }
 }
 
