@@ -14,6 +14,7 @@ class AutomaticStart;
 class ConsoleCard;
 class IOCard;
 class IO_StackChannel_Connector;
+class IO_Unknown_Connector;
 class MemoryCard;
 class ProcessorCard;
 class Pluribus;
@@ -72,6 +73,7 @@ private:
     std::shared_ptr<IOCard> io_card;
     std::shared_ptr<UnknownCard> unknown_card;
     std::shared_ptr<IO_StackChannel_Connector> io_stack_channel_connector;
+    std::shared_ptr<IO_Unknown_Connector> io_unknown_connector;
 
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;

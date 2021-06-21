@@ -5,6 +5,7 @@
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/IOCard.h>
 #include <devices/src/IO_StackChannel_Connector.h>
+#include <devices/src/IO_Unknown_Connector.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
@@ -113,6 +114,7 @@ Simulator::Simulator(ConfigROM rom_config)
     // Connection of the StackChannel / IO_Card / Unknown triplet
     io_stack_channel_connector =
             std::make_shared<IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
+    io_unknown_connector = std::make_shared<IO_Unknown_Connector>(*io_card, *unknown_card);
 
     connect_signal_recorders();
     connect_value_recorders();
