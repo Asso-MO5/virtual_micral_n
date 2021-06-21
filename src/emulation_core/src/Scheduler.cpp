@@ -32,7 +32,11 @@ void Scheduler::step()
     counter = time;
     executed_time = time;
 
+    Schedulable * raw_schedulable = schedulable.get();
+
     schedulable->step();
+
+    assert(schedulable.get() == raw_schedulable && "The pool probably has been sorted out while stepping.");
     time = schedulable->get_next_activation_time();
     assert(time >= executed_time);
 
@@ -56,7 +60,6 @@ void Scheduler::change_schedule(Scheduling::schedulable_id schedulable)
             throw std::runtime_error("The scheduler cannot go back in time.");
         }
         time = new_time;
-        sort_everything();
     }
 }
 
