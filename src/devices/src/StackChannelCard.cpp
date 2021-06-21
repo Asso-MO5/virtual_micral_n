@@ -1,7 +1,6 @@
 #include "StackChannelCard.h"
 
 #include "DataOnMDBusHolder.h"
-#include "IOCard.h"
 #include "Pluribus.h"
 
 #include <emulation_core/src/ScheduledAction.h>

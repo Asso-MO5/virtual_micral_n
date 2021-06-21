@@ -10,7 +10,6 @@
 #include <vector>
 
 class DataOnMDBusHolder;
-class IOCard;
 class Pluribus;
 class ScheduledAction;
 class ScheduledSignal;
@@ -27,15 +26,6 @@ struct StackChannelCardConfiguration
     uint16_t memory_size{};
     uint8_t input_address{};
     uint8_t output_address{};
-
-    // An optional connection to an io card for controls.
-    // At the moment, only one card is used for all I/O controls.
-    std::shared_ptr<IOCard> io_card{};
-
-    // Control with I/O
-    // Value bit 0 and 4 for at least Direction (IN/OUT/) and maybe TC/ (transfer cycle)
-    // But wrong... most probably
-    uint8_t control_terminal;
 };
 
 class StackChannelCard : public SchedulableImpl

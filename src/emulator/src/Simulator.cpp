@@ -99,8 +99,6 @@ Simulator::Simulator(ConfigROM rom_config)
                     .memory_size = 256,
                     .input_address = 0x05,
                     .output_address = 0x15,
-                    .io_card = io_card,
-                    .control_terminal = 6,
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
@@ -113,7 +111,8 @@ Simulator::Simulator(ConfigROM rom_config)
     unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
 
     // Connection of the StackChannel / IO_Card / Unknown triplet
-    io_stack_channel_connector = std::make_shared<IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
+    io_stack_channel_connector =
+            std::make_shared<IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
 
     connect_signal_recorders();
     connect_value_recorders();
