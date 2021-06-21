@@ -56,15 +56,14 @@ void StackChannelCard::initialize_io_card_connections()
 {
     apply_counter.subscribe([this](Edge edge) { on_apply_counter(edge); });
     apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer(edge); });
+
+    current_pointer_address.request(this, Scheduling::counter_type{0});
+    scheduled_current_pointer_changed = std::make_shared<ScheduledSignal>(current_pointer_changed);
+
     if (configuration.io_card)
     {
         configuration.io_card->ack_terminals[configuration.control_terminal].subscribe(
                 [this](Edge edge) { on_io_commands(edge); });
-
-        // Connected to IN $0/$FF
-        configuration.io_card->data_terminals[3].request(this, Scheduling::counter_type{0});
-        scheduled_ack_3 =
-                std::make_shared<ScheduledSignal>(configuration.io_card->ack_terminals[3]);
     }
 }
 
@@ -270,18 +269,11 @@ void StackChannelCard::stop_transfer_state(Scheduling::counter_type time)
 void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter_type time)
 {
     data_pointer = new_pointer;
-    if (configuration.io_card)
-    {
-        configuration.io_card->data_terminals[3].set(new_pointer & 0xff, time, this);
-        scheduled_ack_3->launch(time, Scheduling::counter_type{100}, change_schedule);
-    }
+    current_pointer_address.set(new_pointer, time, this);
+    scheduled_current_pointer_changed->launch(time, Scheduling::counter_type{100}, change_schedule);
 }
 
 std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables()
 {
-    if (configuration.io_card)
-    {
-        return {scheduled_ack_3, place_data_on_pluribus};
-    }
-    return {place_data_on_pluribus};
+    return {scheduled_current_pointer_changed, place_data_on_pluribus};
 }
