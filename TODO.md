@@ -1,13 +1,7 @@
 ### Implementation
 
 * Implement a way for I/O and peripheral to be connected
-  * A bus
-  * Takes both cards to be connected.
-  * Connects the signals in the right direction.
-  * Created from the Simulator
-  * Cards present their signals, output and input.
   * Connectors
-    * IO_StackChannel_Connector
     * IO_Unknown_Connector
     * StackChannel_Unknown_Connector
 * Implement the Stack card
