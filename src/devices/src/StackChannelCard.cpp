@@ -40,7 +40,6 @@ void StackChannelCard::initialize_terminals()
     apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer_address(edge); });
     data_transfer.subscribe([this](Edge edge) { on_data_transfer(edge); });
 
-    direction.request(this);
     transfer_cycle.request(this);
 
     // Outputs with Peripheral
@@ -59,12 +58,6 @@ void StackChannelCard::initialize_io_card_connections()
 
     current_pointer_address.request(this, Scheduling::counter_type{0});
     scheduled_current_pointer_changed = std::make_shared<ScheduledSignal>(current_pointer_changed);
-
-    if (configuration.io_card)
-    {
-        configuration.io_card->ack_terminals[configuration.control_terminal].subscribe(
-                [this](Edge edge) { on_io_commands(edge); });
-    }
 }
 
 void StackChannelCard::step() {}
@@ -243,21 +236,6 @@ void StackChannelCard::on_apply_pointer(Edge edge)
     if (is_rising(edge))
     {
         data_pointer = *new_pointer_address;
-    }
-}
-
-void StackChannelCard::on_io_commands(Edge edge)
-{
-    if (is_rising(edge))
-    {
-        const auto value = *configuration.io_card->data_terminals[configuration.control_terminal];
-
-        const auto time = edge.time();
-        const auto direction_bit = value & 0b00000100;
-        direction.set(direction_bit ? State::HIGH : State::LOW, time, this);
-
-        assert((value - 0b00000100 == 0) &&
-               "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
     }
 }
 

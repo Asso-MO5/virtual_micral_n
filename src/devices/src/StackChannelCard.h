@@ -125,7 +125,6 @@ private:
     void on_apply_pointer_address(Edge edge);
     void on_apply_counter(Edge edge);
     void on_apply_pointer(Edge edge);
-    void on_io_commands(Edge edge);
 
     void set_new_pointer(uint16_t new_pointer, Scheduling::counter_type time);
 
