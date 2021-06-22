@@ -2,6 +2,8 @@
 #define MICRALN_UNKNOWNCARD_H
 
 #include <emulation_core/src/Edge.h>
+#include <emulation_core/src/OwnedSignal.h>
+#include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
 #include <memory>
 
@@ -31,6 +33,12 @@ public:
 
     void step() override;
 
+    // From I/O card
+    OwnedSignal receive_command;
+
+    // To I/O card
+    OwnedValue<uint8_t> card_status;
+
 private:
     Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<IOCard> io_card;
@@ -54,7 +62,7 @@ private:
     Status status;
     NextSignalToLower next_signals_to_lower;
 
-    void on_input_7(Edge edge);
+    void on_command(Edge edge);
 
     void on_transfer_enabled(Edge edge);
     void on_end_of_transfer(Edge edge);

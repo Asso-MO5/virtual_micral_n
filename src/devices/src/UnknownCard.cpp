@@ -27,13 +27,10 @@ UnknownCard::UnknownCard(const Config& config)
     : change_schedule{config.change_schedule}, io_card{config.io_card},
       stack_channel{config.stack_channel}, configuration{config.configuration}
 {
+    card_status.request(this, Scheduling::counter_type{0});
+    receive_command.subscribe([this](Edge edge) { on_command(edge); });
+
     schedule_ack_2 = std::make_shared<ScheduledSignal>(io_card->ack_terminals[2]);
-
-    // Connected to IN $0/$FE
-    io_card->data_terminals[2].request(this, Scheduling::counter_type{0});
-
-    // Connected to OUT $F
-    io_card->ack_terminals[7].subscribe([this](Edge edge) { on_input_7(edge); });
 
     stack_channel->input_data.request(this, Scheduling::counter_type{0});
     stack_channel->data_transfer.request(this);
@@ -60,7 +57,7 @@ void UnknownCard::step()
     set_next_activation_time(next_activation);
 }
 
-void UnknownCard::on_input_7(Edge edge)
+void UnknownCard::on_command(Edge edge)
 {
     if (is_rising(edge))
     {
@@ -82,7 +79,7 @@ void UnknownCard::on_input_7(Edge edge)
             if (!status.is_ready)
             {
                 status.is_ready = true;
-                io_card->data_terminals[2].set(0b10000011, edge.time(), this);
+                card_status.set(0b10000011, edge.time(), this);
 
                 schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
             }
@@ -94,7 +91,7 @@ void UnknownCard::on_input_7(Edge edge)
                     status.sending_to_channel = true;
                     status.index_on_disk = 0;
 
-                    io_card->data_terminals[2].set(0b00000011, edge.time(), this);
+                    card_status.set(0b00000011, edge.time(), this);
 
                     schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100},
                                            change_schedule);
@@ -154,7 +151,7 @@ void UnknownCard::on_end_of_transfer(Edge edge)
         status.sending_to_channel = false;
         status.is_ready = false;
 
-        io_card->data_terminals[2].set(0b00000000, edge.time(), this);
+        card_status.set(0b00000000, edge.time(), this);
 
         schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
     }
