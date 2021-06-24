@@ -38,6 +38,7 @@ public:
 
     // To I/O card
     OwnedValue<uint8_t> card_status;
+    OwnedSignal status_changed;
 
 private:
     Scheduling::change_schedule_cb change_schedule;
@@ -57,7 +58,7 @@ private:
         Scheduling::counter_type time_for_data_transfer{Scheduling::unscheduled()};
     };
 
-    std::shared_ptr<ScheduledSignal> schedule_ack_2;
+    std::shared_ptr<ScheduledSignal> schedule_status_changed;
 
     Status status;
     NextSignalToLower next_signals_to_lower;

@@ -30,7 +30,7 @@ UnknownCard::UnknownCard(const Config& config)
     card_status.request(this, Scheduling::counter_type{0});
     receive_command.subscribe([this](Edge edge) { on_command(edge); });
 
-    schedule_ack_2 = std::make_shared<ScheduledSignal>(io_card->ack_terminals[2]);
+    schedule_status_changed = std::make_shared<ScheduledSignal>(status_changed);
 
     stack_channel->input_data.request(this, Scheduling::counter_type{0});
     stack_channel->data_transfer.request(this);
@@ -81,7 +81,7 @@ void UnknownCard::on_command(Edge edge)
                 status.is_ready = true;
                 card_status.set(0b10000011, edge.time(), this);
 
-                schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
+                schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
             }
             if (data & 0b00010000)
             {
@@ -93,7 +93,7 @@ void UnknownCard::on_command(Edge edge)
 
                     card_status.set(0b00000011, edge.time(), this);
 
-                    schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100},
+                    schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
                                            change_schedule);
                 }
                 else
@@ -153,11 +153,11 @@ void UnknownCard::on_end_of_transfer(Edge edge)
 
         card_status.set(0b00000000, edge.time(), this);
 
-        schedule_ack_2->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
+        schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
     }
 }
 
 std::vector<std::shared_ptr<Schedulable>> UnknownCard::get_sub_schedulables()
 {
-    return {schedule_ack_2};
+    return {schedule_status_changed};
 }
