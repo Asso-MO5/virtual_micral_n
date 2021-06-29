@@ -2,7 +2,7 @@
 #define MICRALN_GENERALADDRESSREGISTER_H
 
 #include <emulation_core/src/Edge.h>
-#include <mcs8/src/Constants8008.h>
+#include <i8008/src/Constants8008.h>
 #include <memory>
 
 class CPU8008;

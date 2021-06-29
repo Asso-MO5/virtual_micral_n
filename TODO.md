@@ -33,8 +33,8 @@
 
 ### Architecture
 
-* MemoryViewer system to verify. It's weird to have it in mcs8 library
-* PluribusHelper, shouldn't it be MCS8 Helper ?
+* MemoryViewer system to verify. It's weird to have it in i8008 library
+* PluribusHelper, shouldn't it be i8008 Helper ?
 
 ### Improvements
 

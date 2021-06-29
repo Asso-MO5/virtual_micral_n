@@ -13,7 +13,7 @@
 
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
-#include <mcs8/src/Disassemble8008.h>
+#include <i8008/src/Disassemble8008.h>
 
 #include <imgui.h>
 

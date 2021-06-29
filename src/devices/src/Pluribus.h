@@ -3,7 +3,7 @@
 
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>
-#include <mcs8/src/Constants8008.h>
+#include <i8008/src/Constants8008.h>
 
 #include <memory>
 

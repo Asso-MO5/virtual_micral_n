@@ -8,7 +8,7 @@
 #include <emulation_core/src/Scheduler.h>
 #include <emulator/src/SignalRecorder.h>
 #include <emulator/src/SimulationRunType.h>
-#include <mcs8/src/MemoryView.h>
+#include <i8008/src/MemoryView.h>
 
 class AutomaticStart;
 class ConsoleCard;

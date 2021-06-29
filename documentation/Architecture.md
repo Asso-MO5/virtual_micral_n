@@ -29,7 +29,7 @@ Libraries:
 
   * `devices` implements the devices used by the Micral N: the cards, the Pluribus, and some
 components on the cards, like the CPU or the Clock.
-  * `mcs8` implements some tools specific to the 8008 micro-processor.
+  * `i8008` implements some tools specific to the 8008 micro-processor.
   * `emulation_core` implements the core of the emulator, with the scheduling and synchronisation system.
   * `emulator` implements the emulator itself, which ties together the `devices` and puts into use
     the `emulation_core` bricks to run the emulated system.

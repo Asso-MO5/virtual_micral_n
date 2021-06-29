@@ -7,8 +7,8 @@
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
-#include <mcs8/src/Constants8008.h>
-#include <mcs8/src/Instructions8008.h>
+#include <i8008/src/Constants8008.h>
+#include <i8008/src/Instructions8008.h>
 
 #include <array>
 #include <functional>
