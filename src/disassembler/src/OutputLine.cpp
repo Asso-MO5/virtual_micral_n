@@ -1,8 +1,8 @@
 #include "OutputLine.h"
 
 #include <file_utils/src/FileReader.h>
-#include <mcs8/src/Disassemble8008.h>
-#include <mcs8/src/MemoryView.h>
+#include <i8008/src/Disassemble8008.h>
+#include <i8008/src/MemoryView.h>
 #include <misc_utils/src/ToHex.h>
 
 #include <iomanip>
