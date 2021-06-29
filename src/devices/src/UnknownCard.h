@@ -21,7 +21,6 @@ public:
     struct Config
     {
         Scheduling::change_schedule_cb change_schedule;
-        std::shared_ptr<IOCard> io_card;
         std::shared_ptr<StackChannelCard> stack_channel;
         UnknownCardConfiguration configuration;
     };
@@ -34,6 +33,7 @@ public:
     void step() override;
 
     // From I/O card
+    OwnedValue<uint8_t> command;
     OwnedSignal receive_command;
 
     // To I/O card
@@ -42,7 +42,6 @@ public:
 
 private:
     Scheduling::change_schedule_cb change_schedule;
-    std::shared_ptr<IOCard> io_card;
     std::shared_ptr<StackChannelCard> stack_channel;
     UnknownCardConfiguration configuration;
 

@@ -24,8 +24,8 @@ namespace
 }
 
 UnknownCard::UnknownCard(const Config& config)
-    : change_schedule{config.change_schedule}, io_card{config.io_card},
-      stack_channel{config.stack_channel}, configuration{config.configuration}
+    : change_schedule{config.change_schedule}, stack_channel{config.stack_channel},
+      configuration{config.configuration}
 {
     card_status.request(this, Scheduling::counter_type{0});
     receive_command.subscribe([this](Edge edge) { on_command(edge); });
@@ -67,21 +67,22 @@ void UnknownCard::on_command(Edge edge)
         // Bit 4: First round of E
         // Bit 0-3: Counter
 
-        const uint8_t data = io_card->data_terminals[7].get_value();
+        const uint8_t data = *command;
 
         if (data & 0b01000000 || data & 0b00100000)
         {
-            auto command = static_cast<std::uint16_t>(data >> 4);
+            auto received_command = static_cast<std::uint16_t>(data >> 4);
             cout << "--> ";
             cout << "REQ (";
-            cout << command << ") ";
+            cout << received_command << ") ";
 
             if (!status.is_ready)
             {
                 status.is_ready = true;
                 card_status.set(0b10000011, edge.time(), this);
 
-                schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
+                schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
+                                                change_schedule);
             }
             if (data & 0b00010000)
             {
@@ -94,7 +95,7 @@ void UnknownCard::on_command(Edge edge)
                     card_status.set(0b00000011, edge.time(), this);
 
                     schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
-                                           change_schedule);
+                                                    change_schedule);
                 }
                 else
                 {
@@ -153,7 +154,8 @@ void UnknownCard::on_end_of_transfer(Edge edge)
 
         card_status.set(0b00000000, edge.time(), this);
 
-        schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100}, change_schedule);
+        schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
+                                        change_schedule);
     }
 }
 
