@@ -1,9 +1,8 @@
 ### Implementation
 
-* Implement a way for I/O and peripheral to be connected
-  * Connectors
-    * IO_Unknown_Connector
-    * StackChannel_Unknown_Connector
+* Implement Connector
+  * StackChannel_Unknown_Connector
+* Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
 * Implement the Stack card
     * Sets parameter for the new pointer address sent to I/O card.
     * Channel Mode (still needs to be understood)
