@@ -1,10 +1,8 @@
 ### Implementation
 
-* Implement Connector
-  * StackChannel_Unknown_Connector
+* Verify the connections for the Controller/IO/Channel
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
 * Implement the Stack card
-    * Sets parameter for the new pointer address sent to I/O card.
     * Channel Mode (still needs to be understood)
 * Implement the Unknown Device (which is the Disk Controller)
     * Implement delays (on reading disk)
@@ -29,6 +27,7 @@
     * Implement both back panel switches
 * Implement the Serial card
 * Implement a possibility to subscribe to a specific bit on an OwnedValue?
+* Change LED colors to correctly matching the hardware.
 
 ### Architecture
 
