@@ -14,13 +14,13 @@ class AutomaticStart;
 class ConsoleCard;
 class IOCard;
 class IO_StackChannel_Connector;
-class IO_Unknown_Connector;
+class IO_DiskController_Connector;
 class MemoryCard;
 class ProcessorCard;
 class Pluribus;
 class StackChannelCard;
-class StackChannel_Unknown_Connector;
-class UnknownCard;
+class StackChannel_DiskController_Connector;
+class DiskControllerCard;
 
 class SimulatorMemoryView : public MemoryView
 {
@@ -72,10 +72,10 @@ private:
     std::shared_ptr<StackChannelCard> stack_channel_5_card;
     std::shared_ptr<StackChannelCard> stack_channel_6_card;
     std::shared_ptr<IOCard> io_card;
-    std::shared_ptr<UnknownCard> unknown_card;
+    std::shared_ptr<DiskControllerCard> unknown_card;
     std::shared_ptr<IO_StackChannel_Connector> io_stack_channel_connector;
-    std::shared_ptr<IO_Unknown_Connector> io_unknown_connector;
-    std::shared_ptr<StackChannel_Unknown_Connector> stackchannel_unknown_connector;
+    std::shared_ptr<IO_DiskController_Connector> io_unknown_connector;
+    std::shared_ptr<StackChannel_DiskController_Connector> stackchannel_unknown_connector;
 
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;

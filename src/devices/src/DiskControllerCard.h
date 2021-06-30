@@ -1,5 +1,5 @@
-#ifndef MICRALN_UNKNOWNCARD_H
-#define MICRALN_UNKNOWNCARD_H
+#ifndef MICRALN_DISKCONTROLLERCARD_H
+#define MICRALN_DISKCONTROLLERCARD_H
 
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
@@ -10,21 +10,21 @@
 class IOCard;
 class ScheduledSignal;
 
-struct UnknownCardConfiguration
+struct DiskControllerCardConfiguration
 {
 };
 
-class UnknownCard : public SchedulableImpl
+class DiskControllerCard : public SchedulableImpl
 {
 public:
     struct Config
     {
         Scheduling::change_schedule_cb change_schedule;
-        UnknownCardConfiguration configuration;
+        DiskControllerCardConfiguration configuration;
     };
 
-    explicit UnknownCard(const Config& config);
-    ~UnknownCard() override;
+    explicit DiskControllerCard(const Config& config);
+    ~DiskControllerCard() override;
 
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
@@ -48,7 +48,7 @@ public:
 
 private:
     Scheduling::change_schedule_cb change_schedule;
-    UnknownCardConfiguration configuration;
+    DiskControllerCardConfiguration configuration;
 
     struct Status
     {
@@ -68,4 +68,4 @@ private:
     void on_end_of_transfer(Edge edge);
 };
 
-#endif //MICRALN_UNKNOWNCARD_H
+#endif //MICRALN_DISKCONTROLLERCARD_H

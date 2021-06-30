@@ -1,4 +1,4 @@
-#include "UnknownCard.h"
+#include "DiskControllerCard.h"
 #include <iostream>
 
 #include "IOCard.h"
@@ -23,7 +23,7 @@ namespace
     };
 }
 
-UnknownCard::UnknownCard(const Config& config)
+DiskControllerCard::DiskControllerCard(const Config& config)
     : change_schedule{config.change_schedule}, configuration{config.configuration}
 {
     card_status.request(this, Scheduling::counter_type{0});
@@ -40,11 +40,11 @@ UnknownCard::UnknownCard(const Config& config)
     set_next_activation_time(Scheduling::unscheduled());
 }
 
-UnknownCard::~UnknownCard() = default;
+DiskControllerCard::~DiskControllerCard() = default;
 
-void UnknownCard::step() {}
+void DiskControllerCard::step() {}
 
-void UnknownCard::on_command(Edge edge)
+void DiskControllerCard::on_command(Edge edge)
 {
     if (is_rising(edge))
     {
@@ -102,7 +102,7 @@ void UnknownCard::on_command(Edge edge)
     }
 }
 
-void UnknownCard::on_transfer_enabled(Edge edge)
+void DiskControllerCard::on_transfer_enabled(Edge edge)
 {
     if (is_rising(edge))
     {
@@ -127,7 +127,7 @@ void UnknownCard::on_transfer_enabled(Edge edge)
     }
 }
 
-void UnknownCard::on_end_of_transfer(Edge edge)
+void DiskControllerCard::on_end_of_transfer(Edge edge)
 {
     if (is_rising(edge) && status.sending_to_channel)
     {
@@ -141,7 +141,7 @@ void UnknownCard::on_end_of_transfer(Edge edge)
     }
 }
 
-std::vector<std::shared_ptr<Schedulable>> UnknownCard::get_sub_schedulables()
+std::vector<std::shared_ptr<Schedulable>> DiskControllerCard::get_sub_schedulables()
 {
     return {schedule_status_changed, schedule_available_data};
 }

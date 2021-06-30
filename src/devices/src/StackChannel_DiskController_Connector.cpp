@@ -1,12 +1,12 @@
-#include "StackChannel_Unknown_Connector.h"
+#include "StackChannel_DiskController_Connector.h"
 
+#include "DiskControllerCard.h"
 #include "StackChannelCard.h"
-#include "UnknownCard.h"
 
-StackChannel_Unknown_Connector::StackChannel_Unknown_Connector(StackChannelCard& stack_channel_card,
-                                                               UnknownCard& unknown_card)
+StackChannel_DiskController_Connector::StackChannel_DiskController_Connector(
+        StackChannelCard& stack_channel_card, DiskControllerCard& unknown_card)
 {
-    // From UnknownCard to StackChannel
+    // From DiskController to StackChannel
     stack_channel_card.data_transfer.request(this);
     stack_channel_card.input_data.request(this, Scheduling::counter_type{0});
 
@@ -19,7 +19,7 @@ StackChannel_Unknown_Connector::StackChannel_Unknown_Connector(StackChannelCard&
         stack_channel_card.data_transfer.apply(edge, this);
     });
 
-    // From the StackChannel to the UnknownCard
+    // From the StackChannel to the DiskController
     unknown_card.start_data_transfer.request(this);
     unknown_card.stop_data_transfer.request(this);
 

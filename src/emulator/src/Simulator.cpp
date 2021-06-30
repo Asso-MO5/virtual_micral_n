@@ -3,15 +3,15 @@
 #include <devices/src/CPU8008.h>
 #include <devices/src/Clock.h>
 #include <devices/src/ConsoleCard.h>
+#include <devices/src/DiskControllerCard.h>
 #include <devices/src/IOCard.h>
+#include <devices/src/IO_DiskController_Connector.h>
 #include <devices/src/IO_StackChannel_Connector.h>
-#include <devices/src/IO_Unknown_Connector.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
-#include <devices/src/StackChannel_Unknown_Connector.h>
-#include <devices/src/UnknownCard.h>
+#include <devices/src/StackChannel_DiskController_Connector.h>
 #include <file_utils/src/FileReader.h>
 
 namespace
@@ -104,18 +104,18 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
-    UnknownCard::Config unknown_card_config{
+    DiskControllerCard::Config unknown_card_config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .configuration = {}};
-    unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
+    unknown_card = std::make_shared<DiskControllerCard>(unknown_card_config);
 
     // Connection of the StackChannel / IO_Card / Unknown triplet
     io_stack_channel_connector =
             std::make_shared<IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
-    io_unknown_connector = std::make_shared<IO_Unknown_Connector>(*io_card, *unknown_card);
+    io_unknown_connector = std::make_shared<IO_DiskController_Connector>(*io_card, *unknown_card);
     stackchannel_unknown_connector =
-            std::make_shared<StackChannel_Unknown_Connector>(*stack_channel_5_card, *unknown_card);
+            std::make_shared<StackChannel_DiskController_Connector>(*stack_channel_5_card, *unknown_card);
 
     connect_signal_recorders();
     connect_value_recorders();

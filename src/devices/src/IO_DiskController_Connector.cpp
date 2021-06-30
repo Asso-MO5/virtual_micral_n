@@ -1,9 +1,9 @@
-#include "IO_Unknown_Connector.h"
+#include "IO_DiskController_Connector.h"
 
+#include "DiskControllerCard.h"
 #include "IOCard.h"
-#include "UnknownCard.h"
 
-IO_Unknown_Connector::IO_Unknown_Connector(IOCard& io_card, UnknownCard& unknown_card)
+IO_DiskController_Connector::IO_DiskController_Connector(IOCard& io_card, DiskControllerCard& unknown_card)
 {
     // Connected to I/O card OUT $F
     const auto command_terminal = 7;

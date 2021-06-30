@@ -11,7 +11,7 @@ IO_StackChannel_Connector::IO_StackChannel_Connector(IOCard& io_card,
 
     // Invalid
     // The direction is supposed to be connected with the peripheral
-    // TODO: connect the direction from the Unknown Peripheral
+    // TODO: connect the direction from the DiskController
 
     const auto control_terminal = 6;
 
