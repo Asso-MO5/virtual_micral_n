@@ -1,7 +1,7 @@
 #include "IO_DiskController_Connector.h"
 
-#include "DiskControllerCard.h"
-#include "IOCard.h"
+#include "devices/src/DiskControllerCard.h"
+#include "devices/src/IOCard.h"
 
 IO_DiskController_Connector::IO_DiskController_Connector(IOCard& io_card, DiskControllerCard& unknown_card)
 {

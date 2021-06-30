@@ -1,7 +1,7 @@
 #include "IO_StackChannel_Connector.h"
 
-#include "IOCard.h"
-#include "StackChannelCard.h"
+#include "devices/src/IOCard.h"
+#include "devices/src/StackChannelCard.h"
 
 IO_StackChannel_Connector::IO_StackChannel_Connector(IOCard& io_card,
                                                      StackChannelCard& stack_channel_card)

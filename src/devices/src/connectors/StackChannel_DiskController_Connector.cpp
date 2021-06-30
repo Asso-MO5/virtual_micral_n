@@ -1,7 +1,7 @@
 #include "StackChannel_DiskController_Connector.h"
 
-#include "DiskControllerCard.h"
-#include "StackChannelCard.h"
+#include "devices/src/DiskControllerCard.h"
+#include "devices/src/StackChannelCard.h"
 
 StackChannel_DiskController_Connector::StackChannel_DiskController_Connector(
         StackChannelCard& stack_channel_card, DiskControllerCard& unknown_card)

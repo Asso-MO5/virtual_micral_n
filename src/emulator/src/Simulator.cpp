@@ -5,13 +5,13 @@
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/DiskControllerCard.h>
 #include <devices/src/IOCard.h>
-#include <devices/src/IO_DiskController_Connector.h>
-#include <devices/src/IO_StackChannel_Connector.h>
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
-#include <devices/src/StackChannel_DiskController_Connector.h>
+#include <devices/src/connectors/IO_DiskController_Connector.h>
+#include <devices/src/connectors/IO_StackChannel_Connector.h>
+#include <devices/src/connectors/StackChannel_DiskController_Connector.h>
 #include <file_utils/src/FileReader.h>
 
 namespace
