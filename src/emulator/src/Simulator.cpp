@@ -107,7 +107,6 @@ Simulator::Simulator(ConfigROM rom_config)
     UnknownCard::Config unknown_card_config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .stack_channel = stack_channel_5_card,
             .configuration = {}};
     unknown_card = std::make_shared<UnknownCard>(unknown_card_config);
 

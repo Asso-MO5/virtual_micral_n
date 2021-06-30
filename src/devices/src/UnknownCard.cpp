@@ -24,8 +24,7 @@ namespace
 }
 
 UnknownCard::UnknownCard(const Config& config)
-    : change_schedule{config.change_schedule}, stack_channel{config.stack_channel},
-      configuration{config.configuration}
+    : change_schedule{config.change_schedule}, configuration{config.configuration}
 {
     card_status.request(this, Scheduling::counter_type{0});
     receive_command.subscribe([this](Edge edge) { on_command(edge); });
@@ -35,9 +34,8 @@ UnknownCard::UnknownCard(const Config& config)
     schedule_available_data = std::make_shared<ScheduledSignal>(available_data);
     output_data.request(this, Scheduling::counter_type{0});
 
-    // Need to add transfer ok and end_of_transfer signals
-    stack_channel->transfer_allowed.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
-    stack_channel->end_of_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
+    start_data_transfer.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
+    stop_data_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
 
     set_next_activation_time(Scheduling::unscheduled());
 }

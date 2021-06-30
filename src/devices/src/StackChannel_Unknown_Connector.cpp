@@ -18,4 +18,15 @@ StackChannel_Unknown_Connector::StackChannel_Unknown_Connector(StackChannelCard&
     unknown_card.available_data.subscribe([&stack_channel_card, this](Edge edge) {
         stack_channel_card.data_transfer.apply(edge, this);
     });
+
+    // From the StackChannel to the UnknownCard
+    unknown_card.start_data_transfer.request(this);
+    unknown_card.stop_data_transfer.request(this);
+
+    stack_channel_card.transfer_allowed.subscribe([&unknown_card, this](Edge edge) {
+        unknown_card.start_data_transfer.apply(edge, this);
+    });
+    stack_channel_card.end_of_transfer.subscribe([&unknown_card, this](Edge edge) {
+        unknown_card.stop_data_transfer.apply(edge, this);
+    });
 }

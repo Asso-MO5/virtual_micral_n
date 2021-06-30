@@ -8,7 +8,6 @@
 #include <memory>
 
 class IOCard;
-class StackChannelCard;
 class ScheduledSignal;
 
 struct UnknownCardConfiguration
@@ -21,7 +20,6 @@ public:
     struct Config
     {
         Scheduling::change_schedule_cb change_schedule;
-        std::shared_ptr<StackChannelCard> stack_channel;
         UnknownCardConfiguration configuration;
     };
 
@@ -44,9 +42,12 @@ public:
     OwnedSignal available_data;
     OwnedValue<uint8_t> output_data;
 
+    // From the Stack/Channel card
+    OwnedSignal start_data_transfer;
+    OwnedSignal stop_data_transfer;
+
 private:
     Scheduling::change_schedule_cb change_schedule;
-    std::shared_ptr<StackChannelCard> stack_channel;
     UnknownCardConfiguration configuration;
 
     struct Status
