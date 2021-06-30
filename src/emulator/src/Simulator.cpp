@@ -112,10 +112,10 @@ Simulator::Simulator(ConfigROM rom_config)
 
     // Connection of the StackChannel / IO_Card / Unknown triplet
     io_stack_channel_connector =
-            std::make_shared<IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
-    io_unknown_connector = std::make_shared<IO_DiskController_Connector>(*io_card, *unknown_card);
+            std::make_shared<Connectors::IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
+    io_unknown_connector = std::make_shared<Connectors::IO_DiskController_Connector>(*io_card, *unknown_card);
     stackchannel_unknown_connector =
-            std::make_shared<StackChannel_DiskController_Connector>(*stack_channel_5_card, *unknown_card);
+            std::make_shared<Connectors::StackChannel_DiskController_Connector>(*stack_channel_5_card, *unknown_card);
 
     connect_signal_recorders();
     connect_value_recorders();
