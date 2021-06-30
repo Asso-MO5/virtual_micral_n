@@ -21,9 +21,9 @@ class DiskControllerCard;
 
 namespace Connectors
 {
-    class IO_StackChannel_Connector;
-    class IO_DiskController_Connector;
-    class StackChannel_DiskController_Connector;
+    class IO_To_StackChannel;
+    class IO_To_DiskController;
+    class StackChannel_To_DiskController;
 
 }
 
@@ -78,9 +78,9 @@ private:
     std::shared_ptr<StackChannelCard> stack_channel_6_card;
     std::shared_ptr<IOCard> io_card;
     std::shared_ptr<DiskControllerCard> unknown_card;
-    std::shared_ptr<Connectors::IO_StackChannel_Connector> io_stack_channel_connector;
-    std::shared_ptr<Connectors::IO_DiskController_Connector> io_unknown_connector;
-    std::shared_ptr<Connectors::StackChannel_DiskController_Connector>
+    std::shared_ptr<Connectors::IO_To_StackChannel> io_stack_channel_connector;
+    std::shared_ptr<Connectors::IO_To_DiskController> io_unknown_connector;
+    std::shared_ptr<Connectors::StackChannel_To_DiskController>
             stackchannel_unknown_connector;
 
     SimulatorMemoryView memory_view;

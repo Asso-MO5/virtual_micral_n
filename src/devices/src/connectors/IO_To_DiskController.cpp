@@ -1,11 +1,11 @@
-#include "IO_DiskController_Connector.h"
+#include "IO_To_DiskController.h"
 
 #include "devices/src/DiskControllerCard.h"
 #include "devices/src/IOCard.h"
 
 namespace Connectors
 {
-    IO_DiskController_Connector::IO_DiskController_Connector(IOCard& io_card,
+    IO_To_DiskController::IO_To_DiskController(IOCard& io_card,
                                                              DiskControllerCard& unknown_card)
     {
         // Connected to I/O card OUT $F

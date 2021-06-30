@@ -1,4 +1,4 @@
-#include "IO_StackChannel_Connector.h"
+#include "IO_To_StackChannel.h"
 
 #include "devices/src/IOCard.h"
 #include "devices/src/StackChannelCard.h"
@@ -6,7 +6,7 @@
 namespace Connectors
 {
 
-    IO_StackChannel_Connector::IO_StackChannel_Connector(IOCard& io_card,
+    IO_To_StackChannel::IO_To_StackChannel(IOCard& io_card,
                                                          StackChannelCard& stack_channel_card)
     {
         from_io_to_stack_channel(io_card, stack_channel_card);
@@ -31,7 +31,7 @@ namespace Connectors
         });
     }
 
-    void IO_StackChannel_Connector::from_stack_channel_to_io(IOCard& io_card,
+    void IO_To_StackChannel::from_stack_channel_to_io(IOCard& io_card,
                                                              StackChannelCard& stack_channel_card)
     {
         // Connected to IN $0/$FF
@@ -47,7 +47,7 @@ namespace Connectors
                     io_card.data_terminals[io_0_ff].set(new_value, time, this);
                 });
     }
-    void IO_StackChannel_Connector::from_io_to_stack_channel(IOCard& io_card,
+    void IO_To_StackChannel::from_io_to_stack_channel(IOCard& io_card,
                                                              StackChannelCard& stack_channel_card)
     {
         // Connect STPC/ or STR/ for Counter Change (PRx/ for value)

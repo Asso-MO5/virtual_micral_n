@@ -27,9 +27,9 @@ set(DEVICES_FILES
         src/DataOnMDBusHolder.cpp src/DataOnMDBusHolder.h
         src/IOCard.cpp src/IOCard.h
         src/DiskControllerCard.cpp src/DiskControllerCard.h
-        src/connectors/IO_StackChannel_Connector.cpp src/connectors/IO_StackChannel_Connector.h
-        src/connectors/IO_DiskController_Connector.cpp src/connectors/IO_DiskController_Connector.h
-        src/connectors/StackChannel_DiskController_Connector.cpp src/connectors/StackChannel_DiskController_Connector.h)
+        src/connectors/IO_To_StackChannel.cpp src/connectors/IO_To_StackChannel.h
+        src/connectors/IO_To_DiskController.cpp src/connectors/IO_To_DiskController.h
+        src/connectors/StackChannel_To_DiskController.cpp src/connectors/StackChannel_To_DiskController.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp

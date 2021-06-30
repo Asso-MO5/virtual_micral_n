@@ -1,11 +1,11 @@
-#include "StackChannel_DiskController_Connector.h"
+#include "StackChannel_To_DiskController.h"
 
 #include "devices/src/DiskControllerCard.h"
 #include "devices/src/StackChannelCard.h"
 
 namespace Connectors
 {
-    StackChannel_DiskController_Connector::StackChannel_DiskController_Connector(
+    StackChannel_To_DiskController::StackChannel_To_DiskController(
             StackChannelCard& stack_channel_card, DiskControllerCard& unknown_card)
     {
         // From DiskController to StackChannel

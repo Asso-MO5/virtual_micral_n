@@ -9,9 +9,9 @@
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
-#include <devices/src/connectors/IO_DiskController_Connector.h>
-#include <devices/src/connectors/IO_StackChannel_Connector.h>
-#include <devices/src/connectors/StackChannel_DiskController_Connector.h>
+#include <devices/src/connectors/IO_To_DiskController.h>
+#include <devices/src/connectors/IO_To_StackChannel.h>
+#include <devices/src/connectors/StackChannel_To_DiskController.h>
 #include <file_utils/src/FileReader.h>
 
 namespace
@@ -112,10 +112,10 @@ Simulator::Simulator(ConfigROM rom_config)
 
     // Connection of the StackChannel / IO_Card / Unknown triplet
     io_stack_channel_connector =
-            std::make_shared<Connectors::IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
-    io_unknown_connector = std::make_shared<Connectors::IO_DiskController_Connector>(*io_card, *unknown_card);
+            std::make_shared<Connectors::IO_To_StackChannel>(*io_card, *stack_channel_5_card);
+    io_unknown_connector = std::make_shared<Connectors::IO_To_DiskController>(*io_card, *unknown_card);
     stackchannel_unknown_connector =
-            std::make_shared<Connectors::StackChannel_DiskController_Connector>(*stack_channel_5_card, *unknown_card);
+            std::make_shared<Connectors::StackChannel_To_DiskController>(*stack_channel_5_card, *unknown_card);
 
     connect_signal_recorders();
     connect_value_recorders();
