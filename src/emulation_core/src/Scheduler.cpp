@@ -27,6 +27,9 @@ void Scheduler::step()
     {
         return;
     }
+
+    sort_everything();
+
     auto& [time, id, schedulable] = schedulable_pool.front();
 
     counter = time;
