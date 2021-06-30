@@ -19,6 +19,7 @@ class MemoryCard;
 class ProcessorCard;
 class Pluribus;
 class StackChannelCard;
+class StackChannel_Unknown_Connector;
 class UnknownCard;
 
 class SimulatorMemoryView : public MemoryView
@@ -74,6 +75,7 @@ private:
     std::shared_ptr<UnknownCard> unknown_card;
     std::shared_ptr<IO_StackChannel_Connector> io_stack_channel_connector;
     std::shared_ptr<IO_Unknown_Connector> io_unknown_connector;
+    std::shared_ptr<StackChannel_Unknown_Connector> stackchannel_unknown_connector;
 
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;

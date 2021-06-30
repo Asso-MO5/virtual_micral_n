@@ -32,9 +32,10 @@ UnknownCard::UnknownCard(const Config& config)
 
     schedule_status_changed = std::make_shared<ScheduledSignal>(status_changed);
 
-    stack_channel->input_data.request(this, Scheduling::counter_type{0});
-    stack_channel->data_transfer.request(this);
+    available_data.request(this);
+    output_data.request(this, Scheduling::counter_type{0});
 
+    // Need to add transfer ok and end_of_transfer signals
     stack_channel->transfer_allowed.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
     stack_channel->end_of_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
 
@@ -49,7 +50,7 @@ void UnknownCard::step()
 
     if (next_signals_to_lower.time_for_data_transfer == time)
     {
-        stack_channel->data_transfer.set(State::LOW, time, this);
+        available_data.set(State::LOW, time, this);
         next_signals_to_lower.time_for_data_transfer = Scheduling::unscheduled();
     }
 
@@ -132,8 +133,8 @@ void UnknownCard::on_transfer_enabled(Edge edge)
             }
             else
             {
-                stack_channel->input_data.set(data_to_send, time, this);
-                stack_channel->data_transfer.set(State::HIGH, time, this);
+                output_data.set(data_to_send, time, this);
+                available_data.set(State::HIGH, time, this);
 
                 next_signals_to_lower.time_for_data_transfer =
                         edge.time() + Scheduling::counter_type{100};

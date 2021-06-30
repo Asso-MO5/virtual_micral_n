@@ -10,6 +10,7 @@
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
+#include <devices/src/StackChannel_Unknown_Connector.h>
 #include <devices/src/UnknownCard.h>
 #include <file_utils/src/FileReader.h>
 
@@ -114,6 +115,8 @@ Simulator::Simulator(ConfigROM rom_config)
     io_stack_channel_connector =
             std::make_shared<IO_StackChannel_Connector>(*io_card, *stack_channel_5_card);
     io_unknown_connector = std::make_shared<IO_Unknown_Connector>(*io_card, *unknown_card);
+    stackchannel_unknown_connector =
+            std::make_shared<StackChannel_Unknown_Connector>(*stack_channel_5_card, *unknown_card);
 
     connect_signal_recorders();
     connect_value_recorders();

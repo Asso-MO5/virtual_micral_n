@@ -40,6 +40,10 @@ public:
     OwnedValue<uint8_t> card_status;
     OwnedSignal status_changed;
 
+    // To the Stack/Channel card
+    OwnedSignal available_data;
+    OwnedValue<uint8_t> output_data;
+
 private:
     Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<StackChannelCard> stack_channel;
