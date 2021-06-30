@@ -56,15 +56,10 @@ private:
         uint8_t index_on_disk{};
     };
 
-    struct NextSignalToLower
-    {
-        Scheduling::counter_type time_for_data_transfer{Scheduling::unscheduled()};
-    };
-
     std::shared_ptr<ScheduledSignal> schedule_status_changed;
+    std::shared_ptr<ScheduledSignal> schedule_available_data;
 
     Status status;
-    NextSignalToLower next_signals_to_lower;
 
     void on_command(Edge edge);
 

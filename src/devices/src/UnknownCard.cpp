@@ -32,7 +32,7 @@ UnknownCard::UnknownCard(const Config& config)
 
     schedule_status_changed = std::make_shared<ScheduledSignal>(status_changed);
 
-    available_data.request(this);
+    schedule_available_data = std::make_shared<ScheduledSignal>(available_data);
     output_data.request(this, Scheduling::counter_type{0});
 
     // Need to add transfer ok and end_of_transfer signals
@@ -44,19 +44,7 @@ UnknownCard::UnknownCard(const Config& config)
 
 UnknownCard::~UnknownCard() = default;
 
-void UnknownCard::step()
-{
-    const auto time = get_next_activation_time();
-
-    if (next_signals_to_lower.time_for_data_transfer == time)
-    {
-        available_data.set(State::LOW, time, this);
-        next_signals_to_lower.time_for_data_transfer = Scheduling::unscheduled();
-    }
-
-    const auto next_activation = next_signals_to_lower.time_for_data_transfer;
-    set_next_activation_time(next_activation);
-}
+void UnknownCard::step() {}
 
 void UnknownCard::on_command(Edge edge)
 {
@@ -134,13 +122,8 @@ void UnknownCard::on_transfer_enabled(Edge edge)
             else
             {
                 output_data.set(data_to_send, time, this);
-                available_data.set(State::HIGH, time, this);
-
-                next_signals_to_lower.time_for_data_transfer =
-                        edge.time() + Scheduling::counter_type{100};
-
-                set_next_activation_time(next_signals_to_lower.time_for_data_transfer);
-                change_schedule(get_id());
+                schedule_available_data->launch(edge.time(), Scheduling::counter_type{100},
+                                                change_schedule);
             }
         }
     }
@@ -162,5 +145,5 @@ void UnknownCard::on_end_of_transfer(Edge edge)
 
 std::vector<std::shared_ptr<Schedulable>> UnknownCard::get_sub_schedulables()
 {
-    return {schedule_status_changed};
+    return {schedule_status_changed, schedule_available_data};
 }
