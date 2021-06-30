@@ -48,3 +48,4 @@ fabric.properties
 *.out
 *.app
 build/
+CMakeUserPresets.json
