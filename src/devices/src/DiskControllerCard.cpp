@@ -37,6 +37,10 @@ DiskControllerCard::DiskControllerCard(const Config& config)
     start_data_transfer.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
     stop_data_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
 
+    activate.subscribe([this](Edge edge) { on_activate(edge); });
+
+    direction.request(this);
+
     set_next_activation_time(Scheduling::unscheduled());
 }
 
@@ -145,3 +149,5 @@ std::vector<std::shared_ptr<Schedulable>> DiskControllerCard::get_sub_schedulabl
 {
     return {schedule_status_changed, schedule_available_data};
 }
+
+void DiskControllerCard::on_activate(Edge edge) { direction.set(State::HIGH, edge.time(), this); }

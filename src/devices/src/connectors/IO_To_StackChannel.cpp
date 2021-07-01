@@ -11,24 +11,6 @@ namespace Connectors
     {
         from_io_to_stack_channel(io_card, stack_channel_card);
         from_stack_channel_to_io(io_card, stack_channel_card);
-
-        // Invalid
-        // The direction is supposed to be connected with the peripheral
-        // TODO: connect the direction from the DiskController
-
-        const auto control_terminal = 6;
-
-        stack_channel_card.direction.request(this);
-        io_card.ack_terminals[control_terminal].subscribe([&stack_channel_card, &io_card,
-                                                           this](Edge edge) {
-            const auto value = *io_card.data_terminals[control_terminal];
-            const auto time = edge.time();
-            const auto direction_bit = value & 0b00000100;
-            stack_channel_card.direction.set(direction_bit ? State::HIGH : State::LOW, time, this);
-
-            assert((value - 0b00000100 == 0) &&
-                   "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
-        });
     }
 
     void IO_To_StackChannel::from_stack_channel_to_io(IOCard& io_card,

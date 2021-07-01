@@ -1,6 +1,7 @@
 ### Implementation
 
 * Verify the connections for the Controller/IO/Channel
+* Simplify writing the connections in the connectors
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
 * Implement the Stack card
     * Channel Mode (still needs to be understood)

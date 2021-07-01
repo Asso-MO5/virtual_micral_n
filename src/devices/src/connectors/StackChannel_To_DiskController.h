@@ -10,7 +10,7 @@ namespace Connectors
     {
     public:
         StackChannel_To_DiskController(StackChannelCard& stack_channel_card,
-                                              DiskControllerCard& unknown_card);
+                                              DiskControllerCard& disk_controller);
     };
 }
 

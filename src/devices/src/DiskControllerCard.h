@@ -33,6 +33,7 @@ public:
     // From I/O card
     OwnedValue<uint8_t> command;
     OwnedSignal receive_command;
+    OwnedSignal activate;
 
     // To I/O card
     OwnedValue<uint8_t> card_status;
@@ -41,6 +42,8 @@ public:
     // To the Stack/Channel card
     OwnedSignal available_data;
     OwnedValue<uint8_t> output_data;
+
+    OwnedSignal direction;
 
     // From the Stack/Channel card
     OwnedSignal start_data_transfer;
@@ -66,6 +69,7 @@ private:
 
     void on_transfer_enabled(Edge edge);
     void on_end_of_transfer(Edge edge);
+    void on_activate(Edge edge);
 };
 
 #endif //MICRALN_DISKCONTROLLERCARD_H
