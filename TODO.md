@@ -73,8 +73,9 @@
     * when computing the display
 * Scheduler
     * Change the sort everything into a forward only sort. Or a dumb selection... Or something else
+       * Maybe preselect until "unscheduled" then sort the subpart. (partition + sort)
     * Globally, the back signaling on every timing change is not efficient nor practical not pretty.
-      * Re-sort after each step?
+      * If Re-sort after each step with partition + sort, is the callback necessary?
 * Signals are often created by shared_ptr and could benefit from a dedicated allocator to
   ensure locality (to profile first)
 * 8008: probably the priority queue is overkill too.
