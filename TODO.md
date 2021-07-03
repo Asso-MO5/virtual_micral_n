@@ -1,7 +1,10 @@
 ### Implementation
 
-* Verify the connections for the Controller/IO/Channel
+* Create a debug panel for the DiskController
+  * Show the status
+  * Show a log
 * Simplify writing the connections in the connectors
+* Puts a configuration with both ROMs in place.
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
 * Implement the Stack card
     * Channel Mode (still needs to be understood)
@@ -18,6 +21,8 @@
         crc_of_sent_data = crc + data + carry;
       ```
     * Make a tool to create data
+* Change the DiskController implementation with the latest analysis.
+  * The controller doesn't seem to need an I/O card.
 * Implement the I/O cards
     * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for

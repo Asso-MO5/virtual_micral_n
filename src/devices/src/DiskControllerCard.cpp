@@ -60,46 +60,52 @@ void DiskControllerCard::on_command(Edge edge)
 
         const uint8_t data = *command;
 
-        if (data & 0b01000000 || data & 0b00100000)
-        {
-            auto received_command = static_cast<std::uint16_t>(data >> 4);
-            cout << "--> ";
-            cout << "REQ (";
-            cout << received_command << ") ";
+        status.received_2 |= (data & 0b01100000) == 0b00100000;
+        status.received_4 |= (data & 0b01100000) == 0b01000000;
+        status.received_6_twice |= ((data & 0b01100000) == 0b01100000) && status.received_6_once;
+        status.received_6_once |= ((data & 0b01100000) == 0b01100000);
 
-            if (!status.is_ready)
+        cout << "STATUS - (2=" << status.received_2 << ", 4=" << status.received_4 << ") ";
+        if ((status.received_4 || status.received_2 || status.received_6_once) && !status.ready)
+        {
+            cout << "READY - (2=" << status.received_2 << ", 4=" << status.received_4 << ") ";
+            status.ready = true;
+            card_status.set(0b10000011, edge.time(), this);
+
+            schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
+                                            change_schedule);
+        }
+        if (status.received_6_twice)
+        {
+            if (status.ready && !status.sending_to_channel)
             {
-                status.is_ready = true;
-                card_status.set(0b10000011, edge.time(), this);
+                cout << "GO - ";
+                cout << "E: " << static_cast<uint32_t>(data & 0b11111);
+                status.sending_to_channel = true;
+                status.index_on_disk = 0;
+
+                card_status.set(0b00000011, edge.time(), this);
 
                 schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
                                                 change_schedule);
             }
-            if (data & 0b00010000)
+            else
             {
-                if (status.is_ready && !status.sending_to_channel)
+                if (!status.ready)
                 {
-                    cout << "GO - ";
-                    status.sending_to_channel = true;
-                    status.index_on_disk = 0;
-
-                    card_status.set(0b00000011, edge.time(), this);
-
-                    schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
-                                                    change_schedule);
+                    cout << "NOT READY - ";
                 }
                 else
                 {
                     cout << "ALREADY GOING - ";
                 }
             }
-            cout << "E: " << static_cast<uint32_t>(data & 0b1111);
-            cout << endl;
         }
-        else if (data == 0)
+        if ((data & 0b01100000) == 0)
         {
-            cout << "STOP - 00" << endl;
+            cout << "STOP - 00";
         }
+        cout << endl;
 
         assert(((data & 0b10000000) == 0) &&
                "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
@@ -118,8 +124,7 @@ void DiskControllerCard::on_transfer_enabled(Edge edge)
 
             if (status.index_on_disk >= sizeof(disk_data))
             {
-                status.sending_to_channel = false;
-                status.is_ready = false;
+                status = Status{};
             }
             else
             {
@@ -135,8 +140,8 @@ void DiskControllerCard::on_end_of_transfer(Edge edge)
 {
     if (is_rising(edge) && status.sending_to_channel)
     {
-        status.sending_to_channel = false;
-        status.is_ready = false;
+        cout << "End of Transfer" << endl;
+        status = Status{};
 
         card_status.set(0b00000000, edge.time(), this);
 
