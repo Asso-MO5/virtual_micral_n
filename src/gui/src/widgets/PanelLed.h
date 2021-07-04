@@ -6,6 +6,7 @@ namespace widgets
     enum LedColor
     {
         GREEN,
+        RED,
     };
 
     void display_led(float intensity, LedColor color_type);

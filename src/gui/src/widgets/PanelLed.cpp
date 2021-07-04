@@ -13,6 +13,7 @@ namespace widgets
     using namespace ImGui;
 
     const ImVec4 LED_GREEN_ON = ImVec4(0.0f, 1.0f, 0.f, 1.0f);
+    const ImVec4 LED_RED_ON = ImVec4(1.0f, 0.0f, 0.f, 1.0f);
 
     void display_led(float intensity, LedColor color_type)
     {
@@ -38,8 +39,17 @@ namespace widgets
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
         const auto circle_position = ImVec2(screen_position.x + radius, screen_position.y + radius);
 
-        assert(color_type == GREEN); // Only color at now
-        auto color = LED_GREEN_ON;
+
+        ImVec4 color;
+        switch (color_type)
+        {
+            case GREEN:
+                color = LED_GREEN_ON;
+                break;
+            case RED:
+                color = LED_RED_ON;
+                break;
+        }
 
         auto color_modifier = std::max(intensity, 0.2f); // LED not lighted has still a bit of color.
 
