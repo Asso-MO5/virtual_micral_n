@@ -108,22 +108,24 @@ Simulator::Simulator(ConfigROM rom_config)
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .configuration = {}};
-    unknown_card = std::make_shared<DiskControllerCard>(unknown_card_config);
+    disk_controller_card = std::make_shared<DiskControllerCard>(unknown_card_config);
 
     // Connection of the StackChannel / IO_Card / Unknown triplet
     io_stack_channel_connector =
             std::make_shared<Connectors::IO_To_StackChannel>(*io_card, *stack_channel_5_card);
-    io_unknown_connector = std::make_shared<Connectors::IO_To_DiskController>(*io_card, *unknown_card);
-    stackchannel_unknown_connector =
-            std::make_shared<Connectors::StackChannel_To_DiskController>(*stack_channel_5_card, *unknown_card);
+    io_unknown_connector =
+            std::make_shared<Connectors::IO_To_DiskController>(*io_card, *disk_controller_card);
+    stackchannel_unknown_connector = std::make_shared<Connectors::StackChannel_To_DiskController>(
+            *stack_channel_5_card, *disk_controller_card);
 
     connect_signal_recorders();
     connect_value_recorders();
     pause_all_recorders();
     resume_all_recorders();
 
-    std::shared_ptr<Schedulable> schedulable_with_subs[] = {
-            processor_card, unknown_card, io_card, stack_channel_5_card, stack_channel_6_card};
+    std::shared_ptr<Schedulable> schedulable_with_subs[] = {processor_card, disk_controller_card,
+                                                            io_card, stack_channel_5_card,
+                                                            stack_channel_6_card};
     for (auto& schedulable : schedulable_with_subs)
     {
         for (auto& sub : schedulable->get_sub_schedulables())
@@ -139,7 +141,7 @@ Simulator::Simulator(ConfigROM rom_config)
     scheduler.add(stack_channel_6_card);
     scheduler.add(stack_channel_5_card);
     scheduler.add(io_card);
-    scheduler.add(unknown_card);
+    scheduler.add(disk_controller_card);
 
     memory_view.add_memory_card(memory_card_1);
     memory_view.add_memory_card(memory_card_2);
@@ -379,6 +381,10 @@ const Pluribus& Simulator::get_pluribus() const { return *pluribus; }
 const StackChannelCard& Simulator::get_stack_channel_card(int card_number) const
 {
     return card_number == 0 ? *stack_channel_5_card : *stack_channel_6_card;
+}
+const DiskControllerCard& Simulator::get_disk_controller_card() const
+{
+    return *disk_controller_card;
 }
 
 void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& memory_card)

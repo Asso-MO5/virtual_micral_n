@@ -60,6 +60,7 @@ public:
     [[nodiscard]] const ProcessorCard& get_processor_card() const;
     [[nodiscard]] const Pluribus& get_pluribus() const;
     [[nodiscard]] const StackChannelCard& get_stack_channel_card(int card_number) const;
+    [[nodiscard]] const DiskControllerCard& get_disk_controller_card() const;
 
     const MemoryView& get_memory_view() const;
     const RecorderCollection& get_recorders() const;
@@ -77,11 +78,10 @@ private:
     std::shared_ptr<StackChannelCard> stack_channel_5_card;
     std::shared_ptr<StackChannelCard> stack_channel_6_card;
     std::shared_ptr<IOCard> io_card;
-    std::shared_ptr<DiskControllerCard> unknown_card;
+    std::shared_ptr<DiskControllerCard> disk_controller_card;
     std::shared_ptr<Connectors::IO_To_StackChannel> io_stack_channel_connector;
     std::shared_ptr<Connectors::IO_To_DiskController> io_unknown_connector;
-    std::shared_ptr<Connectors::StackChannel_To_DiskController>
-            stackchannel_unknown_connector;
+    std::shared_ptr<Connectors::StackChannel_To_DiskController> stackchannel_unknown_connector;
 
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;
