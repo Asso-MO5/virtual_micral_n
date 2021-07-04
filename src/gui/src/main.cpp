@@ -10,6 +10,7 @@
 #include "gui/src/panels/PanelProcessorCard.h"
 #include "gui/src/panels/PanelSignals.h"
 #include "gui/src/panels/PanelStackChannelCard.h"
+#include "gui/src/panels/PanelDiskController.h"
 
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
@@ -126,6 +127,7 @@ int main(int, char**)
         display_processor_card_panel(simulator);
         display_stack_channel_card_panel(simulator, 0);
         display_stack_channel_card_panel(simulator, 1);
+        display_disk_controller(simulator.get_disk_controller_card());
 
         controller.update();
         context.render_frame();
