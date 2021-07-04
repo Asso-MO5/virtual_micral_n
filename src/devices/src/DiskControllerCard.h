@@ -23,12 +23,27 @@ public:
         DiskControllerCardConfiguration configuration;
     };
 
+    struct Status
+    {
+        uint8_t track{};
+        uint8_t sector{};
+        bool ready{};
+        bool sending_to_channel{};
+        bool received_2{};
+        bool received_4{};
+        bool received_6_once{};
+        bool received_6_twice{};
+        uint8_t index_on_disk{};
+    };
+
     explicit DiskControllerCard(const Config& config);
     ~DiskControllerCard() override;
 
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
     void step() override;
+
+    Status get_status() const;
 
     // From I/O card
     OwnedValue<uint8_t> command;
@@ -52,17 +67,6 @@ public:
 private:
     Scheduling::change_schedule_cb change_schedule;
     DiskControllerCardConfiguration configuration;
-
-    struct Status
-    {
-        bool ready{};
-        bool sending_to_channel{};
-        bool received_2{};
-        bool received_4{};
-        bool received_6_once{};
-        bool received_6_twice{};
-        uint8_t index_on_disk{};
-    };
 
     std::shared_ptr<ScheduledSignal> schedule_status_changed;
     std::shared_ptr<ScheduledSignal> schedule_available_data;

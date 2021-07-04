@@ -156,3 +156,8 @@ std::vector<std::shared_ptr<Schedulable>> DiskControllerCard::get_sub_schedulabl
 }
 
 void DiskControllerCard::on_activate(Edge edge) { direction.set(State::HIGH, edge.time(), this); }
+
+[[maybe_unused]] DiskControllerCard::Status DiskControllerCard::get_status() const
+{
+    return status;
+}

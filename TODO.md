@@ -1,8 +1,13 @@
 ### Implementation
 
+* Change the DiskController implementation with the latest analysis.
+  * The controller doesn't need an I/O card.
+  * The controller communicates with the Channel even for the pointers/counters
+  * Implement a signal decoding for STEP/ and DIR/
+  * Decode the current sector and manage the current track.
 * Create a debug panel for the DiskController
-  * Show the status
-  * Show a log
+  * Show the tracks and sector
+  * Show a read/write status
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
@@ -21,8 +26,6 @@
         crc_of_sent_data = crc + data + carry;
       ```
     * Make a tool to create data
-* Change the DiskController implementation with the latest analysis.
-  * The controller doesn't seem to need an I/O card.
 * Implement the I/O cards
     * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for

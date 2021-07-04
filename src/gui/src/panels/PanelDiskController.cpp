@@ -5,16 +5,18 @@
 #include <gui/src/widgets/PanelLed.h>
 #include <imgui.h>
 
-void display_disk_controller(const DiskControllerCard& simulator)
+void display_disk_controller(const DiskControllerCard& disk_controller)
 {
     ImGui::Begin("Disk Controller");
 
-    ImGui::Text("Track: $%002x", 0);
-    ImGui::Text("Sector: $%002x", 0);
+    const auto& status = disk_controller.get_status();
+
+    ImGui::Text("Track: $%002x", status.track);
+    ImGui::Text("Sector: $%002x", status.sector);
 
     ImGui::BeginGroup();
     ImGui::Text("Read");
-    display_led(0.f, widgets::LedColor::GREEN);
+    display_led(status.sending_to_channel ? 1.f : 0.f, widgets::LedColor::GREEN);
     ImGui::EndGroup();
 
     ImGui::SameLine();
