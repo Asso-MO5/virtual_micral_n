@@ -41,6 +41,9 @@ DiskControllerCard::DiskControllerCard(const Config& config)
 
     direction.request(this);
 
+    internal.step.request(this);
+    internal.step.subscribe([this](Edge edge) { on_step(edge); });
+
     set_next_activation_time(Scheduling::unscheduled());
 }
 
@@ -53,62 +56,28 @@ void DiskControllerCard::on_command(Edge edge)
     if (is_rising(edge))
     {
         // Bit 7:
-        // Bit 6: I/O Ready (can be a short pulse) -> Wake up the unknown card
-        // Bit 5: Next Chunk
-        // Bit 4: First round of E
-        // Bit 0-3: Counter
+        // Bit 6: STEP/
+        // Bit 5: DIR/
+        // Bit 0-4: Sector count
 
         const uint8_t data = *command;
 
-        status.received_2 |= (data & 0b01100000) == 0b00100000;
-        status.received_4 |= (data & 0b01100000) == 0b01000000;
-        status.received_6_twice |= ((data & 0b01100000) == 0b01100000) && status.received_6_once;
-        status.received_6_once |= ((data & 0b01100000) == 0b01100000);
+        bool signal_for_step = (data & 0b01000000);
+        bool dir_status = (data & 0b00100000);
 
-        cout << "STATUS - (2=" << status.received_2 << ", 4=" << status.received_4 << ") ";
-        if ((status.received_4 || status.received_2 || status.received_6_once) && !status.ready)
+        internal.step.set(signal_for_step, edge.time(), this);
+        internal.dir = State(dir_status ? State::HIGH : State::LOW);
+
+        auto old_sector = status.sector;
+        status.sector = static_cast<uint32_t>(data & 0b11111);
+
+        if (old_sector != status.sector)
         {
-            cout << "READY - (2=" << status.received_2 << ", 4=" << status.received_4 << ") ";
-            status.ready = true;
-            card_status.set(0b10000011, edge.time(), this);
-
-            schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
-                                            change_schedule);
+            status.index_in_sector = 0;
         }
-        if (status.received_6_twice)
-        {
-            if (status.ready && !status.sending_to_channel)
-            {
-                cout << "GO - ";
-                cout << "E: " << static_cast<uint32_t>(data & 0b11111);
-                status.sending_to_channel = true;
-                status.index_on_disk = 0;
+        //
 
-                card_status.set(0b00000011, edge.time(), this);
-
-                schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
-                                                change_schedule);
-            }
-            else
-            {
-                if (!status.ready)
-                {
-                    cout << "NOT READY - ";
-                }
-                else
-                {
-                    cout << "ALREADY GOING - ";
-                }
-            }
-        }
-        if ((data & 0b01100000) == 0)
-        {
-            cout << "STOP - 00";
-        }
-        cout << endl;
-
-        assert(((data & 0b10000000) == 0) &&
-               "Signal not handled"); // TODO: temporary assert. This should be some sort of emulation error.
+        update_card_status(edge.time());
     }
 }
 
@@ -116,22 +85,24 @@ void DiskControllerCard::on_transfer_enabled(Edge edge)
 {
     if (is_rising(edge))
     {
-        if (status.sending_to_channel)
-        {
-            const auto time = edge.time();
-            const auto data_to_send = disk_data[status.index_on_disk];
-            status.index_on_disk += 1;
+        const auto time = edge.time();
+        const auto data_to_send = disk_data[status.index_in_sector];
+        status.index_in_sector += 1;
 
-            if (status.index_on_disk >= sizeof(disk_data))
-            {
-                status = Status{};
-            }
-            else
-            {
-                output_data.set(data_to_send, time, this);
-                schedule_available_data->launch(edge.time(), Scheduling::counter_type{100},
-                                                change_schedule);
-            }
+        if (status.index_in_sector <= sizeof(disk_data))
+        {
+            output_data.set(data_to_send, time, this);
+            schedule_available_data->launch(edge.time(), Scheduling::counter_type{100},
+                                            change_schedule);
+            status.sending_to_channel = true;
+            status.reading = true;
+            update_card_status(edge.time());
+        }
+        else
+        {
+            status.sending_to_channel = false;
+            status.reading = false;
+            update_card_status(edge.time());
         }
     }
 }
@@ -140,13 +111,9 @@ void DiskControllerCard::on_end_of_transfer(Edge edge)
 {
     if (is_rising(edge) && status.sending_to_channel)
     {
-        cout << "End of Transfer" << endl;
-        status = Status{};
-
-        card_status.set(0b00000000, edge.time(), this);
-
-        schedule_status_changed->launch(edge.time(), Scheduling::counter_type{100},
-                                        change_schedule);
+        status.sending_to_channel = false;
+        status.reading = false;
+        update_card_status(edge.time());
     }
 }
 
@@ -155,9 +122,54 @@ std::vector<std::shared_ptr<Schedulable>> DiskControllerCard::get_sub_schedulabl
     return {schedule_status_changed, schedule_available_data};
 }
 
-void DiskControllerCard::on_activate(Edge edge) { direction.set(State::HIGH, edge.time(), this); }
+void DiskControllerCard::on_activate(Edge edge)
+{
+    direction.set(State::HIGH, edge.time(), this);
+    update_card_status(edge.time());
+}
 
 [[maybe_unused]] DiskControllerCard::Status DiskControllerCard::get_status() const
 {
     return status;
+}
+
+void DiskControllerCard::on_step(Edge edge)
+{
+    if (is_falling(edge))
+    {
+        if (is_low(internal.dir))
+        {
+            if (status.track == 0)
+            {
+                status.track = 9;
+            }
+            else
+            {
+                status.track -= 1;
+            }
+        }
+        else
+        {
+            status.track = (status.track + 1) % 10;
+        }
+    }
+}
+
+void DiskControllerCard::update_card_status(Scheduling::counter_type time)
+{
+    bool is_track_00 = status.track == 0;
+    bool is_reading = status.reading;                 // Tentative name
+    bool is_transferring = status.sending_to_channel; // Tentative name
+
+    uint8_t current_status = ((is_track_00 ? 1 : 0) << 7) |
+                             ((is_reading ? 1 : 0) << 1) |     // Tentative placement
+                             ((is_transferring ? 1 : 0) << 0); // Tentative placement
+
+    auto previous_status = card_status.get_value();
+    card_status.set(current_status, time, this);
+
+    if (previous_status != current_status)
+    {
+        schedule_status_changed->launch(time, Scheduling::counter_type{100}, change_schedule);
+    }
 }

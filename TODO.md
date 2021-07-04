@@ -3,8 +3,6 @@
 * Change the DiskController implementation with the latest analysis.
   * The controller doesn't need an I/O card.
   * The controller communicates with the Channel even for the pointers/counters
-  * Implement a signal decoding for STEP/ and DIR/
-  * Decode the current sector and manage the current track.
 * Create a debug panel for the DiskController
   * Show the tracks and sector
   * Show a read/write status
