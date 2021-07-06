@@ -3,9 +3,7 @@
 * Change the DiskController implementation with the latest analysis.
   * The controller doesn't need an I/O card.
   * The controller communicates with the Channel even for the pointers/counters
-* Create a debug panel for the DiskController
-  * Show the tracks and sector
-  * Show a read/write status
+* Add a way to provide data to the DiskController
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
@@ -35,6 +33,8 @@
 * Implement the Serial card
 * Implement a possibility to subscribe to a specific bit on an OwnedValue?
 * Change LED colors to correctly matching the hardware.
+* Create a debug panel for the DiskController
+  * Show write status when implemented.
 
 ### Architecture
 

@@ -22,21 +22,22 @@ namespace
 DiskControllerCard::DiskControllerCard(const Config& config)
     : change_schedule{config.change_schedule}, configuration{config.configuration}
 {
+    // Outward signals
     card_status.request(this, Scheduling::counter_type{0});
-    receive_command.subscribe([this](Edge edge) { on_command(edge); });
-
     schedule_status_changed = std::make_shared<ScheduledSignal>(status_changed);
-
-    schedule_available_data = std::make_shared<ScheduledSignal>(available_data);
-    output_data.request(this, Scheduling::counter_type{0});
-
-    start_data_transfer.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
-    stop_data_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
-
-    activate.subscribe([this](Edge edge) { on_activate(edge); });
 
     direction.request(this);
 
+    output_data.request(this, Scheduling::counter_type{0});
+    schedule_available_data = std::make_shared<ScheduledSignal>(available_data);
+
+    // Inward signals
+    activate.subscribe([this](Edge edge) { on_activate(edge); });
+    receive_command.subscribe([this](Edge edge) { on_command(edge); });
+    start_data_transfer.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
+    stop_data_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
+
+    // Inner signals
     internal.step.request(this);
     internal.step.subscribe([this](Edge edge) { on_step(edge); });
 
@@ -51,27 +52,21 @@ void DiskControllerCard::on_command(Edge edge)
 {
     if (is_rising(edge))
     {
-        // Bit 7:
-        // Bit 6: STEP/
-        // Bit 5: DIR/
-        // Bit 0-4: Sector count
-
         const uint8_t data = *command;
 
-        bool signal_for_step = (data & 0b01000000);
-        bool dir_status = (data & 0b00100000);
-
-        internal.step.set(signal_for_step, edge.time(), this);
-        internal.dir = State(dir_status ? State::HIGH : State::LOW);
+        bool signal_for_step = (data & 0b01000000); // Bit 6 is STEP/
+        bool dir_status = (data & 0b00100000);      // Bit 5 is DIR/
 
         auto old_sector = status.sector;
-        status.sector = static_cast<uint32_t>(data & 0b11111);
+        status.sector = static_cast<uint32_t>(data & 0b11111); // Bits 0-4 form the sector number.
 
         if (old_sector != status.sector)
         {
             status.index_in_sector = 0;
         }
-        //
+
+        internal.step.set(signal_for_step, edge.time(), this);
+        internal.dir = State(dir_status ? State::HIGH : State::LOW);
 
         update_card_status(edge.time());
     }
@@ -92,14 +87,13 @@ void DiskControllerCard::on_transfer_enabled(Edge edge)
                                             change_schedule);
             status.sending_to_channel = true;
             status.reading = true;
-            update_card_status(edge.time());
         }
         else
         {
             status.sending_to_channel = false;
             status.reading = false;
-            update_card_status(edge.time());
         }
+        update_card_status(edge.time());
     }
 }
 

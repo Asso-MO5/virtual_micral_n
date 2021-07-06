@@ -39,7 +39,7 @@ public:
 
     void step() override;
 
-    Status get_status() const;
+    [[nodiscard]] Status get_status() const;
 
     // From I/O card
     OwnedValue<uint8_t> command;
@@ -76,7 +76,6 @@ private:
     } internal{};
 
     void on_command(Edge edge);
-
     void on_transfer_enabled(Edge edge);
     void on_end_of_transfer(Edge edge);
     void on_activate(Edge edge);
