@@ -1,5 +1,8 @@
 ### Implementation
 
+* Common part of IO of the StackChannel and IO Port
+  * Extract it
+  * Then use it on the DiskController 
 * Change the DiskController implementation with the latest analysis.
   * The controller doesn't need an I/O card.
   * The controller communicates with the Channel even for the pointers/counters
@@ -49,6 +52,7 @@
   are actual names found in the code. Also check that every class name in the code is
   referenced at least once in a (local?) README.md. It could also produce a cross-reference file.
 * Remove the cppcheck warnings
+* Most of the signals react on a specific edge. Add possibility to subscribe to a specific edge
 * Add a clang-tidy configuration
 * Sets cppcheck and clang-tidy to a CI
 * The non-PLURIBUS with I/O cards should be ordered: card subscribing are asking.
