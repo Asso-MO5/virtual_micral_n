@@ -29,7 +29,9 @@ set(DEVICES_FILES
         src/DiskControllerCard.cpp src/DiskControllerCard.h
         src/connectors/IO_To_StackChannel.cpp src/connectors/IO_To_StackChannel.h
         src/connectors/IO_To_DiskController.cpp src/connectors/IO_To_DiskController.h
-        src/connectors/StackChannel_To_DiskController.cpp src/connectors/StackChannel_To_DiskController.h)
+        src/connectors/StackChannel_To_DiskController.cpp
+        src/connectors/StackChannel_To_DiskController.h
+        src/IOCommunicator.cpp src/IOCommunicator.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
