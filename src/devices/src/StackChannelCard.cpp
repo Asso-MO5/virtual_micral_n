@@ -2,6 +2,7 @@
 
 #include "DataOnMDBusHolder.h"
 #include "Pluribus.h"
+#include "IOCommunicator.h"
 
 #include <emulation_core/src/ScheduledAction.h>
 #include <emulation_core/src/ScheduledSignal.h>
@@ -9,8 +10,6 @@
 namespace
 {
     const Scheduling::counter_type STACK_MEMORY_READ_DELAY = 150;
-
-    constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
 }
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
@@ -71,7 +70,7 @@ void StackChannelCard::on_t2(Edge edge)
         if ((cycle_control == Constants8008::CycleControl::PCC) && is_addressed(address))
         {
             const auto time = edge.time();
-            if (is_input(address))
+            if (is_io_input_address(address))
             {
                 // This is the end of T2, schedule the data emission
                 auto data_to_send = pop_data_to_bus(time);
@@ -134,7 +133,7 @@ bool StackChannelCard::is_addressed(uint16_t address) const
 {
     const uint8_t input_group = (address & 0b00111000000000) >> 9;
     const uint8_t output_address = ((address & 0b11111000000000) >> 9) - 8;
-    return is_input(address) ? (input_group == configuration.input_address)
+    return is_io_input_address(address) ? (input_group == configuration.input_address)
                              : (output_address == configuration.output_address);
 }
 
@@ -147,7 +146,7 @@ void StackChannelCard::push_data(uint8_t out_data, Scheduling::counter_type time
 
 void StackChannelCard::push_data_from_bus(uint16_t address, Scheduling::counter_type time)
 {
-    assert(!is_input(address));
+    assert(!is_io_input_address(address));
     const auto out_data = static_cast<uint8_t>(address & 0xff);
 
     data_counter = 0;

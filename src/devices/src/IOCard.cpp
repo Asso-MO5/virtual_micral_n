@@ -1,28 +1,31 @@
 #include "IOCard.h"
-#include "DataOnMDBusHolder.h"
+
+#include "IOCommunicator.h"
 #include "Pluribus.h"
 
-#include <emulation_core/src/ScheduledAction.h>
 #include <emulation_core/src/ScheduledSignal.h>
 
 namespace
 {
-    const Scheduling::counter_type IO_CARD_DELAY = 20;
     const Scheduling::counter_type ACK_APPLIED_PERIOD = 200;
-
-    // TODO: Duplicated from StackChannelCard
-    constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
 }
 
 IOCard::IOCard(const IOCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
       configuration{config.configuration}
 {
-    output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
-    place_data_on_pluribus = std::make_shared<ScheduledAction>();
-
-    pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
-    pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
+    IOCommunicatorConfiguration io_communicator_config{
+            .on_need_data_for_pluribus =
+                    [this](uint16_t address) { return get_from_peripheral(address); },
+            .on_acquire_from_pluribus =
+                    [this](uint16_t address, Scheduling::counter_type time) {
+                        send_to_peripheral(address, time);
+                    },
+            .addressed_predicate = [this](uint16_t address) { return is_addressed(address); }};
+    io_communicator = std::make_shared<IOCommunicator>(
+            IOCommunicator::Config{.change_schedule = change_schedule,
+                                   .pluribus = pluribus,
+                                   .configuration = io_communicator_config});
 
     switch (configuration.mode)
     {
@@ -60,48 +63,11 @@ void IOCard::initialize_terminals()
 
 void IOCard::step() {}
 
-void IOCard::on_t2(Edge edge)
-{
-    // TODO: Duplicated from StackChannelCard
-    if (is_falling(edge))
-    {
-        auto [address, cycle_control] = decode_address_on_bus(*pluribus);
-        if ((cycle_control == Constants8008::CycleControl::PCC) && is_addressed(address))
-        {
-            if (is_input(address))
-            {
-                // This is the end of T2, schedule the data emission
-                auto data_to_send = get_from_peripheral(address);
-                output_data_holder->take_bus(edge.time(), data_to_send);
-
-                place_data_on_pluribus->schedule(
-                        [&](Scheduling::counter_type time) {
-                            output_data_holder->place_data(time);
-                        },
-                        edge.time() + IO_CARD_DELAY, change_schedule);
-            }
-            else
-            {
-                send_to_peripheral(address, edge.time());
-            }
-        }
-    }
-}
-
-void IOCard::on_t3(Edge edge)
-{
-    // TODO: Duplicated from StackChannelCard
-    if (is_falling(edge) && output_data_holder->is_holding_bus())
-    {
-        output_data_holder->release_bus(edge.time());
-    }
-}
-
 namespace
 {
     bool match_for_32_32(uint16_t address, uint8_t selection)
     {
-        if (is_input(address))
+        if (is_io_input_address(address))
         {
             uint8_t group = ((address >> 8) & 0b00001110) >> 1;
             if (group != 0)
@@ -132,7 +98,7 @@ namespace
         return (s13_to_s12 & 0b11000000) == selection;
     }
 
-} // namespace
+}
 
 bool IOCard::is_addressed(uint16_t address) const
 {
@@ -217,7 +183,7 @@ uint8_t IOCard::get_from_peripheral(uint16_t address)
     return data;
 }
 
-void IOCard::on_input_signal(uint8_t signal_index, Edge edge)
+void IOCard::on_input_signal(uint8_t signal_index, Edge)
 {
     assert((signal_index < first_owned_terminal) && "Cannot receive data on an output channel.");
 
@@ -229,6 +195,10 @@ std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables()
 {
     std::vector<std::shared_ptr<Schedulable>> sub_schedulables{
             begin(scheduled_terminals_ACKs) + first_owned_terminal, end(scheduled_terminals_ACKs)};
-    sub_schedulables.push_back(place_data_on_pluribus);
+    sub_schedulables.push_back(io_communicator);
+
+    const auto& io_communicator_subs = io_communicator->get_sub_schedulables();
+    std::copy(begin(io_communicator_subs), end(io_communicator_subs),
+              std::back_inserter(sub_schedulables));
     return sub_schedulables;
 }

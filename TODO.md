@@ -1,7 +1,7 @@
 ### Implementation
 
 * Common part of IO of the StackChannel and IO Port
-  * Extract it
+  * Use it in the StackChannel
   * Then use it on the DiskController 
 * Change the DiskController implementation with the latest analysis.
   * The controller doesn't need an I/O card.
@@ -67,6 +67,10 @@
     * Frequency
     * Optional connection to BI7
 * Shouldn't MemoryView be a range ?
+* A detection of cards that let their initialized schedule to default
+  * The default it at zero, but a lot of cards starts unscheduled.
+  * When they are unscheduled and have no step action, the Scheduler runs "void" and
+    the application freezes without warning
 
 ### Build
 

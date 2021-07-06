@@ -9,7 +9,6 @@ namespace
 {
     const Scheduling::counter_type IO_CARD_DELAY = 20;
 
-    constexpr bool is_input(uint16_t address) { return (address & 0b11000000000000) == 0; }
 }
 
 IOCommunicator::IOCommunicator(const IOCommunicator::Config& config)
@@ -22,7 +21,10 @@ IOCommunicator::IOCommunicator(const IOCommunicator::Config& config)
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
 
+    set_next_activation_time(Scheduling::unscheduled());
 }
+
+IOCommunicator::~IOCommunicator() = default;
 
 void IOCommunicator::step() {}
 
@@ -39,7 +41,7 @@ void IOCommunicator::on_t2(Edge edge)
         if ((cycle_control == Constants8008::CycleControl::PCC) &&
             configuration.addressed_predicate(address))
         {
-            if (is_input(address))
+            if (is_io_input_address(address))
             {
                 // This is the end of T2, schedule the data emission
                 auto data_to_send = configuration.on_need_data_for_pluribus(address);

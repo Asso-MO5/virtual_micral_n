@@ -9,9 +9,8 @@
 #include <memory>
 #include <vector>
 
-class DataOnMDBusHolder;
+class IOCommunicator;
 class Pluribus;
-class ScheduledAction;
 class ScheduledSignal;
 
 struct IOCardConfiguration
@@ -59,15 +58,14 @@ public:
     // For 32/32 cards, the 4 first are for inputs, the 4 others for outputs
     std::array<OwnedValue<uint8_t>, IOCardConstants::TERMINAL_COUNT> data_terminals;
     std::array<OwnedSignal, IOCardConstants::TERMINAL_COUNT> ack_terminals;
-    OwnedSignal interrupt_terminal;
+    // OwnedSignal interrupt_terminal; // TODO: Interrupt support for I/O card
 
 private:
     Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<Pluribus> pluribus;
     IOCardConfiguration configuration;
 
-    std::unique_ptr<DataOnMDBusHolder> output_data_holder;
-    std::shared_ptr<ScheduledAction> place_data_on_pluribus;
+    std::shared_ptr<IOCommunicator> io_communicator;
 
     size_t first_owned_terminal{};
     std::array<uint8_t, IOCardConstants::TERMINAL_COUNT> latched_input_data{};
@@ -77,8 +75,6 @@ private:
 
     void initialize_terminals();
 
-    void on_t2(Edge edge);
-    void on_t3(Edge edge);
     void on_input_signal(uint8_t signal_index, Edge edge);
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;

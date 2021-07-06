@@ -16,7 +16,7 @@ class ScheduledAction;
 struct IOCommunicatorConfiguration
 {
     std::function<uint8_t(uint16_t)> on_need_data_for_pluribus;
-    std::function<uint8_t(uint16_t, Scheduling::counter_type)> on_acquire_from_pluribus;
+    std::function<void(uint16_t, Scheduling::counter_type)> on_acquire_from_pluribus;
     std::function<bool(uint16_t)> addressed_predicate;
 };
 
@@ -31,6 +31,7 @@ public:
     };
 
     explicit IOCommunicator(const Config& config);
+    ~IOCommunicator() override;
 
     void step() override;
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
@@ -48,7 +49,11 @@ private:
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);
-
 };
+
+constexpr inline bool is_io_input_address(uint16_t address)
+{
+    return (address & 0b11000000000000) == 0;
+}
 
 #endif //MICRALN_IOCOMMUNICATOR_H
