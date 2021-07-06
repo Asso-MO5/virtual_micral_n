@@ -1,16 +1,10 @@
 #include "StackChannelCard.h"
 
-#include "DataOnMDBusHolder.h"
-#include "Pluribus.h"
 #include "IOCommunicator.h"
+#include "Pluribus.h"
 
 #include <emulation_core/src/ScheduledAction.h>
 #include <emulation_core/src/ScheduledSignal.h>
-
-namespace
-{
-    const Scheduling::counter_type STACK_MEMORY_READ_DELAY = 150;
-}
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
@@ -18,20 +12,36 @@ StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
 {
     assert(configuration.memory_size > 0 && "The memory size must not be 0");
 
-    output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
-    place_data_on_pluribus = std::make_shared<ScheduledAction>();
-
+    initialize_io_communicator();
     initialize_terminals();
     initialize_io_card_connections();
 
-    set_next_activation_time(Scheduling::unscheduled());
     set_data_size();
 
-    pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
+
+    set_next_activation_time(Scheduling::unscheduled());
 }
 
 StackChannelCard::~StackChannelCard() = default;
+
+void StackChannelCard::initialize_io_communicator()
+{
+    IOCommunicatorConfiguration io_communicator_config{
+            .on_need_data_for_pluribus =
+                    [this](uint16_t address, Scheduling::counter_type time) {
+                        return pop_data_to_bus(time);
+                    },
+            .on_acquire_from_pluribus =
+                    [this](uint16_t address, Scheduling::counter_type time) {
+                        push_data_from_bus(address, time);
+                    },
+            .addressed_predicate = [this](uint16_t address) { return is_addressed(address); }};
+    io_communicator = std::make_shared<IOCommunicator>(
+            IOCommunicator::Config{.change_schedule = change_schedule,
+                                   .pluribus = pluribus,
+                                   .configuration = io_communicator_config});
+}
 
 void StackChannelCard::initialize_terminals()
 {
@@ -62,42 +72,9 @@ void StackChannelCard::step() {}
 
 void StackChannelCard::set_data_size() { data.resize(configuration.memory_size); }
 
-void StackChannelCard::on_t2(Edge edge)
-{
-    if (is_falling(edge))
-    {
-        auto [address, cycle_control] = decode_address_on_bus(*pluribus);
-        if ((cycle_control == Constants8008::CycleControl::PCC) && is_addressed(address))
-        {
-            const auto time = edge.time();
-            if (is_io_input_address(address))
-            {
-                // This is the end of T2, schedule the data emission
-                auto data_to_send = pop_data_to_bus(time);
-
-                output_data_holder->take_bus(edge.time(), data_to_send);
-
-                place_data_on_pluribus->schedule(
-                        [&](Scheduling::counter_type time) {
-                            output_data_holder->place_data(time);
-                        },
-                        time + STACK_MEMORY_READ_DELAY, change_schedule);
-            }
-            else
-            {
-                push_data_from_bus(address, time);
-            }
-        }
-    }
-}
 void StackChannelCard::on_t3(Edge edge)
 {
     const auto time = edge.time();
-
-    if (is_falling(edge) && output_data_holder->is_holding_bus())
-    {
-        output_data_holder->release_bus(time);
-    }
 
     // TODO: this signal is chosen randomly, could by SYNC/ could be something else
     if (is_falling(edge) && data_counter > 0 && is_low(transfer_allowed))
@@ -134,7 +111,7 @@ bool StackChannelCard::is_addressed(uint16_t address) const
     const uint8_t input_group = (address & 0b00111000000000) >> 9;
     const uint8_t output_address = ((address & 0b11111000000000) >> 9) - 8;
     return is_io_input_address(address) ? (input_group == configuration.input_address)
-                             : (output_address == configuration.output_address);
+                                        : (output_address == configuration.output_address);
 }
 
 void StackChannelCard::push_data(uint8_t out_data, Scheduling::counter_type time)
@@ -251,5 +228,12 @@ void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter
 
 std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables()
 {
-    return {scheduled_current_pointer_changed, place_data_on_pluribus};
+    std::vector<std::shared_ptr<Schedulable>> sub_schedulables{scheduled_current_pointer_changed,
+                                                               io_communicator};
+
+    const auto& io_communicator_subs = io_communicator->get_sub_schedulables();
+    std::copy(begin(io_communicator_subs), end(io_communicator_subs),
+              std::back_inserter(sub_schedulables));
+
+    return sub_schedulables;
 }

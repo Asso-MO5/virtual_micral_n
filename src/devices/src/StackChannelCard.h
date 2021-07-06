@@ -9,9 +9,8 @@
 #include <memory>
 #include <vector>
 
-class DataOnMDBusHolder;
+class IOCommunicator;
 class Pluribus;
-class ScheduledAction;
 class ScheduledSignal;
 
 struct StackChannelCardConfiguration
@@ -100,17 +99,18 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     StackChannelCardConfiguration configuration;
 
-    std::unique_ptr<DataOnMDBusHolder> output_data_holder;
-    std::shared_ptr<ScheduledAction> place_data_on_pluribus;
+    std::shared_ptr<IOCommunicator> io_communicator;
     std::shared_ptr<ScheduledSignal> scheduled_current_pointer_changed;
 
     std::vector<uint8_t> data;
     uint16_t data_pointer{};
     uint16_t data_counter{};
 
+    void initialize_terminals();
+    void initialize_io_communicator();
+    void initialize_io_card_connections();
     void set_data_size();
 
-    void on_t2(Edge edge);
     void on_t3(Edge edge);
     void on_apply_pointer_address(Edge edge);
     void on_apply_counter(Edge edge);
@@ -124,9 +124,7 @@ private:
     void push_data(uint8_t out_data, Scheduling::counter_type time);
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;
-    void initialize_terminals();
     void on_data_transfer(Edge edge);
-    void initialize_io_card_connections();
     void stop_transfer_state(Scheduling::counter_type time);
 };
 

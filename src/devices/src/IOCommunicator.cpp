@@ -41,23 +41,21 @@ void IOCommunicator::on_t2(Edge edge)
         if ((cycle_control == Constants8008::CycleControl::PCC) &&
             configuration.addressed_predicate(address))
         {
+            const auto time = edge.time();
             if (is_io_input_address(address))
             {
                 // This is the end of T2, schedule the data emission
-                auto data_to_send = configuration.on_need_data_for_pluribus(address);
-                output_data_holder->take_bus(edge.time(),
-                                             data_to_send); // This is on this class, pulling on_t3
-
-                place_data_on_pluribus->schedule( // This is also on this class
+                auto data_to_send = configuration.on_need_data_for_pluribus(address, time);
+                output_data_holder->take_bus(time, data_to_send);
+                place_data_on_pluribus->schedule(
                         [&](Scheduling::counter_type time) {
                             output_data_holder->place_data(time);
                         },
-                        edge.time() + IO_CARD_DELAY,
-                        change_schedule); // Needs a change_schedule
+                        time + IO_CARD_DELAY, change_schedule);
             }
             else
             {
-                configuration.on_acquire_from_pluribus(address, edge.time());
+                configuration.on_acquire_from_pluribus(address, time);
             }
         }
     }

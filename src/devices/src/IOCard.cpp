@@ -16,7 +16,9 @@ IOCard::IOCard(const IOCard::Config& config)
 {
     IOCommunicatorConfiguration io_communicator_config{
             .on_need_data_for_pluribus =
-                    [this](uint16_t address) { return get_from_peripheral(address); },
+                    [this](uint16_t address, Scheduling::counter_type) {
+                        return get_from_peripheral(address);
+                    },
             .on_acquire_from_pluribus =
                     [this](uint16_t address, Scheduling::counter_type time) {
                         send_to_peripheral(address, time);

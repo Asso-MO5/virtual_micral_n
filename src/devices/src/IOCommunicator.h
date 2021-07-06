@@ -15,7 +15,7 @@ class ScheduledAction;
 
 struct IOCommunicatorConfiguration
 {
-    std::function<uint8_t(uint16_t)> on_need_data_for_pluribus;
+    std::function<uint8_t(uint16_t, Scheduling::counter_type)> on_need_data_for_pluribus;
     std::function<void(uint16_t, Scheduling::counter_type)> on_acquire_from_pluribus;
     std::function<bool(uint16_t)> addressed_predicate;
 };

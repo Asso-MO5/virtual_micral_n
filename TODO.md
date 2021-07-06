@@ -1,8 +1,8 @@
 ### Implementation
 
 * Common part of IO of the StackChannel and IO Port
-  * Use it in the StackChannel
   * Then use it on the DiskController 
+    * Needs a configuration of the IO of the DiskController
 * Change the DiskController implementation with the latest analysis.
   * The controller doesn't need an I/O card.
   * The controller communicates with the Channel even for the pointers/counters
