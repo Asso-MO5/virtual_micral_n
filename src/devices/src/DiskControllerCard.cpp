@@ -1,10 +1,6 @@
 #include "DiskControllerCard.h"
 #include <iostream>
 
-#include "IOCard.h"
-#include "Pluribus.h"
-#include "StackChannelCard.h"
-
 #include <emulation_core/src/ScheduledSignal.h>
 
 using namespace std;
