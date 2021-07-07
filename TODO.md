@@ -1,11 +1,8 @@
 ### Implementation
 
-* Common part of IO of the StackChannel and IO Port
-  * Then use it on the DiskController 
-    * Needs a configuration of the IO of the DiskController
 * Change the DiskController implementation with the latest analysis.
-  * The controller doesn't need an I/O card.
-  * The controller communicates with the Channel even for the pointers/counters
+  * current_pointer_changed
+  * Clean pass on the DiskControllerCard
 * Add a way to provide data to the DiskController
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.

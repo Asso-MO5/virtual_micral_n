@@ -9,8 +9,6 @@
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/StackChannelCard.h>
-#include <devices/src/connectors/IO_To_DiskController.h>
-#include <devices/src/connectors/IO_To_StackChannel.h>
 #include <devices/src/connectors/StackChannel_To_DiskController.h>
 #include <file_utils/src/FileReader.h>
 
@@ -79,19 +77,18 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_6_card = std::make_shared<StackChannelCard>(stack_channel_6_config);
 
-    // IO Card for Unknown Peripheral
+    // IO Card for Serial Card
     IOCard::Config io_card_config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
             .configuration = {
                     .mode = IOCardConfiguration::Input_32_Output_32,
-                    .address_selection = 0b10100001, // 101 for Output, 1 for Input
-                                                     // This correspond to usage from the Boot ROM.
+                    .address_selection = 0b01000000, // 010 for Output, 0 for Input
             }};
     io_card = std::make_shared<IOCard>(io_card_config);
 
-    // StackChannel for Unknown Peripheral
+    // StackChannel for the Disk Controller
     StackChannelCard::Config stack_channel_5_config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
@@ -104,18 +101,18 @@ Simulator::Simulator(ConfigROM rom_config)
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
 
-    DiskControllerCard::Config unknown_card_config{
+    DiskControllerCard::Config disk_controller_card_config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .configuration = {}};
-    disk_controller_card = std::make_shared<DiskControllerCard>(unknown_card_config);
+            .pluribus = pluribus,
+            .configuration = {
+                    .address_selection = 0b10100001, // 101 for Output, 1 for Input
 
-    // Connection of the StackChannel / IO_Card / Unknown triplet
-    io_stack_channel_connector =
-            std::make_shared<Connectors::IO_To_StackChannel>(*io_card, *stack_channel_5_card);
-    io_unknown_connector =
-            std::make_shared<Connectors::IO_To_DiskController>(*io_card, *disk_controller_card);
-    stackchannel_unknown_connector = std::make_shared<Connectors::StackChannel_To_DiskController>(
+            }};
+    disk_controller_card = std::make_shared<DiskControllerCard>(disk_controller_card_config);
+
+    // Connection between the Stack Channel and the Disk Controller
+    stackchannel_diskcontroller_connector = std::make_shared<Connectors::StackChannel_To_DiskController>(
             *stack_channel_5_card, *disk_controller_card);
 
     connect_signal_recorders();
