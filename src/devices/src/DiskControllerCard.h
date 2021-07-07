@@ -44,15 +44,6 @@ public:
 
     [[nodiscard]] Status get_status() const;
 
-    // From I/O card
-    OwnedValue<uint8_t> command;
-    OwnedSignal receive_command;
-    OwnedSignal activate;
-
-    // To I/O card
-    OwnedValue<uint8_t> card_status;
-    OwnedSignal status_changed; // Probably not present
-
     // To the Stack/Channel card
     OwnedSignal available_data;
     OwnedValue<uint8_t> output_data;
@@ -78,7 +69,6 @@ private:
 
     std::shared_ptr<IOCommunicator> io_communicator;
 
-    std::shared_ptr<ScheduledSignal> schedule_status_changed; // Probably not present
     std::shared_ptr<ScheduledSignal> schedule_available_data;
     std::shared_ptr<ScheduledSignal> schedule_change_pointer;
     std::shared_ptr<ScheduledSignal> schedule_change_counter;
@@ -87,6 +77,7 @@ private:
 
     struct Internal
     {
+        OwnedValue<uint8_t> card_status;
         OwnedSignal step{};
         State dir{};
     } internal{};
@@ -96,7 +87,7 @@ private:
     [[nodiscard]] bool is_addressed(uint16_t address) const;
 
     void command_from_pluribus(uint16_t address, Scheduling::counter_type time);
-    uint8_t get_data_for_pluribus(uint16_t address) const;
+    [[nodiscard]] uint8_t get_data_for_pluribus(uint16_t address) const;
 
     // Commands from the ROM
     void on_set_pointer(uint8_t data, Scheduling::counter_type time);

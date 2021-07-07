@@ -1,7 +1,6 @@
 ### Implementation
 
 * Change the DiskController implementation with the latest analysis.
-  * Remove I/O references from the Disk Controller
   * Clean pass on the DiskControllerCard
 * Add a way to provide data to the DiskController
 * Simplify writing the connections in the connectors

@@ -26,9 +26,6 @@ DiskControllerCard::DiskControllerCard(const Config& config)
       configuration{config.configuration}
 {
     // Outward signals
-    card_status.request(this, Scheduling::counter_type{0});
-    schedule_status_changed = std::make_shared<ScheduledSignal>(status_changed);
-
     direction.request(this);
 
     output_data.request(this, Scheduling::counter_type{0});
@@ -49,6 +46,7 @@ DiskControllerCard::DiskControllerCard(const Config& config)
     // Inner signals
     internal.step.request(this);
     internal.step.subscribe([this](Edge edge) { on_step(edge); });
+    internal.card_status.request(this, Scheduling::counter_type{0});
 
     initialize_io_communicator();
 
@@ -109,7 +107,7 @@ uint8_t DiskControllerCard::get_data_for_pluribus(uint16_t address) const
     switch (sub_address)
     {
         case 0xfe:
-            return card_status.get_value();
+            return internal.card_status.get_value();
         case 0xff:
             return *received_pointer_value;
         default:
@@ -228,13 +226,7 @@ void DiskControllerCard::update_card_status(Scheduling::counter_type time)
                              ((is_reading ? 1 : 0) << 1) |     // Tentative placement
                              ((is_transferring ? 1 : 0) << 0); // Tentative placement
 
-    auto previous_status = card_status.get_value();
-    card_status.set(current_status, time, this);
-
-    if (previous_status != current_status)
-    {
-        schedule_status_changed->launch(time, Scheduling::counter_type{100}, change_schedule);
-    }
+    internal.card_status.set(current_status, time, this);
 }
 
 bool DiskControllerCard::is_addressed(uint16_t address) const
@@ -262,6 +254,6 @@ bool DiskControllerCard::is_addressed(uint16_t address) const
 
 std::vector<std::shared_ptr<Schedulable>> DiskControllerCard::get_sub_schedulables()
 {
-    return {schedule_status_changed, schedule_available_data, io_communicator,
-            schedule_change_pointer, schedule_change_counter};
+    return {schedule_available_data, io_communicator, schedule_change_pointer,
+            schedule_change_counter};
 }
