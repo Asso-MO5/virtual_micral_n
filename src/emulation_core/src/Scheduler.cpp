@@ -14,10 +14,22 @@ Scheduling::counter_type Scheduler::get_counter() const { return counter; }
 
 void Scheduler::add(const Scheduler::schedulable_ptr& schedulable)
 {
+    assert(std::find_if(begin(schedulable_pool), end(schedulable_pool),
+                        [&schedulable](const auto& element) {
+                            const auto& [time, id, s] = element;
+                            return s == schedulable;
+                        }) == end(schedulable_pool) &&
+           "Schedulable already in the pool.");
     schedulable_pool.emplace_back(schedulable->get_next_activation_time(), schedulable_id_counter,
                                   schedulable);
     schedulable->set_id(schedulable_id_counter);
     schedulable_id_counter += 1;
+
+    for (auto& sub : schedulable->get_sub_schedulables())
+    {
+        add(sub);
+    }
+
     sort_everything();
 }
 
@@ -35,11 +47,15 @@ void Scheduler::step()
     counter = time;
     executed_time = time;
 
-    Schedulable * raw_schedulable = schedulable.get();
+    // Get the raw pointer on the Schedulable to assert if it's still the same after
+    // calling step()> If not, it means the pool was shuffled (probably sorted) while
+    // stepping the devices, which is breaking the contract.
+    Schedulable* raw_schedulable = schedulable.get();
 
     schedulable->step();
 
-    assert(schedulable.get() == raw_schedulable && "The pool probably has been sorted out while stepping.");
+    assert(schedulable.get() == raw_schedulable &&
+           "The pool probably has been sorted out while stepping.");
     time = schedulable->get_next_activation_time();
     assert(time >= executed_time);
 

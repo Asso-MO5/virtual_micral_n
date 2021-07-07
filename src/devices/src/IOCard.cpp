@@ -203,8 +203,5 @@ std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables()
             begin(scheduled_terminals_ACKs) + first_owned_terminal, end(scheduled_terminals_ACKs)};
     sub_schedulables.push_back(io_communicator);
 
-    const auto& io_communicator_subs = io_communicator->get_sub_schedulables();
-    std::copy(begin(io_communicator_subs), end(io_communicator_subs),
-              std::back_inserter(sub_schedulables));
     return sub_schedulables;
 }

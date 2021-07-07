@@ -228,12 +228,5 @@ void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter
 
 std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables()
 {
-    std::vector<std::shared_ptr<Schedulable>> sub_schedulables{scheduled_current_pointer_changed,
-                                                               io_communicator};
-
-    const auto& io_communicator_subs = io_communicator->get_sub_schedulables();
-    std::copy(begin(io_communicator_subs), end(io_communicator_subs),
-              std::back_inserter(sub_schedulables));
-
-    return sub_schedulables;
+    return {scheduled_current_pointer_changed, io_communicator};
 }
