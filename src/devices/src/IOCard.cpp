@@ -14,6 +14,27 @@ IOCard::IOCard(const IOCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
       configuration{config.configuration}
 {
+    switch (configuration.mode)
+    {
+        case IOCardConfiguration::Input_32_Output_32:
+            first_owned_terminal = 4;
+            break;
+        case IOCardConfiguration::Input_64:
+            first_owned_terminal = IOCardConstants::TERMINAL_COUNT;
+            break;
+        case IOCardConfiguration::Output_64:
+            first_owned_terminal = 0;
+            break;
+    }
+
+    initialize_io_communicator();
+    initialize_terminals();
+
+    set_next_activation_time(Scheduling::unscheduled());
+}
+
+void IOCard::initialize_io_communicator()
+{
     IOCommunicatorConfiguration io_communicator_config{
             .on_need_data_for_pluribus =
                     [this](uint16_t address, Scheduling::counter_type) {
@@ -28,23 +49,6 @@ IOCard::IOCard(const IOCard::Config& config)
             IOCommunicator::Config{.change_schedule = change_schedule,
                                    .pluribus = pluribus,
                                    .configuration = io_communicator_config});
-
-    switch (configuration.mode)
-    {
-        case IOCardConfiguration::Input_32_Output_32:
-            first_owned_terminal = 4;
-            break;
-        case IOCardConfiguration::Input_64:
-            first_owned_terminal = IOCardConstants::TERMINAL_COUNT;
-            break;
-        case IOCardConfiguration::Output_64:
-            first_owned_terminal = 0;
-            break;
-    }
-
-    initialize_terminals();
-
-    set_next_activation_time(Scheduling::unscheduled());
 }
 
 IOCard::~IOCard() = default;

@@ -74,6 +74,7 @@ private:
             scheduled_terminals_ACKs;
 
     void initialize_terminals();
+    void initialize_io_communicator();
 
     void on_input_signal(uint8_t signal_index, Edge edge);
 
