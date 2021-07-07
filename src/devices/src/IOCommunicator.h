@@ -53,7 +53,7 @@ private:
 
 constexpr inline bool is_io_input_address(uint16_t address)
 {
-    return (address & 0b11000000000000) == 0;
+    return (address & 0b0011000000000000) == 0;
 }
 
 #endif //MICRALN_IOCOMMUNICATOR_H
