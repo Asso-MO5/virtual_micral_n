@@ -1,7 +1,5 @@
 ### Implementation
 
-* Change the DiskController implementation with the latest analysis.
-  * Clean pass on the DiskControllerCard
 * Add a way to provide data to the DiskController
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.

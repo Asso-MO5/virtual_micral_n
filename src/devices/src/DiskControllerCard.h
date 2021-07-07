@@ -82,6 +82,9 @@ private:
         State dir{};
     } internal{};
 
+    void initialize_outward_signals();
+    void initialize_inward_signals();
+    void initialize_inner_signals();
     void initialize_io_communicator();
 
     [[nodiscard]] bool is_addressed(uint16_t address) const;

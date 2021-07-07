@@ -25,32 +25,41 @@ DiskControllerCard::DiskControllerCard(const Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
       configuration{config.configuration}
 {
-    // Outward signals
-    direction.request(this);
-
-    output_data.request(this, Scheduling::counter_type{0});
-    schedule_available_data = std::make_shared<ScheduledSignal>(available_data);
-
-    pointer_value_to_send.request(this, Scheduling::counter_type{0});
-    schedule_change_pointer = std::make_shared<ScheduledSignal>(change_pointer);
-
-    counter_value.request(this, Scheduling::counter_type{0});
-    schedule_change_counter = std::make_shared<ScheduledSignal>(change_counter);
-
-    // Inward signals
-    //activate.subscribe([this](Edge edge) { on_activate(edge); });
-    //receive_command.subscribe([this](Edge edge) { on_command(edge); });
-    start_data_transfer.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
-    stop_data_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
-
-    // Inner signals
-    internal.step.request(this);
-    internal.step.subscribe([this](Edge edge) { on_step(edge); });
-    internal.card_status.request(this, Scheduling::counter_type{0});
-
+    initialize_outward_signals();
+    initialize_inward_signals();
+    initialize_inner_signals();
     initialize_io_communicator();
 
     set_next_activation_time(Scheduling::unscheduled());
+}
+
+DiskControllerCard::~DiskControllerCard() = default;
+
+void DiskControllerCard::initialize_inner_signals()
+{
+    internal.step.request(this);
+    internal.step.subscribe([this](Edge edge) { on_step(edge); });
+    internal.card_status.request(this, Scheduling::counter_type{0});
+}
+
+void DiskControllerCard::initialize_inward_signals()
+{
+    start_data_transfer.subscribe([this](Edge edge) { on_transfer_enabled(edge); });
+    stop_data_transfer.subscribe([this](Edge edge) { on_end_of_transfer(edge); });
+}
+
+void DiskControllerCard::initialize_outward_signals()
+{
+    direction.request(this);
+
+    output_data.request(this, Scheduling::counter_type{0});
+    schedule_available_data = make_shared<ScheduledSignal>(available_data);
+
+    pointer_value_to_send.request(this, Scheduling::counter_type{0});
+    schedule_change_pointer = make_shared<ScheduledSignal>(change_pointer);
+
+    counter_value.request(this, Scheduling::counter_type{0});
+    schedule_change_counter = make_shared<ScheduledSignal>(change_counter);
 }
 
 void DiskControllerCard::initialize_io_communicator()
@@ -70,8 +79,6 @@ void DiskControllerCard::initialize_io_communicator()
                                    .pluribus = pluribus,
                                    .configuration = io_communicator_config});
 }
-
-DiskControllerCard::~DiskControllerCard() = default;
 
 void DiskControllerCard::step() {}
 
@@ -242,7 +249,6 @@ bool DiskControllerCard::is_addressed(uint16_t address) const
         }
 
         uint8_t sub_address = (address & 0xff);
-
         return (sub_address == 0xfe) | (sub_address == 0xff);
     }
     else
