@@ -65,13 +65,6 @@ public:
 
     // Outputs with I/O
     OwnedValue<uint16_t> current_pointer_address; // Ax/
-    OwnedSignal current_pointer_changed;          // Fake Signal for I/O
-                                                  // It doesn't seem this signal exists on real
-                                                  // hardware. But with the current implementation
-                                                  // it is necessary for the I/O card to react
-                                                  // It is possible that the I/O card is a specific
-                                                  // one
-                                                  // TODO: check what is the correct way
 
     // Inputs with Peripheral
     OwnedSignal direction;          // IN/OUT/
@@ -100,7 +93,6 @@ private:
     StackChannelCardConfiguration configuration;
 
     std::shared_ptr<IOCommunicator> io_communicator;
-    std::shared_ptr<ScheduledSignal> scheduled_current_pointer_changed;
 
     std::vector<uint8_t> data;
     uint16_t data_pointer{};

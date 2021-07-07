@@ -65,7 +65,6 @@ void StackChannelCard::initialize_io_card_connections()
     apply_pointer_address.subscribe([this](Edge edge) { on_apply_pointer(edge); });
 
     current_pointer_address.request(this, Scheduling::counter_type{0});
-    scheduled_current_pointer_changed = std::make_shared<ScheduledSignal>(current_pointer_changed);
 }
 
 void StackChannelCard::step() {}
@@ -223,10 +222,9 @@ void StackChannelCard::set_new_pointer(uint16_t new_pointer, Scheduling::counter
 {
     data_pointer = new_pointer;
     current_pointer_address.set(new_pointer, time, this);
-    scheduled_current_pointer_changed->launch(time, Scheduling::counter_type{100}, change_schedule);
 }
 
 std::vector<std::shared_ptr<Schedulable>> StackChannelCard::get_sub_schedulables()
 {
-    return {scheduled_current_pointer_changed, io_communicator};
+    return {io_communicator};
 }
