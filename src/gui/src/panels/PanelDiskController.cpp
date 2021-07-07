@@ -9,7 +9,7 @@ void display_disk_controller(const DiskControllerCard& disk_controller)
 {
     ImGui::Begin("Disk Controller");
 
-    const auto& status = disk_controller.get_status();
+    const auto& status = disk_controller.get_debug_data();
 
     ImGui::Text("Track: $%002x", status.track);
     ImGui::Text("Sector: $%002x", status.sector);

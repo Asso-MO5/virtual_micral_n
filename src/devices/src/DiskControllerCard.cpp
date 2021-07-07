@@ -19,11 +19,19 @@ namespace
             'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O',  'W', 'O', 'R', 'L',
             'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x7c, 0x00,
     };
+
+    uint8_t disk_data_provider(DiskReader::track_type track, DiskReader::sector_type sector,
+                               size_t index)
+    {
+        return disk_data[index];
+    }
+
 }
 
 DiskControllerCard::DiskControllerCard(const Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
-      configuration{config.configuration}
+      configuration{config.configuration},
+      disk_reader(DiskReader::Config{.track_count = 10, .data_provider = disk_data_provider})
 {
     initialize_outward_signals();
     initialize_inward_signals();
@@ -141,13 +149,8 @@ void DiskControllerCard::on_command(uint8_t data, Scheduling::counter_type time)
     bool signal_for_step = (data & 0b01000000); // Bit 6 is STEP/
     bool dir_status = (data & 0b00100000);      // Bit 5 is DIR/
 
-    auto old_sector = status.sector;
-    status.sector = static_cast<uint32_t>(data & 0b11111); // Bits 0-4 form the sector number.
-
-    if (old_sector != status.sector)
-    {
-        status.index_in_sector = 0;
-    }
+    auto asked_sector = static_cast<uint32_t>(data & 0b11111); // Bits 0-4 form the sector number.
+    disk_reader.seek_sector(asked_sector);
 
     internal.step.set(signal_for_step, time, this);
     internal.dir = State(dir_status ? State::HIGH : State::LOW);
@@ -160,22 +163,13 @@ void DiskControllerCard::on_transfer_enabled(Edge edge)
     if (is_rising(edge))
     {
         const auto time = edge.time();
-        const auto data_to_send = disk_data[status.index_in_sector];
-        status.index_in_sector += 1;
+        const auto data_to_send = disk_reader.read_data();
 
-        if (status.index_in_sector <= sizeof(disk_data))
-        {
-            output_data.set(data_to_send, time, this);
-            schedule_available_data->launch(edge.time(), Scheduling::counter_type{100},
-                                            change_schedule);
-            status.sending_to_channel = true;
-            status.reading = true;
-        }
-        else
-        {
-            status.sending_to_channel = false;
-            status.reading = false;
-        }
+        output_data.set(data_to_send, time, this);
+        schedule_available_data->launch(edge.time(), Scheduling::counter_type{100},
+                                        change_schedule);
+        status.sending_to_channel = true;
+        status.reading = true;
         update_card_status(edge.time());
     }
 }
@@ -196,36 +190,28 @@ void DiskControllerCard::on_activate(Scheduling::counter_type time)
     update_card_status(time);
 }
 
-[[maybe_unused]] DiskControllerCard::Status DiskControllerCard::get_status() const
+[[maybe_unused]] DiskControllerCard::Status DiskControllerCard::get_debug_data() const
 {
-    return status;
+    return {
+            .track = disk_reader.current_track(),
+            .sector = disk_reader.current_sector(),
+            .reading = status.reading,
+            .sending_to_channel = status.sending_to_channel,
+    };
 }
 
 void DiskControllerCard::on_step(Edge edge)
 {
     if (is_falling(edge))
     {
-        if (is_low(internal.dir))
-        {
-            if (status.track == 0)
-            {
-                status.track = 9;
-            }
-            else
-            {
-                status.track -= 1;
-            }
-        }
-        else
-        {
-            status.track = (status.track + 1) % 10;
-        }
+        auto track_step_direction = is_low(internal.dir) ? DiskReader::Previous : DiskReader::Next;
+        disk_reader.step_track(track_step_direction);
     }
 }
 
 void DiskControllerCard::update_card_status(Scheduling::counter_type time)
 {
-    bool is_track_00 = status.track == 0;
+    bool is_track_00 = disk_reader.current_track() == 0;
     bool is_reading = status.reading;                 // Tentative name
     bool is_transferring = status.sending_to_channel; // Tentative name
 

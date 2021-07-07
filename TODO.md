@@ -1,6 +1,6 @@
 ### Implementation
 
-* Add a way to provide data to the DiskController
+* Create a virtual disk with accessor for DiskReader
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
@@ -32,6 +32,7 @@
 * Change LED colors to correctly matching the hardware.
 * Create a debug panel for the DiskController
   * Show write status when implemented.
+* DiskReader can be a Schedulable to emulate the reading/writing times
 
 ### Architecture
 

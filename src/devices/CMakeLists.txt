@@ -29,7 +29,8 @@ set(DEVICES_FILES
         src/DiskControllerCard.cpp src/DiskControllerCard.h
         src/connectors/StackChannel_To_DiskController.cpp
         src/connectors/StackChannel_To_DiskController.h
-        src/IOCommunicator.cpp src/IOCommunicator.h)
+        src/IOCommunicator.cpp src/IOCommunicator.h
+        src/DiskReader.cpp src/DiskReader.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
@@ -37,7 +38,7 @@ set(DEVICES_TEST_FILES
         tests/double_clock_test.cpp
         tests/address_stack_test.cpp
         tests/interrupt_circuit_test.cpp
-        )
+        tests/disk_reader_test.cpp)
 
 add_library(${DEVICES_LIB_NAME} ${DEVICES_FILES})
 target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)

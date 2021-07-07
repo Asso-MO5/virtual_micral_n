@@ -1,6 +1,8 @@
 #ifndef MICRALN_DISKCONTROLLERCARD_H
 #define MICRALN_DISKCONTROLLERCARD_H
 
+#include "DiskReader.h"
+
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/OwnedSignal.h>
 #include <emulation_core/src/OwnedValue.h>
@@ -30,7 +32,6 @@ public:
     {
         uint8_t track{};
         uint8_t sector{};
-        uint8_t index_in_sector{};
         bool reading{};
         bool sending_to_channel{};
     };
@@ -42,7 +43,7 @@ public:
 
     void step() override;
 
-    [[nodiscard]] Status get_status() const;
+    [[nodiscard]] Status get_debug_data() const;
 
     // To the Stack/Channel card
     OwnedSignal available_data;
@@ -81,6 +82,8 @@ private:
         OwnedSignal step{};
         State dir{};
     } internal{};
+
+    DiskReader disk_reader;
 
     void initialize_outward_signals();
     void initialize_inward_signals();
