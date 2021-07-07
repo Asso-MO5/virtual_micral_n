@@ -64,7 +64,7 @@ Simulator::Simulator(ConfigROM rom_config)
     MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
 
-    console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Manual,
+    console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Automatic,
                                                  ConsoleCard::RecordMode::Record);
 
     StackChannelCard::Config stack_channel_6_config{
