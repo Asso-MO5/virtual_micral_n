@@ -1,8 +1,8 @@
 #ifndef MICRALN_VIRTUALDISK_H
 #define MICRALN_VIRTUALDISK_H
 
-#include <span>
 #include <cstdint>
+#include <span>
 #include <vector>
 
 class VirtualDisk
@@ -20,8 +20,12 @@ public:
     [[nodiscard]] std::uint8_t get(int track, int sector, int index_in_sector) const;
 
 private:
-    std::vector<uint8_t > data;
+    std::vector<uint8_t> data;
+    std::vector<uint8_t> checksums;
     Layout layout;
+
+    void initialize_checksums();
+    [[nodiscard]] std::uint8_t get_checksum(int track, int sector) const;
 };
 
 #endif //MICRALN_VIRTUALDISK_H

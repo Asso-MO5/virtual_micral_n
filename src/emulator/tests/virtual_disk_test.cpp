@@ -67,8 +67,8 @@ TEST(VirtualDisk, big_data_continues_on_next_tracks)
     std::vector<uint8_t> big_data;
     uint8_t counter = 0;
     std::generate_n(std::back_inserter(big_data), 257, [&counter]() {
-      counter = (counter + 1) % 26;
-      return 'A' + counter;
+        counter = (counter + 1) % 26;
+        return 'A' + counter;
     });
 
     VirtualDisk::Layout layout{.tracks = 10, .sectors = 1, .sector_size = 128};
@@ -81,7 +81,20 @@ TEST(VirtualDisk, big_data_continues_on_next_tracks)
     ASSERT_THAT(disk.get(0x2, 0, 2), Eq(big_data[256]));
 }
 
-/*
- * A VitualDisk is initialized with data.
- * It presents them under the form of track/sectors/index augmented with start word and checksum
- */
+TEST(VirtualDisk, computes_checksum)
+{
+    std::vector<uint8_t> big_data;
+    uint8_t counter = 0;
+    std::generate_n(std::back_inserter(big_data), 257, [&counter]() {
+        counter = (counter + 1) % 26;
+        return 'A' + counter;
+    });
+
+    VirtualDisk::Layout layout{.tracks = 10, .sectors = 32, .sector_size = 128};
+    VirtualDisk disk{big_data, layout};
+
+    ASSERT_THAT(disk.get(0x0, 0x00, 128 + 2 + 1), Eq(231));
+    ASSERT_THAT(disk.get(0x0, 0x01, 128 + 2 + 1), Eq(209));
+    ASSERT_THAT(disk.get(0x0, 0x02, 128 + 2 + 1), Eq(88));
+    ASSERT_THAT(disk.get(0x0, 0x03, 128 + 2 + 1), Eq(0));
+}
