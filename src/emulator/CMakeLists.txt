@@ -4,7 +4,7 @@ project(micraln-emulator
         DESCRIPTION "The emulator for the Micral N emulation"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Emulator
 set(EMULATOR_TEST_NAME ${EMULATOR_LIB_NAME}_tests)
@@ -15,10 +15,12 @@ set(EMULATOR_FILES src/SimulationRunType.h
         src/ValueRecorder.cpp src/ValueRecorder.h
         src/Recorder.h src/Recorder.cpp
         src/RecorderCollection.cpp src/RecorderCollection.h
-        )
+        src/VirtualDisk.cpp src/VirtualDisk.h)
 
 set(EMULATOR_TEST_FILES
-        tests/signal_recorder_test.cpp tests/value_recorder_test.cpp)
+        tests/signal_recorder_test.cpp
+        tests/value_recorder_test.cpp
+        tests/virtual_disk_test.cpp)
 
 add_library(${EMULATOR_LIB_NAME} ${EMULATOR_FILES})
 target_include_directories(${EMULATOR_LIB_NAME} PRIVATE ../)
