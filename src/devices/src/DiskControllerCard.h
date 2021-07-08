@@ -16,6 +16,7 @@ class ScheduledSignal;
 struct DiskControllerCardConfiguration
 {
     uint8_t address_selection{};
+    DiskReader::data_provider_type data_provider;
 };
 
 class DiskControllerCard : public SchedulableImpl

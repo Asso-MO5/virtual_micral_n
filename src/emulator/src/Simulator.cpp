@@ -36,6 +36,23 @@ namespace
         }
         return {};
     }
+
+    uint8_t disk_data[] = {
+            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E',  'L',  'L', 'O', 'W', 'O',
+            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D',  'H', 'E', 'L', 'L',
+            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O',  'R', 'L', 'D', 'H',
+            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L',  'O', 'W', 'O', 'R',
+            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',  'H',  'E', 'L', 'L', 'O',
+            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O',  'R',  'L', 'D', 'H', 'E',
+            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O',  'W', 'O', 'R', 'L',
+            'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x7c, 0x00,
+    };
+
+    uint8_t disk_data_provider(DiskReader::track_type track, DiskReader::sector_type sector,
+                               size_t index)
+    {
+        return disk_data[index];
+    }
 }
 
 Simulator::Simulator(ConfigROM rom_config)
@@ -107,13 +124,14 @@ Simulator::Simulator(ConfigROM rom_config)
             .pluribus = pluribus,
             .configuration = {
                     .address_selection = 0b10100001, // 101 for Output, 1 for Input
-
+                    .data_provider = disk_data_provider,
             }};
     disk_controller_card = std::make_shared<DiskControllerCard>(disk_controller_card_config);
 
     // Connection between the Stack Channel and the Disk Controller
-    stackchannel_diskcontroller_connector = std::make_shared<Connectors::StackChannel_To_DiskController>(
-            *stack_channel_5_card, *disk_controller_card);
+    stackchannel_diskcontroller_connector =
+            std::make_shared<Connectors::StackChannel_To_DiskController>(*stack_channel_5_card,
+                                                                         *disk_controller_card);
 
     connect_signal_recorders();
     connect_value_recorders();

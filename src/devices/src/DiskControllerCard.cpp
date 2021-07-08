@@ -7,31 +7,11 @@
 
 using namespace std;
 
-namespace
-{
-    uint8_t disk_data[] = {
-            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E',  'L',  'L', 'O', 'W', 'O',
-            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D',  'H', 'E', 'L', 'L',
-            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O',  'R', 'L', 'D', 'H',
-            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L',  'O', 'W', 'O', 'R',
-            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',  'H',  'E', 'L', 'L', 'O',
-            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O',  'R',  'L', 'D', 'H', 'E',
-            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O',  'W', 'O', 'R', 'L',
-            'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x7c, 0x00,
-    };
-
-    uint8_t disk_data_provider(DiskReader::track_type track, DiskReader::sector_type sector,
-                               size_t index)
-    {
-        return disk_data[index];
-    }
-
-}
-
 DiskControllerCard::DiskControllerCard(const Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
       configuration{config.configuration},
-      disk_reader(DiskReader::Config{.track_count = 10, .data_provider = disk_data_provider})
+      disk_reader(DiskReader::Config{.track_count = 10,
+                                     .data_provider = config.configuration.data_provider})
 {
     initialize_outward_signals();
     initialize_inward_signals();
