@@ -12,6 +12,14 @@ namespace
             'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', // 8 bytes
     };
 
+    void fill_big_data(std::vector<uint8_t>& data)
+    {
+        uint8_t counter = 0;
+        std::generate_n(std::back_inserter(data), 257, [&counter]() {
+            counter = (counter + 1) % 26;
+            return 'A' + counter;
+        });
+    }
 }
 
 TEST(VirtualDisk, is_created_with_data_and_layout)
@@ -46,11 +54,7 @@ TEST(VirtualDisk, sector_continues_with_payload)
 TEST(VirtualDisk, big_data_continues_on_next_sector)
 {
     std::vector<uint8_t> big_data;
-    uint8_t counter = 0;
-    std::generate_n(std::back_inserter(big_data), 257, [&counter]() {
-        counter = (counter + 1) % 26;
-        return 'A' + counter;
-    });
+    fill_big_data(big_data);
 
     VirtualDisk::Layout layout{.tracks = 10, .sectors = 32, .sector_size = 128};
     VirtualDisk disk{big_data, layout};
@@ -65,11 +69,7 @@ TEST(VirtualDisk, big_data_continues_on_next_sector)
 TEST(VirtualDisk, big_data_continues_on_next_tracks)
 {
     std::vector<uint8_t> big_data;
-    uint8_t counter = 0;
-    std::generate_n(std::back_inserter(big_data), 257, [&counter]() {
-        counter = (counter + 1) % 26;
-        return 'A' + counter;
-    });
+    fill_big_data(big_data);
 
     VirtualDisk::Layout layout{.tracks = 10, .sectors = 1, .sector_size = 128};
     VirtualDisk disk{big_data, layout};
@@ -84,11 +84,7 @@ TEST(VirtualDisk, big_data_continues_on_next_tracks)
 TEST(VirtualDisk, computes_checksum)
 {
     std::vector<uint8_t> big_data;
-    uint8_t counter = 0;
-    std::generate_n(std::back_inserter(big_data), 257, [&counter]() {
-        counter = (counter + 1) % 26;
-        return 'A' + counter;
-    });
+    fill_big_data(big_data);
 
     VirtualDisk::Layout layout{.tracks = 10, .sectors = 32, .sector_size = 128};
     VirtualDisk disk{big_data, layout};
