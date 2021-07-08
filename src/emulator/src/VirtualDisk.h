@@ -26,6 +26,10 @@ private:
 
     void initialize_checksums();
     [[nodiscard]] std::uint8_t get_checksum(int track, int sector) const;
+    uint8_t computer_sector_checksum(int track, int sector);
+
+    [[nodiscard]] std::uint8_t get_data(int track, int sector, int index_in_sector) const;
+
 };
 
 #endif //MICRALN_VIRTUALDISK_H
