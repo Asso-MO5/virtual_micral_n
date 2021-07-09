@@ -12,12 +12,13 @@
 
 class AutomaticStart;
 class ConsoleCard;
+class DiskControllerCard;
 class IOCard;
 class MemoryCard;
-class ProcessorCard;
 class Pluribus;
+class ProcessorCard;
 class StackChannelCard;
-class DiskControllerCard;
+class VirtualDisk;
 
 namespace Connectors
 {
@@ -78,6 +79,8 @@ private:
     std::shared_ptr<DiskControllerCard> disk_controller_card;
     std::shared_ptr<Connectors::StackChannel_To_DiskController>
             stackchannel_diskcontroller_connector;
+
+    std::shared_ptr<VirtualDisk> virtual_disk;
 
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;

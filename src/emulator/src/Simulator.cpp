@@ -1,4 +1,5 @@
 #include "Simulator.h"
+#include "VirtualDisk.h"
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/Clock.h>
@@ -37,27 +38,23 @@ namespace
         return {};
     }
 
-    uint8_t disk_data[] = {
-            'S', 'T', 'A', 'R', 'T', ' ', ' ', ' ', ' ', ' ', 'H', 'E',  'L',  'L', 'O', 'W', 'O',
-            'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L',  'D',  'H', 'E', 'L', 'L',
-            'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W',  'O',  'R', 'L', 'D', 'H',
-            'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L',  'L',  'O', 'W', 'O', 'R',
-            'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D',  'H',  'E', 'L', 'L', 'O',
-            'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O',  'R',  'L', 'D', 'H', 'E',
-            'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 'H', 'E', 'L', 'L',  'O',  'W', 'O', 'R', 'L',
-            'D', 'H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D', 0x7c, 0x00,
-    };
-
-    uint8_t disk_data_provider(DiskReader::track_type track, DiskReader::sector_type sector,
+    /*    uint8_t disk_data_provider(DiskReader::track_type track, DiskReader::sector_type sector,
                                size_t index)
     {
         return disk_data[index];
-    }
+    }*/
 }
 
 Simulator::Simulator(ConfigROM rom_config)
 {
     auto rom_data = get_rom_data(rom_config);
+
+    // Create the Virtual Disk
+    auto disk_data = FileReader("data/8008-hello-world.bin").data;
+    // The data starts at Track 0 Sector 16
+    disk_data.insert(begin(disk_data), 16 * 128, 0xaa);
+    virtual_disk = std::make_shared<VirtualDisk>(
+            disk_data, VirtualDisk::Layout{.tracks = 10, .sectors = 32, .sector_size = 128});
 
     // Simulation Setup
     pluribus = std::make_shared<Pluribus>();
@@ -124,7 +121,11 @@ Simulator::Simulator(ConfigROM rom_config)
             .pluribus = pluribus,
             .configuration = {
                     .address_selection = 0b10100001, // 101 for Output, 1 for Input
-                    .data_provider = disk_data_provider,
+                    .data_provider =
+                            [this](DiskReader::track_type track,
+                                            DiskReader::sector_type sector, size_t index) {
+                                return virtual_disk->get(track, sector, index);
+                            },
             }};
     disk_controller_card = std::make_shared<DiskControllerCard>(disk_controller_card_config);
 
