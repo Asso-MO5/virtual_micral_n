@@ -1,4 +1,5 @@
 #include "VirtualDisk.h"
+#include <cassert>
 
 namespace
 {
@@ -14,7 +15,7 @@ VirtualDisk::VirtualDisk(std::span<uint8_t> data, Layout layout)
     initialize_checksums();
 }
 
-std::uint8_t VirtualDisk::get(int track, int sector, int index_in_sector) const
+std::uint8_t VirtualDisk::get(uint8_t track, uint8_t sector, uint8_t index_in_sector) const
 {
     if (index_in_sector >= 2 && index_in_sector < layout.sector_size + 1 + 2)
     {
@@ -27,8 +28,12 @@ std::uint8_t VirtualDisk::get(int track, int sector, int index_in_sector) const
     return 0xff - index_in_sector;
 }
 
-std::uint8_t VirtualDisk::get_data(int track, int sector, int index_in_sector) const
+std::uint8_t VirtualDisk::get_data(uint8_t track, uint8_t sector, uint8_t index_in_sector) const
 {
+    assert(track < layout.tracks && "Track number too high");
+    assert(sector < layout.sectors && "Sector number too high");
+    assert(index_in_sector < (layout.sector_size + 3) && "Index in sector too high");
+
     const size_t global_index = get_index(layout, track, sector, index_in_sector);
     if (global_index < data.size())
     {
@@ -53,6 +58,9 @@ void VirtualDisk::initialize_checksums()
 
 uint8_t VirtualDisk::computer_sector_checksum(int track, int sector)
 {
+    assert(track < layout.tracks && "Track number too high");
+    assert(sector < layout.sectors && "Sector number too high");
+
     uint8_t sector_checksum = 0;
 
     for (auto index = 0; index < layout.sector_size; index += 1)
@@ -68,5 +76,7 @@ uint8_t VirtualDisk::computer_sector_checksum(int track, int sector)
 
 std::uint8_t VirtualDisk::get_checksum(int track, int sector) const
 {
+    assert(track < layout.tracks && "Track number too high");
+    assert(sector < layout.sectors && "Sector number too high");
     return checksums[track * layout.sectors + sector];
 }
