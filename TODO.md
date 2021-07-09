@@ -1,9 +1,14 @@
 ### Implementation
 
 * Create a virtual disk with accessor for DiskReader
+* Implement the ROM/RAM Switching on the 4k RAM/ROM card.
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.
-* Implement the ROM/RAM Switching on the 4k RAM/ROM card. 
+* Panel and Console Card implementation
+  * Implement the SUBST mechanism
+  * Implement the AV switch (Need to understand better)
+  * Implement both back panel switches
+* Implement the Serial card
 * Implement the Stack card
     * Channel Mode (still needs to be understood)
 * Implement the Unknown Device (which is the Disk Controller)
@@ -23,11 +28,7 @@
     * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
   an assembler)
-* Panel and Console Card implementation
-    * Implement the SUBST mechanism
-    * Implement the AV switch (Need to understand better)
-    * Implement both back panel switches
-* Implement the Serial card
+* Add an assembler project with an objective of compiling SCELBAL
 * Implement a possibility to subscribe to a specific bit on an OwnedValue?
 * Change LED colors to correctly matching the hardware.
 * Create a debug panel for the DiskController
@@ -73,6 +74,7 @@
 
 ### Possible optimization
 
+* Implement profiler / Document profiling
 * SignalRecorder makes a lot of costly memcpy.
     * This is the top 1 when profiling
 * The Panels (Panels/Disassembly) are constantly re-updated, which is slow (especially for the PanelMemory)
