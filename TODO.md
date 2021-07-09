@@ -1,6 +1,5 @@
 ### Implementation
 
-* Create a virtual disk with accessor for DiskReader
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card.
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.

@@ -91,6 +91,13 @@ private:
     void connect_value_recorders();
     void pause_all_recorders();
     void resume_all_recorders();
+
+    void create_virtual_disk();
+    void create_processor_card();
+    void create_memory_cards(std::vector<uint8_t>& rom_data);
+    void create_stack_card();
+    void create_disk_system();
+    void create_serial_system();
 };
 
 #endif //MICRALN_SIMULATOR_H

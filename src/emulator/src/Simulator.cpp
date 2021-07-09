@@ -1,4 +1,5 @@
 #include "Simulator.h"
+
 #include "VirtualDisk.h"
 
 #include <devices/src/CPU8008.h>
@@ -47,87 +48,17 @@ namespace
 
 Simulator::Simulator(ConfigROM rom_config)
 {
+    create_virtual_disk();
+
     auto rom_data = get_rom_data(rom_config);
 
-    // Create the Virtual Disk
-    auto disk_data = FileReader("data/8008-hello-world.bin").data;
-    // The data starts at Track 0 Sector 16
-    disk_data.insert(begin(disk_data), 16 * 128, 0xaa);
-    virtual_disk = std::make_shared<VirtualDisk>(
-            disk_data, VirtualDisk::Layout{.tracks = 10, .sectors = 32, .sector_size = 128});
-
-    // Simulation Setup
     pluribus = std::make_shared<Pluribus>();
 
-    ProcessorCard::Config processor_card_config{
-            .change_schedule =
-                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .pluribus = pluribus,
-    };
-
-    processor_card = std::make_shared<ProcessorCard>(processor_card_config);
-    processor_card->install_debug_info();
-
-    // MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(true, true, true);
-    MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
-    memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
-    memory_card_1->load_data(rom_data);
-
-    MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
-    memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
-
-    console_card = std::make_shared<ConsoleCard>(pluribus, ConsoleCard::StartMode::Automatic,
-                                                 ConsoleCard::RecordMode::Record);
-
-    StackChannelCard::Config stack_channel_6_config{
-            .change_schedule =
-                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .pluribus = pluribus,
-            .configuration = {
-                    .mode = StackChannelCardConfiguration::Stack,
-                    .memory_size = 256,
-                    .input_address = 0x06,
-                    .output_address = 0x16,
-            }};
-    stack_channel_6_card = std::make_shared<StackChannelCard>(stack_channel_6_config);
-
-    // IO Card for Serial Card
-    IOCard::Config io_card_config{
-            .change_schedule =
-                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .pluribus = pluribus,
-            .configuration = {
-                    .mode = IOCardConfiguration::Input_32_Output_32,
-                    .address_selection = 0b01000000, // 010 for Output, 0 for Input
-            }};
-    io_card = std::make_shared<IOCard>(io_card_config);
-
-    // StackChannel for the Disk Controller
-    StackChannelCard::Config stack_channel_5_config{
-            .change_schedule =
-                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .pluribus = pluribus,
-            .configuration = {
-                    .mode = StackChannelCardConfiguration::Channel,
-                    .memory_size = 256,
-                    .input_address = 0x05,
-                    .output_address = 0x15,
-            }};
-    stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
-
-    DiskControllerCard::Config disk_controller_card_config{
-            .change_schedule =
-                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .pluribus = pluribus,
-            .configuration = {
-                    .address_selection = 0b10100001, // 101 for Output, 1 for Input
-                    .data_provider =
-                            [this](DiskReader::track_type track,
-                                            DiskReader::sector_type sector, size_t index) {
-                                return virtual_disk->get(track, sector, index);
-                            },
-            }};
-    disk_controller_card = std::make_shared<DiskControllerCard>(disk_controller_card_config);
+    create_processor_card();
+    create_memory_cards(rom_data);
+    create_stack_card();
+    create_serial_system();
+    create_disk_system();
 
     // Connection between the Stack Channel and the Disk Controller
     stackchannel_diskcontroller_connector =
@@ -153,6 +84,94 @@ Simulator::Simulator(ConfigROM rom_config)
 
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
+}
+
+void Simulator::create_serial_system()
+{
+    IOCard::Config io_card_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = IOCardConfiguration::Input_32_Output_32,
+                    .address_selection = 0b01000000, // 010 for Output, 0 for Input
+            }};
+    io_card = std::make_shared<IOCard>(io_card_config);
+}
+
+void Simulator::create_disk_system()
+{
+    StackChannelCard::Config stack_channel_5_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = StackChannelCardConfiguration::Channel,
+                    .memory_size = 256,
+                    .input_address = 0x05,
+                    .output_address = 0x15,
+            }};
+    stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
+
+    DiskControllerCard::Config disk_controller_card_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = {
+                    .address_selection = 0b10100001, // 101 for Output, 1 for Input
+                    .data_provider =
+                            [this](DiskReader::track_type track, DiskReader::sector_type sector,
+                                   size_t index) {
+                                return virtual_disk->get(track, sector, index);
+                            },
+            }};
+    disk_controller_card = std::make_shared<DiskControllerCard>(disk_controller_card_config);
+}
+
+void Simulator::create_stack_card()
+{
+    StackChannelCard::Config stack_channel_6_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = {
+                    .mode = StackChannelCardConfiguration::Stack,
+                    .memory_size = 256,
+                    .input_address = 0x06,
+                    .output_address = 0x16,
+            }};
+    stack_channel_6_card = std::make_shared<StackChannelCard>(stack_channel_6_config);
+}
+void Simulator::create_memory_cards(std::vector<uint8_t>& rom_data)
+{ // MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(true, true, true);
+    MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
+    memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
+    memory_card_1->load_data(rom_data);
+
+    MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
+    memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
+
+    console_card =
+            std::make_shared<ConsoleCard>(pluribus, ConsoleCard::Automatic, ConsoleCard::Record);
+}
+void Simulator::create_processor_card()
+{
+    ProcessorCard::Config processor_card_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+    };
+
+    processor_card = std::make_shared<ProcessorCard>(processor_card_config);
+    processor_card->install_debug_info();
+}
+void Simulator::create_virtual_disk()
+{ // Create the Virtual Disk
+    auto disk_data = FileReader("data/8008-hello-world.bin").data;
+    // The data starts at Track 0 Sector 16
+    disk_data.insert(begin(disk_data), 16 * 128, 0xaa);
+    virtual_disk = std::make_shared<VirtualDisk>(
+            disk_data, VirtualDisk::Layout{.tracks = 10, .sectors = 32, .sector_size = 128});
 }
 
 void connect_recorder(OwnedSignal& signal, SignalRecorder& recorder)
