@@ -17,11 +17,11 @@ VirtualDisk::VirtualDisk(std::span<uint8_t> data, Layout layout)
 
 std::uint8_t VirtualDisk::get(uint8_t track, uint8_t sector, uint8_t index_in_sector) const
 {
-    if (index_in_sector >= 2 && index_in_sector < layout.sector_size + 1 + 2)
+    if (index_in_sector >= 2 && index_in_sector < layout.sector_size + 2)
     {
         return get_data(track, sector, index_in_sector - 2);
     }
-    if (index_in_sector == layout.sector_size + 1 + 2)
+    if (index_in_sector == layout.sector_size + 2)
     {
         return get_checksum(track, sector);
     }

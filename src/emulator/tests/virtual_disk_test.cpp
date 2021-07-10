@@ -89,8 +89,8 @@ TEST(VirtualDisk, computes_checksum)
     VirtualDisk::Layout layout{.tracks = 10, .sectors = 32, .sector_size = 128};
     VirtualDisk disk{big_data, layout};
 
-    ASSERT_THAT(disk.get(0x0, 0x00, 128 + 2 + 1), Eq(231));
-    ASSERT_THAT(disk.get(0x0, 0x01, 128 + 2 + 1), Eq(209));
-    ASSERT_THAT(disk.get(0x0, 0x02, 128 + 2 + 1), Eq(88));
-    ASSERT_THAT(disk.get(0x0, 0x03, 128 + 2 + 1), Eq(0));
+    ASSERT_THAT(disk.get(0x0, 0x00, 128 + 2), Eq(231));
+    ASSERT_THAT(disk.get(0x0, 0x01, 128 + 2), Eq(209));
+    ASSERT_THAT(disk.get(0x0, 0x02, 128 + 2), Eq(88));
+    ASSERT_THAT(disk.get(0x0, 0x03, 128 + 2), Eq(0));
 }
