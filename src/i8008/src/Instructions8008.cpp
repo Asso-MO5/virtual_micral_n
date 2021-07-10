@@ -32,6 +32,11 @@ InstructionTableFor8008::decode_instruction(uint8_t opcode) const
             continue;
         }
 
+        if (candidate == InstructionNameFor8008::UNKNOWN)
+        {
+            return {&unknown_instruction, 0, 0};
+        }
+
         auto& found = instruction_table[candidate];
         assert(found.name == candidate); // Both table must be synchronized
 
@@ -159,13 +164,14 @@ InstructionTableFor8008::InstructionTableFor8008()
              OtherCycle{}, OtherCycle{}, "RST"},                            //
 
             // I/O Instructions
-            {INP, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                               //
-             OtherCycle{CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b_At_T2),                  //
-                        T3(Fetch_Data_to_Reg_b), T4(Out_Conditions_Flags), T5(Reg_b_to_A)},     //
-             OtherCycle{}, "INP"},                                                              //
-            {OUT, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                               //
-             OtherCycle{CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b_At_T2), T3(IDLE | CYCLE_END)}, //
-             OtherCycle{}, "OUT"},                                                              //
+            {INP, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                           //
+             OtherCycle{CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b_At_T2),              //
+                        T3(Fetch_Data_to_Reg_b), T4(Out_Conditions_Flags), T5(Reg_b_to_A)}, //
+             OtherCycle{}, "INP"},                                                          //
+            {OUT, FirstCycle{T3(Fetch_IR_And_Reg_b | CYCLE_END)},                           //
+             OtherCycle{CycleControl::PCC, T1(Out_Reg_A), T2(Out_Reg_b_At_T2),
+                        T3(IDLE | CYCLE_END)}, //
+             OtherCycle{}, "OUT"},             //
 
             // HALT
             {HLT, FirstCycle{static_cast<T3_Action>(Fetch_IR_And_Reg_b | Halt | CYCLE_END)}, //
@@ -185,13 +191,15 @@ InstructionTableFor8008::InstructionTableFor8008()
             {HLT, 0b11, 0b111'111, 0b111'111}, //
 
             // Index Register Instructions
-            {LrM, 0b11, 0b000'000, 0b111'111}, // Must be before Lrr to capture M
-            {LMr, 0b11, 0b111'111, 0b000'000}, // Must be before Lrr to capture M
-            {Lrr, 0b11, 0b000'000, 0b000'000}, //
-            {LMI, 0b00, 0b111'111, 0b111'110}, // Must be before LrI to capture M
-            {LrI, 0b00, 0b000'000, 0b111'110}, //
-            {INr, 0b00, 0b000'000, 0b111'000}, //
-            {DCr, 0b00, 0b000'000, 0b111'001}, //
+            {LrM, 0b11, 0b000'000, 0b111'111},     // Must be before Lrr to capture M
+            {LMr, 0b11, 0b111'111, 0b000'000},     // Must be before Lrr to capture M
+            {Lrr, 0b11, 0b000'000, 0b000'000},     //
+            {LMI, 0b00, 0b111'111, 0b111'110},     // Must be before LrI to capture M
+            {LrI, 0b00, 0b000'000, 0b111'110},     //
+            {UNKNOWN, 0b00, 0b111'111, 0b111'000}, // Captures the invalid Increment M
+            {UNKNOWN, 0b00, 0b111'111, 0b111'001}, // Captures the invalid Decrement M
+            {INr, 0b00, 0b000'000, 0b111'000},     //
+            {DCr, 0b00, 0b000'000, 0b111'001},     //
 
             // Accumulator Group Instructions
             {ALU_OPM, 0b10, 0b000'000, 0b111'111}, // Must be before ALU_OPr to capture M
@@ -237,7 +245,6 @@ std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& i
         if (instruction.instruction->name == InstructionNameFor8008::InstructionName::INr ||
             instruction.instruction->name == InstructionNameFor8008::InstructionName::DCr)
         {
-
             base_string[2] = REGISTER_NAMES[instruction.medium][0];
         }
         else

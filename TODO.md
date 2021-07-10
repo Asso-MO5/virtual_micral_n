@@ -72,6 +72,8 @@
   * The default it at zero, but a lot of cards starts unscheduled.
   * When they are unscheduled and have no step action, the Scheduler runs "void" and
     the application freezes without warning
+  * INC Memory and DEC Memory are considered invalid by the disassembly. But how does it
+    work on the 8008 execution?
 
 ### Build
 
