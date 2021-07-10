@@ -15,7 +15,6 @@ class Pluribus;
 namespace MemoryConstants
 {
     constexpr const size_t SELECTION_BIT_COUNT = 3;
-    constexpr const size_t MAXIMUM_PAGES = 8;
 }
 
 struct MemoryCardConfiguration
@@ -26,8 +25,15 @@ struct MemoryCardConfiguration
         Card4k,
     };
 
+    enum AccessType
+    {
+        RAM,
+        ROM,
+        ROM_RAM_256,
+    };
+
     AddressingSize addressing_size;
-    std::array<bool, MemoryConstants::MAXIMUM_PAGES> writable_page{};
+    AccessType access_type;
     std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
 };
 

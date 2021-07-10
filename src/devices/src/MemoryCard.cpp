@@ -34,7 +34,15 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
         std::span<uint8_t> page_memory{begin(data) + start_page_address,
                                        begin(data) + end_page_address};
         page_readers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
-        page_writers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
+
+        if (configuration.access_type == MemoryCardConfiguration::RAM)
+        {
+            page_writers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
+        }
+        else
+        {
+            page_writers.push_back(std::make_unique<InactiveMemoryPage>());
+        }
     }
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
@@ -105,18 +113,14 @@ void MemoryCard::on_t3prime(Edge edge)
         if (cycle_control == Constants8008::CycleControl::PCW && is_addressed(address))
         {
             auto data_on_bus = pluribus->data_bus_d0_7.get_value();
-            auto local_address = address - get_start_address();
-            auto old_page_number = local_address / 512;
-            if (configuration.writable_page.at(old_page_number))
-            {
-                const auto address_on_card = (get_addressing_size() == AddressingSize::Card2k)
-                                                     ? (address & 0x7ff)
-                                                     : (address & 0xfff);
-                const auto page_number = address_on_card / PAGE_SIZE;
-                const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
 
-                write_data_to_page(page_number, address_in_page, data_on_bus);
-            }
+            const auto address_on_card = (get_addressing_size() == AddressingSize::Card2k)
+                                                 ? (address & 0x7ff)
+                                                 : (address & 0xfff);
+            const auto page_number = address_on_card / PAGE_SIZE;
+            const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
+
+            write_data_to_page(page_number, address_in_page, data_on_bus);
         }
     }
 }
@@ -184,17 +188,7 @@ MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11)
 {
     return {
             .addressing_size = MemoryCard::AddressingSize::Card2k,
-            .writable_page =
-                    {
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                    },
+            .access_type = MemoryCardConfiguration::ROM,
             .selection_mask = {s13, s12, s11},
     };
 }
@@ -203,17 +197,7 @@ MemoryCardConfiguration get_ram_2k_configuration(bool s13, bool s12, bool s11)
 {
     return {
             .addressing_size = MemoryCard::AddressingSize::Card2k,
-            .writable_page =
-                    {
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                            true,
-                    },
+            .access_type = MemoryCardConfiguration::RAM,
             .selection_mask = {s13, s12, s11},
     };
 }
