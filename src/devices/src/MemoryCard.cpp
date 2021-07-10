@@ -183,21 +183,3 @@ void MemoryCard::write_data_to_page(uint16_t page, uint16_t address_in_page, uin
 {
     page_writers[page]->write(address_in_page, data_to_write);
 }
-
-MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11)
-{
-    return {
-            .addressing_size = MemoryCard::AddressingSize::Card2k,
-            .access_type = MemoryCardConfiguration::ROM,
-            .selection_mask = {s13, s12, s11},
-    };
-}
-
-MemoryCardConfiguration get_ram_2k_configuration(bool s13, bool s12, bool s11)
-{
-    return {
-            .addressing_size = MemoryCard::AddressingSize::Card2k,
-            .access_type = MemoryCardConfiguration::RAM,
-            .selection_mask = {s13, s12, s11},
-    };
-}

@@ -291,23 +291,30 @@ void Simulator::resume_all_recorders()
 
 MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
 {
-    auto configuration = ::get_rom_2k_configuration(s13, s12, s11);
     auto construction_config = MemoryCard::Config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
-            .configuration = configuration};
+            .configuration = {
+                    .addressing_size = MemoryCardConfiguration::Card2k,
+                    .access_type = MemoryCardConfiguration::ROM,
+                    .selection_mask = {s13, s12, s11},
+            }};
     return construction_config;
 }
 
 MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, bool s11)
 {
-    auto configuration = ::get_ram_2k_configuration(s13, s12, s11);
     auto construction_config = MemoryCard::Config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
-            .configuration = configuration,
+            .configuration =
+                    {
+                            .addressing_size = MemoryCardConfiguration::Card2k,
+                            .access_type = MemoryCardConfiguration::RAM,
+                            .selection_mask = {s13, s12, s11},
+                    },
     };
     return construction_config;
 }

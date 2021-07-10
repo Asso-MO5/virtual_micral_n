@@ -88,7 +88,4 @@ private:
     void write_data_to_page(uint16_t page, uint16_t address_in_page, uint8_t data_to_write);
 };
 
-MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11);
-MemoryCardConfiguration get_ram_2k_configuration(bool s13, bool s12, bool s11);
-
 #endif //MICRALN_MEMORYCARD_H
