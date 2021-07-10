@@ -55,7 +55,8 @@ void MemoryCard::create_memory_pages()
                                        begin(buffer) + end_page_address};
         page_readers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
 
-        if (configuration.access_type == MemoryCardConfiguration::RAM)
+        if (configuration.access_type == MemoryCardConfiguration::RAM ||
+            configuration.access_type == MemoryCardConfiguration::ROM_RAM_256)
         {
             page_writers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
         }
@@ -63,6 +64,12 @@ void MemoryCard::create_memory_pages()
         {
             page_writers.push_back(std::make_unique<InactiveMemoryPage>());
         }
+    }
+
+    if (configuration.access_type == MemoryCardConfiguration::ROM_RAM_256)
+    {
+        masked_rom.resize(PAGE_SIZE);
+        page_readers[0] = std::make_unique<ActiveMemoryPage>(masked_rom);
     }
 }
 

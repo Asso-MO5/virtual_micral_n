@@ -74,6 +74,7 @@ private:
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
 
     std::vector<uint8_t> buffer;
+    std::vector<uint8_t> masked_rom;
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);

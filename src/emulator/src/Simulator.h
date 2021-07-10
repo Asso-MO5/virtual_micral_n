@@ -44,8 +44,9 @@ enum ConfigROM
     INPUT_OUTPUT,
     HELLO_WORLD,
     HELLO_MO5,
-    MICRAL_38_3F,
     MICRAL_MIC_1,
+    MICRAL_38_3F,
+    MICRAL_N,
 };
 
 class Simulator
@@ -70,6 +71,7 @@ private:
 
     std::shared_ptr<MemoryCard> memory_card_1;
     std::shared_ptr<MemoryCard> memory_card_2;
+    std::shared_ptr<MemoryCard> memory_card_3;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;
@@ -87,6 +89,8 @@ private:
 
     MemoryCard::Config get_memory_card_rom_2k_config(bool s13, bool s12, bool s11);
     MemoryCard::Config get_memory_card_ram_2k_config(bool s13, bool s12, bool s11);
+    MemoryCard::Config get_memory_card_masked_rom_ram_4k_config(bool s13, bool s12, bool s11);
+
     void connect_signal_recorders();
     void connect_value_recorders();
     void pause_all_recorders();
@@ -94,7 +98,7 @@ private:
 
     void create_virtual_disk();
     void create_processor_card();
-    void create_memory_cards(std::vector<uint8_t>& rom_data);
+    void create_memory_cards(ConfigROM rom_config);
     void create_stack_card();
     void create_disk_system();
     void create_serial_system();
