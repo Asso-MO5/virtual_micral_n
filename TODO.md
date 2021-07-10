@@ -1,6 +1,16 @@
 ### Implementation
 
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card.
+  * Idea for new architecture
+    * Have two lists of pointer to pages, one for read, one for write.
+    * Pages represent data access of 256 bytes
+      * They are pointing on a general data pool (vector of bytes)
+    * Address is transposed to page and depending on the operation, read() or write() is called.
+    * This allows bank switching by changing the page in the dispatcher
+  * Improve debugging/gui
+    * add a callback telling what data changed.
+    * thus, it's the responsibility of the debug/gui to update its view when it changes, rather than
+      reconstructing it each frame.
 * Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.
 * Panel and Console Card implementation
