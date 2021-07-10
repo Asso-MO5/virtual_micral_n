@@ -38,12 +38,6 @@ namespace
         }
         return {};
     }
-
-    /*    uint8_t disk_data_provider(DiskReader::track_type track, DiskReader::sector_type sector,
-                               size_t index)
-    {
-        return disk_data[index];
-    }*/
 }
 
 Simulator::Simulator(ConfigROM rom_config)
@@ -56,34 +50,25 @@ Simulator::Simulator(ConfigROM rom_config)
 
     create_processor_card();
     create_memory_cards(rom_data);
+    create_console_card();
     create_stack_card();
     create_serial_system();
     create_disk_system();
-
-    // Connection between the Stack Channel and the Disk Controller
-    stackchannel_diskcontroller_connector =
-            std::make_shared<Connectors::StackChannel_To_DiskController>(*stack_channel_5_card,
-                                                                         *disk_controller_card);
 
     connect_signal_recorders();
     connect_value_recorders();
     pause_all_recorders();
     resume_all_recorders();
 
-    scheduler.add(processor_card);
-    scheduler.add(console_card);
-    scheduler.add(memory_card_1);
-    scheduler.add(memory_card_2);
-    scheduler.add(stack_channel_6_card);
-    scheduler.add(stack_channel_5_card);
-    scheduler.add(io_card);
-    scheduler.add(disk_controller_card);
-
-    memory_view.add_memory_card(memory_card_1);
-    memory_view.add_memory_card(memory_card_2);
-
     pluribus->vdd.request(this);
     pluribus->vdd.set(State{State::HIGH}, Scheduling::counter_type{0}, this);
+}
+
+void Simulator::create_console_card()
+{
+    console_card =
+            std::make_shared<ConsoleCard>(pluribus, ConsoleCard::Automatic, ConsoleCard::Record);
+    scheduler.add(console_card);
 }
 
 void Simulator::create_serial_system()
@@ -97,6 +82,7 @@ void Simulator::create_serial_system()
                     .address_selection = 0b01000000, // 010 for Output, 0 for Input
             }};
     io_card = std::make_shared<IOCard>(io_card_config);
+    scheduler.add(io_card);
 }
 
 void Simulator::create_disk_system()
@@ -112,6 +98,7 @@ void Simulator::create_disk_system()
                     .output_address = 0x15,
             }};
     stack_channel_5_card = std::make_shared<StackChannelCard>(stack_channel_5_config);
+    scheduler.add(stack_channel_5_card);
 
     DiskControllerCard::Config disk_controller_card_config{
             .change_schedule =
@@ -126,6 +113,12 @@ void Simulator::create_disk_system()
                             },
             }};
     disk_controller_card = std::make_shared<DiskControllerCard>(disk_controller_card_config);
+    scheduler.add(disk_controller_card);
+
+    // Connection between the Stack Channel and the Disk Controller
+    stackchannel_diskcontroller_connector =
+            std::make_shared<Connectors::StackChannel_To_DiskController>(*stack_channel_5_card,
+                                                                         *disk_controller_card);
 }
 
 void Simulator::create_stack_card()
@@ -141,19 +134,23 @@ void Simulator::create_stack_card()
                     .output_address = 0x16,
             }};
     stack_channel_6_card = std::make_shared<StackChannelCard>(stack_channel_6_config);
+    scheduler.add(stack_channel_6_card);
 }
+
 void Simulator::create_memory_cards(std::vector<uint8_t>& rom_data)
-{ // MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(true, true, true);
+{
     MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
     memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
     memory_card_1->load_data(rom_data);
+    scheduler.add(memory_card_1);
+    memory_view.add_memory_card(memory_card_1);
 
     MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
     memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
-
-    console_card =
-            std::make_shared<ConsoleCard>(pluribus, ConsoleCard::Automatic, ConsoleCard::Record);
+    scheduler.add(memory_card_2);
+    memory_view.add_memory_card(memory_card_2);
 }
+
 void Simulator::create_processor_card()
 {
     ProcessorCard::Config processor_card_config{
@@ -164,9 +161,12 @@ void Simulator::create_processor_card()
 
     processor_card = std::make_shared<ProcessorCard>(processor_card_config);
     processor_card->install_debug_info();
+
+    scheduler.add(processor_card);
 }
+
 void Simulator::create_virtual_disk()
-{ // Create the Virtual Disk
+{
     auto disk_data = FileReader("data/8008-hello-world.bin").data;
     // The data starts at Track 0 Sector 16
     disk_data.insert(begin(disk_data), 16 * 128, 0xaa);
@@ -395,17 +395,17 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
 }
 
 const Scheduler& Simulator::get_scheduler() const { return scheduler; }
-
 const MemoryView& Simulator::get_memory_view() const { return memory_view; }
 const ProcessorCard& Simulator::get_processor_card() const { return *processor_card; }
-
 ConsoleCard& Simulator::get_console_card() { return *console_card; }
 const RecorderCollection& Simulator::get_recorders() const { return recorders; }
 const Pluribus& Simulator::get_pluribus() const { return *pluribus; }
+
 const StackChannelCard& Simulator::get_stack_channel_card(int card_number) const
 {
     return card_number == 0 ? *stack_channel_5_card : *stack_channel_6_card;
 }
+
 const DiskControllerCard& Simulator::get_disk_controller_card() const
 {
     return *disk_controller_card;

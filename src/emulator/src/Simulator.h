@@ -98,6 +98,7 @@ private:
     void create_stack_card();
     void create_disk_system();
     void create_serial_system();
+    void create_console_card();
 };
 
 #endif //MICRALN_SIMULATOR_H
