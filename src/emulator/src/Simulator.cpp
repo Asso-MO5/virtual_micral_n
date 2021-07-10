@@ -483,7 +483,7 @@ uint8_t SimulatorMemoryView::get(std::uint16_t address) const
 
             if (address < end_address)
             {
-                return memory->get_data_at(address - start_address);
+                return memory->get_data_at(address);
             }
         }
     }
