@@ -73,19 +73,21 @@ private:
 
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
 
-    std::vector<uint8_t> data;
+    std::vector<uint8_t> buffer;
 
     void on_t2(Edge edge);
     void on_t3(Edge edge);
     void on_t3prime(Edge edge);
 
     bool is_addressed(uint16_t address);
-    [[nodiscard]] uint8_t get_data(uint16_t address) const;
+    [[nodiscard]] uint8_t read_data(uint16_t address) const;
     void set_data_size();
 
     [[nodiscard]] AddressingSize get_addressing_size() const;
     [[nodiscard]] uint8_t read_data_from_page(uint16_t page, uint16_t address_in_page) const;
     void write_data_to_page(uint16_t page, uint16_t address_in_page, uint8_t data_to_write);
+    void write_data(uint16_t address, uint8_t data);
+    void create_memory_pages();
 };
 
 #endif //MICRALN_MEMORYCARD_H

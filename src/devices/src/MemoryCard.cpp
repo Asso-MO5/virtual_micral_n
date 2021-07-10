@@ -10,6 +10,18 @@ namespace
 {
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
     const uint16_t PAGE_SIZE = 256;
+
+    std::tuple<uint16_t, size_t, uint16_t>
+    get_local_address(MemoryCard::AddressingSize addressing_size, uint8_t address)
+    {
+        const auto address_on_card = (addressing_size == MemoryCard::AddressingSize::Card2k)
+                                             ? (address & 0x7ff)
+                                             : (address & 0xfff);
+        const auto page_number = address_on_card / PAGE_SIZE;
+        const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
+
+        return {address_on_card, page_number, address_in_page};
+    }
 }
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
@@ -21,9 +33,17 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     set_next_activation_time(Scheduling::unscheduled());
 
     set_data_size();
+    create_memory_pages();
 
-    const uint_least16_t page_count = data.size() / PAGE_SIZE;
-    assert((PAGE_SIZE * page_count == data.size()) &&
+    pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
+    pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
+    pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime((edge)); });
+}
+
+void MemoryCard::create_memory_pages()
+{
+    const uint_least16_t page_count = buffer.size() / PAGE_SIZE;
+    assert((PAGE_SIZE * page_count == buffer.size()) &&
            "The total size must be a multiple of the page size.");
     page_readers.reserve(page_count);
     page_writers.reserve(page_count);
@@ -31,8 +51,8 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     {
         const auto start_page_address = page_index * PAGE_SIZE;
         const auto end_page_address = start_page_address + PAGE_SIZE;
-        std::span<uint8_t> page_memory{begin(data) + start_page_address,
-                                       begin(data) + end_page_address};
+        std::span<uint8_t> page_memory{begin(buffer) + start_page_address,
+                                       begin(buffer) + end_page_address};
         page_readers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
 
         if (configuration.access_type == MemoryCardConfiguration::RAM)
@@ -44,30 +64,26 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
             page_writers.push_back(std::make_unique<InactiveMemoryPage>());
         }
     }
-
-    pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
-    pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
-    pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime((edge)); });
 }
 
 MemoryCard::~MemoryCard() = default;
 
 void MemoryCard::load_data(std::vector<uint8_t> data_to_load)
 {
-    auto initial_size = data.size();
-    data = std::move(data_to_load);
-    data.resize(initial_size);
+    auto initial_size = buffer.size();
+    buffer = std::move(data_to_load);
+    buffer.resize(initial_size);
 }
 
 void MemoryCard::set_data_size()
 {
     if (configuration.addressing_size == AddressingSize::Card2k)
     {
-        data.resize(2048);
+        buffer.resize(2048);
     }
     else
     {
-        data.resize(4096);
+        buffer.resize(4096);
     }
 }
 
@@ -89,7 +105,7 @@ void MemoryCard::on_t2(Edge edge)
             is_addressed(address))
         {
             // This is the end of T2, schedule the data emission
-            auto data_to_send = get_data(address);
+            auto data_to_send = read_data(address);
             output_data_holder->take_bus(edge.time(), data_to_send);
 
             set_next_activation_time(edge.time() + MEMORY_READ_DELAY);
@@ -97,6 +113,7 @@ void MemoryCard::on_t2(Edge edge)
         }
     }
 }
+
 void MemoryCard::on_t3(Edge edge)
 {
     if (is_falling(edge) && output_data_holder->is_holding_bus())
@@ -113,14 +130,7 @@ void MemoryCard::on_t3prime(Edge edge)
         if (cycle_control == Constants8008::CycleControl::PCW && is_addressed(address))
         {
             auto data_on_bus = pluribus->data_bus_d0_7.get_value();
-
-            const auto address_on_card = (get_addressing_size() == AddressingSize::Card2k)
-                                                 ? (address & 0x7ff)
-                                                 : (address & 0xfff);
-            const auto page_number = address_on_card / PAGE_SIZE;
-            const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
-
-            write_data_to_page(page_number, address_in_page, data_on_bus);
+            write_data(address, data_on_bus);
         }
     }
 }
@@ -140,15 +150,18 @@ bool MemoryCard::is_addressed(uint16_t address)
     return s13 == selection_mask[0] && s12 == selection_mask[1];
 }
 
-uint8_t MemoryCard::get_data(uint16_t address) const
+uint8_t MemoryCard::read_data(uint16_t address) const
 {
-    const auto address_on_card = (get_addressing_size() == AddressingSize::Card2k)
-                                         ? (address & 0x7ff)
-                                         : (address & 0xfff);
-    const auto page_number = address_on_card / PAGE_SIZE;
-    const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
+    auto [address_on_card, page_number, address_in_page] =
+            get_local_address(get_addressing_size(), address);
+    return page_readers[page_number]->read(address_in_page);
+}
 
-    return read_data_from_page(page_number, address_in_page);
+void MemoryCard::write_data(uint16_t address, uint8_t data)
+{
+    auto [address_on_card, page_number, address_in_page] =
+            get_local_address(get_addressing_size(), address);
+    page_writers[page_number]->write(address_in_page, data);
 }
 
 MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
@@ -169,9 +182,8 @@ uint16_t MemoryCard::get_start_address() const
     return first_page_address;
 }
 
-uint16_t MemoryCard::get_length() const { return data.size(); }
-
-uint8_t MemoryCard::get_data_at(uint16_t address) const { return data.at(address); }
+uint16_t MemoryCard::get_length() const { return buffer.size(); }
+uint8_t MemoryCard::get_data_at(uint16_t address) const { return buffer.at(address); }
 std::vector<std::shared_ptr<Schedulable>> MemoryCard::get_sub_schedulables() { return {}; }
 
 uint8_t MemoryCard::read_data_from_page(uint16_t page, uint16_t address_in_page) const
