@@ -4,8 +4,6 @@
 #include "MemoryPage.h"
 #include "Pluribus.h"
 
-#include <utility>
-
 namespace
 {
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
@@ -27,6 +25,11 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
     pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime((edge)); });
+
+    if (configuration.access_type == MemoryCardConfiguration::ROM_RAM_256)
+    {
+        pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
+    }
 }
 
 void MemoryCard::create_memory_pages()
@@ -138,6 +141,27 @@ void MemoryCard::on_t3prime(Edge edge)
     }
 }
 
+void MemoryCard::on_phase_2(Edge edge)
+{
+    if (is_rising(edge) && is_low(pluribus->sync) && is_high(pluribus->t3))
+    {
+        auto cc0 = *pluribus->cc0;
+        auto cc1 = *pluribus->cc1;
+
+        Constants8008::CycleControl cycleControl = cycle_control_from_cc(cc0, cc1);
+
+        if (cycleControl == Constants8008::CycleControl::PCI)
+        {
+            if (*pluribus->data_bus_md0_7 == 0x05) // RST $0
+            {
+                // TODO: It happens three time during the RST $0... is it ok?
+                std::span<uint8_t> page_memory{begin(buffer), begin(buffer) + PAGE_SIZE};
+                page_readers[0] = std::make_unique<ActiveMemoryPage>(page_memory);
+            }
+        }
+    }
+}
+
 bool MemoryCard::is_addressed(uint16_t address)
 {
     bool s13 = address & 0b10000000000000;
@@ -200,4 +224,5 @@ uint8_t MemoryCard::get_data_at(uint16_t address) const
     // TODO: this function is now useless
     return read_data(address);
 }
+
 std::vector<std::shared_ptr<Schedulable>> MemoryCard::get_sub_schedulables() { return {}; }

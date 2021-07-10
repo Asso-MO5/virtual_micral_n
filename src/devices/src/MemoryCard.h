@@ -82,6 +82,7 @@ private:
     void on_t2(Edge edge);
     void on_t3(Edge edge);
     void on_t3prime(Edge edge);
+    void on_phase_2(Edge edge);
 
     bool is_addressed(uint16_t address);
     [[nodiscard]] uint8_t read_data(uint16_t address) const;

@@ -1,7 +1,6 @@
 ### Implementation
 
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card.
-  * Implement the Switch when reading the RST $00 (look at the timings)
   * Improve debugging/gui
     * add a callback telling what data changed.
     * thus, it's the responsibility of the debug/gui to update its view when it changes, rather than
