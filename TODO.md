@@ -1,14 +1,14 @@
 ### Implementation
 
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card.
-  * Idea for new architecture
-    * This allows bank switching by changing the page in the dispatcher
+  * Implement the Switch when reading the RST $00 (look at the timings)
   * Improve debugging/gui
     * add a callback telling what data changed.
     * thus, it's the responsibility of the debug/gui to update its view when it changes, rather than
       reconstructing it each frame.
-* Simplify writing the connections in the connectors
 * Puts a configuration with both ROMs in place.
+  * It's there but lscks the RAM Cards.
+* Simplify writing the connections in the connectors
 * Panel and Console Card implementation
   * Implement the SUBST mechanism
   * Implement the AV switch (Need to understand better)
