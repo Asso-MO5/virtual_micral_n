@@ -11,17 +11,6 @@ namespace
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
     const uint16_t PAGE_SIZE = 256;
 
-    std::tuple<uint16_t, size_t, uint16_t>
-    get_local_address(MemoryCard::AddressingSize addressing_size, uint8_t address)
-    {
-        const auto address_on_card = (addressing_size == MemoryCard::AddressingSize::Card2k)
-                                             ? (address & 0x7ff)
-                                             : (address & 0xfff);
-        const auto page_number = address_on_card / PAGE_SIZE;
-        const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
-
-        return {address_on_card, page_number, address_in_page};
-    }
 }
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
@@ -77,9 +66,16 @@ MemoryCard::~MemoryCard() = default;
 
 void MemoryCard::load_data(std::vector<uint8_t> data_to_load)
 {
-    auto initial_size = buffer.size();
-    buffer = std::move(data_to_load);
-    buffer.resize(initial_size);
+    if (masked_rom.empty())
+    {
+        const auto size_to_copy = std::min(data_to_load.size(), buffer.size());
+        std::copy_n(begin(data_to_load), size_to_copy, begin(buffer));
+    }
+    else
+    {
+        const auto size_to_copy = std::min(data_to_load.size(), masked_rom.size());
+        std::copy_n(begin(data_to_load), size_to_copy, begin(masked_rom));
+    }
 }
 
 void MemoryCard::set_data_size()
@@ -159,15 +155,13 @@ bool MemoryCard::is_addressed(uint16_t address)
 
 uint8_t MemoryCard::read_data(uint16_t address) const
 {
-    auto [address_on_card, page_number, address_in_page] =
-            get_local_address(get_addressing_size(), address);
+    auto [address_on_card, page_number, address_in_page] = get_local_address(address);
     return page_readers[page_number]->read(address_in_page);
 }
 
 void MemoryCard::write_data(uint16_t address, uint8_t data)
 {
-    auto [address_on_card, page_number, address_in_page] =
-            get_local_address(get_addressing_size(), address);
+    auto [address_on_card, page_number, address_in_page] = get_local_address(address);
     page_writers[page_number]->write(address_in_page, data);
 }
 
@@ -189,16 +183,21 @@ uint16_t MemoryCard::get_start_address() const
     return first_page_address;
 }
 
+std::tuple<uint16_t, size_t, uint16_t> MemoryCard::get_local_address(uint16_t address) const
+{
+    assert(address >= get_start_address() && "Address is not valid for this Memory Card");
+    const auto address_on_card = address - get_start_address();
+    const auto page_number = address_on_card / PAGE_SIZE;
+    const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
+
+    return {address_on_card, page_number, address_in_page};
+}
+
 uint16_t MemoryCard::get_length() const { return buffer.size(); }
-uint8_t MemoryCard::get_data_at(uint16_t address) const { return buffer.at(address); }
+
+uint8_t MemoryCard::get_data_at(uint16_t address) const
+{
+    // TODO: this function is now useless
+    return read_data(address);
+}
 std::vector<std::shared_ptr<Schedulable>> MemoryCard::get_sub_schedulables() { return {}; }
-
-uint8_t MemoryCard::read_data_from_page(uint16_t page, uint16_t address_in_page) const
-{
-    return page_readers[page]->read(address_in_page);
-}
-
-void MemoryCard::write_data_to_page(uint16_t page, uint16_t address_in_page, uint8_t data_to_write)
-{
-    page_writers[page]->write(address_in_page, data_to_write);
-}
