@@ -8,8 +8,9 @@
 #include <memory>
 #include <vector>
 
-class Pluribus;
 class DataOnMDBusHolder;
+class MemoryPage;
+class Pluribus;
 
 namespace MemoryConstants
 {
@@ -61,6 +62,9 @@ private:
     std::shared_ptr<Pluribus> pluribus;
     MemoryCardConfiguration configuration;
 
+    std::vector<std::unique_ptr<MemoryPage>> page_readers;
+    std::vector<std::unique_ptr<MemoryPage>> page_writers;
+
     std::unique_ptr<DataOnMDBusHolder> output_data_holder;
 
     std::vector<uint8_t> data;
@@ -74,6 +78,8 @@ private:
     void set_data_size();
 
     [[nodiscard]] AddressingSize get_addressing_size() const;
+    [[nodiscard]] uint8_t read_data_from_page(uint16_t page, uint16_t address_in_page) const;
+    void write_data_to_page(uint16_t page, uint16_t address_in_page, uint8_t data_to_write);
 };
 
 MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11);

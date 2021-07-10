@@ -1,6 +1,7 @@
 #include "MemoryCard.h"
 
 #include "DataOnMDBusHolder.h"
+#include "MemoryPage.h"
 #include "Pluribus.h"
 
 #include <utility>
@@ -8,6 +9,7 @@
 namespace
 {
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
+    const uint16_t PAGE_SIZE = 256;
 }
 
 MemoryCard::MemoryCard(const MemoryCard::Config& config)
@@ -19,6 +21,21 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     set_next_activation_time(Scheduling::unscheduled());
 
     set_data_size();
+
+    const uint_least16_t page_count = data.size() / PAGE_SIZE;
+    assert((PAGE_SIZE * page_count == data.size()) &&
+           "The total size must be a multiple of the page size.");
+    page_readers.reserve(page_count);
+    page_writers.reserve(page_count);
+    for (uint_least16_t page_index = 0; page_index < page_count; page_index += 1)
+    {
+        const auto start_page_address = page_index * PAGE_SIZE;
+        const auto end_page_address = start_page_address + PAGE_SIZE;
+        std::span<uint8_t> page_memory{begin(data) + start_page_address,
+                                       begin(data) + end_page_address};
+        page_readers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
+        page_writers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
+    }
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
@@ -89,10 +106,16 @@ void MemoryCard::on_t3prime(Edge edge)
         {
             auto data_on_bus = pluribus->data_bus_d0_7.get_value();
             auto local_address = address - get_start_address();
-            auto page_number = local_address / 512;
-            if (configuration.writable_page.at(page_number))
+            auto old_page_number = local_address / 512;
+            if (configuration.writable_page.at(old_page_number))
             {
-                data.at(local_address) = data_on_bus;
+                const auto address_on_card = (get_addressing_size() == AddressingSize::Card2k)
+                                                     ? (address & 0x7ff)
+                                                     : (address & 0xfff);
+                const auto page_number = address_on_card / PAGE_SIZE;
+                const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
+
+                write_data_to_page(page_number, address_in_page, data_on_bus);
             }
         }
     }
@@ -115,10 +138,13 @@ bool MemoryCard::is_addressed(uint16_t address)
 
 uint8_t MemoryCard::get_data(uint16_t address) const
 {
-    auto address_on_card = (get_addressing_size() == AddressingSize::Card2k) ? (address & 0x7ff)
-                                                                             : (address & 0xfff);
+    const auto address_on_card = (get_addressing_size() == AddressingSize::Card2k)
+                                         ? (address & 0x7ff)
+                                         : (address & 0xfff);
+    const auto page_number = address_on_card / PAGE_SIZE;
+    const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
 
-    return data[address_on_card];
+    return read_data_from_page(page_number, address_in_page);
 }
 
 MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
@@ -143,6 +169,16 @@ uint16_t MemoryCard::get_length() const { return data.size(); }
 
 uint8_t MemoryCard::get_data_at(uint16_t address) const { return data.at(address); }
 std::vector<std::shared_ptr<Schedulable>> MemoryCard::get_sub_schedulables() { return {}; }
+
+uint8_t MemoryCard::read_data_from_page(uint16_t page, uint16_t address_in_page) const
+{
+    return page_readers[page]->read(address_in_page);
+}
+
+void MemoryCard::write_data_to_page(uint16_t page, uint16_t address_in_page, uint8_t data_to_write)
+{
+    page_writers[page]->write(address_in_page, data_to_write);
+}
 
 MemoryCardConfiguration get_rom_2k_configuration(bool s13, bool s12, bool s11)
 {
