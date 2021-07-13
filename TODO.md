@@ -1,35 +1,24 @@
 ### Implementation
 
-* Implement the ROM/RAM Switching on the 4k RAM/ROM card.
-  * Improve debugging/gui
-    * add a callback telling what data changed.
-    * thus, it's the responsibility of the debug/gui to update its view when it changes, rather than
-      reconstructing it each frame.
 * Puts a configuration with both ROMs in place.
-  * It's there but lscks the RAM Cards.
+  * It's there but lacks the RAM Cards.
 * Simplify writing the connections in the connectors
 * Panel and Console Card implementation
   * Implement the SUBST mechanism
   * Implement the AV switch (Need to understand better)
   * Implement both back panel switches
 * Implement the Serial card
+* Implement the ROM/RAM Switching on the 4k RAM/ROM card.
+  * Improve debugging/gui
+    * add a callback telling what data changed.
+    * thus, it's the responsibility of the debug/gui to update its view when it changes, rather than
+      reconstructing it each frame.
 * Implement the Stack card
-    * Channel Mode (still needs to be understood)
-* Implement the Unknown Device (which is the Disk Controller)
-    * Implement delays (on reading disk)
-    * Add a way to set input data
-    * Implement tool for computing the CRC
-      ```c++
-        const auto data = disk_data[status.index_on_disk];
-        const auto crc = crc_of_sent_data;
-        const auto for_carry =
-                ((data ^ crc) ^ 0xff) & ((data + crc) ^ data);
-        const std::uint8_t carry = (for_carry & 0x80) ? 1 : 0;
-        crc_of_sent_data = crc + data + carry;
-      ```
-    * Make a tool to create data
+  * Channel Mode (still needs to be understood)
+* Implement the Disk Controller
+  * Implement delays (on reading disk)
 * Implement the I/O cards
-    * Implement the Interrupts for the I/O cards
+  * Implement the Interrupts for the I/O cards
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
   an assembler)
 * Add an assembler project with an objective of compiling SCELBAL
@@ -58,6 +47,7 @@
 * The non-PLURIBUS with I/O cards should be ordered: card subscribing are asking.
   Signals should never be "pushed". Currently, some are pushed, some are subscribed.
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
+* Make a tool to create data for Virtual Disk.
 * Make a Debuggers for GUI information (but can be use in CLI also)
     * Debugger that references memory, to display memory cards information
     * Debugger that references all cards to associate to specific debug panel.
