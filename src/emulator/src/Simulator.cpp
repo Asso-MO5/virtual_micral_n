@@ -158,11 +158,11 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
         scheduler.add(memory_card_2);
         memory_view.add_memory_card(memory_card_2);
 
-        // Needs more RAM
-        MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
-        memory_card_3 = std::make_shared<MemoryCard>(ram_memory_config);
-        scheduler.add(memory_card_3);
-        memory_view.add_memory_card(memory_card_3);
+        // Install RAM Cards
+        for (uint8_t mask = 0b010 ; mask <= 0b110; mask += 1)
+        {
+            add_ram_card(mask);
+        }
     }
     else
     {
@@ -174,11 +174,17 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
         scheduler.add(memory_card_1);
         memory_view.add_memory_card(memory_card_1);
 
-        MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(false, true, false);
-        memory_card_2 = std::make_shared<MemoryCard>(ram_memory_config);
-        scheduler.add(memory_card_2);
-        memory_view.add_memory_card(memory_card_2);
+        add_ram_card(0b010);
     }
+}
+
+void Simulator::add_ram_card(uint8_t mask)
+{
+    MemoryCard::Config ram_memory_config =
+            get_memory_card_ram_2k_config(mask & 0b100, mask & 0b010, mask & 0b001);
+    auto ram_card = std::make_shared<MemoryCard>(ram_memory_config);
+    scheduler.add(ram_card);
+    memory_view.add_memory_card(ram_card);
 }
 
 void Simulator::create_processor_card()

@@ -1,7 +1,5 @@
 ### Implementation
 
-* Puts a configuration with both ROMs in place.
-  * It's there but lacks the RAM Cards.
 * Simplify writing the connections in the connectors
 * Panel and Console Card implementation
   * Implement the SUBST mechanism
@@ -57,6 +55,9 @@
     * Frequency
     * Optional connection to BI7
 * Shouldn't MemoryView be a range ?
+* Probably the Memory Card mask could be collapsed to 2 or 3 bits in a byte, rather than
+  three booleans. It would be simpler to write, and maybe produce smaller code (but
+  probably not much improvement on this side.)
 * A detection of cards that let their initialized schedule to default
   * The default it at zero, but a lot of cards starts unscheduled.
   * When they are unscheduled and have no step action, the Scheduler runs "void" and

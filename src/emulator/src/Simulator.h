@@ -71,7 +71,6 @@ private:
 
     std::shared_ptr<MemoryCard> memory_card_1;
     std::shared_ptr<MemoryCard> memory_card_2;
-    std::shared_ptr<MemoryCard> memory_card_3;
     std::shared_ptr<Pluribus> pluribus;
     std::shared_ptr<ConsoleCard> console_card;
     std::shared_ptr<ProcessorCard> processor_card;
@@ -103,6 +102,7 @@ private:
     void create_disk_system();
     void create_serial_system();
     void create_console_card();
+    void add_ram_card(uint8_t mask);
 };
 
 #endif //MICRALN_SIMULATOR_H
