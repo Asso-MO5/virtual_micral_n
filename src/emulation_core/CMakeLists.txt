@@ -19,7 +19,9 @@ set(EMULATION_CORE_FILES
         src/OwnedSignal.cpp src/OwnedSignal.h
         src/OwnedValue.h
         src/ScheduledSignal.cpp src/ScheduledSignal.h
-        src/ScheduledAction.cpp src/ScheduledAction.h)
+        src/ScheduledAction.cpp src/ScheduledAction.h
+        src/SignalConnect.h src/SignalConnect.cpp
+        src/ValueConnect.h)
 
 set(EMULATION_CORE_TEST_FILES
         tests/scheduler_test.cpp
@@ -28,7 +30,9 @@ set(EMULATION_CORE_TEST_FILES
         tests/owned_signal_test.cpp
         tests/owned_value_test.cpp
         tests/scheduled_signal_test.cpp
-        tests/scheduled_action_test.cpp)
+        tests/scheduled_action_test.cpp
+        tests/signal_connect_test.cpp
+        tests/value_connect_test.cpp)
 
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 set_warnings(${EMULATION_LIB_NAME})
