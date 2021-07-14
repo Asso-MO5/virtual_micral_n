@@ -3,6 +3,9 @@
 #include "devices/src/DiskControllerCard.h"
 #include "devices/src/StackChannelCard.h"
 
+#include <emulation_core/src/SignalConnect.h>
+#include <emulation_core/src/ValueConnect.h>
+
 namespace Connectors
 {
     StackChannel_To_DiskController::StackChannel_To_DiskController(
@@ -16,76 +19,35 @@ namespace Connectors
             StackChannelCard& stack_channel_card, DiskControllerCard& disk_controller)
     {
         // Transfer control
-        disk_controller.start_data_transfer.request(this);
-        disk_controller.stop_data_transfer.request(this);
-
-        stack_channel_card.transfer_allowed.subscribe([&disk_controller, this](Edge edge) {
-            disk_controller.start_data_transfer.apply(edge, this);
-        });
-        stack_channel_card.end_of_transfer.subscribe([&disk_controller, this](Edge edge) {
-            disk_controller.stop_data_transfer.apply(edge, this);
-        });
+        connect(stack_channel_card.transfer_allowed, this).to(disk_controller.start_data_transfer);
+        connect(stack_channel_card.end_of_transfer, this).to(disk_controller.stop_data_transfer);
 
         // Connected to IN $0/$FF
-        const auto io_0_ff = 3;
-        disk_controller.received_pointer_value.request(this, Scheduling::counter_type{0});
-
-        stack_channel_card.current_pointer_address.subscribe(
-                [&disk_controller, this](uint8_t, uint8_t new_value,
-                                         Scheduling::counter_type time) {
-                    disk_controller.received_pointer_value.set(new_value, time, this);
-                });
+        connect(stack_channel_card.current_pointer_address, this)
+                .mask<uint8_t>(0xff, 0)
+                .to(disk_controller.received_pointer_value);
     }
 
     void StackChannel_To_DiskController::from_disk_controller_to_stack_channel(
             DiskControllerCard& disk_controller, StackChannelCard& stack_channel_card)
     {
         // Data transfer
-        stack_channel_card.data_transfer.request(this);
-        stack_channel_card.input_data.request(this, Scheduling::counter_type{0});
-
-        disk_controller.output_data.subscribe(
-                [&stack_channel_card, this](uint8_t, uint8_t new_value,
-                                            Scheduling::counter_type time) {
-                    stack_channel_card.input_data.set(new_value, time, this);
-                });
-
-        disk_controller.available_data.subscribe([&stack_channel_card, this](Edge edge) {
-            stack_channel_card.data_transfer.apply(edge, this);
-        });
+        connect(disk_controller.available_data, this).to(stack_channel_card.data_transfer);
+        connect(disk_controller.output_data, this).to(stack_channel_card.input_data);
 
         // Direction
-        stack_channel_card.direction.request(this);
-        disk_controller.direction.subscribe([&stack_channel_card, this](Edge edge) {
-            stack_channel_card.direction.apply(edge, this);
-        });
+        connect(disk_controller.direction, this).to(stack_channel_card.direction);
 
         // Connect LOAD/ for Pointer Change (PAx/ Signal)
-        stack_channel_card.apply_pointer_address.request(this);
-        stack_channel_card.new_pointer_address.request(this, Scheduling::schedulable_id{0});
-
-        disk_controller.change_pointer.subscribe([&stack_channel_card, this](Edge edge) {
-            stack_channel_card.apply_pointer_address.apply(edge, this);
-        });
-
-        disk_controller.pointer_value_to_send.subscribe(
-                [&stack_channel_card, this](uint8_t, uint8_t new_value,
-                                            Scheduling::counter_type time) {
-                    stack_channel_card.new_pointer_address.set(new_value, time, this);
-                });
+        connect(disk_controller.change_pointer, this).to(stack_channel_card.apply_pointer_address);
+        connect(disk_controller.pointer_value_to_send, this)
+                .mask<uint16_t>(0xff, 0)
+                .to(stack_channel_card.new_pointer_address);
 
         // Connect STPC/ or STR/ for Counter Change (PRx/ for value)
-        stack_channel_card.apply_counter.request(this);
-        stack_channel_card.new_counter_value.request(this, Scheduling::schedulable_id{0});
-
-        disk_controller.change_counter.subscribe([&stack_channel_card, this](Edge edge) {
-            stack_channel_card.apply_counter.apply(edge, this);
-        });
-
-        disk_controller.counter_value.subscribe(
-                [&stack_channel_card, this](uint8_t, uint8_t new_value,
-                                            Scheduling::counter_type time) {
-                    stack_channel_card.new_counter_value.set(new_value, time, this);
-                });
+        connect(disk_controller.change_counter, this).to(stack_channel_card.apply_counter);
+        connect(disk_controller.counter_value, this)
+                .mask<uint16_t>(0xff, 0)
+                .to(stack_channel_card.new_counter_value);
     }
 }
