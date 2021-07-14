@@ -1,7 +1,5 @@
 ### Implementation
 
-* Simplify writing the connections in the connectors
-  * Spread to the codebase.
 * Panel and Console Card implementation
   * Implement the SUBST mechanism
   * Implement the AV switch (Need to understand better)

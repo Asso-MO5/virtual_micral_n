@@ -9,7 +9,11 @@
 #include "InterruptController.h"
 #include "Pluribus.h"
 
+#include <emulation_core/src/ValueConnect.h>
+#include <emulation_core/src/SignalConnect.h>
+
 #include <utility>
+
 
 ProcessorCard::ProcessorCard(ProcessorCard::Config config)
     : pluribus{std::move(config.pluribus)}, change_schedule{config.change_schedule}
@@ -31,7 +35,7 @@ ProcessorCard::ProcessorCard(ProcessorCard::Config config)
 
     cpu->input_pins.ready.request(this);
     combined_ready.request(this);
-    combined_ready.subscribe([this](Edge edge) { cpu->input_pins.ready.apply(edge, this); });
+    connect(combined_ready, this).to(cpu->input_pins.ready);
 }
 
 ProcessorCard::~ProcessorCard() = default;
@@ -89,9 +93,7 @@ void ProcessorCard::connect_to_pluribus()
         }
     });
 
-    cpu->data_pins.subscribe([this](uint8_t, uint8_t new_value, Scheduling::counter_type time) {
-        pluribus->data_bus_d0_7.set(new_value, time, this);
-    });
+    connect(cpu->data_pins, this).to(pluribus->data_bus_d0_7);
 }
 
 void ProcessorCard::connect_to_rtc()
