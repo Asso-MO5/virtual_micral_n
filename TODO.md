@@ -2,8 +2,6 @@
 
 * Panel and Console Card implementation
   * Implement the SUB mechanism
-    * Place the SUB status from the ConsoleCard.
-    * Add representation of the SUB signal from the Pluribus
     * Memory Cards should not place data on the bus when SUB is HIGH
     * ConsoleCard must place the set data on the bus when SUB is HIGH
   * Implement the AV switch (Need to understand better)

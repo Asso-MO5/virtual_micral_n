@@ -49,10 +49,10 @@ void display_signals_panel(Simulator& simulator)
 
     ImGui::Begin("Pluribus Signals");
 
-    static std::string signal_order[] = {"Phase 1", "Phase 2", "T2",      "T3",     "T'3",
-                                         "Sync",    "CC0",     "CC1",     "S0-S13", "D0-D7",
-                                         "MD0-MD7", "READY",   "READY C", "WAIT",   "STOP",
-                                         "RTC",     "INIT",    "RZGI",    "BI7",    "AINT7"};
+    static std::string signal_order[] = {
+            "Phase 1", "Phase 2", "T2",    "T3",      "T'3",   "Sync",    "CC0",
+            "CC1",     "S0-S13",  "D0-D7", "MD0-MD7", "READY", "READY C", "SUB",
+            "WAIT",    "STOP",    "RTC",   "INIT",    "RZGI",  "BI7",     "AINT7"};
 
     for (const auto& signal_name : signal_order)
     {

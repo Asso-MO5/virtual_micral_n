@@ -159,7 +159,7 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
         memory_view.add_memory_card(memory_card_2);
 
         // Install RAM Cards
-        for (uint8_t mask = 0b010 ; mask <= 0b110; mask += 1)
+        for (uint8_t mask = 0b010; mask <= 0b110; mask += 1)
         {
             add_ram_card(mask);
         }
@@ -243,6 +243,8 @@ void Simulator::connect_signal_recorders()
             recorders.create_and_get_signal_recorder("INIT", window_time_frame_in_s, 50 * 4);
     auto& ready_recorder =
             recorders.create_and_get_signal_recorder("READY", window_time_frame_in_s, 300'000 * 4);
+    auto& substitution_recorder =
+            recorders.create_and_get_signal_recorder("SUB", window_time_frame_in_s, 50 * 4);
     auto& ready_console_recorder = recorders.create_and_get_signal_recorder(
             "READY C", window_time_frame_in_s, 300'000 * 4);
     auto& stop_recorder =
@@ -283,6 +285,7 @@ void Simulator::connect_signal_recorders()
 
     connect_recorder(pluribus->ready, ready_recorder);
     connect_recorder(pluribus->ready_console, ready_console_recorder);
+    connect_recorder(pluribus->sub, substitution_recorder);
 
     connect_recorder(rtc.phase, rtc_recorder);
 
