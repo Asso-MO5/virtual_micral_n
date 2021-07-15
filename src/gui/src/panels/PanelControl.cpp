@@ -211,13 +211,13 @@ void PanelControl::display_control_line(ConsoleCard& console_card)
             status.step_mode == ConsoleCard::Instruction,
             status.step_mode == ConsoleCard::Cycle,
             status.trap,
-            false,
+            status.substitution,
     };
 
     const std::function<void(ConsoleCard*)> button_actions[] = {
             &ConsoleCard::press_automatic,   &ConsoleCard::press_stepping,
             &ConsoleCard::press_instruction, &ConsoleCard::press_cycle,
-            &ConsoleCard::press_trap,        nullptr,
+            &ConsoleCard::press_trap,        &ConsoleCard::press_substitution,
     };
 
     assert(IM_ARRAYSIZE(CONTROL_NAMES) == IM_ARRAYSIZE(control_values));

@@ -84,6 +84,8 @@ void ConsoleCard::on_vdd(Edge edge)
 
 void ConsoleCard::press_instruction() { status.step_mode = Instruction; }
 void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
+void ConsoleCard::press_substitution() { status.substitution = !status.substitution; }
+
 void ConsoleCard::on_sync(Edge edge)
 {
     status.is_waiting = *pluribus->wait == State::HIGH;

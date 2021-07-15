@@ -82,11 +82,11 @@ public:
     void press_instruction();
     void press_cycle();
 
-    void set_switch_data(uint8_t data);
-
-    void set_switch_address(uint16_t address);
-
     void press_interrupt();
+    void press_substitution();
+
+    void set_switch_data(uint8_t data);
+    void set_switch_address(uint16_t address);
 
 private:
     StartMode start_mode;
