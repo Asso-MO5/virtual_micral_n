@@ -20,6 +20,7 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus,
 {
     set_next_activation_time(Scheduling::unscheduled());
     pluribus->ready_console.request(this);
+    pluribus->sub.request(this);
 
     pluribus->phase_2.subscribe([this](Edge edge) { on_phase_2(edge); });
     pluribus->sync.subscribe([this](Edge edge) { on_sync(edge); });
@@ -91,6 +92,10 @@ void ConsoleCard::on_sync(Edge edge)
     status.is_waiting = *pluribus->wait == State::HIGH;
     status.is_stopped = *pluribus->stop == State::HIGH;
 
+    if (is_falling(edge))
+    {
+        pluribus->sub.set(status.substitution ? State::HIGH : State::LOW, edge.time(), this);
+    }
     if (is_rising(edge))
     {
         status_history.push(status);

@@ -43,6 +43,7 @@ public:
 
     OwnedSignal ready_console;
     OwnedSignal ready;
+    OwnedSignal sub;
 
     OwnedValue<uint8_t> data_bus_d0_7{};
     OwnedValue<uint8_t> data_bus_md0_7{};
