@@ -1,9 +1,21 @@
 ### Implementation
 
 * Panel and Console Card implementation
-  * Implement the SUBST mechanism
+  * Implement the SUB mechanism
+    * Place the SUB status from the ConsoleCard.
+    * Add representation of the SUB signal from the Pluribus
+    * Memory Cards should not place data on the bus when SUB is HIGH
+    * ConsoleCard must place the set data on the bus when SUB is HIGH
   * Implement the AV switch (Need to understand better)
   * Implement both back panel switches
+* Add a script system to manipulate the simulation
+  * Can read from a console
+  * Can read from a file
+  * Commands can be:
+    * (g)o (for simulator)
+    * (p)ause (for simulator)
+    * (s)et switch / data
+    * (w)ait for status
 * Implement the Serial card
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card.
   * Improve debugging/gui
@@ -50,6 +62,8 @@
     * Debugger that references all cards to associate to specific debug panel.
 * On Memory Display, show from which card the data comes from.
 * Configurable RAM/ROM access time. Could also be different depending on RAM/ROM for mixed cards.
+* Change the way remanence works, by scheduling regularly and "adding"/"subtracting" to a logic counter
+  that is then read by the LED representation.
 * Add configuration of the RTC
     * Frequency
     * Optional connection to BI7
