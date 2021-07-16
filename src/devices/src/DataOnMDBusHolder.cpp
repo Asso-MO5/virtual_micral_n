@@ -21,6 +21,7 @@ void DataOnMDBusHolder::place_data(Scheduling::counter_type time)
 
 void DataOnMDBusHolder::release_bus(Scheduling::counter_type time)
 {
+    pluribus.data_bus_md0_7.set(0, time, this);
     pluribus.data_bus_md0_7.release(this, time);
     pluribus.ready.release(this);
     is_emitting_data = false;
