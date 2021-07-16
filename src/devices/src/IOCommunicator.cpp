@@ -12,14 +12,12 @@ namespace
 }
 
 IOCommunicator::IOCommunicator(const IOCommunicator::Config& config)
-    : pluribus(config.pluribus), change_schedule(config.change_schedule),
-      configuration(config.configuration)
+    : pluribus(config.pluribus), configuration(config.configuration)
 {
-    output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
-    place_data_on_pluribus = std::make_shared<ScheduledAction>();
+    output_data_holder =
+            std::make_shared<DataOnMDBusHolder>(pluribus, config.change_schedule, IO_CARD_DELAY);
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
-    pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
 
     set_next_activation_time(Scheduling::unscheduled());
 }
@@ -30,7 +28,7 @@ void IOCommunicator::step() {}
 
 std::vector<std::shared_ptr<Schedulable>> IOCommunicator::get_sub_schedulables()
 {
-    return {place_data_on_pluribus};
+    return {output_data_holder};
 }
 
 void IOCommunicator::on_t2(Edge edge)
@@ -46,25 +44,12 @@ void IOCommunicator::on_t2(Edge edge)
             {
                 // This is the end of T2, schedule the data emission
                 auto data_to_send = configuration.on_need_data_for_pluribus(address, time);
-                output_data_holder->take_bus(time, data_to_send);
-                place_data_on_pluribus->schedule(
-                        [&](Scheduling::counter_type time) {
-                            output_data_holder->place_data(time);
-                        },
-                        time + IO_CARD_DELAY, change_schedule);
+                output_data_holder->place(time, data_to_send);
             }
             else
             {
                 configuration.on_acquire_from_pluribus(address, time);
             }
         }
-    }
-}
-
-void IOCommunicator::on_t3(Edge edge)
-{
-    if (is_falling(edge) && output_data_holder->is_holding_bus())
-    {
-        output_data_holder->release_bus(edge.time());
     }
 }

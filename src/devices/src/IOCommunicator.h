@@ -37,18 +37,12 @@ public:
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
 private:
-    // From parameters
     std::shared_ptr<Pluribus> pluribus;
-    Scheduling::change_schedule_cb change_schedule;
-
     IOCommunicatorConfiguration configuration;
 
-    // Internal
-    std::unique_ptr<DataOnMDBusHolder> output_data_holder;
-    std::shared_ptr<ScheduledAction> place_data_on_pluribus;
+    std::shared_ptr<DataOnMDBusHolder> output_data_holder;
 
     void on_t2(Edge edge);
-    void on_t3(Edge edge);
 };
 
 constexpr inline bool is_io_input_address(uint16_t address)

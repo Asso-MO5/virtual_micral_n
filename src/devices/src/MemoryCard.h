@@ -71,7 +71,7 @@ private:
     std::vector<std::unique_ptr<MemoryPage>> page_readers;
     std::vector<std::unique_ptr<MemoryPage>> page_writers;
 
-    std::unique_ptr<DataOnMDBusHolder> output_data_holder;
+    std::shared_ptr<DataOnMDBusHolder> output_data_holder;
 
     std::vector<uint8_t> buffer;
     std::vector<uint8_t> masked_rom;
@@ -80,7 +80,6 @@ private:
     void create_memory_pages();
 
     void on_t2(Edge edge);
-    void on_t3(Edge edge);
     void on_t3prime(Edge edge);
     void on_phase_2(Edge edge);
 

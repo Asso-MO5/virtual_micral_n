@@ -15,7 +15,8 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
       configuration{config.configuration}
 {
-    output_data_holder = std::make_unique<DataOnMDBusHolder>(*pluribus);
+    output_data_holder =
+            std::make_shared<DataOnMDBusHolder>(pluribus, change_schedule, MEMORY_READ_DELAY);
 
     set_next_activation_time(Scheduling::unscheduled());
 
@@ -23,7 +24,6 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
     create_memory_pages();
 
     pluribus->t2.subscribe([this](Edge edge) { on_t2((edge)); });
-    pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
     pluribus->t3prime.subscribe([this](Edge edge) { on_t3prime((edge)); });
 
     if (configuration.access_type == MemoryCardConfiguration::ROM_RAM_256)
@@ -93,13 +93,7 @@ void MemoryCard::set_data_size()
     }
 }
 
-void MemoryCard::step()
-{
-    auto time = get_next_activation_time();
-    output_data_holder->place_data(time);
-
-    set_next_activation_time(Scheduling::unscheduled());
-}
+void MemoryCard::step() {}
 
 void MemoryCard::on_t2(Edge edge)
 {
@@ -112,19 +106,8 @@ void MemoryCard::on_t2(Edge edge)
         {
             // This is the end of T2, schedule the data emission
             auto data_to_send = read_data(address);
-            output_data_holder->take_bus(edge.time(), data_to_send);
-
-            set_next_activation_time(edge.time() + MEMORY_READ_DELAY);
-            change_schedule(get_id());
+            output_data_holder->place(edge.time(), data_to_send);
         }
-    }
-}
-
-void MemoryCard::on_t3(Edge edge)
-{
-    if (is_falling(edge) && output_data_holder->is_holding_bus())
-    {
-        output_data_holder->release_bus(edge.time());
     }
 }
 
@@ -225,4 +208,7 @@ uint8_t MemoryCard::get_data_at(uint16_t address) const
     return read_data(address);
 }
 
-std::vector<std::shared_ptr<Schedulable>> MemoryCard::get_sub_schedulables() { return {}; }
+std::vector<std::shared_ptr<Schedulable>> MemoryCard::get_sub_schedulables()
+{
+    return {output_data_holder};
+}
