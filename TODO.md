@@ -2,7 +2,6 @@
 
 * Panel and Console Card implementation
   * Implement the SUB mechanism
-    * Memory Cards should not place data on the bus when SUB is HIGH
     * ConsoleCard must place the set data on the bus when SUB is HIGH
   * Implement the AV switch (Need to understand better)
   * Implement both back panel switches

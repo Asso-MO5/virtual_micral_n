@@ -28,12 +28,14 @@ private:
     std::shared_ptr<ScheduledAction> place_data_on_pluribus;
 
     uint8_t latched_data{};
-    bool is_emitting_data{};
+    bool has_data_to_send{};
+    bool owns_bus{};
 
     void on_t3(Edge edge);
     void place_data(Scheduling::counter_type time);
     void release_bus(Scheduling::counter_type time);
-    [[nodiscard]] bool is_holding_bus() const;
+    void on_sub(Edge edge);
+    void take_bus(unsigned long time);
 };
 
 #endif //MICRALN_DATAONMDBUSHOLDER_H

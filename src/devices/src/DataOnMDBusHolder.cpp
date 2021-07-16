@@ -14,6 +14,7 @@ DataOnMDBusHolder::DataOnMDBusHolder(const std::shared_ptr<Pluribus>& pluribus,
     place_data_on_pluribus = std::make_shared<ScheduledAction>();
 
     pluribus->t3.subscribe([this](Edge edge) { on_t3((edge)); });
+    pluribus->sub.subscribe([this](Edge edge) { on_sub((edge)); });
 
     set_next_activation_time(Scheduling::unscheduled());
 }
@@ -21,7 +22,17 @@ DataOnMDBusHolder::DataOnMDBusHolder(const std::shared_ptr<Pluribus>& pluribus,
 void DataOnMDBusHolder::place(Scheduling::counter_type time, uint8_t data)
 {
     latched_data = data;
+    has_data_to_send = true;
+    if (is_low(pluribus->sub))
+    {
+        take_bus(time);
+    }
+}
+
+void DataOnMDBusHolder::take_bus(Scheduling::counter_type time)
+{
     pluribus->data_bus_md0_7.request(this, time);
+    owns_bus = true;
 
     place_data_on_pluribus->schedule([&](Scheduling::counter_type time) { place_data(time); },
                                      time + delay, change_schedule);
@@ -29,11 +40,13 @@ void DataOnMDBusHolder::place(Scheduling::counter_type time, uint8_t data)
 
 void DataOnMDBusHolder::place_data(Scheduling::counter_type time)
 {
-    pluribus->data_bus_md0_7.set(latched_data, time, this);
-    is_emitting_data = true;
+    if (owns_bus)
+    {
+        pluribus->data_bus_md0_7.set(latched_data, time, this);
 
-    pluribus->ready.request(this);
-    pluribus->ready.set(State::HIGH, time, this);
+        pluribus->ready.request(this);
+        pluribus->ready.set(State::HIGH, time, this);
+    }
 }
 
 void DataOnMDBusHolder::release_bus(Scheduling::counter_type time)
@@ -41,16 +54,33 @@ void DataOnMDBusHolder::release_bus(Scheduling::counter_type time)
     pluribus->data_bus_md0_7.set(0, time, this);
     pluribus->data_bus_md0_7.release(this, time);
     pluribus->ready.release(this);
-    is_emitting_data = false;
+    owns_bus = false;
 }
-
-bool DataOnMDBusHolder::is_holding_bus() const { return is_emitting_data; }
 
 void DataOnMDBusHolder::on_t3(Edge edge)
 {
-    if (is_falling(edge) && is_holding_bus())
+    if (is_falling(edge) && has_data_to_send)
+    {
+        if (owns_bus)
+        {
+            release_bus(edge.time());
+        }
+        has_data_to_send = false;
+    }
+}
+
+void DataOnMDBusHolder::on_sub(Edge edge)
+{
+    if (is_rising(edge) && owns_bus)
     {
         release_bus(edge.time());
+    }
+    else
+    {
+        if (has_data_to_send)
+        {
+            take_bus(edge.time());
+        }
     }
 }
 
