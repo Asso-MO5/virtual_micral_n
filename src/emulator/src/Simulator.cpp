@@ -10,6 +10,7 @@
 #include <devices/src/MemoryCard.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
+#include <devices/src/SerialCard.h>
 #include <devices/src/StackChannelCard.h>
 #include <devices/src/connectors/StackChannel_To_DiskController.h>
 #include <file_utils/src/FileReader.h>
@@ -85,6 +86,14 @@ void Simulator::create_serial_system()
             }};
     io_card = std::make_shared<IOCard>(io_card_config);
     scheduler.add(io_card);
+
+    SerialCard::Config serial_card_config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = {}};
+    serial_card = std::make_shared<SerialCard>(serial_card_config);
+    scheduler.add(serial_card);
 }
 
 void Simulator::create_disk_system()

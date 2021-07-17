@@ -17,6 +17,7 @@ class IOCard;
 class MemoryCard;
 class Pluribus;
 class ProcessorCard;
+class SerialCard;
 class StackChannelCard;
 class VirtualDisk;
 
@@ -77,6 +78,7 @@ private:
     std::shared_ptr<StackChannelCard> stack_channel_5_card;
     std::shared_ptr<StackChannelCard> stack_channel_6_card;
     std::shared_ptr<IOCard> io_card;
+    std::shared_ptr<SerialCard> serial_card;
     std::shared_ptr<DiskControllerCard> disk_controller_card;
     std::shared_ptr<Connectors::StackChannel_To_DiskController>
             stackchannel_diskcontroller_connector;

@@ -1,8 +1,11 @@
 ### Implementation
 
-* Panel and Console Card implementation
-  * Implement the AV switch (Need to understand better)
-  * Implement both back panel switches
+* Implement the Serial card
+  * Connect the Card to the IO Card
+  * Connect the Card to a VirtualTTY
+  * Create a Debug Panel for the Virtual TTY
+  * Create a Hello World for the TTY
+  * Attach the TTY the CLI executable.
 * Add a script system to manipulate the simulation
   * Can read from a console
   * Can read from a file
@@ -11,7 +14,9 @@
     * (p)ause (for simulator)
     * (s)et switch / data
     * (w)ait for status
-* Implement the Serial card
+* Panel and Console Card implementation
+  * Implement the AV switch (Need to understand better)
+  * Implement both back panel switches
 * Implement the ROM/RAM Switching on the 4k RAM/ROM card.
   * Improve debugging/gui
     * add a callback telling what data changed.

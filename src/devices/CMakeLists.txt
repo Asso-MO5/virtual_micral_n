@@ -31,7 +31,8 @@ set(DEVICES_FILES
         src/connectors/StackChannel_To_DiskController.h
         src/IOCommunicator.cpp src/IOCommunicator.h
         src/DiskReader.cpp src/DiskReader.h
-        src/MemoryPage.cpp src/MemoryPage.h)
+        src/MemoryPage.cpp src/MemoryPage.h
+        src/SerialCard.cpp src/SerialCard.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp
