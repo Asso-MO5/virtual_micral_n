@@ -30,21 +30,30 @@ public:
 
     // To the IO Card
     OwnedSignal input_strobe_VE;
-    OwnedSignal input_ready_PE;
-    OwnedSignal framing_error_SP;
-    OwnedSignal stop_bit_error_ES;
-    OwnedSignal parity_error_EP;
     OwnedValue<uint8_t> input_data;
+
+    // With the current implementation, the Serial Card concentrates all the flags
+    // into a 8 bit word. It's a shortcut.
+    //    OwnedSignal input_ready_PE;    // Bit 0
+    //    OwnedSignal stop_bit_error_ES; // Bit 4
+    //    OwnedSignal parity_error_EP;   // Bit 5
+    //    OwnedSignal framing_error_SP;  // Bit 6
+    //    OwnedSignal output_ready_PS;   // Bit 7
+    OwnedValue<uint8_t> combined_status;
+
+    // Non existent signal? At the moment, serves to signal the IO Card of the changed status
+    OwnedSignal combined_status_changed;
 
     // From the IO Card
     OwnedSignal output_strobe_AS;
-    OwnedSignal output_ready_PS;
     OwnedValue<uint8_t> output_data;
 
 private:
     Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<Pluribus> pluribus;
     SerialCardConfiguration configuration;
+
+    void on_output(uint8_t value, Scheduling::counter_type time);
 };
 
 #endif //MICRALN_SERIALCARD_H

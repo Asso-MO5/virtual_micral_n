@@ -1,8 +1,6 @@
 ### Implementation
 
-* Implement a possibility to connect OwnedSignals to a concentrated OwnedValue (for IOCard/SerialCard)
 * Implement the Serial card
-  * Connect the Card to the IO Card
   * Connect the Card to a VirtualTTY
   * Create a Debug Panel for the Virtual TTY
   * Create a Hello World for the TTY
@@ -29,6 +27,8 @@
   * Implement delays (on reading disk)
 * Implement the I/O cards
   * Implement the Interrupts for the I/O cards
+* Implement a possibility to connect OwnedSignals to a concentrated OwnedValue (for IOCard/SerialCard)
+  * At the moment, the Serial Card "cheats" by hardcoding the signals in a status word
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
   an assembler)
 * Add an assembler project with an objective of compiling SCELBAL
