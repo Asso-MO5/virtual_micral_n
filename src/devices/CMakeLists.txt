@@ -32,7 +32,8 @@ set(DEVICES_FILES
         src/IOCommunicator.cpp src/IOCommunicator.h
         src/DiskReader.cpp src/DiskReader.h
         src/MemoryPage.cpp src/MemoryPage.h
-        src/SerialCard.cpp src/SerialCard.h)
+        src/SerialCard.cpp src/SerialCard.h
+        src/connectors/SerialCard_To_IOCard.cpp src/connectors/SerialCard_To_IOCard.h)
 
 set(DEVICES_TEST_FILES
         tests/clock_test.cpp

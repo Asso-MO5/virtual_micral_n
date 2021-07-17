@@ -23,6 +23,7 @@ class VirtualDisk;
 
 namespace Connectors
 {
+    class SerialCard_To_IOCard;
     class StackChannel_To_DiskController;
 }
 
@@ -81,7 +82,9 @@ private:
     std::shared_ptr<SerialCard> serial_card;
     std::shared_ptr<DiskControllerCard> disk_controller_card;
     std::shared_ptr<Connectors::StackChannel_To_DiskController>
-            stackchannel_diskcontroller_connector;
+            stackchannel_diskcontroller_connector; // Not sure it is necessary to keep it
+    std::shared_ptr<Connectors::SerialCard_To_IOCard>
+            serial_io_connector; // Not sure it is necessary to keep it
 
     std::shared_ptr<VirtualDisk> virtual_disk;
 

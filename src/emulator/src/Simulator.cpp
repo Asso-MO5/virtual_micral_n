@@ -12,6 +12,7 @@
 #include <devices/src/ProcessorCard.h>
 #include <devices/src/SerialCard.h>
 #include <devices/src/StackChannelCard.h>
+#include <devices/src/connectors/SerialCard_To_IOCard.h>
 #include <devices/src/connectors/StackChannel_To_DiskController.h>
 #include <file_utils/src/FileReader.h>
 
@@ -94,6 +95,9 @@ void Simulator::create_serial_system()
             .configuration = {}};
     serial_card = std::make_shared<SerialCard>(serial_card_config);
     scheduler.add(serial_card);
+
+    serial_io_connector =
+            std::make_shared<Connectors::SerialCard_To_IOCard>(*serial_card, *io_card);
 }
 
 void Simulator::create_disk_system()
@@ -150,7 +154,6 @@ void Simulator::create_stack_card()
 
 void Simulator::create_memory_cards(ConfigROM rom_config)
 {
-
     if (rom_config == ConfigROM::MICRAL_N)
     {
         auto boot_rom_data = get_rom_data(ConfigROM::MICRAL_MIC_1);

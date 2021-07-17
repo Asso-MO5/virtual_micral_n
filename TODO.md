@@ -1,5 +1,6 @@
 ### Implementation
 
+* Implement a possibility to connect OwnedSignals to a concentrated OwnedValue (for IOCard/SerialCard)
 * Implement the Serial card
   * Connect the Card to the IO Card
   * Connect the Card to a VirtualTTY
@@ -31,7 +32,7 @@
 * Add an Instruction Factory returning coded bytes, used by the Interrupt System opcode jamming (will also be useful for
   an assembler)
 * Add an assembler project with an objective of compiling SCELBAL
-* Implement a possibility to subscribe to a specific bit on an OwnedValue?
+* Implement a possibility to subscribe to a specific bit on an OwnedValue? (where was it needed?)
 * Change LED colors to correctly matching the hardware.
 * Create a debug panel for the DiskController
   * Show write status when implemented.
@@ -53,10 +54,10 @@
 * Most of the signals react on a specific edge. Add possibility to subscribe to a specific edge
 * Add a clang-tidy configuration
 * Sets cppcheck and clang-tidy to a CI
-* The non-PLURIBUS with I/O cards should be ordered: card subscribing are asking.
-  Signals should never be "pushed". Currently, some are pushed, some are subscribed.
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a tool to create data for Virtual Disk.
+* For the IO Card, it would be better to address I/O by their logic number by type (I or O)
+  instead of the absolute index.
 * Make a Debuggers for GUI information (but can be use in CLI also)
     * Debugger that references memory, to display memory cards information
     * Debugger that references all cards to associate to specific debug panel.
