@@ -67,8 +67,9 @@ Simulator::Simulator(ConfigROM rom_config)
 
 void Simulator::create_console_card()
 {
-    console_card =
-            std::make_shared<ConsoleCard>(pluribus, ConsoleCard::Automatic, ConsoleCard::Record);
+    console_card = std::make_shared<ConsoleCard>(
+            pluribus, [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            ConsoleCard::Automatic, ConsoleCard::Record);
     scheduler.add(console_card);
 }
 

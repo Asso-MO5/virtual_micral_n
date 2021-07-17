@@ -1,8 +1,6 @@
 ### Implementation
 
 * Panel and Console Card implementation
-  * Implement the SUB mechanism
-    * ConsoleCard must place the set data on the bus when SUB is HIGH
   * Implement the AV switch (Need to understand better)
   * Implement both back panel switches
 * Add a script system to manipulate the simulation
@@ -74,6 +72,11 @@
     the application freezes without warning
   * INC Memory and DEC Memory are considered invalid by the disassembly. But how does it
     work on the 8008 execution?
+* The bus request mechanism is interesting for studying, but it doesn't correspond to
+  reality. The collisions could be detected differently, by every candidate asking for
+  a value. All the values are "ORd" (AND on real hardware). If the resulting value
+  is not the same, it means there's a collision. The collision can be reported
+  to a service that decides if it's ok or not, and log or throw.
 
 ### Build
 

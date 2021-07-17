@@ -6,6 +6,7 @@
 #include <memory>
 
 class Pluribus;
+class ScheduledAction;
 
 class ConsoleCard : public SchedulableImpl
 {
@@ -22,7 +23,8 @@ public:
         Record,
     };
 
-    ConsoleCard(std::shared_ptr<Pluribus> pluribus, StartMode start_mode, RecordMode record_mode);
+    ConsoleCard(std::shared_ptr<Pluribus> pluribus, Scheduling::change_schedule_cb change_schedule,
+                StartMode start_mode, RecordMode record_mode);
     ~ConsoleCard() override = default;
 
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
@@ -71,6 +73,9 @@ public:
         StatusContainer history;
     };
 
+    // Used with the current MDx data bus management, which will have to change.
+    bool release_data_bus{};
+
     [[nodiscard]] Status get_status() const;
     [[nodiscard]] const StatusHistory::StatusContainer& get_status_history() const;
     void reset_history();
@@ -91,6 +96,9 @@ public:
 private:
     StartMode start_mode;
     std::shared_ptr<Pluribus> pluribus;
+    std::shared_ptr<ScheduledAction> place_data_on_pluribus;
+    Scheduling::change_schedule_cb change_schedule;
+
     Status status;
     StatusHistory status_history;
 
@@ -104,6 +112,7 @@ private:
 
     void set_step_mode();
     void on_rzgi(Edge edge);
+    void on_sub(Edge edge);
 };
 
 #endif //MICRALN_CONSOLECARD_H
