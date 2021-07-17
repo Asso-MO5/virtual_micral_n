@@ -661,11 +661,15 @@ void CPU8008::checks_cycle_end(uint8_t action)
             auto& next_cycle = decoded_instruction.instruction->cycle_2;
             ends_cycle(next_cycle.cycle_control);
         }
-        else
+        else if (memory_cycle == 1)
         {
-            assert(memory_cycle == 1);
             auto& next_cycle = decoded_instruction.instruction->cycle_3;
             ends_cycle(next_cycle.cycle_control);
+        }
+        else
+        {
+            assert(memory_cycle == 2);
+            ends_cycle(Constants8008::CycleControl::PCI);
         }
     }
 }
@@ -887,7 +891,4 @@ void CPU8008::register_state_change(state_callback_type callback)
     output_pins.state.subscribe(callback);
 }
 
-std::vector<std::shared_ptr<Schedulable>> CPU8008::get_sub_schedulables()
-{
-    return {};
-}
+std::vector<std::shared_ptr<Schedulable>> CPU8008::get_sub_schedulables() { return {}; }
