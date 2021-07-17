@@ -28,7 +28,7 @@ public:
     void step() override;
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
-    // From the TTY
+    // To the IO Card
     OwnedSignal input_strobe_VE;
     OwnedSignal input_ready_PE;
     OwnedSignal framing_error_SP;
@@ -36,7 +36,7 @@ public:
     OwnedSignal parity_error_EP;
     OwnedValue<uint8_t> input_data;
 
-    // To the TTY
+    // From the IO Card
     OwnedSignal output_strobe_AS;
     OwnedSignal output_ready_PS;
     OwnedValue<uint8_t> output_data;
