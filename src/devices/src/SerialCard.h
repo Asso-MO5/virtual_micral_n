@@ -11,6 +11,7 @@ class Pluribus;
 
 struct SerialCardConfiguration
 {
+    std::function<void(char)> on_output_character;
 };
 
 class SerialCard : public SchedulableImpl
@@ -25,6 +26,8 @@ public:
 
     explicit SerialCard(const Config& config);
 
+    void add_input(char character);
+
     void step() override;
     std::vector<std::shared_ptr<Schedulable>> get_sub_schedulables() override;
 
@@ -32,13 +35,6 @@ public:
     OwnedSignal input_strobe_VE;
     OwnedValue<uint8_t> input_data;
 
-    // With the current implementation, the Serial Card concentrates all the flags
-    // into a 8 bit word. It's a shortcut.
-    //    OwnedSignal input_ready_PE;    // Bit 0
-    //    OwnedSignal stop_bit_error_ES; // Bit 4
-    //    OwnedSignal parity_error_EP;   // Bit 5
-    //    OwnedSignal framing_error_SP;  // Bit 6
-    //    OwnedSignal output_ready_PS;   // Bit 7
     OwnedValue<uint8_t> combined_status;
 
     // Non existent signal? At the moment, serves to signal the IO Card of the changed status
@@ -52,8 +48,23 @@ private:
     Scheduling::change_schedule_cb change_schedule;
     std::shared_ptr<Pluribus> pluribus;
     SerialCardConfiguration configuration;
+    std::vector<char> input_queue;
+
+    // With the current implementation, the Serial Card concentrates all the flags
+    // into a 8 bit word. It's a shortcut.
+    // Input and Output ready serves internally to create the combined status.
+    OwnedSignal input_ready_PE;  // Bit 0
+    OwnedSignal output_ready_PS; // Bit 7
+
+    //    OwnedSignal stop_bit_error_ES; // Bit 4
+    //    OwnedSignal parity_error_EP;   // Bit 5
+    //    OwnedSignal framing_error_SP;  // Bit 6
 
     void on_output(uint8_t value, Scheduling::counter_type time);
+
+    void on_input_ready(Edge edge);
+    void on_output_ready(Edge edge);
+    void on_sync(Edge edge);
 };
 
 #endif //MICRALN_SERIALCARD_H

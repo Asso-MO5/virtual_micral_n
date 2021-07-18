@@ -92,7 +92,7 @@ void Simulator::create_serial_system()
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
-            .configuration = {}};
+            .configuration = {.on_output_character = [](char character) {}}};
     serial_card = std::make_shared<SerialCard>(serial_card_config);
     scheduler.add(serial_card);
 

@@ -56,6 +56,8 @@
 * Sets cppcheck and clang-tidy to a CI
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
 * Make a tool to create data for Virtual Disk.
+* The GUI has too much strong dependencies on the Card themselves.
+  Each change to a card causes recompilation, event when there's no change to the interface interesting for the GUI.
 * For the IO Card, it would be better to address I/O by their logic number by type (I or O)
   instead of the absolute index.
 * Make a Debuggers for GUI information (but can be use in CLI also)
@@ -69,6 +71,7 @@
     * Frequency
     * Optional connection to BI7
 * Shouldn't MemoryView be a range ?
+* Create a test ROM the check the behavior of the 8008.
 * Probably the Memory Card mask could be collapsed to 2 or 3 bits in a byte, rather than
   three booleans. It would be simpler to write, and maybe produce smaller code (but
   probably not much improvement on this side.)
