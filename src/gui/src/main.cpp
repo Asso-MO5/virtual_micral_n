@@ -5,17 +5,17 @@
 #include "gui/src/panels/Panel8008.h"
 #include "gui/src/panels/PanelControl.h"
 #include "gui/src/panels/PanelDisassembly.h"
+#include "gui/src/panels/PanelDiskController.h"
 #include "gui/src/panels/PanelMemory.h"
 #include "gui/src/panels/PanelPluribus.h"
 #include "gui/src/panels/PanelProcessorCard.h"
 #include "gui/src/panels/PanelSignals.h"
 #include "gui/src/panels/PanelStackChannelCard.h"
-#include "gui/src/panels/PanelDiskController.h"
 
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
+#include <gui/src/panels/PanelTTY.h>
 #include <i8008/src/Disassemble8008.h>
-
 #include <imgui.h>
 
 static const int WINDOW_WIDTH = 1280;
@@ -78,6 +78,7 @@ int main(int, char**)
     ControllerWidget controller;
     Disassemble8008 disassemble{simulator.get_memory_view()};
     PanelControl panel_control;
+    PanelTTY panel_tty;
 
     Averager<uint64_t, 8> frequency_averager{};
 
@@ -123,6 +124,7 @@ int main(int, char**)
         display_pluribus_panel(simulator);
         display_memory_panel(simulator);
         panel_control.display(simulator);
+        panel_tty.display(simulator);
         display_signals_panel(simulator);
         display_processor_card_panel(simulator);
         display_stack_channel_card_panel(simulator, 0);

@@ -32,7 +32,7 @@ set(GUI_FILES src/main.cpp
         src/widgets/PanelLed.cpp src/widgets/PanelLed.h
         src/widgets/PanelMemoryDisplay.h
         src/widgets/PanelSwitch.cpp src/widgets/PanelSwitch.h
-        )
+        src/panels/PanelTTY.cpp src/panels/PanelTTY.h)
 
 set(GUI_FILES_LIB src/lib/Averager.cpp src/lib/Averager.h)
 

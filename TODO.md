@@ -1,7 +1,7 @@
 ### Implementation
 
 * Implement the Serial card
-  * Create a Debug Panel for the Virtual TTY
+  * Complete the Serial Card to emit relay emitted characters.
   * Create a Hello World for the TTY
   * Attach the TTY the CLI executable.
 * Add a script system to manipulate the simulation
@@ -36,6 +36,7 @@
 * Create a debug panel for the DiskController
   * Show write status when implemented.
 * DiskReader can be a Schedulable to emulate the reading/writing times
+* Add a "Center to PC" button on the Disassembly Panel.
 
 ### Architecture
 
