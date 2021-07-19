@@ -2,7 +2,7 @@
 
 #include "Pluribus.h"
 
-#include <iostream>
+#include <emulation_core/src/ScheduledSignal.h>
 
 using namespace std;
 
@@ -13,11 +13,15 @@ SerialCard::SerialCard(const Config& config)
     input_strobe_VE.request(this);
     input_data.request(this, Scheduling::counter_type{0});
     combined_status.request(this, Scheduling::counter_type{0});
+    combined_status.set(0x80, Scheduling::counter_type{0}, this);
     combined_status_changed.request(this);
 
     output_data.subscribe([this](uint8_t, uint8_t new_value, Scheduling::counter_type time) {
         on_output(new_value, time);
     });
+
+    scheduled_input_ready = std::make_shared<ScheduledSignal>(input_ready_PE);
+    output_ready_PS.request(this);
 
     input_ready_PE.subscribe([this](Edge edge) { on_input_ready(edge); });
     output_ready_PS.subscribe([this](Edge edge) { on_output_ready(edge); });
@@ -29,7 +33,10 @@ SerialCard::SerialCard(const Config& config)
 
 void SerialCard::step() {}
 
-std::vector<std::shared_ptr<Schedulable>> SerialCard::get_sub_schedulables() { return {}; }
+std::vector<std::shared_ptr<Schedulable>> SerialCard::get_sub_schedulables()
+{
+    return {scheduled_input_ready};
+}
 
 void SerialCard::on_sync(Edge edge)
 {
@@ -38,6 +45,18 @@ void SerialCard::on_sync(Edge edge)
     if (is_rising(edge))
     {
         combined_status_changed.set(State::HIGH, time, this);
+
+        if (is_low(input_ready_PE) && !input_queue.empty())
+        {
+            // TODO: Does it needs something about parity?
+            const char next_char = input_queue.front();
+            input_queue.erase(begin(input_queue));
+            input_data.set(next_char, time, this);
+
+            // TODO: what is the correct time of Input Ready being asserted?
+            scheduled_input_ready->launch(time, Scheduling::counter_type{3'000'000},
+                                          change_schedule);
+        }
     }
     else
     {
@@ -68,6 +87,9 @@ void SerialCard::on_input_ready(Edge edge)
     auto status = combined_status.get_value() & 0xfe;
     status |= (is_rising(edge) ? 1 : 0);
     combined_status.set(status, edge.time(), this);
+
+    // TODO: The strobe is probably much shorter than the Input Ready.
+    input_strobe_VE.set(edge.apply(), edge.time(), this);
 }
 
 void SerialCard::on_output_ready(Edge edge)

@@ -8,6 +8,7 @@
 #include <memory>
 
 class Pluribus;
+class ScheduledSignal;
 
 struct SerialCardConfiguration
 {
@@ -59,6 +60,8 @@ private:
     //    OwnedSignal stop_bit_error_ES; // Bit 4
     //    OwnedSignal parity_error_EP;   // Bit 5
     //    OwnedSignal framing_error_SP;  // Bit 6
+
+    std::shared_ptr<ScheduledSignal> scheduled_input_ready;
 
     void on_output(uint8_t value, Scheduling::counter_type time);
 
