@@ -785,7 +785,7 @@ void CPU8008::execute_t5()
                 {
                     int16_t intermediate = static_cast<int16_t>(register_A) -
                                            static_cast<int16_t>(hidden_registers.b);
-                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 255;
+                    flags[static_cast<size_t>(Flags::Carry)] = intermediate < 0;
                     flags[static_cast<size_t>(Flags::Zero)] = intermediate == 0;
                     // TODO: What about Sign and Parity?
                 }
