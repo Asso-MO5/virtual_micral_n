@@ -1,7 +1,6 @@
 ### Implementation
 
 * Implement the Serial card
-  * Connect the Card to a VirtualTTY
   * Create a Debug Panel for the Virtual TTY
   * Create a Hello World for the TTY
   * Attach the TTY the CLI executable.

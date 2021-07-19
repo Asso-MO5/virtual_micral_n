@@ -1,6 +1,7 @@
 #include "Simulator.h"
 
 #include "VirtualDisk.h"
+#include "VirtualTTY.h"
 
 #include <devices/src/CPU8008.h>
 #include <devices/src/Clock.h>
@@ -88,16 +89,23 @@ void Simulator::create_serial_system()
     io_card = std::make_shared<IOCard>(io_card_config);
     scheduler.add(io_card);
 
+    virtual_tty = std::make_shared<VirtualTTY>();
+
     SerialCard::Config serial_card_config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
-            .configuration = {.on_output_character = [](char character) {}}};
+            .configuration = {.on_output_character = [this](char character) {
+                virtual_tty->receive_char(character);
+            }}};
     serial_card = std::make_shared<SerialCard>(serial_card_config);
     scheduler.add(serial_card);
 
     serial_io_connector =
             std::make_shared<Connectors::SerialCard_To_IOCard>(*serial_card, *io_card);
+
+    virtual_tty->set_emitted_char_cb(
+            [this](char emitted_char) { serial_card->add_input(emitted_char); });
 }
 
 void Simulator::create_disk_system()
@@ -483,6 +491,8 @@ const DiskControllerCard& Simulator::get_disk_controller_card() const
 {
     return *disk_controller_card;
 }
+
+const VirtualTTY& Simulator::get_virtual_tty() const { return *virtual_tty; }
 
 void SimulatorMemoryView::add_memory_card(const std::shared_ptr<MemoryCard>& memory_card)
 {

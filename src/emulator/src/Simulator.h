@@ -20,6 +20,7 @@ class ProcessorCard;
 class SerialCard;
 class StackChannelCard;
 class VirtualDisk;
+class VirtualTTY;
 
 namespace Connectors
 {
@@ -62,6 +63,7 @@ public:
     [[nodiscard]] const Pluribus& get_pluribus() const;
     [[nodiscard]] const StackChannelCard& get_stack_channel_card(int card_number) const;
     [[nodiscard]] const DiskControllerCard& get_disk_controller_card() const;
+    [[nodiscard]] const VirtualTTY & get_virtual_tty() const;
 
     const MemoryView& get_memory_view() const;
     const RecorderCollection& get_recorders() const;
@@ -80,6 +82,7 @@ private:
     std::shared_ptr<StackChannelCard> stack_channel_6_card;
     std::shared_ptr<IOCard> io_card;
     std::shared_ptr<SerialCard> serial_card;
+    std::shared_ptr<VirtualTTY> virtual_tty;
     std::shared_ptr<DiskControllerCard> disk_controller_card;
     std::shared_ptr<Connectors::StackChannel_To_DiskController>
             stackchannel_diskcontroller_connector; // Not sure it is necessary to keep it
