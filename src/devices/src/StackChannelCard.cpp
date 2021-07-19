@@ -4,7 +4,6 @@
 #include "Pluribus.h"
 
 #include <emulation_core/src/ScheduledAction.h>
-#include <emulation_core/src/ScheduledSignal.h>
 
 StackChannelCard::StackChannelCard(const StackChannelCard::Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
