@@ -3,6 +3,7 @@
 #include <emulator/src/Simulator.h>
 #include <emulator/src/VirtualTTY.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 
 namespace
 {
@@ -13,6 +14,11 @@ namespace
         {
             ImWchar c = io.InputQueueCharacters[i];
             tty.emit_char(static_cast<char>(c & 0xff));
+        }
+
+        if (ImGui::IsKeyPressedMap(ImGuiKey_Enter) || ImGui::IsKeyPressedMap(ImGuiKey_KeyPadEnter))
+        {
+            tty.emit_char(0x0d);
         }
     }
 }
