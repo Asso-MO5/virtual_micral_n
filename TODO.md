@@ -1,7 +1,6 @@
 ### Implementation
 
 * Implement the Serial card
-  * Complete the Serial Card to emit relay emitted characters.
   * Create a Hello World for the TTY
   * Attach the TTY the CLI executable.
 * Add a script system to manipulate the simulation
