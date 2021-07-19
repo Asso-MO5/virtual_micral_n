@@ -63,8 +63,7 @@ private:
 
     std::shared_ptr<ScheduledSignal> scheduled_input_ready;
 
-    void on_output(uint8_t value, Scheduling::counter_type time);
-
+    void on_output(Edge edge);
     void on_input_ready(Edge edge);
     void on_output_ready(Edge edge);
     void on_sync(Edge edge);

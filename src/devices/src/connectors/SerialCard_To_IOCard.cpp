@@ -9,6 +9,7 @@ Connectors::SerialCard_To_IOCard::SerialCard_To_IOCard(SerialCard& serial_card, 
 {
     // From IO to Serial
     connect(io_card.data_terminals[4], this).to(serial_card.output_data);
+    connect(io_card.ack_terminals[4], this).to(serial_card.output_strobe_AS);
 
     // From Serial to IO
     connect(serial_card.input_data, this).to(io_card.data_terminals[0]);
