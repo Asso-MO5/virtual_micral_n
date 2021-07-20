@@ -35,7 +35,6 @@
 * Create a debug panel for the DiskController
   * Show write status when implemented.
 * DiskReader can be a Schedulable to emulate the reading/writing times
-* Add a "Center to PC" button on the Disassembly Panel.
 
 ### Architecture
 
