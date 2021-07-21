@@ -98,7 +98,11 @@ void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
 void ConsoleCard::press_substitution()
 {
     status.substitution = !status.substitution;
-    release_data_bus = !status.substitution;
+
+    if (is_high(pluribus->sub))
+    {
+        release_data_bus = !status.substitution;
+    }
 }
 
 void ConsoleCard::on_sync(Edge edge)
