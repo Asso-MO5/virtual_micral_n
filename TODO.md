@@ -3,6 +3,7 @@
 * Implement the Serial card
   * Create a Hello World for the TTY
   * Attach the TTY the CLI executable.
+* Implement the possibility to receive and send punch data through the Serial Card
 * Add a script system to manipulate the simulation
   * Can read from a console
   * Can read from a file

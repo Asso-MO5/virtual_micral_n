@@ -21,6 +21,16 @@ namespace
             tty.emit_char(0x0d);
         }
     }
+
+    unsigned char representation(unsigned char c)
+    {
+        if (c == 13 || c == 10)
+        {
+            return c;
+        }
+
+        return (c >= 32 && c < 128) ? c : '?';
+    }
 }
 
 void PanelTTY::display(Simulator& simulator)
@@ -29,6 +39,8 @@ void PanelTTY::display(Simulator& simulator)
 
     // TODO: copy each time to optimize.
     content = tty.content();
+    std::transform(begin(content), end(content), begin(content),
+                   [](unsigned char c) { return representation(c); });
 
     ImGui::Begin("TTY");
     ImGui::TextWrapped("%s", content.c_str());
