@@ -12,11 +12,6 @@ class DataOnMDBusHolder;
 class MemoryPage;
 class Pluribus;
 
-namespace MemoryConstants
-{
-    constexpr const size_t SELECTION_BIT_COUNT = 3;
-}
-
 struct MemoryCardConfiguration
 {
     enum AddressingSize
@@ -34,7 +29,7 @@ struct MemoryCardConfiguration
 
     AddressingSize addressing_size;
     AccessType access_type;
-    std::array<bool, MemoryConstants::SELECTION_BIT_COUNT> selection_mask{};
+    uint8_t selection_mask{};
 };
 
 class MemoryCard : public SchedulableImpl

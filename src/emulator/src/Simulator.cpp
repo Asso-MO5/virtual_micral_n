@@ -166,14 +166,14 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
     {
         auto boot_rom_data = get_rom_data(ConfigROM::MICRAL_MIC_1);
         MemoryCard::Config masked_rom_memory_config =
-                get_memory_card_masked_rom_ram_4k_config(false, false, false);
+                get_memory_card_masked_rom_ram_4k_config(0b000);
         memory_card_1 = std::make_shared<MemoryCard>(masked_rom_memory_config);
         memory_card_1->load_data(boot_rom_data);
         scheduler.add(memory_card_1);
         memory_view.add_memory_card(memory_card_1);
 
         auto monitor_rom_data = get_rom_data(ConfigROM::MICRAL_38_3F);
-        MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(true, true, true);
+        MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(0b111);
         memory_card_2 = std::make_shared<MemoryCard>(rom_memory_config);
         memory_card_2->load_data(monitor_rom_data);
         scheduler.add(memory_card_2);
@@ -189,7 +189,7 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
     {
         auto rom_data = get_rom_data(rom_config);
 
-        MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(false, false, false);
+        MemoryCard::Config rom_memory_config = get_memory_card_rom_2k_config(0b000);
         memory_card_1 = std::make_shared<MemoryCard>(rom_memory_config);
         memory_card_1->load_data(rom_data);
         scheduler.add(memory_card_1);
@@ -201,8 +201,7 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
 
 void Simulator::add_ram_card(uint8_t mask)
 {
-    MemoryCard::Config ram_memory_config =
-            get_memory_card_ram_2k_config(mask & 0b100, mask & 0b010, mask & 0b001);
+    MemoryCard::Config ram_memory_config = get_memory_card_ram_2k_config(mask);
     auto ram_card = std::make_shared<MemoryCard>(ram_memory_config);
     scheduler.add(ram_card);
     memory_view.add_memory_card(ram_card);
@@ -349,21 +348,31 @@ void Simulator::resume_all_recorders()
     }
 }
 
-MemoryCard::Config Simulator::get_memory_card_masked_rom_ram_4k_config(bool s13, bool s12, bool s11)
+MemoryCard::Config Simulator::get_memory_card_masked_rom_ram_4k_config(uint8_t mask)
 {
     auto construction_config = MemoryCard::Config{
             .change_schedule =
                     [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
             .pluribus = pluribus,
-            .configuration = {
-                    .addressing_size = MemoryCardConfiguration::Card4k,
-                    .access_type = MemoryCardConfiguration::ROM_RAM_256,
-                    .selection_mask = {s13, s12, s11},
-            }};
+            .configuration = {.addressing_size = MemoryCardConfiguration::Card4k,
+                              .access_type = MemoryCardConfiguration::ROM_RAM_256,
+                              .selection_mask = mask}};
     return construction_config;
 }
 
-MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, bool s11)
+MemoryCard::Config Simulator::get_memory_card_rom_2k_config(uint8_t mask)
+{
+    auto construction_config = MemoryCard::Config{
+            .change_schedule =
+                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
+            .pluribus = pluribus,
+            .configuration = {.addressing_size = MemoryCardConfiguration::Card2k,
+                              .access_type = MemoryCardConfiguration::ROM,
+                              .selection_mask = mask}};
+    return construction_config;
+}
+
+MemoryCard::Config Simulator::get_memory_card_ram_2k_config(uint8_t mask)
 {
     auto construction_config = MemoryCard::Config{
             .change_schedule =
@@ -371,25 +380,9 @@ MemoryCard::Config Simulator::get_memory_card_rom_2k_config(bool s13, bool s12, 
             .pluribus = pluribus,
             .configuration = {
                     .addressing_size = MemoryCardConfiguration::Card2k,
-                    .access_type = MemoryCardConfiguration::ROM,
-                    .selection_mask = {s13, s12, s11},
+                    .access_type = MemoryCardConfiguration::RAM,
+                    .selection_mask = mask,
             }};
-    return construction_config;
-}
-
-MemoryCard::Config Simulator::get_memory_card_ram_2k_config(bool s13, bool s12, bool s11)
-{
-    auto construction_config = MemoryCard::Config{
-            .change_schedule =
-                    [&](Scheduling::schedulable_id id) { scheduler.change_schedule(id); },
-            .pluribus = pluribus,
-            .configuration =
-                    {
-                            .addressing_size = MemoryCardConfiguration::Card2k,
-                            .access_type = MemoryCardConfiguration::RAM,
-                            .selection_mask = {s13, s12, s11},
-                    },
-    };
     return construction_config;
 }
 

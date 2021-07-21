@@ -94,9 +94,10 @@ private:
     SimulatorMemoryView memory_view;
     RecorderCollection recorders;
 
-    MemoryCard::Config get_memory_card_rom_2k_config(bool s13, bool s12, bool s11);
-    MemoryCard::Config get_memory_card_ram_2k_config(bool s13, bool s12, bool s11);
-    MemoryCard::Config get_memory_card_masked_rom_ram_4k_config(bool s13, bool s12, bool s11);
+    // The mask is under the form s13 s12 s11 as the 3 lower bits.
+    MemoryCard::Config get_memory_card_rom_2k_config(uint8_t mask);
+    MemoryCard::Config get_memory_card_ram_2k_config(uint8_t mask);
+    MemoryCard::Config get_memory_card_masked_rom_ram_4k_config(uint8_t mask);
 
     void connect_signal_recorders();
     void connect_value_recorders();

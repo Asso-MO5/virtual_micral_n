@@ -147,17 +147,15 @@ void MemoryCard::on_phase_2(Edge edge)
 
 bool MemoryCard::is_addressed(uint16_t address)
 {
-    bool s13 = address & 0b10000000000000;
-    bool s12 = address & 0b01000000000000;
-    bool s11 = address & 0b00100000000000;
-
-    if (get_addressing_size() == AddressingSize::Card2k && s11 != configuration.selection_mask[2])
+    const bool s11 = (address & 0b00100000000000) >> 11;
+    if (get_addressing_size() == AddressingSize::Card2k &&
+        s11 != (configuration.selection_mask & 1))
     {
         return false;
     }
 
-    const auto& selection_mask = configuration.selection_mask;
-    return s13 == selection_mask[0] && s12 == selection_mask[1];
+    const auto s12_and_s13 = static_cast<uint8_t>(address >> 11 & 0b110);
+    return s12_and_s13 == (configuration.selection_mask & 0b110);
 }
 
 uint8_t MemoryCard::read_data(uint16_t address) const
@@ -179,9 +177,7 @@ MemoryCard::AddressingSize MemoryCard::get_addressing_size() const
 
 uint16_t MemoryCard::get_start_address() const
 {
-    auto& selection_mask = configuration.selection_mask;
-    auto first_page_address =
-            (selection_mask[0] << 13 | selection_mask[1] << 12 | selection_mask[2] << 11);
+    auto first_page_address = static_cast<uint16_t>(configuration.selection_mask) << 11;
     if (get_addressing_size() == AddressingSize::Card4k)
     {
         first_page_address &= 0b11000000000000;
