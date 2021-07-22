@@ -1,3 +1,8 @@
+### Bug?
+
+* While using the ROM Programming Tape command in the monitor, hex values of B are
+  replaced by '*'. Check why.
+
 ### Implementation
 
 * Implement the Serial card

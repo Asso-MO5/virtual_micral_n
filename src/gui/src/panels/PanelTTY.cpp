@@ -25,6 +25,9 @@ namespace
 
     std::string representation(char c, bool punch_started)
     {
+        // You can force this filter to make text appear on the ROM Programming Tape output
+        // of the Monitor (while waiting for a better way to do it)
+        // c &=0x7f;
         if (c == 13)
         {
             return {"\n"};
