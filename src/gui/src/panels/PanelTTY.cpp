@@ -4,6 +4,7 @@
 #include <emulator/src/VirtualTTY.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <misc_utils/src/ToHex.h>
 
 namespace
 {
@@ -22,14 +23,40 @@ namespace
         }
     }
 
-    unsigned char representation(unsigned char c)
+    std::string representation(char c)
     {
-        if (c == 13 || c == 10)
+        if (c == 13)
         {
-            return c;
+            return {"\n"};
+        }
+        if (c == 10)
+        {
+            return {};
         }
 
-        return (c >= 32 && c < 128) ? c : '?';
+        if (c == 0x11)
+        {
+            return {"\n==(DC1)==\n"};
+        }
+        if (c == 0x12)
+        {
+            return {"\n==(DC2)==\n"};
+        }
+        if (c == 0x14)
+        {
+            return {"\n==(DC4)==\n"};
+        }
+
+        if (c < 32)
+        {
+            auto value = utils::to_hex<std::uint8_t>(c, 2);
+
+            std::stringstream s;
+            s << '(' << value << ')';
+            return s.str();
+        }
+
+        return {c};
     }
 }
 
@@ -37,10 +64,18 @@ void PanelTTY::display(Simulator& simulator)
 {
     auto tty = simulator.get_virtual_tty();
 
-    // TODO: copy each time to optimize.
-    content = tty.content();
-    std::transform(begin(content), end(content), begin(content),
-                   [](unsigned char c) { return representation(c); });
+    const auto& tty_content = tty.content();
+
+    if (tty_content.size() > previous_content_size)
+    {
+        const auto new_content = tty_content.substr(previous_content_size);
+        previous_content_size = tty_content.size();
+
+        for (auto c : new_content)
+        {
+            content.append(representation(c));
+        }
+    }
 
     ImGui::Begin("TTY");
     ImGui::TextWrapped("%s", content.c_str());
