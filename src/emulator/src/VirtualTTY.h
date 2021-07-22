@@ -24,6 +24,7 @@ public:
 private:
     std::string full_content;
     std::function<void(char)> emitted_char_cb;
+    bool raw_output{};
 };
 
 #endif //MICRALN_VIRTUALTTY_H

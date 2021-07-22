@@ -73,11 +73,10 @@ void SerialCard::on_output(Edge edge)
         output_ready_PS.set(State::LOW, time, this);
 
         auto value = *output_data;
-        auto output = static_cast<char>(value & 0x7f);
 
         if (configuration.on_output_character)
         {
-            configuration.on_output_character(output);
+            configuration.on_output_character(value);
         }
 
         // At the moment, the peripheral is considered always ready to
