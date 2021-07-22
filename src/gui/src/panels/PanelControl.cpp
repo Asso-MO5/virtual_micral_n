@@ -108,10 +108,12 @@ namespace
         return accumulated_bits;
     }
 
-} // namespace
+}
 
 void PanelControl::display(Simulator& simulator)
 {
+    hack_for_monitor(simulator.get_console_card());
+
     ImGui::Begin("Panel");
     ImGui::SameLine();
 
@@ -280,7 +282,61 @@ void PanelControl::display_av_init_line(ConsoleCard& console_card)
         console_card.press_interrupt();
     }
 }
+
 void PanelControl::set_display_mode(PanelControl::DisplayMode mew_display_mode)
 {
     display_mode = mew_display_mode;
+}
+
+// Start of Hacky Scripting for starting the Monitor easily
+static int step_for_hack = 0;
+void PanelControl::set_hack_data(ConsoleCard& console_card, uint8_t data)
+
+{
+
+    std::array<int, 16> all_bits{value_to_display_as_bits(data, 8)};
+    std::copy(begin(all_bits), end(all_bits), begin(input_data));
+    console_card.set_switch_data(data);
+}
+
+void PanelControl::hack_for_monitor(ConsoleCard& console_card)
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.KeyShift && ImGui::IsKeyPressed(0x30))
+    {
+        switch (step_for_hack)
+        {
+            case 0:
+                console_card.press_cycle();
+                console_card.press_stepping();
+                console_card.press_substitution();
+                break;
+            case 1:
+                set_hack_data(console_card, 0x44);
+                break;
+            case 2:
+                console_card.press_stepping();
+                break;
+            case 3:
+                set_hack_data(console_card, 0x30);
+                break;
+            case 4:
+                console_card.press_stepping();
+                break;
+            case 5:
+                set_hack_data(console_card, 0x3b);
+                break;
+            case 6:
+                console_card.press_stepping();
+                break;
+            case 7:
+                console_card.press_substitution();
+                console_card.press_automatic();
+                break;
+            default:
+                break;
+        }
+        step_for_hack = (step_for_hack + 1) % 8;
+    }
 }
