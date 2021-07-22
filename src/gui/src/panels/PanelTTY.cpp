@@ -23,7 +23,7 @@ namespace
         }
     }
 
-    std::string representation(char c)
+    std::string representation(char c, bool punch_started)
     {
         if (c == 13)
         {
@@ -38,11 +38,11 @@ namespace
         {
             return {"\n==(DC1)==\n"};
         }
-        if (c == 0x12)
+        if (c == 0x12 && !punch_started)
         {
             return {"\n==(DC2)==\n"};
         }
-        if (c == 0x14)
+        if (c == 0x14 && punch_started)
         {
             return {"\n==(DC4)==\n"};
         }
@@ -73,7 +73,15 @@ void PanelTTY::display(Simulator& simulator)
 
         for (auto c : new_content)
         {
-            content.append(representation(c));
+            content.append(representation(c, punch_started));
+            if (!punch_started)
+            {
+                punch_started |= (c == 0x12);
+            }
+            if (punch_started)
+            {
+                punch_started &= (c != 0x14);
+            }
         }
     }
 
