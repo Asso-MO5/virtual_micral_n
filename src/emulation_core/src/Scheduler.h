@@ -23,7 +23,7 @@ public:
     void add(const schedulable_ptr& schedulable);
     void step();
 
-    void change_schedule(Scheduling::schedulable_id schedulable);
+    void change_schedule(Scheduling::schedulable_id schedulable_id);
 
     [[nodiscard]] Scheduling::counter_type get_counter() const;
 
@@ -32,6 +32,10 @@ private:
     Scheduling::counter_type executed_time = 0;
     std::vector<std::tuple<Scheduling::counter_type, Scheduling::schedulable_id, schedulable_ptr>>
             schedulable_pool{};
+
+    // The rough current number of actually scheduled Schedulables is kept, to allow
+    // a very limited sub-sort.
+    std::int32_t scheduled_count{};
 
     void sort_everything();
 };
