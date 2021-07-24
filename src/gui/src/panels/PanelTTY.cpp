@@ -27,7 +27,7 @@ namespace
     {
         // You can force this filter to make text appear on the ROM Programming Tape output
         // of the Monitor (while waiting for a better way to do it)
-        // c &=0x7f;
+        // c &= (c == -1) ? 0xff : 0x7f;
         if (c == 13)
         {
             return {"\n"};
