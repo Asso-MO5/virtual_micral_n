@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstdint>
+#include <i8008/src/Instructions8008.h>
 
 class Simulator;
 class ConsoleCard;
@@ -30,6 +31,9 @@ private:
     void display_control_line(ConsoleCard& console_card);
     static void display_status_line(ConsoleCard& console_card);
     static void display_av_init_line(ConsoleCard& console_card);
+
+    // TODO: should replace with a disassembly service
+    InstructionTableFor8008 instruction_table;
 
     // Hacky way to start the monitor by automation of the manipulation
     // Press Shift-] (on a QWERTY keyboard) to advance through the 8 steps.

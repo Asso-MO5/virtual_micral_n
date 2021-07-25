@@ -7,6 +7,7 @@
 #include <devices/src/InterruptController.h>
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
+#include <i8008/src/Instructions8008.h>
 #include <imgui.h>
 #include <numeric>
 
@@ -197,8 +198,16 @@ void PanelControl::display_data_line(ConsoleCard& console_card)
     auto numeric_data = bits_to_value(input_data);
     console_card.set_switch_data(static_cast<uint8_t>(numeric_data & 0xff));
 
-    ImGui::Text("LED    Value: $%02X o%03o %3u", display_value, display_value, display_value);
-    ImGui::Text("Switch Value: $%02X o%03o %3u", numeric_data, numeric_data, numeric_data);
+    const auto display_instruction = instruction_table.decode_instruction(display_value);
+    const auto display_instruction_str = instruction_to_string(display_instruction);
+
+    auto key_instruction = instruction_table.decode_instruction(numeric_data);
+    auto key_instruction_str = instruction_to_string(key_instruction);
+
+    ImGui::Text("LED    Value: $%02X o%03o %3u (%s)", display_value, display_value, display_value,
+                display_instruction_str.c_str());
+    ImGui::Text("Switch Value: $%02X o%03o %3u (%s)", numeric_data, numeric_data, numeric_data,
+                key_instruction_str.c_str());
 }
 
 void PanelControl::display_control_line(ConsoleCard& console_card)
@@ -308,35 +317,41 @@ void PanelControl::hack_for_monitor(ConsoleCard& console_card)
         switch (step_for_hack)
         {
             case 0:
+                set_hack_data(console_card, 0xd2);
+                break;
+            case 1:
                 console_card.press_cycle();
                 console_card.press_stepping();
                 console_card.press_substitution();
-                break;
-            case 1:
-                set_hack_data(console_card, 0x44);
                 break;
             case 2:
                 console_card.press_stepping();
                 break;
             case 3:
-                set_hack_data(console_card, 0x30);
+                set_hack_data(console_card, 0x44);
                 break;
             case 4:
                 console_card.press_stepping();
                 break;
             case 5:
-                set_hack_data(console_card, 0x3b);
+                set_hack_data(console_card, 0x30);
                 break;
             case 6:
                 console_card.press_stepping();
                 break;
             case 7:
+                set_hack_data(console_card, 0x3b);
+                break;
+            case 8:
+                console_card.press_stepping();
+                break;
+            case 9:
                 console_card.press_substitution();
                 console_card.press_automatic();
                 break;
             default:
                 break;
         }
-        step_for_hack = (step_for_hack + 1) % 8;
+        step_for_hack = (step_for_hack + 1) % 10;
     }
 }
