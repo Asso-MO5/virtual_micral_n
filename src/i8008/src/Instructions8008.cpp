@@ -228,7 +228,7 @@ InstructionTableFor8008::InstructionTableFor8008()
     };
 }
 
-std::string instruction_to_string(InstructionTableFor8008::DecodedInstruction& instruction)
+std::string instruction_to_string(const InstructionTableFor8008::DecodedInstruction& instruction)
 {
     if (instruction.instruction == nullptr)
     {
