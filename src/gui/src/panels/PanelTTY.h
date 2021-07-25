@@ -14,7 +14,7 @@ public:
 private:
     std::string content;
     size_t previous_content_size{};
-    bool punch_started{};
+    uint8_t ff_count{};
 };
 
 #endif //MICRALN_PANELTTY_H

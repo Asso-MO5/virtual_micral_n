@@ -1,6 +1,9 @@
 ### Implementation
 
 * Implement the Serial card
+  * Upgrade the TTY to address punched ribbon
+    * Automatically capture when DC2
+    * Allow injecting DATA
   * Create a Hello World for the TTY
   * Attach the TTY the CLI executable.
 * Implement the possibility to receive and send punch data through the Serial Card

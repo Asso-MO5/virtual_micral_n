@@ -23,11 +23,13 @@ namespace
         }
     }
 
-    std::string representation(char c, bool punch_started)
+    std::string representation(char c, bool raw_output)
     {
-        // You can force this filter to make text appear on the ROM Programming Tape output
-        // of the Monitor (while waiting for a better way to do it)
-        // c &= (c == -1) ? 0xff : 0x7f;
+        if (!raw_output)
+        {
+            c &= (c == -1) ? -1 : 0x7f;
+        }
+
         if (c == 13)
         {
             return {"\n"};
@@ -41,13 +43,18 @@ namespace
         {
             return {"\n==(DC1)==\n"};
         }
-        if (c == 0x12 && !punch_started)
+        if (c == 0x12 && !raw_output)
         {
             return {"\n==(DC2)==\n"};
         }
-        if (c == 0x14 && punch_started)
+        if (c == 0x14 && raw_output)
         {
             return {"\n==(DC4)==\n"};
+        }
+
+        if (raw_output)
+        {
+            return "¬";
         }
 
         if (c < 32)
@@ -76,14 +83,30 @@ void PanelTTY::display(Simulator& simulator)
 
         for (auto c : new_content)
         {
-            content.append(representation(c, punch_started));
-            if (!punch_started)
+            if (ff_count > 0)
             {
-                punch_started |= (c == 0x12);
+                if (c == -1)
+                {
+                    ff_count += 1;
+                }
+                else
+                {
+                    if (ff_count > 10)
+                    {
+                        ff_count = 0;
+                    }
+                }
             }
-            if (punch_started)
+
+            content.append(representation(c, ff_count > 0));
+
+            if (c == 0x12 && !(ff_count > 0))
             {
-                punch_started &= (c != 0x14);
+                ff_count = 1;
+            }
+            else if (c == 0x14 && (ff_count > 0))
+            {
+                ff_count = 0;
             }
         }
     }

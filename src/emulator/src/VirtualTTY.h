@@ -12,7 +12,10 @@ public:
 
     [[nodiscard]] std::string_view content() const;
 
+    // Called when receiving something from the outside
     void receive_char(char char_to_add);
+
+    // Called when sending something to the outside
     void emit_char(char char_to_emit);
 
     // Not in the constructor because it needs to be created before the SerialCard to pass
