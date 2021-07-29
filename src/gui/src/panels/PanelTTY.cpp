@@ -8,13 +8,18 @@
 
 namespace
 {
-    void acquire_keyboard(VirtualTTY& tty)
+    void acquire_keyboard(VirtualTTY& tty, bool echo, std::string& content)
     {
         ImGuiIO& io = ImGui::GetIO();
         for (int i = 0; i < io.InputQueueCharacters.Size; i++)
         {
             ImWchar c = io.InputQueueCharacters[i];
             tty.emit_char(static_cast<char>(c & 0xff));
+
+            if (echo)
+            {
+                content.push_back(c & 0xff);
+            }
         }
 
         if (ImGui::IsKeyPressedMap(ImGuiKey_Enter) || ImGui::IsKeyPressedMap(ImGuiKey_KeyPadEnter))
@@ -112,8 +117,14 @@ void PanelTTY::display(Simulator& simulator)
     }
 
     ImGui::Begin("TTY");
+    static bool echo = false;
+    ImGui::Checkbox("Echo", &echo);
+
+    ImGui::BeginChild("Content");
     ImGui::TextWrapped("%s", content.c_str());
+    ImGui::EndChild();
+
     ImGui::End();
 
-    acquire_keyboard(tty);
+    acquire_keyboard(tty, echo, content);
 }
