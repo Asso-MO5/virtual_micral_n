@@ -4,7 +4,6 @@
   * Upgrade the TTY to address punched ribbon
     * Automatically capture when DC2
     * Allow injecting DATA
-  * Create a Hello World for the TTY
   * Attach the TTY the CLI executable.
 * Implement the possibility to receive and send punch data through the Serial Card
 * Add a script system to manipulate the simulation
@@ -39,6 +38,7 @@
 * Create a debug panel for the DiskController
   * Show write status when implemented.
 * DiskReader can be a Schedulable to emulate the reading/writing times
+* Pressing INIT should switch to RAM bank while loading?
 
 ### Architecture
 
