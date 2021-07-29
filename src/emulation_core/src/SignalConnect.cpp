@@ -10,8 +10,9 @@ SignalConnector SignalConnector::to(OwnedSignal& destination_signal)
 {
     const auto local_owner_id = owner_id;
     destination_signal.request(local_owner_id);
+    destination_signal.set(*source_signal, Scheduling::counter_type{0}, local_owner_id);
     source_signal.subscribe([&destination_signal, local_owner_id](Edge edge) {
-      destination_signal.apply(edge, local_owner_id);
+        destination_signal.apply(edge, local_owner_id);
     });
 
     return *this;

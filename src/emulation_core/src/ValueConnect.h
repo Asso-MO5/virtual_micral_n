@@ -47,6 +47,7 @@ public:
     {
         const auto local_owner_id = owner_id;
         destination_value.request(local_owner_id, Scheduling::counter_type{0});
+        destination_value.set(*source_value, Scheduling::counter_type{0}, local_owner_id);
         source_value.subscribe([&destination_value, local_owner_id](ValueType, ValueType new_value,
                                                                     Scheduling::counter_type time) {
             destination_value.set(new_value, time, local_owner_id);
