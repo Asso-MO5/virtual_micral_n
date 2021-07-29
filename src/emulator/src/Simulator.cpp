@@ -223,7 +223,7 @@ void Simulator::create_processor_card()
 
 void Simulator::create_virtual_disk()
 {
-    auto disk_data = FileReader("data/8008-hello-world.bin").data;
+    auto disk_data = FileReader("data/8008-hello-mo5.bin").data;
     // The data starts at Track 0 Sector 16
     disk_data.insert(begin(disk_data), 16 * 128, 0xaa);
     virtual_disk = std::make_shared<VirtualDisk>(

@@ -5,43 +5,16 @@ RAM: EQU 0x1000
 START:
     ORG 0x0000
     LAA ; Starts with a NOP
+    LCC ; Mask interruptions
 
-    ; BC points to RAM
-    LBI \HB\RAM-1
-    LCI \LB\RAM-1
+TXT_OUTPUT:
+    LHI \HB\TEST_MSG
+    LLI \LB\TEST_MSG
 
-TXT_COPY:
-    ; DE points to text message
-    LDI \HB\TEST_MSG-1
-    LEI \LB\TEST_MSG-1
-
-LOOP:
-    ; Advances read pointer
-    LHD
-    LLE
-    CAL ADVANCE_HL
-    LDH 
-    LEL
-
-    LAM ; Read Byte
-
-    ; Write byte to RAM and advances pointer
-    LHB
-    LLC
-    CAL ADVANCE_HL
-    LBH
-    LCL
-
-    LMA ; Write BYTE
-
-    ORA
-    JFZ LOOP
-
-    LAH
-    CPI 0x20
-    JFZ TXT_COPY
+    CAL OUTPUT_STR
     HLT
     LAA ; Insert NOP in case no instruction is jammed
+    JMP TXT_OUTPUT
 
 ADVANCE_HL:
     INL
@@ -49,7 +22,30 @@ ADVANCE_HL:
     INH
     RET
 
+    ; Output of HL as a NULL terminated string to the Serial Card
+OUTPUT_STR:
+    LAM ; Read Byte
+    ORA
+    RTZ ; End of String
+    CAL OUTPUT_CHAR
+    CAL ADVANCE_HL
+    JMP OUTPUT_STR
+
+    ; Output of A content to the Serial Card
+    ; Uses C
+OUTPUT_CHAR:
+    LCA
+    ; Wait for Output Ready
+    LAI 0x01
+    INP 0x0
+    RLC
+    JFC OUTPUT_CHAR
+
+    LAC
+    OUT 0x0
+    RET
+
 TEST_MSG:
     DATA "HELLO MO5 !"
-    DATA 0
+    DATA 13,10,0
 
