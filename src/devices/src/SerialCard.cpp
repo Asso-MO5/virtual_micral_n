@@ -52,7 +52,7 @@ void SerialCard::on_sync(Edge edge)
             input_data.set(next_char, time, this);
 
             // TODO: what is the correct time of Input Ready being asserted?
-            scheduled_input_ready->launch(time, Scheduling::counter_type{3'000'000},
+            scheduled_input_ready->launch(time, Scheduling::counter_type{300'000},
                                           change_schedule);
         }
     }
