@@ -1,0 +1,76 @@
+AS8 assembler for intel 8008, t.e.jones Version 1.0
+Options: listfile=1 debug=0 binaryout=1 singlelist=0
+octalnums=0 markascii=0
+Infile=8008-hello-mo5.asm
+Assembly Performed: Fri Jun 18 10:28:31 2021
+
+
+Line Addr.  CodeBytes   Source Line
+---- ------ ----------- ----------------------------------
+   1                    ; Copy a string from a place to another.
+   2                    
+   3                    RAM: EQU 0x1000
+   4                    
+   5                    START:
+   6                        ORG 0x0000
+   7 00-000 300             LAA ; Starts with a NOP
+   8                    
+   9                        ; BC points to RAM
+  10 00-001 016 017         LBI \HB\RAM-1
+  11 00-003 026 377         LCI \LB\RAM-1
+  12                    
+  13                    TXT_COPY:
+  14                        ; DE points to text message
+  15 00-005 036 000         LDI \HB\TEST_MSG-1
+  16 00-007 046 050         LEI \LB\TEST_MSG-1
+  17                    
+  18                    LOOP:
+  19                        ; Advances read pointer
+  20 00-011 353             LHD
+  21 00-012 364             LLE
+  22 00-013 106 045 000     CAL ADVANCE_HL
+  23 00-016 335             LDH 
+  24 00-017 346             LEL
+  25                    
+  26 00-020 307             LAM ; Read Byte
+  27                    
+  28                        ; Write byte to RAM and advances pointer
+  29 00-021 351             LHB
+  30 00-022 362             LLC
+  31 00-023 106 045 000     CAL ADVANCE_HL
+  32 00-026 315             LBH
+  33 00-027 326             LCL
+  34                    
+  35 00-030 370             LMA ; Write BYTE
+  36                    
+  37 00-031 260             ORA
+  38 00-032 110 011 000     JFZ LOOP
+  39                    
+  40 00-035 305             LAH
+  41 00-036 074 040         CPI 0x20
+  42 00-040 110 005 000     JFZ TXT_COPY
+  43 00-043 001             HLT
+  44 00-044 300             LAA ; Insert NOP in case no instruction is jammed
+  45                    
+  46                    ADVANCE_HL:
+  47 00-045 060             INL
+  48 00-046 013             RFZ
+  49 00-047 050             INH
+  50 00-050 007             RET
+  51                    
+  52                    TEST_MSG:
+  53 00-051 110 105 114      DATA "HELLO MO5 !"
+     00-054 114 117 040
+     00-057 115 117 065
+     00-062 040 041 
+  54 00-064 000              DATA 0
+  55                    
+Symbol Count: 6
+    Symbol  Oct Val  DecVal
+    ------  -------  ------
+       RAM   20 000   4096
+     START      000      0
+  TXT_COPY      005      5
+      LOOP      011      9
+ADVANCE_HL      045     37
+  TEST_MSG      051     41
