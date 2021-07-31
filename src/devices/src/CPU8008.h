@@ -88,7 +88,7 @@ public:
 
     using state_callback_type = std::function<void(Constants8008::CpuState, Constants8008::CpuState,
                                                    Scheduling::counter_type)>;
-    void register_state_change(state_callback_type callback);
+    void register_state_change(const state_callback_type& callback);
 
     enum Event
     {

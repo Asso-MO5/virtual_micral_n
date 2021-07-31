@@ -724,9 +724,9 @@ void CPU8008::execute_t5()
                 {
                     uint16_t intermediate = static_cast<uint16_t>(register_A) +
                                             static_cast<uint16_t>(hidden_registers.b);
-                    flags[static_cast<size_t>(Flags::Carry)] = intermediate > 255;
+                    flags[static_cast<size_t>(Flags::Carry)] = (intermediate >> 8) & 1;
                     scratch_pad_memory[static_cast<size_t>(Register::A)] =
-                            static_cast<uint8_t>(intermediate);
+                            static_cast<uint8_t>(intermediate & 0xFF);
                     update_flags(register_A);
                 }
                 break;
@@ -734,31 +734,31 @@ void CPU8008::execute_t5()
                 {
                     uint16_t intermediate = static_cast<uint16_t>(register_A) +
                                             static_cast<uint16_t>(hidden_registers.b) +
-                                            flags[static_cast<size_t>(Flags::Carry)];
-                    flags[static_cast<size_t>(Flags::Carry)] = intermediate > 255;
+                                            (flags[static_cast<size_t>(Flags::Carry)] ? 1 : 0);
+                    flags[static_cast<size_t>(Flags::Carry)] = (intermediate >> 8) & 1;
                     scratch_pad_memory[static_cast<size_t>(Register::A)] =
-                            static_cast<uint8_t>(intermediate);
+                            static_cast<uint8_t>(intermediate & 0xFF);
                     update_flags(register_A);
                 }
                 break;
                 case 0b010: // SUB
                 {
-                    int16_t intermediate = static_cast<int16_t>(register_A) -
+                    int32_t intermediate = static_cast<int16_t>(register_A) -
                                            static_cast<int16_t>(hidden_registers.b);
                     flags[static_cast<size_t>(Flags::Carry)] = intermediate < 0;
                     scratch_pad_memory[static_cast<size_t>(Register::A)] =
-                            static_cast<uint8_t>(intermediate);
+                            static_cast<uint8_t>(intermediate & 0xFF);
                     update_flags(register_A);
                 }
                 break;
                 case 0b011: // SUB with Carry
                 {
-                    int16_t intermediate = static_cast<int16_t>(register_A) -
+                    int32_t intermediate = static_cast<int16_t>(register_A) -
                                            static_cast<int16_t>(hidden_registers.b) -
-                                           flags[static_cast<size_t>(Flags::Carry)];
+                                           (flags[static_cast<size_t>(Flags::Carry)] ? 1 : 0);
                     flags[static_cast<size_t>(Flags::Carry)] = intermediate < 0;
                     scratch_pad_memory[static_cast<size_t>(Register::A)] =
-                            static_cast<uint8_t>(intermediate);
+                            static_cast<uint8_t>(intermediate & 0xFF);
                     update_flags(register_A);
                 }
 
@@ -783,7 +783,7 @@ void CPU8008::execute_t5()
                     break;
                 case 0b111: // CP (Compare)
                 {
-                    int16_t intermediate = static_cast<int16_t>(register_A) -
+                    int32_t intermediate = static_cast<int16_t>(register_A) -
                                            static_cast<int16_t>(hidden_registers.b);
                     flags[static_cast<size_t>(Flags::Carry)] = intermediate < 0;
                     update_flags(intermediate & 0xff);
@@ -801,21 +801,25 @@ void CPU8008::execute_t5()
             switch (rotate_op)
             {
                 case 0b00: // RLC
+                {
                     flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b10000000) >> 7;
                     register_A = (register_A << 1) & 0b11111110;
-                    register_A |= flags[static_cast<size_t>(Flags::Carry)];
-                    break;
+                    register_A |= flags[static_cast<size_t>(Flags::Carry)] ? 1 : 0;
+                }
+                break;
                 case 0b01: // RRC
+                {
                     flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b00000001);
                     register_A = (register_A >> 1) & 0b01111111;
-                    register_A |= flags[static_cast<size_t>(Flags::Carry)] << 7;
-                    break;
+                    register_A |= (flags[static_cast<size_t>(Flags::Carry)]) ? 0x80 : 00;
+                }
+                break;
                 case 0b10: // RAL
                 {
                     auto previous_carry = flags[static_cast<size_t>(Flags::Carry)];
                     flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b10000000) >> 7;
                     register_A = (register_A << 1) & 0b11111110;
-                    register_A |= previous_carry;
+                    register_A |= previous_carry & 1;
                 }
                 break;
                 case 0b11: // RAR
@@ -823,7 +827,7 @@ void CPU8008::execute_t5()
                     auto previous_carry = flags[static_cast<size_t>(Flags::Carry)];
                     flags[static_cast<size_t>(Flags::Carry)] = (register_A & 0b00000001);
                     register_A = (register_A >> 1) & 0b01111111;
-                    register_A |= previous_carry << 7;
+                    register_A |= previous_carry ? 0x80 : 0x00;
                 }
                 break;
                 default:
@@ -885,7 +889,7 @@ void CPU8008::enter_interrupt(Scheduling::counter_type edge_time)
     next_events.push(std::make_tuple(edge_time + 25, STATE, static_cast<int>(CpuState::T1I)));
 }
 
-void CPU8008::register_state_change(state_callback_type callback)
+void CPU8008::register_state_change(const state_callback_type& callback)
 {
     output_pins.state.subscribe(callback);
 }
