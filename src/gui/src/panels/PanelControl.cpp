@@ -167,8 +167,16 @@ void PanelControl::display_address_line(ConsoleCard& console_card)
     auto numeric_data = bits_to_value(input_address);
     console_card.set_switch_address(numeric_data);
 
-    ImGui::Text("LED    Value: $%04X o%05o %5u", display_value, display_value, display_value);
-    ImGui::Text("Switch Value: $%04X o%05o %5u", numeric_data, numeric_data, numeric_data);
+    auto high_led = (display_value & 0xFF00) >> 8;
+    auto low_led = display_value & 0x00FF;
+
+    auto high_switch = (numeric_data & 0xFF00) >> 8;
+    auto low_switch = numeric_data & 0x00FF;
+
+    ImGui::Text("LED    Value: $%04X o%02o-%03o %5u", display_value, high_led, low_led,
+                display_value);
+    ImGui::Text("Switch Value: $%04X o%02o-%03o %5u", numeric_data, high_switch, low_switch,
+                numeric_data);
 }
 
 void PanelControl::display_data_line(ConsoleCard& console_card)
