@@ -87,6 +87,7 @@ public:
     void press_instruction();
     void press_cycle();
 
+    void press_av();
     void press_interrupt();
     void press_substitution();
 

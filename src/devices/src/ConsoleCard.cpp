@@ -68,13 +68,7 @@ void ConsoleCard::set_step_mode()
     status.stepping = true;
 }
 
-void ConsoleCard::press_stepping()
-{
-    set_step_mode();
-
-    auto time = pluribus->phase_2.get_latest_change_time();
-    pluribus->ready_console.set(State::HIGH, time, this);
-}
+void ConsoleCard::press_stepping() { set_step_mode(); }
 
 void ConsoleCard::press_trap() { status.trap = !status.trap; }
 
@@ -102,6 +96,15 @@ void ConsoleCard::press_substitution()
     if (is_high(pluribus->sub))
     {
         release_data_bus = !status.substitution;
+    }
+}
+
+void ConsoleCard::press_av()
+{
+    if (status.stepping)
+    {
+        auto time = pluribus->phase_2.get_latest_change_time();
+        pluribus->ready_console.set(State::HIGH, time, this);
     }
 }
 

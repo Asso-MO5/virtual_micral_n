@@ -15,7 +15,7 @@ using namespace widgets;
 
 namespace
 {
-    float HISTORY_REMANENCE = 100.f;
+    const float HISTORY_REMANENCE = 100.f;
 
     std::array<int, 16> value_to_display_as_bits(uint16_t value, size_t bus_width)
     {
@@ -288,8 +288,13 @@ void PanelControl::display_status_line(ConsoleCard& console_card)
 
 void PanelControl::display_av_init_line(ConsoleCard& console_card)
 {
-    bool av = false;
-    auto av_pressed = add_impulse_switch("AV", &av, nullptr);
+    static bool av_value = false;
+    auto av_pressed = add_impulse_switch("AV", &av_value, nullptr);
+    if (av_pressed && av_value)
+    {
+        console_card.press_av();
+    }
+
     ImGui::SameLine();
 
     static bool interrupt_value = false;
@@ -333,25 +338,25 @@ void PanelControl::hack_for_monitor(ConsoleCard& console_card)
                 console_card.press_substitution();
                 break;
             case 2:
-                console_card.press_stepping();
+                console_card.press_av();
                 break;
             case 3:
                 set_hack_data(console_card, 0x44);
                 break;
             case 4:
-                console_card.press_stepping();
+                console_card.press_av();
                 break;
             case 5:
                 set_hack_data(console_card, 0x30);
                 break;
             case 6:
-                console_card.press_stepping();
+                console_card.press_av();
                 break;
             case 7:
                 set_hack_data(console_card, 0x3b);
                 break;
             case 8:
-                console_card.press_stepping();
+                console_card.press_av();
                 break;
             case 9:
                 console_card.press_substitution();
