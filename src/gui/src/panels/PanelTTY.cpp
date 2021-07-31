@@ -80,6 +80,7 @@ void PanelTTY::display(Simulator& simulator)
     auto tty = simulator.get_virtual_tty();
 
     const auto& tty_content = tty.content();
+    bool text_was_added = false;
 
     if (tty_content.size() > previous_content_size)
     {
@@ -114,6 +115,8 @@ void PanelTTY::display(Simulator& simulator)
                 ff_count = 0;
             }
         }
+
+        text_was_added = true;
     }
 
     ImGui::Begin("TTY");
@@ -122,6 +125,11 @@ void PanelTTY::display(Simulator& simulator)
 
     ImGui::BeginChild("Content");
     ImGui::TextWrapped("%s", content.c_str());
+
+    if (text_was_added)
+    {
+        ImGui::SetScrollHereY(1.f);
+    }
     ImGui::EndChild();
 
     ImGui::End();
