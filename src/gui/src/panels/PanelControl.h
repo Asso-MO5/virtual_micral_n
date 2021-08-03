@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstdint>
+#include <emulator/src/Simulator.h>
 #include <i8008/src/Instructions8008.h>
 
 class Simulator;
@@ -31,6 +32,7 @@ private:
     void display_control_line(ConsoleCard& console_card);
     static void display_status_line(ConsoleCard& console_card);
     static void display_av_init_line(ConsoleCard& console_card);
+    static void display_configuration_line(ConsoleCard& console_card);
 
     // TODO: should replace with a disassembly service
     InstructionTableFor8008 instruction_table;

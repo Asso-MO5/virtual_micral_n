@@ -94,6 +94,8 @@ public:
     void set_switch_data(uint8_t data);
     void set_switch_address(uint16_t address);
 
+    void set_start_mode(StartMode mode);
+
 private:
     StartMode start_mode;
     std::shared_ptr<Pluribus> pluribus;
@@ -107,12 +109,15 @@ private:
     uint8_t switch_data{};
     bool pending_interrupt{};
 
+    void set_reset_state();
+
     void on_vdd(Edge edge);
     void on_phase_2(Edge edge);
     void on_sync(Edge edge);
 
     void set_step_mode();
     void on_rzgi(Edge edge);
+    void on_init(Edge edge);
     void on_sub(Edge edge);
 };
 

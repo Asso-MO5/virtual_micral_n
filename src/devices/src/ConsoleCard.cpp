@@ -35,7 +35,22 @@ ConsoleCard::ConsoleCard(std::shared_ptr<Pluribus> given_pluribus,
     pluribus->sync.subscribe([this](Edge edge) { on_sync(edge); });
     pluribus->vdd.subscribe([this](Edge edge) { on_vdd(edge); });
     pluribus->rzgi.subscribe([this](Edge edge) { on_rzgi(edge); });
+    pluribus->init.subscribe([this](Edge edge) { on_init(edge); });
     pluribus->sub.subscribe([this](Edge edge) { on_sub(edge); });
+
+    set_reset_state();
+}
+
+void ConsoleCard::set_reset_state()
+{
+    if (start_mode == Automatic)
+    {
+        press_automatic();
+    }
+    else
+    {
+        press_stepping();
+    }
 }
 
 ConsoleCard::Status ConsoleCard::get_status() const { return status; }
@@ -72,20 +87,7 @@ void ConsoleCard::press_stepping() { set_step_mode(); }
 
 void ConsoleCard::press_trap() { status.trap = !status.trap; }
 
-void ConsoleCard::on_vdd(Edge edge)
-{
-    if (is_rising(edge))
-    {
-        if (start_mode == Automatic)
-        {
-            press_automatic();
-        }
-        else
-        {
-            press_stepping();
-        }
-    }
-}
+void ConsoleCard::on_vdd(Edge edge) { set_reset_state(); }
 
 void ConsoleCard::press_instruction() { status.step_mode = Instruction; }
 void ConsoleCard::press_cycle() { status.step_mode = Cycle; }
@@ -238,10 +240,20 @@ void ConsoleCard::on_rzgi(Edge edge)
     }
 }
 
+void ConsoleCard::on_init(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        set_reset_state();
+    }
+}
+
 std::vector<std::shared_ptr<Schedulable>> ConsoleCard::get_sub_schedulables()
 {
     return {place_data_on_pluribus};
 }
+
+void ConsoleCard::set_start_mode(ConsoleCard::StartMode mode) { start_mode = mode; }
 
 ConsoleCard::StatusHistory::StatusHistory(size_t size) { history.reserve(size); }
 

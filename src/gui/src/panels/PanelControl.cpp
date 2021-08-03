@@ -6,7 +6,6 @@
 #include <devices/src/ConsoleCard.h>
 #include <devices/src/InterruptController.h>
 #include <devices/src/ProcessorCard.h>
-#include <emulator/src/Simulator.h>
 #include <i8008/src/Instructions8008.h>
 #include <imgui.h>
 #include <numeric>
@@ -133,6 +132,7 @@ void PanelControl::display(Simulator& simulator)
         ImGui::BeginGroup();
         display_status_line(console_card);
         display_av_init_line(console_card);
+        display_configuration_line(console_card);
 
         ImGui::EndGroup();
     }
@@ -302,6 +302,32 @@ void PanelControl::display_av_init_line(ConsoleCard& console_card)
     if (init_pressed && interrupt_value)
     {
         console_card.press_interrupt();
+    }
+}
+
+bool add_toggle_switch(const char* text, const char* text_on, const char* text_off,
+                       bool* switch_value)
+{
+    const bool previous_value = *switch_value;
+
+    ImGui::BeginGroup();
+    ImGui::Text("%s", text);
+    display_control_button(text, switch_value, TOGGLE);
+    ImGui::Text("%s", *switch_value ? text_on : text_off);
+    ImGui::EndGroup();
+
+    return previous_value != *switch_value;
+}
+
+void PanelControl::display_configuration_line(ConsoleCard& console_card)
+{
+    static bool mode = false;
+    bool mode_pressed = add_toggle_switch("MODE", "(step)", "(auto)", &mode);
+
+    if (mode_pressed)
+    {
+        console_card.set_start_mode(mode ? ConsoleCard::StartMode::Manual
+                                         : ConsoleCard::StartMode::Automatic);
     }
 }
 

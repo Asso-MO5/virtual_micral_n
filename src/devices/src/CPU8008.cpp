@@ -412,6 +412,12 @@ void CPU8008::on_vdd(Edge edge)
     if (is_falling(edge))
     {
         set_next_activation_time(Scheduling::unscheduled());
+        change_schedule(get_id());
+    }
+    else
+    {
+        set_next_activation_time(edge.time());
+        change_schedule(get_id());
     }
 }
 

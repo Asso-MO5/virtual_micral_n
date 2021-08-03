@@ -1,6 +1,5 @@
 ### Implementation
 
-* On INIT, the system goes back to AUTO (or P/P depending on the configuration)
 * Implement the Serial card
   * Upgrade the TTY to address punched ribbon
     * Automatically capture when DC2
@@ -40,6 +39,7 @@
 * DiskReader can be a Schedulable to emulate the reading/writing times
 * Pressing INIT should switch to RAM bank while loading?
 * Add option to see octal in the disassembly
+* Add a VDD Control in a "Power Control" Schedulable.
 
 ### Architecture
 
