@@ -42,8 +42,8 @@ The executable are generated in
 
 ```shell
 src/cli/micral_cli
-src/cli/micral_gui
-src/cli/disassembler
+src/gui/micral_gui
+src/disassembler/disassembler
 ```
 
 ### Static analysis
