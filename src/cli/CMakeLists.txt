@@ -10,7 +10,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CLI_EXE_NAME "micral_cli")
 set(CLI_TEST_EXE_NAME ${CLI_EXE_NAME}_tests)
 
-set(CLI_FILES src/main.cpp)
+set(CLI_FILES src/main.cpp
+        src/TextInput.cpp src/TextInput.h)
 set(CLI_TEST_FILES tests/test_main.cpp)
 
 add_executable(${CLI_EXE_NAME} ${CLI_FILES})

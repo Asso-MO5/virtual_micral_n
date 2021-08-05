@@ -5,6 +5,9 @@
     * Automatically capture when DC2
     * Allow injecting DATA
   * Attach the TTY the CLI executable.
+    * Strengthen the code.
+    * A backspace in the input buffer crashes the Basic. Check why.
+    * The Power Function '^' is not recognized (probably not mapped to the correct key code) 
 * Implement the possibility to receive and send punch data through the Serial Card
 * Add a script system to manipulate the simulation
   * Can read from a console

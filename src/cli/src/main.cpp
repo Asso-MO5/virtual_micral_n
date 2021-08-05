@@ -1,10 +1,54 @@
+#include "TextInput.h"
 #include <devices/src/AutomaticStart.h>
 #include <devices/src/CPU8008.h>
 #include <devices/src/Pluribus.h>
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
+#include <emulator/src/VirtualTTY.h>
+#include <iostream>
 #include <loguru.hpp>
 #include <stdexcept>
+
+namespace
+{
+    // Somehow duplicated from PanelTTY
+    std::string representation(char c, bool raw_output)
+    {
+        if (!raw_output)
+        {
+            c &= (c == -1) ? -1 : 0x7f;
+        }
+
+        if (c == 13)
+        {
+            return {"\n"};
+        }
+        if (c == 10)
+        {
+            return {};
+        }
+
+        if (c == 0x11)
+        {
+            return {"\n==(DC1)==\n"};
+        }
+        if (c == 0x12 && !raw_output)
+        {
+            return {"\n==(DC2)==\n"};
+        }
+        if (c == 0x14 && raw_output)
+        {
+            return {"\n==(DC4)==\n"};
+        }
+
+        if (raw_output)
+        {
+            return "¬";
+        }
+
+        return {c};
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -20,35 +64,65 @@ int main(int argc, char** argv)
     loguru::init(argc, argv);
 
     LOG_F(INFO, "Creates the simulator");
-    Simulator simulator{HARD_CODED};
+    Simulator simulator{MICRAL_N};
 
-    //std::vector<uint8_t> rom_data{0xc0, 0x2e, 0x00, 0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
+    LOG_F(INFO, "Running ...");
 
-    LOG_F(INFO, "Running a bit...");
+    // Some duplication in the TTY
+    std::size_t previous_content_size = 0;
+    uint8_t ff_count = 0;
+    std::string chars_to_send;
+    const uint32_t INITIAL_COUNTER = 100000;
+    uint32_t counter = INITIAL_COUNTER;
 
-    while (simulator.get_scheduler().get_counter() < 300000)
+    TextInput input_task;
+    input_task.run();
+
+    volatile bool running = true; // Volatile just to avoid the warning at the moment.
+    while (running)
     {
         simulator.step(16.f, STEP_ONE_CLOCK);
 
-        auto& cpu = simulator.get_processor_card().get_cpu();
-        auto& pluribus = simulator.get_pluribus();
-        auto cpu_debug_data = cpu.get_debug_data();
-        LOG_F(INFO,
-              "8008 sync: %i, state: %s, D0-D7: %02x, (CPU PC: %04x, IR: %02x, reg.a: %02x, "
-              "reg.b: %02x, A(%02x) B(%02x) C(%02x) D(%02x) E(%02x) H(%02x) L(%02x))",
-              static_cast<State::Type>(cpu.output_pins.sync.get_state()),
-              STATE_NAMES[static_cast<size_t>(*cpu.output_pins.state)],
-              pluribus.data_bus_d0_7.get_value(),
-              cpu_debug_data.address_stack.stack[cpu_debug_data.address_stack.stack_index],
-              cpu_debug_data.instruction_register, cpu_debug_data.hidden_registers.a,
-              cpu_debug_data.hidden_registers.b,
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::A)],
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::B)],
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::C)],
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::D)],
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::E)],
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::H)],
-              cpu_debug_data.registers[static_cast<uint8_t>(CPU8008::Register::L)]);
+        {
+            auto tty = simulator.get_virtual_tty();
+
+            const auto& tty_content = tty.content();
+
+            if (tty_content.size() > previous_content_size)
+            {
+                const auto new_content = tty_content.substr(previous_content_size);
+                previous_content_size = tty_content.size();
+
+                for (auto c : new_content)
+                {
+                    std::cout << representation(c, ff_count > 0);
+                }
+
+                std::cout.flush();
+            }
+
+            if (input_task.line_received())
+            {
+                auto local_str = input_task.line();
+                chars_to_send.append(local_str);
+                chars_to_send.push_back(0x0d);
+                input_task.flush();
+            }
+
+            counter -= 1;
+
+            if (counter == 0)
+            {
+                counter = INITIAL_COUNTER;
+            }
+
+            if (!chars_to_send.empty() && counter == INITIAL_COUNTER)
+            {
+                const auto next_char = chars_to_send.front();
+                chars_to_send.erase(std::begin(chars_to_send));
+                tty.emit_char(static_cast<char>(next_char & 0xff));
+            }
+        }
     }
 
     LOG_F(INFO, "Finished");
