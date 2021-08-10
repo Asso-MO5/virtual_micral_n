@@ -1,6 +1,6 @@
 # Emulation Core
 
-As the name says, this library is about the tools that form the core of the emulation
+This library is about the tools that form the core of the emulation
 system.
 
 The base duo of the emulation core is formed by the [`Scheduler`](src/Scheduler.h)
@@ -22,12 +22,12 @@ represents a time that the `Scheduler` will never reach. As a result, a `Schedul
 whose next even is scheduled at this pseudo-time will never be called by the
 `Scheduler`.
 
-A `Schedulable` can be activated by a callback attached to an `OwnedValue` or a `OwnedSignal` though.
+A `Schedulable` can be activated by a callback attached to an `OwnedValue` or a `OwnedSignal`.
 
 An [`OwnedSignal`](src/OwnedSignal.h) is a facility which holds a `State` and will
 broadcast to any subscriber the `Edge` created by its `State` change. To be able
 to change the value of an `OwnedSignal`, a request for control must be done before.
-Only part of the program holding the ownership can change the value of an `OwnedSignal`.
+Only a part of the program holding the ownership can change the value of an `OwnedSignal`.
 
 The key to control the signal (generally `this`) must not be shared with other objects.
 It would defeat the whole ownership mechanism.
@@ -45,9 +45,10 @@ to manipulate frequency.
 `OwnedSignal` and `OwnedValue` are typically used as public members of the object. They indeed are
 part of the public interface for the outside world, and any object could claim exclusive write control on it.
 
-The principle of *owning* is a logical concept. The real system just puts
-the voltage low. It's a very handy tool though, to detect coherency of
-data flow when the system is put in place.
+The principle of *owning* is only a concept used by the emulator.
+The real system just puts  the voltage low on a line to express a logical *HIGH*.
+It's a very handy tool though, to detect coherency of  data flow when the
+system is put in place, especially when a bus is shared.
 
 All signals in the simulation are asserted *logically* (HIGH means asserted) rather than *physically* (which depends on
 the signal implementations). For example, ```READY/``` and ```INTERRUPT/``` are physically asserted LOW for the 8008,
@@ -56,9 +57,4 @@ but in the simulation, they are asserted HIGH.
 The reason is to keep the logic intuitive at programming level without having to care about which actual assertion is
 physically right.
 
-To have correct logging or graphical user feedback, it is thus necessary to correct the value.
-
-### Note
-
-This could be taken care of by some automatic machinery in the future, by differentiating the signal value and the
-assertion.
+To have correct logging or graphical user feedback, it is thus necessary to bit-invert the value.

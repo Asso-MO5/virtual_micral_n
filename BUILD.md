@@ -13,11 +13,16 @@ Prerequisites:
 For the GUI:
 
 * SDL2 development files
-    * sudo apt install libsdl2-dev
-* OpenGL development files
-    * sudo apt install libopengl-dev
-    * sudo apt install libglfw3-dev
+  * On Ubuntu: ```sudo apt install libsdl2-dev```
 
+* OpenGL development files
+  * On Ubuntu:
+```
+      sudo apt install libopengl-dev
+      sudo apt install libglfw3-dev
+````
+
+To build manually in *Debug*:
 ```shell
 mkdir build
 cd build
@@ -30,7 +35,7 @@ The CMAKE reacts to these environment variables:
 * MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
     * For GCC: MICRAL_WARNINGS="-Wall -Werror -Wno-unused-but-set-variable -Wno-unknown-pragmas -Wno-unused-variable"
     * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
-    * For Windows: not tested yet
+    * For other compilers: not tested yet
 
 Reasons for exceptions:
 
@@ -48,14 +53,7 @@ src/disassembler/disassembler
 
 ### Static analysis
 
-The CMake project prepares a `ANALYZE_CPPCHECK` target for the `Makefile` and `Ninja`
-generator. Passing cppcheck is not mandatory yet, but could be in the future.
-
 To analyze the project with CppCheck, you can use this :
-
-    cmake -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--inconclusive;--error-exitcode=1;--std=c++20;--template=gcc;--suppressions-list=../CppCheckSuppression.txt;-iextern;src/" .. # (doesn't work as intended)
-
-or
 
     cppcheck --enable=all --inconclusive --error-exitcode=1 --std=c++20 --template=gcc --suppressions-list=CppCheckSuppression.txt -iextern src/ # Works as intented
 
@@ -75,7 +73,11 @@ for tis.
 
 ## Build for Clion
 
-**TODO**
+Open the root folder of the project and let Clion setup the project according to the CMake configuration.
+
+You can then add the different targets you want to compile with.
+
+**TODO**: complete the CMakePresets.json
 
 ## Build for Visual Studio Code
 
@@ -87,7 +89,7 @@ for tis.
 
 ## Externals
 
-The external dependencies are located in the `extern/` sub-folder and rely on git submodules.
+The external dependencies are located in the `extern/` sub-folder and rely on *git submodules*.
 
 ### Not using Git
 
@@ -98,3 +100,4 @@ The needed library sources are:
 
 * Google Test (including Google Mock), in the `googletest` folder
 * DearImGui, in the `imgui` folder.
+* loguru, in the `loguru` folder.

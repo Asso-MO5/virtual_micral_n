@@ -5,13 +5,14 @@ The main objective of this emulator is to be a platform to study the Micral N sy
 Consequently, the choice was made for its architecture to be around a Low Level Emulation, at least in the exchanges
 between the cards, through the Pluribus.
 
-The main tool for synchronisation is the *Owned Data*. There are two kinds of Signals: the
-*OwnedSignal* and the *OwnedValue*.
+The main tool for synchronisation is the *Owned Data*. *Owned Data* is in charge of keep a
+kind of data and signal its changes to the subscribers. There are two kinds of
+Signals: the *OwnedSignal* and the *OwnedValue*.
 
 The emulation of the CPU is at memory cycle level, thus allowing to generate the synchronisation signals with
 a good granularity.
 
-Emulation devices can react with two different manner to a signal. They can react immediately, changing a state
+Emulation devices can react to a signal in two different manners. They can react immediately, changing a state
 or sending a signal. They can also ask to be scheduled for a future reaction to a received signal. The latter
 way is slower and more performance consuming, but allows playing with the device delays.
 
