@@ -2,173 +2,202 @@ AS8 assembler for intel 8008, t.e.jones Version 1.0
 Options: listfile=1 debug=0 binaryout=1 singlelist=0
 octalnums=0 markascii=0
 Infile=8008-logo-mo5.asm
-Assembly Performed: Wed Aug 11 14:32:08 2021
+Assembly Performed: Thu Aug 12 00:42:53 2021
 
 
 Line Addr.  CodeBytes   Source Line
 ---- ------ ----------- ----------------------------------
-   1 00-000 322             LCC
-   2 00-001 056 000         LHI \HB\LOGO
-   3 00-003 066 122         LLI \LB\LOGO
-   4                    LOOP:
-   5 00-005 307             LAM
-   6                    
-   7 00-006 260             ORA
-   8 00-007 150 055 000     JTZ STR
-   9                    
-  10 00-012 310             LBA
-  11                    
-  12                        ; Extract Count in C
-  13 00-013 026 077         LCI 0x3F
-  14 00-015 242             NDC
-  15 00-016 320             LCA
-  16                    
-  17 00-017 335             LDH
-  18 00-020 346             LEL
-  19                    
-  20 00-021 301             LAB
-  21                    
-  22                        ; Extract Char in A
-  23 00-022 016 300         LBI 0xC0
-  24 00-024 241             NDB
-  25 00-025 002             RLC
-  26 00-026 002             RLC
-  27                    
-  28 00-027 056 000         LHI \HB\CHAR
-  29 00-031 066 116         LLI \LB\CHAR
-  30 00-033 206             ADL
-  31 00-034 360             LLA ; Works only if L doesn't overflow
-  32 00-035 307             LAM
-  33                    
-  34 00-036 353             LHD
-  35 00-037 364             LLE
-  36                    
-  37                    OUTPUT:
-  38 00-040 106 077 000     CAL OUTPUT_CHAR
-  39 00-043 021             DCC
-  40 00-044 110 040 000     JFZ OUTPUT
-  41                    
-  42 00-047 106 112 000     CAL ADVANCE_HL
-  43 00-052 104 005 000     JMP LOOP
+   1                        ; This program is loaded at address 0 and will display a MO5.COM banner
+   2                        ; on the serial output of the Micral N
+   3                        ;
+   4                        ; Commented to give a glipse of programming the Micral N
+   5                        ; Only uses a Serial Card on Output port 0.
+   6                        ; No Stack Channel Card needed.
+   7                        ;
+   8                        ; Written by Sylvain Glaize, 2021
+   9                        ; Released to the public domain.
+  10                    
+  11 00-000 322             LCC             ; MAS instruction of the Micral N: disables all interruptions except Level 0.
+  12 00-001 056 000         LHI \HB\LOGO    ; Loads the address of LOGO in HL
+  13 00-003 066 122         LLI \LB\LOGO    ; There is no register pair operation on the 8008.
+  14                    
+  15                        ; This is the main loop of uncompressing and displaying the LOGO
+  16                    LOOP:
+  17 00-005 307             LAM             ; Load a byte from the memory pointed by HL into register A.
+  18                    
+  19 00-006 260             ORA             ; Updates flag
+  20 00-007 150 055 000     JTZ STR         ; Jumps if Z is true, which means A was equal to 0. This is the final byte of
+  21                                        ; the encoded data.
+  22                    
+  23 00-012 310             LBA             ; Saves register A to register B
+  24                    
+  25                        ; A contains the coded character in the form of CCcccccc, where CC is the character index on
+  26                        ; 2 bits and cccccc is the count on 6 bits.
+  27 00-013 026 077         LCI 0x3F        ; Loads register C with the mask for the 6 lower bits.
+  28 00-015 242             NDC             ; Bitwise ANDs between C and A, to keep the lowest 6 bits of the coded data.
+  29 00-016 320             LCA             ; Loads the result into register C, which now contains the character repetitio
+  30                    
+  31                                        ; count to display.
+  32                    
+  33 00-017 335             LDH             ; Saves HL to DE
+  34 00-020 346             LEL             ; ...
+  35                    
+  36 00-021 301             LAB             ; Gets back the original coded character from register B, where is was
+  37                                        ; saved before.
+  38                    
+  39                        ; The character index to display will now be extracted from the two high bits of A.
+  40 00-022 016 300         LBI 0xC0        ; Loads register B with the mask for the two higher bits.
+  41 00-024 241             NDB             ; Bitwise ANDs between B and A, to keep the higher 2 bits of the coded data.
+  42 00-025 002             RLC             ; Rotates the two higher bits...
+  43 00-026 002             RLC             ; ... into the two lower bits of register A.
   44                    
-  45                    STR:
-  46 00-055 106 112 000     CAL ADVANCE_HL
-  47                    
-  48                    OUTPUT_STR:
-  49 00-060 307             LAM
-  50 00-061 260             ORA
-  51 00-062 150 076 000     JTZ END
-  52 00-065 106 077 000     CAL OUTPUT_CHAR
-  53 00-070 106 112 000     CAL ADVANCE_HL
-  54 00-073 104 060 000     JMP OUTPUT_STR
-  55                    
-  56                    END:
-  57 00-076 001             HLT
-  58                    
-  59                        ; Output of A content to the Serial Card
-  60                        ; Uses B
-  61                    OUTPUT_CHAR:
-  62 00-077 310             LBA
-  63                    
-  64                    W_OUTPUT_R:
-  65                        ; Wait for Output Ready
-  66 00-100 006 001         LAI 0x01
-  67 00-102 101             INP 0x0
-  68 00-103 002             RLC
-  69 00-104 100 100 000     JFC W_OUTPUT_R
-  70                    
-  71 00-107 301             LAB
-  72 00-110 121             OUT 0x0
-  73 00-111 007             RET
-  74                    
-  75                    ADVANCE_HL:
-  76 00-112 060             INL
-  77 00-113 013             RFZ
-  78 00-114 050             INH
-  79 00-115 007             RET
-  80                    
-  81                    CHAR:
-  82 00-116 040 056 043      DATA " .#"
-  83 00-121 015              DATA 0x0d
-  84                    LOGO:
-  85 00-122 001 202 104      DATA 0x1, 0x82, 0x44, 0x1, 0x82, 0x42, 0x1, 0x87, 0x42, 0x1, 0x88, 0x47
+  45 00-027 056 000         LHI \HB\CHAR    ; Make HL point to the CHAR array.
+  46 00-031 066 116         LLI \LB\CHAR    ;
+  47 00-033 206             ADL             ; Adds the index to the lower part of HL (which means this will not work if
+  48 00-034 360             LLA             ; HL points at the end of a page. In that case, the Carry should ripple to H.
+  49 00-035 307             LAM             ; Reads the character from the array.
+  50                    
+  51 00-036 353             LHD             ; Gets back HL pointing on the encoded data
+  52 00-037 364             LLE             ; from DE where is was previously saved.
+  53                    
+  54                    OUTPUT:
+  55 00-040 106 077 000     CAL OUTPUT_CHAR ; Outputs the character in A on the serial card
+  56 00-043 021             DCC             ; Decreases the counter in the register C
+  57 00-044 110 040 000     JFZ OUTPUT      ; If C is not Zero, the loops to display the character again.
+  58                                        ; If C was Zero, continues.
+  59 00-047 106 112 000     CAL ADVANCE_HL  ; Moves HL to point to the next coded byte.
+  60 00-052 104 005 000     JMP LOOP        ; And loops.
+  61                    
+  62                        ; When the encoded banner is displayed, the program continues here.
+  63                        ; It will now display the null terminal string which follows the encoded data
+  64                    STR:
+  65 00-055 106 112 000     CAL ADVANCE_HL  ; HL was pointing to the 0x00 at the end of DATA. Moving it to the next byte.
+  66                    
+  67                    OUTPUT_STR:
+  68 00-060 307             LAM             ; Gets the byte pointer by HL
+  69 00-061 260             ORA             ; Updates the flags
+  70 00-062 150 076 000     JTZ END         ; Jumps to END if the Zero flag was set
+  71                                        ; A was equal to 0x00, which marks the end of the string.
+  72 00-065 106 077 000     CAL OUTPUT_CHAR ; Else, Outputs the byte A as a character.
+  73 00-070 106 112 000     CAL ADVANCE_HL  ; Moves HL to the next byte.
+  74 00-073 104 060 000     JMP OUTPUT_STR  ; And loops for the next character.
+  75                    
+  76                    END:
+  77 00-076 001             HLT             ; Stops all operations.
+  78                    
+  79                        ; Output of A content to the Serial Card
+  80                        ; Uses B as an auxiliary register.
+  81                    OUTPUT_CHAR:
+  82 00-077 310             LBA             ; Saves the register A, parameter of the routine, in register B.
+  83                    
+  84                    W_OUTPUT_R:
+  85 00-100 006 001         LAI 0x01        ; Reads from the Input at sub-address 0x01...
+  86 00-102 101             INP 0x0         ; ... of the input address 0x00
+  87 00-103 002             RLC             ; Pushes the higher bit into Carry
+  88 00-104 100 100 000     JFC W_OUTPUT_R  ; If the Carry is not set (the higher bit was 0), it means the Serial Card
+  89                                        ; is not ready for Output. So, loops.
+  90                    
+  91 00-107 301             LAB             ; Gets back the parameter saved in register B.
+  92 00-110 121             OUT 0x0         ; Outputs the character to the Serial card.
+  93 00-111 007             RET             ; And returns from the routine.
+  94                    
+  95                        ; This routines implements `INC HL`, which doesn't exist on the 8008
+  96                    ADVANCE_HL:
+  97 00-112 060             INL             ; First, increment L
+  98 00-113 013             RFZ             ; Returns if L is not zero.
+  99 00-114 050             INH             ; Else, it means L caused a carry, increment H.
+ 100                                        ; The "increment" and "decrement" operations do not affect the Carry flag on
+ 101                                        ; the 8008.
+ 102 00-115 007             RET             ; And returns.
+ 103                    
+ 104                    CHAR:
+ 105 00-116 040 056 043      DATA " .#"      ; This is the array of displayable characters.
+ 106 00-121 015              DATA 0x0d       ; ...
+ 107                    
+ 108                        ; Following is the encoded data representing the MO5.COM banner in ASCII Art.
+ 109                        ; Each byte is coded in the form of CCcccccc, where CC is the character index on 2 bits,
+ 110                        ; indexing the array just above, and cccccc is the count on 6 bits.
+ 111                    LOGO:
+ 112 00-122 001 202 104      DATA 0x1, 0x82, 0x44, 0x1, 0x82, 0x42, 0x1, 0x87, 0x42, 0x1, 0x88, 0x47
      00-125 001 202 102
      00-130 001 207 102
      00-133 001 210 107
-  86 00-136 001 206 103      DATA 0x1, 0x86, 0x43, 0x1, 0x87, 0x42, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41
+ 113 00-136 001 206 103      DATA 0x1, 0x86, 0x43, 0x1, 0x87, 0x42, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41
      00-141 001 207 102
      00-144 001 202 104
      00-147 001 202 101
-  87 00-152 301 001 203      DATA 0xc1, 0x1, 0x83, 0x42, 0x1, 0x83, 0x41, 0x1, 0x82, 0x44, 0x1, 0x82
+ 114 00-152 301 001 203      DATA 0xc1, 0x1, 0x83, 0x42, 0x1, 0x83, 0x41, 0x1, 0x82, 0x44, 0x1, 0x82
      00-155 102 001 203
      00-160 101 001 202
      00-163 104 001 202
-  88 00-166 101 001 202      DATA 0x41, 0x1, 0x82, 0x4c, 0x1, 0x82, 0x43, 0x1, 0x82, 0x41, 0x1, 0x82
+ 115 00-166 101 001 202      DATA 0x41, 0x1, 0x82, 0x4c, 0x1, 0x82, 0x43, 0x1, 0x82, 0x41, 0x1, 0x82
      00-171 114 001 202
      00-174 103 001 202
      00-177 101 001 202
-  89 00-202 104 001 202      DATA 0x44, 0x1, 0x82, 0x41, 0x1, 0x83, 0x42, 0x1, 0x83, 0x41, 0xc1, 0x1
+ 116 00-202 104 001 202      DATA 0x44, 0x1, 0x82, 0x41, 0x1, 0x83, 0x42, 0x1, 0x83, 0x41, 0xc1, 0x1
      00-205 101 001 203
      00-210 102 001 203
      00-213 101 301 001
-  90 00-216 204 001 204      DATA 0x84, 0x1, 0x84, 0x41, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x82
+ 117 00-216 204 001 204      DATA 0x84, 0x1, 0x84, 0x41, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x82
      00-221 101 001 202
      00-224 104 001 202
      00-227 101 001 202
-  91 00-232 114 001 202      DATA 0x4c, 0x1, 0x82, 0x47, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x84
+ 118 00-232 114 001 202      DATA 0x4c, 0x1, 0x82, 0x47, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x84
      00-235 107 001 202
      00-240 104 001 202
      00-243 101 001 204
-  92 00-246 001 204 101      DATA 0x1, 0x84, 0x41, 0xc1, 0x1, 0x82, 0x1, 0x83, 0x1, 0x82, 0x41, 0x1
+ 119 00-246 001 204 101      DATA 0x1, 0x84, 0x41, 0xc1, 0x1, 0x82, 0x1, 0x83, 0x1, 0x82, 0x41, 0x1
      00-251 301 001 202
      00-254 001 203 001
      00-257 202 101 001
-  93 00-262 202 104 001      DATA 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x87, 0x47, 0x1, 0x82, 0x47, 0x1
+ 120 00-262 202 104 001      DATA 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x87, 0x47, 0x1, 0x82, 0x47, 0x1
      00-265 202 101 001
      00-270 207 107 001
      00-273 202 107 001
-  94 00-276 202 104 001      DATA 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x82, 0x1, 0x83, 0x1, 0x82, 0x41
+ 121 00-276 202 104 001      DATA 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x82, 0x1, 0x83, 0x1, 0x82, 0x41
      00-301 202 101 001
      00-304 202 001 203
      00-307 001 202 101
-  95 00-312 301 001 202      DATA 0xc1, 0x1, 0x82, 0x41, 0x1, 0x81, 0x41, 0x1, 0x82, 0x41, 0x1, 0x82
+ 122 00-312 301 001 202      DATA 0xc1, 0x1, 0x82, 0x41, 0x1, 0x81, 0x41, 0x1, 0x82, 0x41, 0x1, 0x82
      00-315 101 001 201
      00-320 101 001 202
      00-323 101 001 202
-  96 00-326 104 001 202      DATA 0x44, 0x1, 0x82, 0x47, 0x1, 0x82, 0x46, 0x1, 0x82, 0x47, 0x1, 0x82
+ 123 00-326 104 001 202      DATA 0x44, 0x1, 0x82, 0x47, 0x1, 0x82, 0x46, 0x1, 0x82, 0x47, 0x1, 0x82
      00-331 107 001 202
      00-334 106 001 202
      00-337 107 001 202
-  97 00-342 104 001 202      DATA 0x44, 0x1, 0x82, 0x41, 0x1, 0x82, 0x41, 0x1, 0x81, 0x41, 0x1, 0x82
+ 124 00-342 104 001 202      DATA 0x44, 0x1, 0x82, 0x41, 0x1, 0x82, 0x41, 0x1, 0x81, 0x41, 0x1, 0x82
      00-345 101 001 202
      00-350 101 001 201
      00-353 101 001 202
-  98 00-356 101 301 001      DATA 0x41, 0xc1, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x82, 0x44, 0x1
+ 125 00-356 101 301 001      DATA 0x41, 0xc1, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1, 0x82, 0x44, 0x1
      00-361 202 104 001
      00-364 202 101 001
      00-367 202 104 001
-  99 00-372 202 101 001      DATA 0x82, 0x41, 0x1, 0x82, 0x43, 0x1, 0x82, 0x41, 0x1, 0x83, 0x41, 0x1
+ 126 00-372 202 101 001      DATA 0x82, 0x41, 0x1, 0x82, 0x43, 0x1, 0x82, 0x41, 0x1, 0x83, 0x41, 0x1
      00-375 202 103 001
      01-000 202 101 001
      01-003 203 101 001
- 100 01-006 202 103 001      DATA 0x82, 0x43, 0x1, 0x82, 0x41, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1
+ 127 01-006 202 103 001      DATA 0x82, 0x43, 0x1, 0x82, 0x41, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0x1
      01-011 202 101 001
      01-014 202 104 001
      01-017 202 101 001
- 101 01-022 202 104 001      DATA 0x82, 0x44, 0x1, 0x82, 0x41, 0xc1, 0x1, 0x82, 0x44, 0x1, 0x82, 0x42
+ 128 01-022 202 104 001      DATA 0x82, 0x44, 0x1, 0x82, 0x41, 0xc1, 0x1, 0x82, 0x44, 0x1, 0x82, 0x42
      01-025 202 101 301
      01-030 001 202 104
      01-033 001 202 102
- 102 01-036 001 207 103      DATA 0x1, 0x87, 0x43, 0x1, 0x86, 0x42, 0x1, 0x83, 0x42, 0x1, 0x86, 0x43
+ 129 01-036 001 207 103      DATA 0x1, 0x87, 0x43, 0x1, 0x86, 0x42, 0x1, 0x83, 0x42, 0x1, 0x86, 0x43
      01-041 001 206 102
      01-044 001 203 102
      01-047 001 206 103
- 103 01-052 001 207 102      DATA 0x1, 0x87, 0x42, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0xc1, 0x00
+ 130 01-052 001 207 102      DATA 0x1, 0x87, 0x42, 0x1, 0x82, 0x44, 0x1, 0x82, 0x41, 0xc1, 0x00
      01-055 001 202 104
      01-060 001 202 101
      01-063 301 000 
- 104                    
- 105 01-065 040 120 122      DATA " PRESERVER  EXPLORER   REJOUER"
+ 131                    
+ 132                        ; Following the encoded data is a plain null terminated string that
+ 133                        ; will be emitted as-is
+ 134 01-065 040 120 122      DATA " PRESERVER  EXPLORER   REJOUER"
      01-070 105 123 105
      01-073 122 126 105
      01-076 122 040 040
@@ -178,7 +207,62 @@ Line Addr.  CodeBytes   Source Line
      01-112 040 040 122
      01-115 105 112 117
      01-120 125 105 122
- 106 01-123 015 000          DATA 13,0
+ 135 01-123 015 000          DATA 13,0
+ 136                    
+ 137                    ;;; Following is the Python source code to encode the banner.
+ 138                    ;;;
+ 139                    ;;; Just remove the ;;; at the beginning of the line (including the space)
+ 140                    ;;; At the end of the DATA, add a 0x00 to mark the end.
+ 141                    
+ 142                    ;;; logo = """
+ 143                    ;;;  ##.... ##.. #######.. ########....... ######... #######.. ##.... ##.
+ 144                    ;;;  ###.. ###. ##.... ##. ##............ ##... ##. ##.... ##. ###.. ###.
+ 145                    ;;;  #### ####. ##.... ##. ##............ ##....... ##.... ##. #### ####.
+ 146                    ;;;  ## ### ##. ##.... ##. #######....... ##....... ##.... ##. ## ### ##.
+ 147                    ;;;  ##. #. ##. ##.... ##....... ##...... ##....... ##.... ##. ##. #. ##.
+ 148                    ;;;  ##.... ##. ##.... ##. ##... ##. ###. ##... ##. ##.... ##. ##.... ##.
+ 149                    ;;;  ##.... ##.. #######... ######.. ###.. ######... #######.. ##.... ##.
+ 150                    ;;; """
+ 151                    ;;;
+ 152                    ;;;
+ 153                    ;;; def code_char(char):
+ 154                    ;;;     return " .#\x0D".find(str(char))
+ 155                    ;;;
+ 156                    ;;;
+ 157                    ;;; def decode_char(c):
+ 158                    ;;;     return " .#\x0D"[c]
+ 159                    ;;;
+ 160                    ;;;
+ 161                    ;;; coded = []
+ 162                    ;;;
+ 163                    ;;; for line in logo.split("\n"):
+ 164                    ;;;     if not line:
+ 165                    ;;;         continue
+ 166                    ;;;
+ 167                    ;;;     counter = 0
+ 168                    ;;;     character = ''
+ 169                    ;;;     for c in line:
+ 170                    ;;;         if c != character:
+ 171                    ;;;             coded.append((counter, character))
+ 172                    ;;;             counter = 1
+ 173                    ;;;             character = c
+ 174                    ;;;         else:
+ 175                    ;;;             counter += 1
+ 176                    ;;;
+ 177                    ;;;     coded.append((counter, character))
+ 178                    ;;;     coded.append((1, 13))
+ 179                    ;;;
+ 180                    ;;;
+ 181                    ;;; coded = [(count & 0x3F | code_char(char) << 6) & 0xff
+ 182                    ;;;          for (count, char) in coded if count > 0]
+ 183                    ;;;
+ 184                    ;;; hex_coded = [hex(c) for c in coded]
+ 185                    ;;;
+ 186                    ;;; width = 12
+ 187                    ;;; output = [hex_coded[i:i + width] for i in range(0, len(hex_coded), width)]
+ 188                    ;;;
+ 189                    ;;; for o in output:
+ 190                    ;;;     print("DATA " + ", ".join([h for h in o]))
 Symbol Count: 10
     Symbol  Oct Val  DecVal
     ------  -------  ------
