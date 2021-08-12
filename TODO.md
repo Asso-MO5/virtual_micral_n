@@ -93,6 +93,9 @@
 ### Build
 
 * Create a Standalone bundle exporter
+* Uses CMake Presets
+* Adapt for a MacOS build
+* Adapt for a Windows build
 
 ### Possible optimization
 
