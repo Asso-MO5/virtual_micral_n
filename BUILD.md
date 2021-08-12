@@ -85,6 +85,14 @@ You can then add the different targets you want to compile with.
 
 ## Build for Visual Studio
 
+The software is not ported to Windows yet. It has some things missing or to
+adapt before it can.
+
+* Need to install the development files for SDL2.
+* Need to configure the CMake file to find them.
+* Need to manage the unknown #pragma's used for diagnostics.
+* There's a dependency on 'dl' that seems unnecessary (or even nonexistent).
+
 **TODO**
 
 ## Externals
