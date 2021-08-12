@@ -47,6 +47,7 @@ enum ConfigROM
     INPUT_OUTPUT,
     HELLO_WORLD,
     HELLO_MO5,
+    BANNER_MO5,
     MICRAL_MIC_1,
     MICRAL_38_3F,
     MICRAL_N,

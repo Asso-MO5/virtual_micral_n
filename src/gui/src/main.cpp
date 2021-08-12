@@ -74,7 +74,7 @@ int main(int, char**)
     bool toggle_display_8008_panel = true;
     bool toggle_disassembly_panel = true;
 
-    Simulator simulator{MICRAL_N};
+    Simulator simulator{BANNER_MO5};
     ControllerWidget controller;
     Disassemble8008 disassemble{simulator.get_memory_view()};
     PanelControl panel_control;

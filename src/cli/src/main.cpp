@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     loguru::init(argc, argv);
 
     LOG_F(INFO, "Creates the simulator");
-    Simulator simulator{MICRAL_N};
+    Simulator simulator{BANNER_MO5};
 
     LOG_F(INFO, "Running ...");
 
