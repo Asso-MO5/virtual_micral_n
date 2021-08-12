@@ -35,7 +35,7 @@ private:
     void place_data(Scheduling::counter_type time);
     void release_bus(Scheduling::counter_type time);
     void on_sub(Edge edge);
-    void take_bus(unsigned long time);
+    void take_bus(Scheduling::counter_type time);
 };
 
 #endif //MICRALN_DATAONMDBUSHOLDER_H

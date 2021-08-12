@@ -6,6 +6,7 @@
 #include <emulation_core/src/OwnedValue.h>
 #include <emulation_core/src/Schedulable.h>
 
+#include <array>
 #include <memory>
 #include <vector>
 

@@ -2,6 +2,7 @@
 #define MICRALN_RECORDER_H
 
 #include <cstdint>
+#include <cstdlib>
 
 class Recorder
 {

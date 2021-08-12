@@ -1,8 +1,10 @@
 #ifndef MICRALN_INTERRUPTCONTROLLER_H
 #define MICRALN_INTERRUPTCONTROLLER_H
 
+#include <emulation_core/src/Scheduling.h>
 #include <i8008/src/Constants8008.h>
 
+#include <array>
 #include <functional>
 #include <memory>
 
@@ -56,7 +58,7 @@ private:
     void reset_interrupt(uint8_t interrupt_level);
 
     void cpu_state_changed(Constants8008::CpuState old_state, Constants8008::CpuState new_state,
-                           unsigned long time);
+                           Scheduling::counter_type time);
 
     // Instruction protection after an interruption routine
     void start_instruction_protection();

@@ -1,5 +1,6 @@
 #include "PanelLed.h"
 
+#include <algorithm>
 #include <imgui.h>
 
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
@@ -39,7 +40,6 @@ namespace widgets
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
         const auto circle_position = ImVec2(screen_position.x + radius, screen_position.y + radius);
 
-
         ImVec4 color;
         switch (color_type)
         {
@@ -51,7 +51,8 @@ namespace widgets
                 break;
         }
 
-        auto color_modifier = std::max(intensity, 0.2f); // LED not lighted has still a bit of color.
+        auto color_modifier =
+                std::max(intensity, 0.2f); // LED not lighted has still a bit of color.
 
         color.x *= color_modifier;
         color.y *= color_modifier;

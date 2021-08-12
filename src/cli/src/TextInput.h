@@ -1,6 +1,7 @@
 #ifndef MICRALN_TEXTINPUT_H
 #define MICRALN_TEXTINPUT_H
 
+#include <string>
 #include <thread>
 
 class TextInput

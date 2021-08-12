@@ -5,7 +5,7 @@
 #include <emulator/src/Simulator.h>
 #include <imgui.h>
 
-const char* state_to_name(uint state) { return STATE_NAMES[state]; }
+const char* state_to_name(std::uint32_t state) { return STATE_NAMES[state]; }
 
 void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
 {
@@ -29,11 +29,11 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
         ImGui::BeginChild("ChildLeft-Internal",
                           ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 160), true);
 
-        auto state = static_cast<uint>(*cpu.output_pins.state);
+        auto state = static_cast<std::uint32_t>(*cpu.output_pins.state);
         ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1, (state >> 0) & 1,
                     state_to_name(state));
 
-        auto cycle_control = static_cast<uint>(cpu.get_debug_data().cycle_control);
+        auto cycle_control = static_cast<std::uint32_t>(cpu.get_debug_data().cycle_control);
         ImGui::Text("Cycle Control: %s",
                     CYCLE_CONTROL_NAMES[static_cast<size_t>(cycle_control >> 6)]);
 

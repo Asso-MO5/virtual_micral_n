@@ -1,5 +1,6 @@
 #include "PanelPluribus.h"
 
+#include <array>
 #include <emulator/src/Simulator.h>
 #include <imgui.h>
 
