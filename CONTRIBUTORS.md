@@ -3,4 +3,5 @@ want to discuss a certain part of the project with contributors of it.
 
 Here's a consolidated list of contributors.
 
-- Sylvain Glaize (mokona at puupuu.org)
+- Sylvain Glaize (mokona at puupuu.org), maintainer.
+ 

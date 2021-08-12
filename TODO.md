@@ -43,6 +43,11 @@
 * Pressing INIT should switch to RAM bank while loading?
 * Add option to see octal in the disassembly
 * Add a VDD Control in a "Power Control" Schedulable.
+* Make the construction of the Simulator data drivable (by commands? configuration?)
+* Add a "nice panel" display with a TTY for a better presentation.
+  * With switch moving
+  * LED blinking
+  * Sound on the TTY printing
 
 ### Architecture
 
@@ -61,7 +66,7 @@
 * Add a clang-tidy configuration
 * Sets cppcheck and clang-tidy to a CI
 * Use the LED remanence system on the EXEC/WAIT/STOP LED.
-* Make a tool to create data for Virtual Disk.
+* Make a tool to create data for Virtual Disk (for real hardware, so wait for it)
 * The GUI has too much strong dependencies on the Card themselves.
   Each change to a card causes recompilation, event when there's no change to the interface interesting for the GUI.
 * For the IO Card, it would be better to address I/O by their logic number by type (I or O)
@@ -77,7 +82,7 @@
     * Frequency
     * Optional connection to BI7
 * Shouldn't MemoryView be a range ?
-* Create a test ROM the check the behavior of the 8008.
+* Create a test ROM to check the behavior of the 8008.
 * A detection of cards that let their initialized schedule to default
   * The default it at zero, but a lot of cards starts unscheduled.
   * When they are unscheduled and have no step action, the Scheduler runs "void" and
@@ -112,5 +117,5 @@
       * If Re-sort after each step with partition + sort, is the callback necessary?
 * Signals are often created by shared_ptr and could benefit from a dedicated allocator to
   ensure locality (to profile first)
-* 8008: probably the priority queue is overkill too.
+* 8008: probably the priority queue is overkill too. Use schedules actions?
 * InstructionTableFor8008 for the disassembly and for the 8008 decoding are duplicated in memory.
