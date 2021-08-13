@@ -95,6 +95,12 @@ adapt before it can.
 
 **TODO**
 
+## Cross build for Windows from Ubuntu 20.04
+
+  * `sudo apt install mingw-w64`
+  * Create the CMake projet with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
+    and the `CMAKE_BUILD_TYPE` of your choice
+
 ## Externals
 
 The external dependencies are located in the `extern/` sub-folder and rely on *git submodules*.
