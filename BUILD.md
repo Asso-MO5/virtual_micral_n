@@ -7,7 +7,7 @@ The build system is relying on CMake. The entry point is the `CMakeLists.txt` at
 Prerequisites:
 
 * CMake 3.16+
-* C++ Compiler with C++17 support
+* C++ Compiler with C++20 support
 * Git (with possible workaround)
 
 For the GUI:
@@ -98,9 +98,9 @@ adapt before it can.
 ## Cross build for Windows from Ubuntu 20.04
 
   * `sudo apt install mingw-w64`
-  * Create the CMake projet with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
+  * Create the CMake project with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
     and the `CMAKE_BUILD_TYPE` of your choice
-  * You need also to pass `-DSDL_SHARED=ON`.
+  * You might need also to pass `-DSDL_SHARED=ON`.
 
 ## Externals
 

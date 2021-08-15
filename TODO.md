@@ -1,11 +1,22 @@
+### Windows Build cleaning
+
+* Change SDL2 to an extern submodule + compilation
+* Change glfw to an extern submodule + compilation
+* Add a way to package the binary with the needed DLLs and data
+
 ### Implementation
 
 * Implement the Serial card
   * Upgrade the TTY to address punched ribbon
     * Automatically capture when DC2
     * Allow injecting DATA
+    * The Panel gets an option to
+      * activate the ribbon
+      * save the ribbon content
+      * place data on a readable ribbon
   * Attach the TTY the CLI executable.
     * Strengthen the code.
+    * Make a specific terminal version for better key acquisition, defaulting on the standard C++ version.
     * A backspace in the input buffer crashes the Basic. Check why.
     * The Power Function '^' is not recognized (probably not mapped to the correct key code) 
 * Implement the possibility to receive and send punch data through the Serial Card
