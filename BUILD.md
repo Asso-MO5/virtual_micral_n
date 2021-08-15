@@ -100,6 +100,7 @@ adapt before it can.
   * `sudo apt install mingw-w64`
   * Create the CMake projet with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
     and the `CMAKE_BUILD_TYPE` of your choice
+  * You need also to pass `-DSDL_SHARED=ON`.
 
 ## Externals
 
