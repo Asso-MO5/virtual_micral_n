@@ -129,7 +129,7 @@ void ProcessorCard::cpu_state_changed(Constants8008::CpuState old_state,
     }
 }
 
-void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, unsigned long time)
+void ProcessorCard::apply_signal_on_bus(const Constants8008::CpuState& state, Scheduling::counter_type time)
 {
     switch (state)
     {

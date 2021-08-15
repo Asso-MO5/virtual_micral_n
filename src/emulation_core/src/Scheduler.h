@@ -28,8 +28,8 @@ public:
     [[nodiscard]] Scheduling::counter_type get_counter() const;
 
 private:
-    Scheduling::counter_type counter = 0;
-    Scheduling::counter_type executed_time = 0;
+    Scheduling::counter_type counter{};
+    Scheduling::counter_type executed_time{};
     std::vector<std::tuple<Scheduling::counter_type, Scheduling::schedulable_id, schedulable_ptr>>
             schedulable_pool{};
 

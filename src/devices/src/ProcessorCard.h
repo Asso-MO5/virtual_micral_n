@@ -74,7 +74,7 @@ private:
     void cpu_sync_changed(Edge edge);
     void on_ready(Edge edge);
     void on_phase_2(Edge edge);
-    void apply_signal_on_bus(const Constants8008::CpuState& state, unsigned long time);
+    void apply_signal_on_bus(const Constants8008::CpuState& state, Scheduling::counter_type time);
 
     void connect_to_pluribus();
     void connect_to_cpu();

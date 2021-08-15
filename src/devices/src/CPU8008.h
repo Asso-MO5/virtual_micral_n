@@ -153,7 +153,7 @@ private:
     void ends_cycle(Constants8008::CycleControl new_cycle_control);
     [[nodiscard]] bool is_instruction_complete() const;
     void enter_interrupt(Scheduling::counter_type edge_time);
-    void schedule_change_cpu_state(unsigned long edge_time);
+    void schedule_change_cpu_state(Scheduling::counter_type edge_time);
 };
 
 #endif //MICRALN_CPU8008_H

@@ -7,7 +7,8 @@ namespace Timings
     const Scheduling::counter_type DELAY_FROM_PHASE_1_TO_2 = 200;
 } // namespace Timings
 
-DoubleClock::DoubleClock(Frequency frequency) : main_frequency(frequency) {
+DoubleClock::DoubleClock(Frequency frequency) : main_frequency(frequency)
+{
     phase_1.request(this);
     phase_2.request(this);
 }
@@ -42,7 +43,4 @@ void DoubleClock::step()
 State DoubleClock::get_phase_1_state() const { return *phase_1; }
 State DoubleClock::get_phase_2_state() const { return *phase_2; }
 
-std::vector<std::shared_ptr<Schedulable>> DoubleClock::get_sub_schedulables()
-{
-    return {};
-}
+std::vector<std::shared_ptr<Schedulable>> DoubleClock::get_sub_schedulables() { return {}; }

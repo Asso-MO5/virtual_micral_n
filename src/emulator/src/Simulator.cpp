@@ -411,7 +411,7 @@ void Simulator::step(float average_frame_time_in_ms, SimulationRunType controlle
                 time_in_ns = std::max(time_in_ns / 100.f, 1.f);
             }
 
-            uint64_t end_point = start_point + (static_cast<uint64_t>(time_in_ns));
+            auto end_point = start_point + Scheduling::counter_type(time_in_ns);
 
             while (scheduler.get_counter() < end_point)
             {

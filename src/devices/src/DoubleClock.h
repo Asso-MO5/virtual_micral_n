@@ -24,7 +24,7 @@ public:
 
 private:
     Frequency main_frequency;
-    Scheduling::counter_type next_phase_1 = 0;
+    Scheduling::counter_type next_phase_1{};
     uint8_t phase_count = 0;
 };
 

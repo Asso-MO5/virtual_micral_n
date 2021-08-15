@@ -14,10 +14,12 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     const auto& cpu = simulator.get_processor_card().get_cpu();
 
     ImGui::Begin("8008");
-    ImGui::Text("Time %lu ms", scheduler.get_counter() / 1000 / 1000);
+    ImGui::Text("Time %lu ms", scheduler.get_counter().get() / 1000 / 1000);
 
     ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
-                scheduler.get_counter() > 0 ? 1'000'000 * clock_pulse / scheduler.get_counter() : 0,
+                scheduler.get_counter() > 0
+                        ? 1'000'000 * clock_pulse.get() / scheduler.get_counter().get()
+                        : 0,
                 average_frequency);
 
     auto cpu_debug_data = cpu.get_debug_data();

@@ -13,12 +13,9 @@ void Clock::step()
 
     phase.set(state, activation_time, this);
 
-    set_next_activation_time(activation_time + period_in_ns);
+    set_next_activation_time(activation_time + Scheduling::CounterType{period_in_ns});
 }
 
 State Clock::get_state() const { return phase.get_state(); }
 
-std::vector<std::shared_ptr<Schedulable>> Clock::get_sub_schedulables()
-{
-    return {};
-}
+std::vector<std::shared_ptr<Schedulable>> Clock::get_sub_schedulables() { return {}; }

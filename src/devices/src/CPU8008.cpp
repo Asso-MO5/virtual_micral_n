@@ -97,7 +97,8 @@ void CPU8008::step()
                     {
                         // On a PCW Cycle, execution is early in the cpu cycle.
                         execute_t3();
-                        next_events.push(std::make_tuple(time + 20, DATA_OUT, 1));
+                        next_events.push(
+                                std::make_tuple(time + Scheduling::counter_type{20}, DATA_OUT, 1));
                     }
                     break;
                 case CpuState::STOPPED:
@@ -288,7 +289,7 @@ void CPU8008::signal_phase_2(Edge edge)
     schedule_next_event(edge_time);
 }
 
-void CPU8008::schedule_change_cpu_state(unsigned long edge_time)
+void CPU8008::schedule_change_cpu_state(Scheduling::counter_type edge_time)
 {
     switch (*output_pins.state)
     {
@@ -427,7 +428,7 @@ void CPU8008::on_interrupt(Edge edge)
     {
         // TODO: acknowledge the interruption with correct timing
 
-        if ((edge.time() - input_pins.vdd.get_latest_change_time()) < BOOT_UP_TIME)
+        if (edge.time() < BOOT_UP_TIME + input_pins.vdd.get_latest_change_time())
         {
             // TODO: set garbage in the CPU state. It's too early
         }

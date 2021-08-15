@@ -34,7 +34,7 @@ void ValueRecorder::add(uint16_t value, Scheduling::counter_type time)
     std::copy(time_values.begin() + 1, time_values.end(), time_values.begin());
 
     state_values[state_values.size() - 1] = static_cast<double>(value);
-    time_values[time_values.size() - 1] = static_cast<double>(time);
+    time_values[time_values.size() - 1] = static_cast<double>(time.get());
 }
 
 void ValueRecorder::change_owner(void* owner, Scheduling::counter_type time)
@@ -49,7 +49,7 @@ void ValueRecorder::change_owner(void* owner, Scheduling::counter_type time)
 
     owner_values[owner_values.size() - 1] =
             static_cast<uint32_t>(0xffffffff & (reinterpret_cast<uint64_t>(owner)));
-    owner_time_values[owner_time_values.size() - 1] = static_cast<double>(time);
+    owner_time_values[owner_time_values.size() - 1] = static_cast<double>(time.get());
 }
 
 const double* ValueRecorder::time_series() const { return time_values.data(); }
