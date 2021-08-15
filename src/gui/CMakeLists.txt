@@ -4,7 +4,7 @@ project(micraln-gui
         DESCRIPTION "The GUI interface for the Micral N emulation"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # GUI
 set(GUI_EXE_NAME "micral_gui")

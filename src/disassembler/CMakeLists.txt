@@ -4,7 +4,7 @@ project(micraln-disassembler
         DESCRIPTION "A disassembler for the 8008 with specific Micral N support"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(DISASSEMBLER_EXE_NAME "disassembler")
 set(DISASSEMBLER_TEST_EXE_NAME ${DISASSEMBLER_EXE_NAME}_tests)

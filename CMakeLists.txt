@@ -5,7 +5,7 @@ project(MicralN
         DESCRIPTION "An emulator for the Micral N"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Tools
 function(set_warnings target)

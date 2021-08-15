@@ -4,13 +4,13 @@ project(micraln-file-utils
         DESCRIPTION "Utilities to handle files"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(MISC_UTILS_TEST_NAME ${MISC_UTILS_LIB_NAME}_tests)
 
 set(MISC_UTILS_FILES
         src/ToHex.h
-        src/dummy.cpp)
+        src/dummy.cpp src/span_compat.h)
 
 set(MISC_UTILS_TEST_FILES
         tests/to_hex_test.cpp)

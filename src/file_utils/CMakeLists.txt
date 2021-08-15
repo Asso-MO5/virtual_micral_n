@@ -4,7 +4,7 @@ project(micraln-file-utils
         DESCRIPTION "Utilities to handle files"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(FILE_UTILS_TEST_NAME ${FILE_UTILS_LIB_NAME}_tests)
 

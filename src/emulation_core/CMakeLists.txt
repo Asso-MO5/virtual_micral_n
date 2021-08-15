@@ -4,7 +4,7 @@ project(micraln-emulation-core
         DESCRIPTION "The emulation core for the Micral N emulation"
         LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Emulation Core
 set(EMULATION_TEST_NAME ${EMULATION_LIB_NAME}_tests)
