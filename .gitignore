@@ -49,3 +49,6 @@ fabric.properties
 *.app
 build/
 CMakeUserPresets.json
+/extern/glfw*
+/extern/SDL*
+/releases
