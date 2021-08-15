@@ -24,5 +24,8 @@ set_target_properties(${MISC_UTILS_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CO
 target_link_libraries(${MISC_UTILS_TEST_NAME} PRIVATE gtest gtest_main gmock)
 target_include_directories(${MISC_UTILS_TEST_NAME} PRIVATE src/)
 target_include_directories(${MISC_UTILS_TEST_NAME} PRIVATE ../)
+if(${LINK_STATIC_EXE})
+    target_link_options(${MISC_UTILS_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 add_test(NAME ${MISC_UTILS_TEST_NAME} COMMAND ${MISC_UTILS_TEST_NAME})

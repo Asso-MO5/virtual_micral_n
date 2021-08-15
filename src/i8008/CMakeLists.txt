@@ -31,5 +31,8 @@ set_target_properties(${I8008_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON
 target_link_libraries(${I8008_TEST_NAME} PRIVATE gtest gtest_main gmock PUBLIC ${I8008_LIB_NAME})
 target_include_directories(${I8008_TEST_NAME} PRIVATE src/)
 target_include_directories(${I8008_TEST_NAME} PRIVATE ../)
+if(${LINK_STATIC_EXE})
+    target_link_options(${I8008_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 add_test(NAME ${I8008_TEST_NAME} COMMAND ${I8008_TEST_NAME})

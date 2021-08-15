@@ -104,6 +104,7 @@ if(${GUI_ENABLED})
     add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
     target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
     target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
+    target_link_libraries(${DEARIMGUI_LIB_NAME} PUBLIC SDL2::SDL2)
 
     if(WIN32 AND NOT MSVC)
         target_link_libraries(${DEARIMGUI_LIB_NAME} INTERFACE imm32)

@@ -14,6 +14,10 @@ set(GUI_TEST_EXE_NAME ${GUI_EXE_NAME}_tests)
 set(GUI_FILES src/main.cpp
         ../../extern/imgui/backends/imgui_impl_opengl2.cpp
         ../../extern/imgui/backends/imgui_impl_sdl.cpp
+        )
+
+set(GUI_FILES_LIB
+        src/lib/Averager.cpp src/lib/Averager.h
         src/ControllerWidget.cpp src/ControllerWidget.h
         src/ImGuiSDLGLContext.cpp src/ImGuiSDLGLContext.h
         src/Plot.cpp src/Plot.h
@@ -34,15 +38,17 @@ set(GUI_FILES src/main.cpp
         src/widgets/PanelSwitch.cpp src/widgets/PanelSwitch.h
         src/panels/PanelTTY.cpp src/panels/PanelTTY.h)
 
-set(GUI_FILES_LIB src/lib/Averager.cpp src/lib/Averager.h)
-
 set(GUI_TEST_FILES tests/averager_test.cpp)
 
 add_library(${GUI_LIB_NAME} ${GUI_FILES_LIB})
 target_include_directories(${GUI_LIB_NAME} PRIVATE ../)
+target_link_libraries(${GUI_LIB_NAME} PUBLIC
+        ${DEVICE_LIB_NAME}
+        ${EMULATOR_LIB_NAME}
+        ${DEARIMGUI_LIB_NAME})
 
 set(MINGW_LIB "")
-if (WIN32 AND NOT MSVC)
+if(WIN32 AND NOT MSVC)
     set(MINGW_LIB mingw32)
 endif()
 
@@ -51,9 +57,7 @@ set_target_properties(${GUI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(${GUI_EXE_NAME} ${EMULATOR_LIB_NAME} ${GUI_LIB_NAME}
         ${MINGW_LIB}
         SDL2::SDL2main
-        SDL2::SDL2
-        OpenGL::GL glfw
-        ${DEARIMGUI_LIB_NAME})
+        OpenGL::GL glfw)
 target_include_directories(${GUI_EXE_NAME} PRIVATE ../)
 set_warnings(${GUI_EXE_NAME})
 if(${LINK_STATIC_EXE})
@@ -68,8 +72,11 @@ endif()
 
 
 add_executable(${GUI_TEST_EXE_NAME} ${GUI_TEST_FILES})
-target_link_libraries(${GUI_TEST_EXE_NAME} ${DEVICE_LIB_NAME} ${EMULATION_LIB_NAME} ${GUI_LIB_NAME} gmock gtest_main)
+target_link_libraries(${GUI_TEST_EXE_NAME}  ${GUI_LIB_NAME} gmock gtest_main)
 target_include_directories(${GUI_TEST_EXE_NAME} PRIVATE src/lib/)
 target_include_directories(${GUI_TEST_EXE_NAME} PRIVATE ../)
+if(${LINK_STATIC_EXE})
+    target_link_options(${GUI_TEST_EXE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 add_test(NAME ${GUI_TEST_EXE_NAME} COMMAND ${GUI_TEST_EXE_NAME})

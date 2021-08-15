@@ -34,5 +34,9 @@ set_target_properties(${EMULATOR_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE
 target_link_libraries(${EMULATOR_TEST_NAME} gtest gtest_main gmock ${EMULATOR_LIB_NAME})
 target_include_directories(${EMULATOR_TEST_NAME} PRIVATE src/)
 target_include_directories(${EMULATOR_TEST_NAME} PRIVATE ../)
+if(${LINK_STATIC_EXE})
+    target_link_options(${EMULATOR_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
+
 
 add_test(NAME ${EMULATOR_TEST_NAME} COMMAND ${EMULATOR_TEST_NAME})

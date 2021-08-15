@@ -56,5 +56,8 @@ target_link_libraries(${DEVICES_TEST_NAME}
         PUBLIC ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} ${I8008_LIB_NAME})
 target_include_directories(${DEVICES_TEST_NAME} PRIVATE src/)
 target_include_directories(${DEVICES_TEST_NAME} PRIVATE ../)
+if(${LINK_STATIC_EXE})
+    target_link_options(${DEVICES_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 add_test(NAME ${DEVICES_TEST_NAME} COMMAND ${DEVICES_TEST_NAME})
