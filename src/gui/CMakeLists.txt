@@ -41,12 +41,25 @@ set(GUI_TEST_FILES tests/averager_test.cpp)
 add_library(${GUI_LIB_NAME} ${GUI_FILES_LIB})
 target_include_directories(${GUI_LIB_NAME} PRIVATE ../)
 
+set(MINGW_LIB "")
+if (WIN32 AND NOT MSVC)
+    set(MINGW_LIB mingw32)
+endif()
+
 add_executable(${GUI_EXE_NAME} ${GUI_FILES})
 set_target_properties(${GUI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(${GUI_EXE_NAME} ${EMULATOR_LIB_NAME} ${GUI_LIB_NAME} SDL2 OpenGL glfw ${DEARIMGUI_LIB_NAME})
-target_include_directories(${GUI_EXE_NAME} PRIVATE ${SDL2_INCLUDE_DIRS}) # Because of the ImGui Backend uses #include <SDL.h> directly
+target_link_libraries(${GUI_EXE_NAME} ${EMULATOR_LIB_NAME} ${GUI_LIB_NAME}
+        ${MINGW_LIB}
+        SDL2::SDL2main
+        SDL2::SDL2
+        OpenGL::GL glfw
+        ${DEARIMGUI_LIB_NAME})
 target_include_directories(${GUI_EXE_NAME} PRIVATE ../)
 set_warnings(${GUI_EXE_NAME})
+if(${LINK_STATIC_EXE})
+    target_link_options(${GUI_EXE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
+
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${GUI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)

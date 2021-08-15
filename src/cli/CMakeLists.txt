@@ -17,8 +17,12 @@ set(CLI_TEST_FILES tests/test_main.cpp)
 add_executable(${CLI_EXE_NAME} ${CLI_FILES})
 set_target_properties(${CLI_EXE_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(${CLI_EXE_NAME} ${LOGURU_LIB_NAME} ${EMULATOR_LIB_NAME})
+target_link_libraries(${CLI_EXE_NAME} ${LOGURU_LIB_NAME} ${EMULATOR_LIB_NAME} Threads::Threads ${CMAKE_DL_LIBS})
 target_include_directories(${CLI_EXE_NAME} PRIVATE ../)
+
+if(${LINK_STATIC_EXE})
+    target_link_options(${CLI_EXE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${CLI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -29,6 +33,9 @@ set_warnings(${CLI_EXE_NAME})
 
 add_executable(${CLI_TEST_EXE_NAME} ${CLI_TEST_FILES})
 target_link_libraries(${CLI_TEST_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} gtest gtest_main)
+if(${LINK_STATIC_EXE})
+    target_link_options(${CLI_TEST_EXE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 
 add_test(NAME ${CLI_TEST_EXE_NAME} COMMAND ${CLI_TEST_EXE_NAME})

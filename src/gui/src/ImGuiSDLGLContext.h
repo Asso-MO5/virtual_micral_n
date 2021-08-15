@@ -3,7 +3,7 @@
 
 #include "imgui.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 class ImGui_SDL_GL_Context
 {

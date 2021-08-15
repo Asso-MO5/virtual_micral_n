@@ -8,8 +8,6 @@ project(MicralN
 set(CMAKE_CXX_STANDARD 17)
 
 # Tools
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
-
 function(set_warnings target)
     if(DEFINED ENV{MICRAL_WARNINGS})
         separate_arguments(WARNING_PARAMETERS NATIVE_COMMAND $ENV{MICRAL_WARNINGS})
@@ -18,6 +16,11 @@ function(set_warnings target)
         message(STATUS "MICRAL_WARNINGS environment variable not found. No specific warning setup done.")
     endif()
 endfunction()
+
+# Platforms
+if(WIN32 AND NOT MSVC)
+    set(LINK_STATIC_EXE TRUE)
+endif()
 
 # Avoid extensions
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -32,7 +35,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# Add the cmake/ local folder
+# Add the cmake/ local folders
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # Prepare for LTO
@@ -65,15 +68,18 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/googletest/CMakeLists.txt")
 endif()
 
 # SDL2 / OpenGL
-find_package(SDL2 REQUIRED)
+add_subdirectory(extern/SDL)
 find_package(OpenGL REQUIRED)
+
+if(${OPENGL_FOUND})
+    set(GUI_ENABLED TRUE)
+endif()
 
 # Google Test
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(extern/googletest)
 
 # Threads
-# set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
@@ -83,23 +89,34 @@ set(LOGURU_FILES extern/loguru/loguru.cpp)
 
 add_library(${LOGURU_LIB_NAME} ${LOGURU_FILES})
 target_include_directories(${LOGURU_LIB_NAME} PUBLIC extern/loguru/)
-target_link_libraries(${LOGURU_LIB_NAME} INTERFACE Threads::Threads dl)
+target_link_libraries(${LOGURU_LIB_NAME} INTERFACE Threads::Threads)
 
 # DearImGUI
-set(DEARIMGUI_LIB_NAME "dearimgui")
-set(DEARIMGUI_FILES
-        extern/imgui/imgui.cpp extern/imgui/imgui.h
-        extern/imgui/imgui_demo.cpp
-        extern/imgui/imgui_draw.cpp
-        extern/imgui/imgui_tables.cpp
-        extern/imgui/imgui_widgets.cpp)
+if(${GUI_ENABLED})
+    set(DEARIMGUI_LIB_NAME "dearimgui")
+    set(DEARIMGUI_FILES
+            extern/imgui/imgui.cpp extern/imgui/imgui.h
+            extern/imgui/imgui_demo.cpp
+            extern/imgui/imgui_draw.cpp
+            extern/imgui/imgui_tables.cpp
+            extern/imgui/imgui_widgets.cpp)
 
-add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
-target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
-target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
+    add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
+    target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
+    target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
+
+    if(WIN32 AND NOT MSVC)
+        target_link_libraries(${DEARIMGUI_LIB_NAME} INTERFACE imm32)
+    endif()
+endif()
 
 # CLI11
 add_subdirectory(extern/CLI11)
+
+# GLFW
+if(${GUI_ENABLED})
+    add_subdirectory(extern/glfw)
+endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
@@ -122,7 +139,7 @@ add_subdirectory(src/emulation_core)
 add_subdirectory(src/cli)
 add_subdirectory(src/disassembler)
 
-if(${SDL2_FOUND} AND ${OPENGL_FOUND})
+if(${GUI_ENABLED})
     message(STATUS "Compiling GUI")
 
     set(IMGUI_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/extern/imgui")

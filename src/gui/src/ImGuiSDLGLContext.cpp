@@ -3,13 +3,13 @@
 #include "imgui_impl_opengl2.h"
 #include "imgui_impl_sdl.h"
 
-#include <SDL2/SDL_opengl.h>
+#include <SDL_opengl.h>
 
 ImGui_SDL_GL_Context::ImGui_SDL_GL_Context(ImGui_SDL_GL_Context::Config config)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
     {
-        printf("Error: %s\n", SDL_GetError());
+        //printf("Error: %s\n", SDL_GetError());
         exit(1);
     }
 
