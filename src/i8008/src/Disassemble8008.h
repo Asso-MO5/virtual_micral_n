@@ -3,8 +3,8 @@
 
 #include "Instructions8008.h"
 
+#include "misc_utils/src/span_compat.h"
 #include <cstdint>
-#include <span>
 #include <string>
 #include <tuple>
 

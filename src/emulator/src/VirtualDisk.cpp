@@ -66,7 +66,8 @@ uint8_t VirtualDisk::computer_sector_checksum(int track, int sector)
     for (auto index = 0; index < layout.sector_size; index += 1)
     {
         const auto read_byte = get_data(track, sector, index);
-        const auto for_carry = ((read_byte ^ sector_checksum) ^ 0xff) & ((read_byte + sector_checksum) ^ read_byte);
+        const auto for_carry = ((read_byte ^ sector_checksum) ^ 0xff) &
+                               ((read_byte + sector_checksum) ^ read_byte);
         const uint8_t carry = (for_carry & 0x80) ? 1 : 0;
         sector_checksum = sector_checksum + read_byte + carry;
     }

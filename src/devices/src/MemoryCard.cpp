@@ -43,8 +43,8 @@ void MemoryCard::create_memory_pages()
     {
         const auto start_page_address = page_index * PAGE_SIZE;
         const auto end_page_address = start_page_address + PAGE_SIZE;
-        std::span<uint8_t> page_memory{begin(buffer) + start_page_address,
-                                       begin(buffer) + end_page_address};
+        std::span<uint8_t> page_memory{buffer.data() + start_page_address,
+                                       buffer.data() + end_page_address};
         page_readers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
 
         if (configuration.access_type == MemoryCardConfiguration::RAM ||
@@ -138,7 +138,7 @@ void MemoryCard::on_phase_2(Edge edge)
             if (*pluribus->data_bus_md0_7 == 0x05) // RST $0
             {
                 // TODO: It happens three time during the RST $0... is it ok?
-                std::span<uint8_t> page_memory{begin(buffer), begin(buffer) + PAGE_SIZE};
+                std::span<uint8_t> page_memory{buffer.data(), buffer.data() + PAGE_SIZE};
                 page_readers[0] = std::make_unique<ActiveMemoryPage>(page_memory);
             }
         }

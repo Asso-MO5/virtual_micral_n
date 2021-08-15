@@ -1,8 +1,8 @@
 #ifndef MICRALN_VIRTUALDISK_H
 #define MICRALN_VIRTUALDISK_H
 
+#include "misc_utils/src/span_compat.h"
 #include <cstdint>
-#include <span>
 #include <vector>
 
 class VirtualDisk
@@ -30,7 +30,6 @@ private:
 
     [[nodiscard]] std::uint8_t get_data(uint8_t track, uint8_t sector,
                                         uint8_t index_in_sector) const;
-
 };
 
 #endif //MICRALN_VIRTUALDISK_H

@@ -1,8 +1,8 @@
 #ifndef MICRALN_MEMORYPAGE_H
 #define MICRALN_MEMORYPAGE_H
 
+#include "misc_utils/src/span_compat.h"
 #include <cstdint>
-#include <span>
 
 class MemoryPage
 {
