@@ -29,6 +29,7 @@ namespace Scheduling
         constexpr bool operator==(CounterType other) const { return time == other.time; }
         constexpr bool operator<(CounterType other) const { return time < other.time; }
         constexpr bool operator>(CounterType other) const { return time > other.time; }
+        constexpr bool operator>=(CounterType other) const { return time >= other.time; }
 
         constexpr time_type get() const { return time; }
 
