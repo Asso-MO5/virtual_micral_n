@@ -1,6 +1,5 @@
 ### Windows Build cleaning
 
-* Change SDL2 to an extern submodule + compilation
 * Change glfw to an extern submodule + compilation
 * Add a way to package the binary with the needed DLLs and data
 
