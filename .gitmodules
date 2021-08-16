@@ -13,3 +13,6 @@
 [submodule "extern/SDL"]
 	path = extern/SDL
 	url = https://github.com/libsdl-org/SDL
+[submodule "extern/glfw"]
+	path = extern/glfw
+	url = https://github.com/glfw/glfw

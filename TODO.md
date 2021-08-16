@@ -1,6 +1,5 @@
 ### Windows Build cleaning
 
-* Change glfw to an extern submodule + compilation
 * Add a way to package the binary with the needed DLLs and data
 
 ### Implementation
