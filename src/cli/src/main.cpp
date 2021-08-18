@@ -8,6 +8,7 @@
 #include <iostream>
 #include <loguru.hpp>
 #include <stdexcept>
+#include <inttypes.h>
 
 namespace
 {
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
     }
 
     LOG_F(INFO, "Finished");
-    LOG_F(INFO, "Clock ran for %lu nanoseconds", simulator.get_scheduler().get_counter().get());
+    LOG_F(INFO, "Clock ran for %" PRIu64 " nanoseconds", simulator.get_scheduler().get_counter().get()); // PRIu64 is used to deal with difference of uint64_t in Linux/Macos
 
     return 0;
 }
