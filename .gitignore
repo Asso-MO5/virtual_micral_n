@@ -50,3 +50,4 @@ fabric.properties
 build/
 CMakeUserPresets.json
 /releases
+imgui.ini
