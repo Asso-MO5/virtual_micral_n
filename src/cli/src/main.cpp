@@ -126,7 +126,7 @@ int main(int argc, char** argv)
     }
 
     LOG_F(INFO, "Finished");
-    LOG_F(INFO, "Clock ran for %llu nanoseconds", simulator.get_scheduler().get_counter().get());
+    LOG_F(INFO, "Clock ran for %lu nanoseconds", simulator.get_scheduler().get_counter().get());
 
     return 0;
 }

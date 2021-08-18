@@ -12,7 +12,7 @@ SignalRecorder& RecorderCollection::create_and_get_signal_recorder(const std::st
 
     auto new_signal_recorder = std::make_shared<SignalRecorder>(number_of_events);
 
-    auto insertion_result = recorders.insert({signal_name, new_signal_recorder});
+    [[maybe_unused]] auto insertion_result = recorders.insert({signal_name, new_signal_recorder});
     assert(insertion_result.second && "Failed to create the recorder");
 
     return *new_signal_recorder;
@@ -31,7 +31,7 @@ ValueRecorder& RecorderCollection::create_and_get_value_recorder(
     auto new_value_recorder =
             std::make_shared<ValueRecorder>(number_of_events, bus_width, track_owners);
 
-    auto insertion_result = recorders.insert({signal_name, new_value_recorder});
+    [[maybe_unused]] auto insertion_result = recorders.insert({signal_name, new_value_recorder});
     assert(insertion_result.second && "Failed to create the recorder");
 
     return *new_value_recorder;
