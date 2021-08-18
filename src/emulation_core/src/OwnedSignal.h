@@ -7,6 +7,7 @@
 #include <exception>
 #include <functional>
 #include <string>
+#include <vector>
 
 struct signal_error : public std::exception
 {

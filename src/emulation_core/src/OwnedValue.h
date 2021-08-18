@@ -6,6 +6,7 @@
 #include <exception>
 #include <functional>
 #include <string>
+#include <vector>
 
 struct owned_value_error : public std::exception
 {

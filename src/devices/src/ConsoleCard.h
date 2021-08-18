@@ -4,6 +4,7 @@
 #include <emulation_core/src/Edge.h>
 #include <emulation_core/src/Schedulable.h>
 #include <memory>
+#include <vector>
 
 class Pluribus;
 class ScheduledAction;

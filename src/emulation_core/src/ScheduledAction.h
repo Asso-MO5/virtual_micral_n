@@ -4,6 +4,7 @@
 #include "Schedulable.h"
 
 #include <exception>
+#include <vector>
 
 struct already_scheduled_error : public std::exception
 {
