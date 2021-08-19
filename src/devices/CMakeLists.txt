@@ -49,15 +49,17 @@ target_include_directories(${DEVICES_LIB_NAME} PRIVATE ../)
 set_warnings(${DEVICES_LIB_NAME})
 target_link_libraries(${DEVICES_LIB_NAME} INTERFACE ${I8008_LIB_NAME})
 
-add_executable(${DEVICES_TEST_NAME} ${DEVICES_TEST_FILES})
-set_target_properties(${DEVICES_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(${DEVICES_TEST_NAME}
-        PRIVATE gtest gtest_main gmock
-        PUBLIC ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} ${I8008_LIB_NAME})
-target_include_directories(${DEVICES_TEST_NAME} PRIVATE src/)
-target_include_directories(${DEVICES_TEST_NAME} PRIVATE ../)
-if(${LINK_STATIC_EXE})
-    target_link_options(${DEVICES_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
-endif()
+if(WITH_TESTS)
+    add_executable(${DEVICES_TEST_NAME} ${DEVICES_TEST_FILES})
+    set_target_properties(${DEVICES_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(${DEVICES_TEST_NAME}
+            PRIVATE gtest gtest_main gmock
+            PUBLIC ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} ${I8008_LIB_NAME})
+    target_include_directories(${DEVICES_TEST_NAME} PRIVATE src/)
+    target_include_directories(${DEVICES_TEST_NAME} PRIVATE ../)
+    if(${LINK_STATIC_EXE})
+        target_link_options(${DEVICES_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+    endif()
 
-add_test(NAME ${DEVICES_TEST_NAME} COMMAND ${DEVICES_TEST_NAME})
+    add_test(NAME ${DEVICES_TEST_NAME} COMMAND ${DEVICES_TEST_NAME})
+endif()

@@ -103,6 +103,7 @@
   a value. All the values are "ORd" (AND on real hardware). If the resulting value
   is not the same, it means there's a collision. The collision can be reported
   to a service that decides if it's ok or not, and log or throw.
+* Keep only one #ifdef EMSCRIPTEN with better architecture (GUI main.cpp and ImGuiSDLGLContext.h)
 
 ### Build
 

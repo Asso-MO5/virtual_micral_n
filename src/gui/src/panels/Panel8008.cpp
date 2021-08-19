@@ -1,5 +1,6 @@
 #include "Panel8008.h"
 
+#include <cinttypes>
 #include <devices/src/CPU8008.h>
 #include <devices/src/ProcessorCard.h>
 #include <emulator/src/Simulator.h>
@@ -14,9 +15,9 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
     const auto& cpu = simulator.get_processor_card().get_cpu();
 
     ImGui::Begin("8008");
-    ImGui::Text("Time %lu ms", scheduler.get_counter().get() / 1000 / 1000);
+    ImGui::Text("Time %" PRIu64 "ms", scheduler.get_counter().get() / 1000 / 1000);
 
-    ImGui::Text("Clock frequency %lu kHz (real: %lu kHz)",
+    ImGui::Text("Clock frequency %" PRIu64 "kHz (real: %" PRIu64 "kHz)",
                 scheduler.get_counter() > 0
                         ? 1'000'000 * clock_pulse.get() / scheduler.get_counter().get()
                         : 0,

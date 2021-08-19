@@ -69,7 +69,29 @@ tuned for the project).
 You can generate a module dependency view with `cmake --graphviz=deps.dot ..` in a build directory.
 
 Turn into a SVG file with `dot -Tsvg -o deps.dot.svg deps.dot`. You need [graphviz](https://graphviz.org/) command `dot`
-for tis.
+for this.
+
+## Build for Emscripten
+
+* Install Emscripten.
+* Source the environment installation script.
+* Launch build from the project folder:
+```shell
+mkdir build_js
+cd build_js
+encmake cmake ../ # or cmake ../ -DCMAKE_BUILD_TYPE=Debug
+make
+```
+* Files are in `build_js/src/gui`, there's no packaging at the moment.
+
+## Cross build for Windows from Ubuntu 20.04
+
+* `sudo apt install mingw-w64`
+* Create the CMake project with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
+  and the `CMAKE_BUILD_TYPE` of your choice
+* You might need also to pass `-DSDL_SHARED=ON`.
+
+
 
 ## Build for Clion
 
@@ -94,13 +116,6 @@ adapt before it can.
 * There's a dependency on 'dl' that seems unnecessary (or even nonexistent).
 
 **TODO**
-
-## Cross build for Windows from Ubuntu 20.04
-
-  * `sudo apt install mingw-w64`
-  * Create the CMake project with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
-    and the `CMAKE_BUILD_TYPE` of your choice
-  * You might need also to pass `-DSDL_SHARED=ON`.
 
 ## Externals
 

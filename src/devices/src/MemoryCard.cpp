@@ -7,7 +7,7 @@
 namespace
 {
     const Scheduling::counter_type MEMORY_READ_DELAY = 200;
-    const uint16_t PAGE_SIZE = 256;
+    const std::uint16_t PAGE_SIZE__ = 256;
 
 }
 
@@ -34,15 +34,15 @@ MemoryCard::MemoryCard(const MemoryCard::Config& config)
 
 void MemoryCard::create_memory_pages()
 {
-    const uint_least16_t page_count = buffer.size() / PAGE_SIZE;
-    assert((PAGE_SIZE * page_count == buffer.size()) &&
+    const uint_least16_t page_count = buffer.size() / PAGE_SIZE__;
+    assert((PAGE_SIZE__ * page_count == buffer.size()) &&
            "The total size must be a multiple of the page size.");
     page_readers.reserve(page_count);
     page_writers.reserve(page_count);
     for (uint_least16_t page_index = 0; page_index < page_count; page_index += 1)
     {
-        const auto start_page_address = page_index * PAGE_SIZE;
-        const auto end_page_address = start_page_address + PAGE_SIZE;
+        const auto start_page_address = page_index * PAGE_SIZE__;
+        const auto end_page_address = start_page_address + PAGE_SIZE__;
         std::span<uint8_t> page_memory{buffer.data() + start_page_address,
                                        buffer.data() + end_page_address};
         page_readers.push_back(std::make_unique<ActiveMemoryPage>(page_memory));
@@ -60,7 +60,7 @@ void MemoryCard::create_memory_pages()
 
     if (configuration.access_type == MemoryCardConfiguration::ROM_RAM_256)
     {
-        masked_rom.resize(PAGE_SIZE);
+        masked_rom.resize(PAGE_SIZE__);
         page_readers[0] = std::make_unique<ActiveMemoryPage>(masked_rom);
     }
 }
@@ -138,7 +138,7 @@ void MemoryCard::on_phase_2(Edge edge)
             if (*pluribus->data_bus_md0_7 == 0x05) // RST $0
             {
                 // TODO: It happens three time during the RST $0... is it ok?
-                std::span<uint8_t> page_memory{buffer.data(), buffer.data() + PAGE_SIZE};
+                std::span<uint8_t> page_memory{buffer.data(), buffer.data() + PAGE_SIZE__};
                 page_readers[0] = std::make_unique<ActiveMemoryPage>(page_memory);
             }
         }
@@ -190,8 +190,8 @@ std::tuple<uint16_t, size_t, uint16_t> MemoryCard::get_local_address(uint16_t ad
 {
     assert(address >= get_start_address() && "Address is not valid for this Memory Card");
     const auto address_on_card = address - get_start_address();
-    const auto page_number = address_on_card / PAGE_SIZE;
-    const auto address_in_page = address_on_card - (page_number * PAGE_SIZE);
+    const auto page_number = address_on_card / PAGE_SIZE__;
+    const auto address_in_page = address_on_card - (page_number * PAGE_SIZE__);
 
     return {address_on_card, page_number, address_in_page};
 }

@@ -22,6 +22,29 @@ if(WIN32 AND NOT MSVC)
     set(LINK_STATIC_EXE TRUE)
 endif()
 
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2  -s USE_GLFW=3 -s USE_WEBGL2=1 -s FORCE_FILESYSTEM=1")
+
+    set(WITH_LOGURU FALSE)
+    set(WITH_TESTS FALSE)
+    set(SDL_TARGET "")
+    set(GLFW_TARGET "")
+    set(GUI_LINKS "")
+
+    set(COMPILE_CLI FALSE)
+    set(COMPILE_DISASSEMBLER FALSE)
+else()
+    set(WITH_LOGURU TRUE)
+    set(WITH_TESTS TRUE)
+    set(SDL_TARGET SDL2::SDL2)
+    set(GLFW_TARGET glfw)
+    set(GUI_LINKS SDL2::SDL2main OpenGL::GL glfw)
+
+    set(COMPILE_CLI TRUE)
+    set(COMPILE_DISASSEMBLER TRUE)
+endif()
+
 # Avoid extensions
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS OFF)
@@ -68,7 +91,9 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/googletest/CMakeLists.txt")
 endif()
 
 # SDL2 / OpenGL
-add_subdirectory(extern/SDL)
+if(SDL_TARGET)
+    add_subdirectory(extern/SDL)
+endif()
 find_package(OpenGL REQUIRED)
 
 if(${OPENGL_FOUND})
@@ -76,20 +101,24 @@ if(${OPENGL_FOUND})
 endif()
 
 # Google Test
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory(extern/googletest)
+if(WITH_TESTS)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(extern/googletest)
+endif()
 
 # Threads
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
 # Loguru
-set(LOGURU_LIB_NAME "loguru")
-set(LOGURU_FILES extern/loguru/loguru.cpp)
+if(WITH_LOGURU)
+    set(LOGURU_LIB_NAME "loguru")
+    set(LOGURU_FILES extern/loguru/loguru.cpp)
 
-add_library(${LOGURU_LIB_NAME} ${LOGURU_FILES})
-target_include_directories(${LOGURU_LIB_NAME} PUBLIC extern/loguru/)
-target_link_libraries(${LOGURU_LIB_NAME} INTERFACE Threads::Threads)
+    add_library(${LOGURU_LIB_NAME} ${LOGURU_FILES})
+    target_include_directories(${LOGURU_LIB_NAME} PUBLIC extern/loguru/)
+    target_link_libraries(${LOGURU_LIB_NAME} INTERFACE Threads::Threads)
+endif()
 
 # DearImGUI
 if(${GUI_ENABLED})
@@ -104,7 +133,7 @@ if(${GUI_ENABLED})
     add_library(${DEARIMGUI_LIB_NAME} ${DEARIMGUI_FILES})
     target_include_directories(${DEARIMGUI_LIB_NAME} PUBLIC extern/imgui/)
     target_include_directories(${DEARIMGUI_LIB_NAME} INTERFACE extern/imgui/backends)
-    target_link_libraries(${DEARIMGUI_LIB_NAME} PUBLIC SDL2::SDL2)
+    target_link_libraries(${DEARIMGUI_LIB_NAME} PUBLIC ${SDL_TARGET})
 
     if(WIN32 AND NOT MSVC)
         target_link_libraries(${DEARIMGUI_LIB_NAME} INTERFACE imm32)
@@ -115,7 +144,7 @@ endif()
 add_subdirectory(extern/CLI11)
 
 # GLFW
-if(${GUI_ENABLED})
+if(${GUI_ENABLED} AND GLFW_TARGET)
     add_subdirectory(extern/glfw)
 endif()
 
@@ -137,8 +166,14 @@ add_subdirectory(src/i8008)
 add_subdirectory(src/devices)
 add_subdirectory(src/emulator)
 add_subdirectory(src/emulation_core)
-add_subdirectory(src/cli)
-add_subdirectory(src/disassembler)
+
+if(COMPILE_CLI)
+    add_subdirectory(src/cli)
+endif()
+
+if(COMPILE_DISASSEMBLER)
+    add_subdirectory(src/disassembler)
+endif()
 
 if(${GUI_ENABLED})
     message(STATUS "Compiling GUI")

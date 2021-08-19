@@ -37,14 +37,15 @@ set(EMULATION_CORE_TEST_FILES
 add_library(${EMULATION_LIB_NAME} ${EMULATION_CORE_FILES})
 set_warnings(${EMULATION_LIB_NAME})
 
-add_executable(${EMULATION_TEST_NAME} ${EMULATION_CORE_TEST_FILES})
-set_target_properties(${EMULATION_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(${EMULATION_TEST_NAME} gtest gtest_main gmock ${EMULATION_LIB_NAME})
-target_include_directories(${EMULATION_TEST_NAME} PRIVATE src/)
-target_include_directories(${EMULATION_TEST_NAME} PRIVATE ../)
-if(${LINK_STATIC_EXE})
-    target_link_options(${EMULATION_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+if(WITH_TESTS)
+    add_executable(${EMULATION_TEST_NAME} ${EMULATION_CORE_TEST_FILES})
+    set_target_properties(${EMULATION_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(${EMULATION_TEST_NAME} gtest gtest_main gmock ${EMULATION_LIB_NAME})
+    target_include_directories(${EMULATION_TEST_NAME} PRIVATE src/)
+    target_include_directories(${EMULATION_TEST_NAME} PRIVATE ../)
+    if(${LINK_STATIC_EXE})
+        target_link_options(${EMULATION_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+    endif()
+
+    add_test(NAME ${EMULATION_TEST_NAME} COMMAND ${EMULATION_TEST_NAME})
 endif()
-
-
-add_test(NAME ${EMULATION_TEST_NAME} COMMAND ${EMULATION_TEST_NAME})
