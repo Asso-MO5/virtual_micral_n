@@ -16,17 +16,21 @@ if(EMSCRIPTEN)
             ../../extern/imgui/backends/imgui_impl_opengl3.cpp
             ../../extern/imgui/backends/imgui_impl_sdl.cpp
             )
+
+    set(IMGUI_ADAPTER src/ImGui_Emscripten_Context.cpp src/ImGui_Empscripten_Context.h)
 else()
     set(GUI_FILES src/main.cpp
             ../../extern/imgui/backends/imgui_impl_opengl2.cpp
             ../../extern/imgui/backends/imgui_impl_sdl.cpp
             )
+
+    set(IMGUI_ADAPTER src/ImGui_SDL_GL2_Context.cpp src/ImGui_SDL_GL2_Context.h)
 endif()
 
 set(GUI_FILES_LIB
         src/lib/Averager.cpp src/lib/Averager.h
         src/ControllerWidget.cpp src/ControllerWidget.h
-        src/ImGuiSDLGLContext.cpp src/ImGuiSDLGLContext.h
+        src/ImGui_SDL_GL_Context.cpp src/ImGui_SDL_GL_Context.h
         src/Plot.cpp src/Plot.h
         src/PlotStructures.h
         src/SignalPlot.cpp src/SignalPlot.h
@@ -43,7 +47,9 @@ set(GUI_FILES_LIB
         src/widgets/PanelLed.cpp src/widgets/PanelLed.h
         src/widgets/PanelMemoryDisplay.h
         src/widgets/PanelSwitch.cpp src/widgets/PanelSwitch.h
-        src/panels/PanelTTY.cpp src/panels/PanelTTY.h)
+        src/panels/PanelTTY.cpp src/panels/PanelTTY.h
+        ${IMGUI_ADAPTER}
+        )
 
 set(GUI_TEST_FILES tests/averager_test.cpp)
 

@@ -1,6 +1,11 @@
 #include "ControllerWidget.h"
 
-#include "ImGuiSDLGLContext.h"
+#ifdef __EMSCRIPTEN__
+#include "ImGui_Empscripten_Context.h"
+#else
+#include "ImGui_SDL_GL2_Context.h"
+#endif
+
 #include "gui/src/lib/Averager.h"
 #include "gui/src/panels/Panel8008.h"
 #include "gui/src/panels/PanelControl.h"
@@ -74,6 +79,10 @@ namespace
 {
 #ifdef __EMSCRIPTEN__
     void tick();
+
+    using SDL_GL_Context = ImGui_SDL_GL3_Context;
+#else
+    using SDL_GL_Context = ImGui_SDL_GL2_Context;
 #endif
 
     class Main
@@ -99,7 +108,7 @@ namespace
         void js_tick() { update(); }
 
     private:
-        ImGui_SDL_GL_Context context{{WINDOW_WIDTH, WINDOW_HEIGHT}};
+        SDL_GL_Context context{{WINDOW_WIDTH, WINDOW_HEIGHT}};
 
         bool show_demo_window = false;
         bool toggle_display_8008_panel = true;
@@ -164,7 +173,7 @@ namespace
 
 #ifdef __EMSCRIPTEN__
     Main* tick_main = nullptr;
-    void tick() { tick_main->run(); }
+    void tick() { tick_main->js_tick(); }
 #endif
 
 }
