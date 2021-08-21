@@ -189,3 +189,14 @@ else()
         message(WARNING "OpenGL not present")
     endif()
 endif()
+
+install(TARGETS SDL2
+        DESTINATION ${PROJECT_SOURCE_DIR}/install_dir
+        CONFIGURATIONS Release
+)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/data
+        DESTINATION ${PROJECT_SOURCE_DIR}/install_dir
+        CONFIGURATIONS Release
+        FILES_MATCHING PATTERN "*.bin"
+        )

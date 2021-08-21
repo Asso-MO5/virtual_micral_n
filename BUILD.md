@@ -2,7 +2,9 @@
 
 The build system is relying on CMake. The entry point is the `CMakeLists.txt` at the root of the project tree.
 
-## Build command in shell
+## Build for Ubuntu with command line
+
+*Tested with Ubuntu 20.04*
 
 Prerequisites:
 
@@ -51,26 +53,6 @@ src/gui/micral_gui
 src/disassembler/disassembler
 ```
 
-### Static analysis
-
-To analyze the project with CppCheck, you can use this :
-
-    cppcheck --enable=all --inconclusive --error-exitcode=1 --std=c++20 --template=gcc --suppressions-list=CppCheckSuppression.txt -iextern src/ # Works as intented
-
-To analyze the project with Clang Tidy, you can use this :
-
-    cmake -DCMAKE_CXX_CLANG_TIDY="clang-tidy;-checks=-*,clang-analyzer-cplusplus*,cppcoreguidelines-*,modernize-*,portability-,*readability-*" ..
-
-Passing clang-tidy is not mandatory at the moment (it's too global and gives warning about externals, and is not well
-tuned for the project).
-
-### Dependency viewer
-
-You can generate a module dependency view with `cmake --graphviz=deps.dot ..` in a build directory.
-
-Turn into a SVG file with `dot -Tsvg -o deps.dot.svg deps.dot`. You need [graphviz](https://graphviz.org/) command `dot`
-for this.
-
 ## Build for Emscripten
 
 * Install Emscripten.
@@ -101,10 +83,6 @@ You can then add the different targets you want to compile with.
 
 **TODO**: complete the CMakePresets.json
 
-## Build for Visual Studio Code
-
-**TODO**
-
 ## Build for Visual Studio
 
 The software is not ported to Windows yet. It has some things missing or to
@@ -116,6 +94,33 @@ adapt before it can.
 * There's a dependency on 'dl' that seems unnecessary (or even nonexistent).
 
 **TODO**
+
+## Other operations
+
+### Static analysis
+
+To analyze the project with CppCheck, you can use this :
+
+    cppcheck --enable=all --inconclusive --error-exitcode=1 --std=c++20 --template=gcc --suppressions-list=CppCheckSuppression.txt -iextern src/ # Works as intented
+
+To analyze the project with Clang Tidy, you can use this :
+
+    cmake -DCMAKE_CXX_CLANG_TIDY="clang-tidy;-checks=-*,clang-analyzer-cplusplus*,cppcoreguidelines-*,modernize-*,portability-,*readability-*" ..
+
+Passing clang-tidy is not mandatory at the moment (it's too global and gives warning about externals, and is not well
+tuned for the project).
+
+### Dependency viewer
+
+You can generate a module dependency view with `cmake --graphviz=deps.dot ..` in a build directory.
+
+Turn into a SVG file with `dot -Tsvg -o deps.dot.svg deps.dot`. You need [graphviz](https://graphviz.org/) command `dot`
+for this.
+
+### Packaging
+
+`make install` can be used to place the needed files for a package in the `install_dir`
+folder at project's root.
 
 ## Externals
 

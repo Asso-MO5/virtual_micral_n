@@ -31,11 +31,16 @@ endif()
 
 set_warnings(${CLI_EXE_NAME})
 
-add_executable(${CLI_TEST_EXE_NAME} ${CLI_TEST_FILES})
-target_link_libraries(${CLI_TEST_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} gtest gtest_main)
-if(${LINK_STATIC_EXE})
-    target_link_options(${CLI_TEST_EXE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+install(TARGETS ${CLI_EXE_NAME}
+        DESTINATION ${PROJECT_SOURCE_DIR}/../../install_dir
+        CONFIGURATIONS Release
+        )
+
+if(WITH_TESTS)
+    add_executable(${CLI_TEST_EXE_NAME} ${CLI_TEST_FILES})
+    target_link_libraries(${CLI_TEST_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} gtest gtest_main)
+    if(${LINK_STATIC_EXE})
+        target_link_options(${CLI_TEST_EXE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+    endif()
+    add_test(NAME ${CLI_TEST_EXE_NAME} COMMAND ${CLI_TEST_EXE_NAME})
 endif()
-
-
-add_test(NAME ${CLI_TEST_EXE_NAME} COMMAND ${CLI_TEST_EXE_NAME})

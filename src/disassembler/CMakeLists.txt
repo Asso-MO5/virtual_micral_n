@@ -27,10 +27,17 @@ endif()
 
 set_warnings(${DISASSEMBLER_EXE_NAME})
 
-add_executable(${DISASSEMBLER_TEST_EXE_NAME} ${DISASSEMBLER_TEST_FILES})
-target_link_libraries(${DISASSEMBLER_TEST_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} gtest gtest_main)
-if(${DISASSEMBLER_TEST_EXE_NAME})
-    target_link_options(${DEVICES_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
-endif()
+install(TARGETS ${DISASSEMBLER_EXE_NAME}
+        DESTINATION ${PROJECT_SOURCE_DIR}/../../install_dir
+        CONFIGURATIONS Release
+)
 
-add_test(NAME ${DISASSEMBLER_TEST_EXE_NAME} COMMAND ${DISASSEMBLER_TEST_EXE_NAME})
+if(WITH_TESTS)
+    add_executable(${DISASSEMBLER_TEST_EXE_NAME} ${DISASSEMBLER_TEST_FILES})
+    target_link_libraries(${DISASSEMBLER_TEST_EXE_NAME} ${DEVICES_LIB_NAME} ${EMULATION_LIB_NAME} gtest gtest_main)
+    if(${DISASSEMBLER_TEST_EXE_NAME})
+        target_link_options(${DEVICES_TEST_NAME} PRIVATE -static-libgcc -static-libstdc++)
+    endif()
+
+    add_test(NAME ${DISASSEMBLER_TEST_EXE_NAME} COMMAND ${DISASSEMBLER_TEST_EXE_NAME})
+endif()

@@ -82,6 +82,10 @@ if(EMSCRIPTEN)
     target_link_options(${GUI_EXE_NAME} PRIVATE --preload-file ${PROJECT_SOURCE_DIR}/../../data/@data/ --bind)
 endif()
 
+install(TARGETS ${GUI_EXE_NAME}
+        DESTINATION ${PROJECT_SOURCE_DIR}/../../install_dir
+        CONFIGURATIONS Release
+        )
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${GUI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
