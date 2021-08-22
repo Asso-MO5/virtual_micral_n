@@ -32,7 +32,7 @@ endif()
 set_warnings(${CLI_EXE_NAME})
 
 install(TARGETS ${CLI_EXE_NAME}
-        DESTINATION ${PROJECT_SOURCE_DIR}/../../install_dir
+        DESTINATION ${MICRAL_PACKAGE_DIR}
         CONFIGURATIONS Release
         )
 

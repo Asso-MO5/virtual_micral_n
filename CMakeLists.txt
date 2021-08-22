@@ -45,6 +45,10 @@ else()
     set(COMPILE_DISASSEMBLER TRUE)
 endif()
 
+set(MICRAL_PACKAGE_DIR ${PROJECT_SOURCE_DIR})
+cmake_path(APPEND MICRAL_PACKAGE_DIR install_dir)
+cmake_path(APPEND MICRAL_PACKAGE_DIR ${CMAKE_SYSTEM_NAME})
+
 # Avoid extensions
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS OFF)
@@ -190,13 +194,55 @@ else()
     endif()
 endif()
 
-install(TARGETS SDL2
-        DESTINATION ${PROJECT_SOURCE_DIR}/install_dir
-        CONFIGURATIONS Release
-)
+if(NOT EMSCRIPTEN)
+    install(TARGETS SDL2
+            DESTINATION ${MICRAL_PACKAGE_DIR}
+            RUNTIME
+            CONFIGURATIONS Release
+            )
+
+endif()
+
+if(WIN32)
+    # Manually copy the required files
+    # A bit of fiddling here I must confess.
+    # Not really elegant.
+    find_file(WIN_THREAD_LIB_FILE "libwinpthread-1.dll"
+            PATHS ${CMAKE_FIND_ROOT_PATH}
+            PATH_SUFFIXES lib
+            NO_CACHE
+            REQUIRED)
+    install(FILES ${WIN_THREAD_LIB_FILE}
+            DESTINATION ${MICRAL_PACKAGE_DIR}
+            CONFIGURATIONS Release
+            )
+
+    find_file(WIN_GCC_LIB_FILE "libgcc_s_sjlj-1.dll" "libstdc++-6.dll"
+            PATHS ${CMAKE_FIND_ROOT_PATH}
+            HINTS ${CMAKE_FIND_ROOT_PATH}
+            CMAKE_FIND_ROOT_PATH_BOTH
+            NO_CACHE
+            REQUIRED)
+    install(FILES ${WIN_GCC_LIB_FILE}
+            DESTINATION ${MICRAL_PACKAGE_DIR}
+            CONFIGURATIONS Release
+            )
+
+    find_file(WIN_CPP_LIB_FILE "libstdc++-6.dll"
+            PATHS ${CMAKE_FIND_ROOT_PATH}
+            HINTS ${CMAKE_FIND_ROOT_PATH}
+            CMAKE_FIND_ROOT_PATH_BOTH
+            NO_CACHE
+            REQUIRED)
+    install(FILES ${WIN_CPP_LIB_FILE}
+            DESTINATION ${MICRAL_PACKAGE_DIR}
+            CONFIGURATIONS Release
+            )
+
+endif()
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/data
-        DESTINATION ${PROJECT_SOURCE_DIR}/install_dir
+        DESTINATION ${MICRAL_PACKAGE_DIR}
         CONFIGURATIONS Release
         FILES_MATCHING PATTERN "*.bin"
         )

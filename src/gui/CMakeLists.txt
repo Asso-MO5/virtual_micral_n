@@ -83,9 +83,28 @@ if(EMSCRIPTEN)
 endif()
 
 install(TARGETS ${GUI_EXE_NAME}
-        DESTINATION ${PROJECT_SOURCE_DIR}/../../install_dir
+        DESTINATION ${MICRAL_PACKAGE_DIR}
         CONFIGURATIONS Release
         )
+
+if(EMSCRIPTEN)
+    # Dependent files for Emscripten seems not to be installed with the
+    # target. Only the main file (html) is. So install the other files
+    # manually.
+    set(GUI_JS_FILE ${CMAKE_CURRENT_BINARY_DIR})
+    cmake_path(APPEND GUI_JS_FILE ${GUI_EXE_NAME}.js)
+
+    set(GUI_WASM_FILE ${CMAKE_CURRENT_BINARY_DIR})
+    cmake_path(APPEND GUI_WASM_FILE ${GUI_EXE_NAME}.wasm)
+
+    set(GUI_DATA_FILE ${CMAKE_CURRENT_BINARY_DIR})
+    cmake_path(APPEND GUI_DATA_FILE ${GUI_EXE_NAME}.data)
+
+    install(FILES ${GUI_JS_FILE} ${GUI_WASM_FILE} ${GUI_DATA_FILE}
+            DESTINATION ${MICRAL_PACKAGE_DIR}
+            CONFIGURATIONS Release
+            )
+endif()
 
 if(LTO_result AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set_target_properties(${GUI_EXE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)

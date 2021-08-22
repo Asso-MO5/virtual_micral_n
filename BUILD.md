@@ -122,6 +122,9 @@ for this.
 `make install` can be used to place the needed files for a package in the `install_dir`
 folder at project's root.
 
+There's a problem with SDL2 trying to install its tools somewhere. At the moment, a way to allow
+it to be placed somewhere we don't care of is to use `-DCMAKE_INSTALL_PREFIX` to point somewhere.
+
 ## Externals
 
 The external dependencies are located in the `extern/` sub-folder and rely on *git submodules*.
