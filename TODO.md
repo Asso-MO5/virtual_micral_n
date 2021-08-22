@@ -1,7 +1,3 @@
-### Windows Build cleaning
-
-* Add a way to package the binary with the needed DLLs and data
-
 ### Implementation
 
 * Implement the Serial card
