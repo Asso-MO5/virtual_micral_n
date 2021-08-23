@@ -53,7 +53,46 @@ src/gui/micral_gui
 src/disassembler/disassembler
 ```
 
-## Build for Emscripten
+## Build for Macos with command line
+
+*Tested with MacOS Big Sur*
+
+Prerequisites:
+
+* CMake 3.16+
+* CLang Compiler
+* Git (with possible workaround)
+
+To build manually :
+
+```shell
+mkdir build
+cd build
+cmake ../ # or cmake ../ -DCMAKE_BUILD_TYPE=Debug
+make
+```
+
+The CMAKE reacts to these environment variables:
+
+* MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
+    * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
+    * For other compilers: not tested yet
+
+Reasons for exceptions:
+
+* unused-but-set-variable is some asserts, could be resolved with debug only blocks
+* no-unused-variable, because of string constants not used on the CLI, could be resolved by spliting the headers
+* no-unknown-pragmas, because some pragmas are used for static analysis
+
+The executable are generated in
+
+```shell
+build/src/cli/micral_cli
+build/src/gui/micral_gui
+build/src/disassembler/disassembler
+```
+
+## Build for Emscripten on Linux
 
 * Install Emscripten.
 * Source the environment installation script.
@@ -66,14 +105,33 @@ make
 ```
 * Files are in `build_js/src/gui`, there's no packaging at the moment.
 
+## Build for Emscripten on Macos
+
+* Install Emscripten
+```shell
+brew install emscripten
+```
+* Launch build from the project folder:
+```shell
+mkdir build_js
+cd build_js
+emcmake cmake ../ # or cmake ../ -DCMAKE_BUILD_TYPE=Debug
+make
+```
+
+* MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
+    * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable **-Wno-unused-command-line-argument**"
+
+* Files are in `build_js/src/gui`, there's no packaging at the moment.
+  - Test in a web server : python -m http.server in Python 3 or python -m SimpleHTTPServer in Python 2
+  - Access it at : http://localhost:8000/
+
 ## Cross build for Windows from Ubuntu 20.04
 
 * `sudo apt install mingw-w64`
 * Create the CMake project with ` -DCMAKE_TOOLCHAIN_FILE=ubuntu-mingw64.cmake `
   and the `CMAKE_BUILD_TYPE` of your choice
 * You might need also to pass `-DSDL_SHARED=ON`.
-
-
 
 ## Build for Clion
 
