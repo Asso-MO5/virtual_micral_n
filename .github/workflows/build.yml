@@ -12,6 +12,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MICRAL_WARNINGS: -Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable
 
     steps:
       - uses: actions/checkout@v2
