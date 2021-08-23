@@ -1,8 +1,8 @@
-name: CMake
+name: Build and Test
 
 on:
   push:
-    branches: [ main, gh_workflows ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
