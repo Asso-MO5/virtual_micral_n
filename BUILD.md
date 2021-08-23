@@ -21,7 +21,6 @@ For the GUI:
   * On Ubuntu:
 ```
       sudo apt install libopengl-dev
-      sudo apt install libglfw3-dev
 ````
 
 To build manually in *Debug*:
