@@ -15,15 +15,19 @@ Prerequisites:
 For the GUI:
 
 * SDL2 development files
-  * On Ubuntu: ```sudo apt install libsdl2-dev```
+    * On Ubuntu: ```sudo apt install libsdl2-dev```
+    * In fact, a local SDL2 library is compiled. Installing the developement package is an easy way to have all the
+      necessary dependant libraries install though, as they are numerous.
 
 * OpenGL development files
-  * On Ubuntu:
+    * On Ubuntu:
+
 ```
       sudo apt install libopengl-dev
 ````
 
 To build manually in *Debug*:
+
 ```shell
 mkdir build
 cd build
@@ -34,13 +38,12 @@ make
 The CMAKE reacts to these environment variables:
 
 * MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
-    * For GCC: MICRAL_WARNINGS="-Wall -Werror -Wno-unused-but-set-variable -Wno-unknown-pragmas -Wno-unused-variable"
+    * For GCC: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
     * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
     * For other compilers: not tested yet
 
 Reasons for exceptions:
 
-* unused-but-set-variable is some asserts, could be resolved with debug only blocks
 * no-unused-variable, because of string constants not used on the CLI, could be resolved by spliting the headers
 * no-unknown-pragmas, because some pragmas are used for static analysis
 
@@ -52,7 +55,7 @@ src/gui/micral_gui
 src/disassembler/disassembler
 ```
 
-## Build for Macos with command line
+## Build for MacOS with command line
 
 *Tested with MacOS Big Sur*
 
@@ -79,7 +82,6 @@ The CMAKE reacts to these environment variables:
 
 Reasons for exceptions:
 
-* unused-but-set-variable is some asserts, could be resolved with debug only blocks
 * no-unused-variable, because of string constants not used on the CLI, could be resolved by spliting the headers
 * no-unknown-pragmas, because some pragmas are used for static analysis
 
@@ -91,26 +93,33 @@ build/src/gui/micral_gui
 build/src/disassembler/disassembler
 ```
 
-## Build for Emscripten on Linux
+## Build for Emscripten on Ubuntu
 
 * Install Emscripten.
 * Source the environment installation script.
 * Launch build from the project folder:
+
 ```shell
 mkdir build_js
 cd build_js
 encmake cmake ../ # or cmake ../ -DCMAKE_BUILD_TYPE=Debug
 make
 ```
-* Files are in `build_js/src/gui`, there's no packaging at the moment.
 
-## Build for Emscripten on Macos
+* To get the files to deploy, see Packaging further in this document.
+    - Test in a web server : python -m http.server in Python 3 or python -m SimpleHTTPServer in Python 2
+    - Access it at : http://localhost:8000/
+
+## Build for Emscripten on MacOS
 
 * Install Emscripten
+
 ```shell
 brew install emscripten
 ```
+
 * Launch build from the project folder:
+
 ```shell
 mkdir build_js
 cd build_js
@@ -119,11 +128,12 @@ make
 ```
 
 * MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
-    * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable **-Wno-unused-command-line-argument**"
+    * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable **
+      -Wno-unused-command-line-argument**"
 
-* Files are in `build_js/src/gui`, there's no packaging at the moment.
-  - Test in a web server : python -m http.server in Python 3 or python -m SimpleHTTPServer in Python 2
-  - Access it at : http://localhost:8000/
+* To get the files to deploy, see Packaging further in this document.
+    - Test in a web server : python -m http.server in Python 3 or python -m SimpleHTTPServer in Python 2
+    - Access it at : http://localhost:8000/
 
 ## Cross build for Windows from Ubuntu 20.04
 
@@ -142,8 +152,7 @@ You can then add the different targets you want to compile with.
 
 ## Build for Visual Studio
 
-The software is not ported to Windows yet. It has some things missing or to
-adapt before it can.
+The software is not ported to Windows yet. It has some things missing or to adapt before it can.
 
 * Need to install the development files for SDL2.
 * Need to configure the CMake file to find them.
@@ -179,8 +188,8 @@ for this.
 `make install` can be used to place the needed files for a package in the `install_dir`
 folder at project's root.
 
-There's a problem with SDL2 trying to install its tools somewhere. At the moment, a way to allow
-it to be placed somewhere we don't care of is to use `-DCMAKE_INSTALL_PREFIX` to point somewhere.
+There's a problem with SDL2 trying to install its tools somewhere. At the moment, a way to allow it to be placed
+somewhere we don't care of is to use `-DCMAKE_INSTALL_PREFIX` to point somewhere.
 
 ## Externals
 

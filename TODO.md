@@ -61,7 +61,6 @@
 
 ### Improvements
 
-* Do a pass on warning exceptions. Some are now normally useless.
 * Add Architecture.md in documentation/ explaining and linking to local library documentation
   and with a dependency diagram (generated from cmake).
 * Add a check that parse every README.md from libraries and check that names in backquotes
