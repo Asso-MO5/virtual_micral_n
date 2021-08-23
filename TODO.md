@@ -106,8 +106,12 @@
 
 * Create a Standalone bundle exporter
 * Uses CMake Presets
-* Adapt for a MacOS build
-* Adapt for a Windows build
+  * Adapt for a MacOS build
+  * Adapt for a Windows build
+* GitHub workflows
+  * Remove gh_workflows from Workflow
+  * Add Windows and Emscripten builds
+  * Add Packaging
 
 ### Possible optimization
 
