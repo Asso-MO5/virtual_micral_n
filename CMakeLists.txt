@@ -203,7 +203,7 @@ if(NOT EMSCRIPTEN)
 
 endif()
 
-if(WIN32)
+if(WIN32 AND NOT MSVC)
     # Manually copy the required files
     # A bit of fiddling here I must confess.
     # Not really elegant.
