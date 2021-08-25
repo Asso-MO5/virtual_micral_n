@@ -21,25 +21,26 @@ namespace
 {
     std::vector<uint8_t> get_rom_data(ConfigROM rom_config)
     {
+        std::filesystem::path data_path("data");
         switch (rom_config)
         {
             case HARD_CODED:
                 return {0xc0, 0x2e, 0xff, 0x2e, 0x00, 0x36, 0xc0,
                         0x36, 0x00, 0xc7, 0x44, 0x00, 0x00};
             case LOOP_LOADS:
-                return FileReader("data/8008-loop-loads.bin").data;
+                return FileReader(data_path / "8008-loop-loads.bin").data;
             case INPUT_OUTPUT:
-                return FileReader("data/8008-input-output.bin").data;
+                return FileReader(data_path / "8008-input-output.bin").data;
             case HELLO_WORLD:
-                return FileReader("data/8008-hello-world.bin").data;
+                return FileReader(data_path / "8008-hello-world.bin").data;
             case HELLO_MO5:
-                return FileReader("data/8008-hello-mo5.bin").data;
+                return FileReader(data_path / "8008-hello-mo5.bin").data;
             case BANNER_MO5:
-                return FileReader("data/8008-logo-mo5.bin").data;
+                return FileReader(data_path / "8008-logo-mo5.bin").data;
             case MICRAL_38_3F:
-                return FileReader("data/MIC_38_3F.BIN").data;
+                return FileReader(data_path / "MIC_38_3F.BIN").data;
             case MICRAL_MIC_1:
-                return FileReader("data/MIC_1_EPROM_CARTE_MEM_4K.BIN").data;
+                return FileReader(data_path / "MIC_1_EPROM_CARTE_MEM_4K.BIN").data;
             case MICRAL_N:
                 assert(false && "MICRAL_N is not a configuration to load a specific ROM.");
                 return {};
@@ -225,7 +226,8 @@ void Simulator::create_processor_card()
 
 void Simulator::create_virtual_disk()
 {
-    auto disk_data = FileReader("data/8008-logo-mo5.bin").data;
+    std::filesystem::path data_path("data");
+    auto disk_data = FileReader(data_path / "8008-logo-mo5.bin").data;
     // The data starts at Track 0 Sector 16
     disk_data.insert(begin(disk_data), 16 * 128, 0xaa);
     virtual_disk = std::make_shared<VirtualDisk>(
