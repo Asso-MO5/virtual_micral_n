@@ -198,7 +198,10 @@ void Simulator::create_memory_cards(ConfigROM rom_config)
         scheduler.add(memory_card_1);
         memory_view.add_memory_card(memory_card_1);
 
-        add_ram_card(0b010);
+        for (uint8_t mask = 0b010; mask <= 0b111; mask += 1)
+        {
+            add_ram_card(mask);
+        }
     }
 }
 
