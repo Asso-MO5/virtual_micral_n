@@ -8,7 +8,14 @@
     ; Written by Sylvain Glaize, 2021
     ; Released to the public domain.
 
+    ORG 0x0000
     LCC             ; MAS instruction of the Micral N: disables all interruptions except Level 0.
+    JMP START
+
+RST7:
+    DATA 0x1f ; REI
+
+START:
     LHI \HB\LOGO    ; Loads the address of LOGO in HL
     LLI \LB\LOGO    ; There is no register pair operation on the 8008.
 
@@ -32,7 +39,7 @@ LOOP:
     LDH             ; Saves HL to DE
     LEL             ; ...
 
-    LAB             ; Gets back the original coded character from register B, where is was
+    LAB             ; Gets back the ORDginal coded character from register B, where is was
                     ; saved before.
 
     ; The character index to display will now be extracted from the two high bits of A.
@@ -73,6 +80,7 @@ OUTPUT_STR:
     JMP OUTPUT_STR  ; And loops for the next character.
 
 END:
+    JMP BLINK
     HLT             ; Stops all operations.
 
     ; Output of A content to the Serial Card
@@ -99,6 +107,41 @@ ADVANCE_HL:
                     ; The "increment" and "decrement" operations do not affect the Carry flag on
                     ; the 8008.
     RET             ; And returns.
+
+    ORG 0x100
+BLINK:
+    LDI 0x0
+    LAI 0x0
+    JMP BL_200
+
+BL_100:
+    LHI 0x10
+W_100_H:
+    LLI 0xFF
+W_100_L:
+    DCL
+    JFZ W_100_L
+    DCH
+    JFZ W_100_H
+
+    ORD
+    JTZ BL_200
+    JMP BLINK
+
+    ORG 0x200
+BL_200:
+    LHI 0x10
+W_200_H:
+    LLI 0xFF
+W_200_L:
+    DCL
+    JFZ W_200_L
+    DCH
+    JFZ W_200_H
+    
+    ORD
+    JTZ BL_400
+    JMP BL_100
 
 CHAR:
     DATA " .#"      ; This is the array of displayable characters.
@@ -132,6 +175,68 @@ LOGO:
     ; will be emitted as-is
     DATA " PRESERVER  EXPLORER   REJOUER"
     DATA 13,0
+
+
+
+    ORG 0x400
+BL_400:
+    LHI 0x10
+W_400_H:
+    LLI 0xFF
+W_400_L:
+    DCL
+    JFZ W_400_L
+    DCH
+    JFZ W_400_H
+    
+    ORD
+    JTZ BL_800
+    JMP BL_200
+
+    ORG 0x800
+BL_800:
+    LHI 0x10
+W_800_H:
+    LLI 0xFF
+W_800_L:
+    DCL
+    JFZ W_800_L
+    DCH
+    JFZ W_800_H
+    
+    ORD
+    JTZ BL_1000
+    JMP BL_400
+
+    ORG 0x1000
+BL_1000:
+    LHI 0x10
+W_1000_H:
+    LLI 0xFF
+W_1000_L:
+    DCL
+    JFZ W_1000_L
+    DCH
+    JFZ W_1000_H
+    
+    ORD
+    JTZ BL_2000
+    JMP BL_800
+
+    ORG 0x2000
+BL_2000:
+    LHI 0x10
+W_2000_H:
+    LLI 0xFF
+W_2000_L:
+    DCL
+    JFZ W_2000_L
+    DCH
+    JFZ W_2000_H
+    
+    LDI 0x1
+    JMP BL_1000
+
 
 ;;; Following is the Python source code to encode the banner.
 ;;;
