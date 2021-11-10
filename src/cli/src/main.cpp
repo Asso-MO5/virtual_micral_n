@@ -8,7 +8,7 @@
 #include <iostream>
 #include <loguru.hpp>
 #include <stdexcept>
-#include <inttypes.h>
+#include <cinttypes>
 
 namespace
 {
