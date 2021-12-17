@@ -12,6 +12,7 @@
     LCC             ; MAS instruction of the Micral N: disables all interruptions except Level 0.
     JMP START
 
+    ORG 0x0038
 RST7:
     DATA 0x1f ; REI
 

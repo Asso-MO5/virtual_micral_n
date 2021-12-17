@@ -1,0 +1,95 @@
+AS8 assembler for intel 8008, t.e.jones Version 1.0
+Options: listfile=1 debug=0 binaryout=1 singlelist=0
+octalnums=1 markascii=0
+Infile=/home/mokona/Developpement/Emulation/MicralN/data/8008-sector-led.asm
+Assembly Performed: Sat Dec 18 00:24:16 2021
+
+
+Line Addr.  CodeBytes   Source Line
+---- ------ ----------- ----------------------------------
+   1                        ORG 0x0000
+   2 00-000 322             LCC             ; MAS instruction of the Micral N: disables all interruptions except Level 0.
+   3                    
+   4                    COPY:
+   5 00-001 016 000         LBI 0
+   6 00-003 321             LCB
+   7                    
+   8                    COPY_LOOP:
+   9 00-004 351             LHB
+  10 00-005 362             LLC
+  11 00-006 307             LAM
+  12                    
+  13 00-007 020             INC
+  14 00-010 110 014 000     JFZ NO_INC_B
+  15 00-013 010             INB
+  16                    NO_INC_B:
+  17 00-014 050             INH     ; Points 0x0100 further
+  18 00-015 370             LMA
+  19                    
+  20 00-016 335             LDH     ; Prepare for end compariso
+  21                    
+  22 00-017 006 104         LAI \LB\PATCH_H+2 ; Points to the CAL instruction address MSByte
+  23 00-021 276             CPL
+  24 00-022 110 035 000     JFZ NO_PATCH
+  25 00-025 305             LAH     ; Gets the MSByte of the current copy
+  26 00-026 370             LMA     ; Injects the call
+  27 00-027 066 100         LLI \LB\PATCH_L+2
+  28 00-031 370             LMA     ; Injects the call
+  29 00-032 066 050         LLI \LB\LOOP+2
+  30 00-034 370             LMA     ; Injects the call
+  31                    NO_PATCH:
+  32 00-035 303             LAD     ; Compare for end of loop
+  33 00-036 074 067         CPI 0x37
+  34                    
+  35 00-040 110 004 000     JFZ COPY_LOOP
+  36 00-043 104 046 000     JMP LOOP
+  37                    
+  38                    LOOP:
+  39 00-046 106 071 000     CAL LOOP_CALL
+  40                    
+  41 00-051 056 000         LHI \HB\IND_JMP+2
+  42 00-053 066 070         LLI \LB\IND_JMP+2
+  43                    
+  44                        ; Bit loop
+  45 00-055 026 000         LCI 0
+  46 00-057 307             LAM
+  47 00-060 200             ADA ; Doubles A
+  48 00-061 212             ACC ; Adds the Carry in case of overflow
+  49 00-062 370             LMA
+  50                    
+  51 00-063 104 066 000     JMP IND_JMP
+  52                    
+  53                    IND_JMP:
+  54 00-066 104              DATA 0x44
+  55 00-067 046              DATA \LB\LOOP
+  56 00-070 001              DATA 0x01
+  57                    
+  58                    LOOP_CALL:
+  59 00-071 056 020         LHI 0x10
+  60                    LOOP_H:
+  61 00-073 066 377         LLI 0xFF
+  62                    LOOP_L:
+  63 00-075 061             DCL
+  64                    PATCH_L:
+  65 00-076 110 075 000     JFZ LOOP_L
+  66 00-101 051             DCH
+  67                    PATCH_H:
+  68 00-102 110 073 000     JFZ LOOP_H
+  69 00-105 007             RET
+  70                    
+  71                    
+  72                        ; Maximum address 0x7F
+Symbol Count: 11
+    Symbol  Oct Val  DecVal
+    ------  -------  ------
+      COPY      001      1
+ COPY_LOOP      004      4
+  NO_INC_B      014     12
+  NO_PATCH      035     29
+      LOOP      046     38
+   IND_JMP      066     54
+ LOOP_CALL      071     57
+    LOOP_H      073     59
+    LOOP_L      075     61
+   PATCH_L      076     62
+   PATCH_H      102     66
