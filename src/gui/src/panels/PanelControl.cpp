@@ -14,7 +14,7 @@ using namespace widgets;
 
 namespace
 {
-    const float HISTORY_REMANENCE = 100.f;
+    const float HISTORY_REMANENCE = 4.f;
 
     std::array<int, 16> value_to_display_as_bits(uint16_t value, size_t bus_width)
     {
