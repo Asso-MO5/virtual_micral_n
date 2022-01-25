@@ -37,11 +37,11 @@ namespace
 
         if (c == 13)
         {
-            return {"\n"};
+            return {"\r"};
         }
         if (c == 10)
         {
-            return {};
+            return {'\n'};
         }
 
         if (c == 0x11)
