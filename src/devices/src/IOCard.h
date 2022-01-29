@@ -68,8 +68,7 @@ private:
 
     std::shared_ptr<IOCommunicator> io_communicator;
 
-    size_t first_owned_terminal{};
-    std::array<uint8_t, IOCardConstants::TERMINAL_COUNT> latched_input_data{};
+    size_t first_owned_terminal{}; // Even if not owning a terminal, the ACK is always owned by the I/O card.
 
     std::array<std::shared_ptr<ScheduledSignal>, IOCardConstants::TERMINAL_COUNT>
             scheduled_terminals_ACKs;
@@ -77,13 +76,11 @@ private:
     void initialize_terminals();
     void initialize_io_communicator();
 
-    void on_input_signal(uint8_t signal_index, Edge edge);
-
     [[nodiscard]] bool is_addressed(uint16_t address) const;
     [[nodiscard]] uint8_t address_to_output_number(uint16_t address) const;
     [[nodiscard]] uint8_t address_to_input_number(uint16_t address) const;
     void send_to_peripheral(uint16_t address, Scheduling::counter_type time);
-    uint8_t get_from_peripheral(uint16_t address);
+    uint8_t get_from_peripheral(uint16_t address, Scheduling::counter_type time);
 };
 
 #endif //MICRALN_IOCARD_H

@@ -10,15 +10,15 @@ SerialCard::SerialCard(const Config& config)
     : change_schedule{config.change_schedule}, pluribus{config.pluribus},
       configuration{config.configuration}
 {
-    input_strobe_VE.request(this);
     input_data.request(this, Scheduling::counter_type{0});
     combined_status.request(this, Scheduling::counter_type{0});
     combined_status.set(0x80, Scheduling::counter_type{0}, this);
     combined_status_changed.request(this);
 
     output_strobe_AS.subscribe([this](Edge edge) { on_output(edge); });
+    input_strobe_VE.subscribe([this](Edge edge) { on_input_strobe(edge); });
 
-    scheduled_input_ready = std::make_shared<ScheduledSignal>(input_ready_PE);
+    input_ready_PE.request(this);
     output_ready_PS.request(this);
 
     input_ready_PE.subscribe([this](Edge edge) { on_input_ready(edge); });
@@ -30,11 +30,6 @@ SerialCard::SerialCard(const Config& config)
 }
 
 void SerialCard::step() {}
-
-std::vector<std::shared_ptr<Schedulable>> SerialCard::get_sub_schedulables()
-{
-    return {scheduled_input_ready};
-}
 
 void SerialCard::on_sync(Edge edge)
 {
@@ -51,9 +46,7 @@ void SerialCard::on_sync(Edge edge)
             input_queue.erase(begin(input_queue));
             input_data.set(next_char, time, this);
 
-            // TODO: what is the correct time of Input Ready being asserted?
-            scheduled_input_ready->launch(time, Scheduling::counter_type{300'000},
-                                          change_schedule);
+            input_ready_PE.set(State::HIGH, time, this);
         }
     }
     else
@@ -85,14 +78,20 @@ void SerialCard::on_output(Edge edge)
     }
 }
 
+void SerialCard::on_input_strobe(Edge edge)
+{
+    if (is_rising(edge))
+    {
+        // When received, reset the available character (DAV)
+        input_ready_PE.set(State::LOW, edge.time(), this);
+    }
+}
+
 void SerialCard::on_input_ready(Edge edge)
 {
     auto status = combined_status.get_value() & 0xfe;
     status |= (is_rising(edge) ? 1 : 0);
     combined_status.set(status, edge.time(), this);
-
-    // TODO: The strobe is probably much shorter than the Input Ready.
-    input_strobe_VE.set(edge.apply(), edge.time(), this);
 }
 
 void SerialCard::on_output_ready(Edge edge)
@@ -100,4 +99,9 @@ void SerialCard::on_output_ready(Edge edge)
     auto status = combined_status.get_value() & 0x7f;
     status |= (is_rising(edge) ? 1 : 0) << 7;
     combined_status.set(status, edge.time(), this);
+}
+
+vector<std::shared_ptr<Schedulable>> SerialCard::get_sub_schedulables()
+{
+    return {};
 }

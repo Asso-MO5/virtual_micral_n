@@ -37,8 +37,8 @@ void IOCard::initialize_io_communicator()
 {
     IOCommunicatorConfiguration io_communicator_config{
             .on_need_data_for_pluribus =
-                    [this](uint16_t address, Scheduling::counter_type) {
-                        return get_from_peripheral(address);
+                    [this](uint16_t address, Scheduling::counter_type time) {
+                        return get_from_peripheral(address, time);
                     },
             .on_acquire_from_pluribus =
                     [this](uint16_t address, Scheduling::counter_type time) {
@@ -55,15 +55,17 @@ IOCard::~IOCard() = default;
 
 void IOCard::initialize_terminals()
 {
-    for (size_t index = 0; index < first_owned_terminal; ++index)
+    // The IO Card is always in charge of ACK
+    // For Output, strobe when data is ready
+    // For Input, strobe when data has been acquired.
+    for (size_t index = 0; index < IOCardConstants::TERMINAL_COUNT; ++index)
     {
-        ack_terminals[index].subscribe([index, this](Edge edge) { on_input_signal(index, edge); });
+        scheduled_terminals_ACKs[index] = std::make_shared<ScheduledSignal>(ack_terminals[index]);
     }
 
     for (size_t index = first_owned_terminal; index < IOCardConstants::TERMINAL_COUNT; ++index)
     {
         data_terminals[index].request(this, OwnedValue<uint8_t>::counter_type{0});
-        scheduled_terminals_ACKs[index] = std::make_shared<ScheduledSignal>(ack_terminals[index]);
     }
 }
 
@@ -179,28 +181,23 @@ uint8_t IOCard::address_to_input_number(uint16_t address) const
     return s0_to_s2;
 }
 
-uint8_t IOCard::get_from_peripheral(uint16_t address)
+uint8_t IOCard::get_from_peripheral(uint16_t address, Scheduling::counter_type time)
 {
     const uint8_t input_number = address_to_input_number(address);
     assert((input_number < first_owned_terminal) && "Cannot fetch data on an output channel.");
 
-    const uint8_t data = latched_input_data[input_number];
+    const uint8_t data = data_terminals[input_number].get_value();
+
+    // Sends ACK
+    scheduled_terminals_ACKs[input_number]->launch(time, ACK_APPLIED_PERIOD, change_schedule);
 
     return data;
 }
 
-void IOCard::on_input_signal(uint8_t signal_index, Edge)
-{
-    assert((signal_index < first_owned_terminal) && "Cannot receive data on an output channel.");
-
-    auto data = data_terminals[signal_index].get_value();
-    latched_input_data[signal_index] = data;
-}
-
 std::vector<std::shared_ptr<Schedulable>> IOCard::get_sub_schedulables()
 {
-    std::vector<std::shared_ptr<Schedulable>> sub_schedulables{
-            begin(scheduled_terminals_ACKs) + first_owned_terminal, end(scheduled_terminals_ACKs)};
+    std::vector<std::shared_ptr<Schedulable>> sub_schedulables{begin(scheduled_terminals_ACKs),
+                                                               end(scheduled_terminals_ACKs)};
     sub_schedulables.push_back(io_communicator);
 
     return sub_schedulables;

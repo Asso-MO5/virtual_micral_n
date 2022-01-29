@@ -38,7 +38,7 @@ public:
 
     OwnedValue<uint8_t> combined_status;
 
-    // Non existent signal? At the moment, serves to signal the IO Card of the changed status
+    // Non-existent signal? At the moment, serves to signal the IO Card of the changed status
     OwnedSignal combined_status_changed;
 
     // From the IO Card
@@ -61,9 +61,8 @@ private:
     //    OwnedSignal parity_error_EP;   // Bit 5
     //    OwnedSignal framing_error_SP;  // Bit 6
 
-    std::shared_ptr<ScheduledSignal> scheduled_input_ready;
-
     void on_output(Edge edge);
+    void on_input_strobe(Edge edge);
     void on_input_ready(Edge edge);
     void on_output_ready(Edge edge);
     void on_sync(Edge edge);
