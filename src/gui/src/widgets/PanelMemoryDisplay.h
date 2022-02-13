@@ -32,7 +32,7 @@ void memory_display(const char* widget_name, const MemoryDisplayParameters& para
 
         if (address % visual_width == 0)
         {
-            ImGui::Text("$%004x: ", address);
+            ImGui::Text("$%04x: ", address);
             memory_line = address;
         }
 
@@ -43,11 +43,11 @@ void memory_display(const char* widget_name, const MemoryDisplayParameters& para
 
         if (address == parameters.highlighted_memory)
         {
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%002x ", value);
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%02x ", value);
         }
         else
         {
-            ImGui::Text("%002x ", value);
+            ImGui::Text("%02x ", value);
         }
 
         address += 1;
