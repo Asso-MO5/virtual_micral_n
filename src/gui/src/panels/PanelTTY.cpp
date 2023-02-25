@@ -37,7 +37,7 @@ namespace
 
         if (c == 13)
         {
-            return {"\r"};
+            return {"\n"};
         }
         if (c == 10)
         {
