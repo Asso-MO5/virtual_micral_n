@@ -27,6 +27,11 @@ or a graphical one, without all the debug tools. Even pushing it to a guided tou
 
 A small disassembler with support for Micral N dedicated instructions is also available.
 
-Other projected use is an assembler.
+Configuration
+-------------
 
-We could think about a WASM target for easier access to everyone.
+At the moment, configuration if by changing the source only. In the `main.cpp` file,
+the enum passed to the `Simulator` constructor creates a particular scenario. By changing
+the value, the configuration changes.
+
+Future work needs to be done for data driven configuration.
