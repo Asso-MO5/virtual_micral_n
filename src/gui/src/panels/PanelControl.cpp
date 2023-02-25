@@ -356,7 +356,7 @@ void PanelControl::hack_for_monitor(ConsoleCard& console_card)
         switch (step_for_hack)
         {
             case 0:
-                set_hack_data(console_card, 0xd2);
+                set_hack_data(console_card, 0xc0);
                 break;
             case 1:
                 console_card.press_cycle();
