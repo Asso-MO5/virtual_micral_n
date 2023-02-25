@@ -30,7 +30,7 @@ of the change. The merge request must have an objective which brings value.
 
 The merge request must pass the CI Checks.
 
-The merge request is then reviewed and will be accepted if passing the review.
+The merge request is then reviewed by the maintainer and will be accepted if passing the review.
 
 Coding Conventions
 ------------------
@@ -48,7 +48,7 @@ Cppcheck (ANALYZE_CPPCHECK target on CMake) must not add warnings.
 
 Clang-Tidy is on its way.
 
-Prefer high level explanation on classes than line by line paraphrase in comments.
+Prefer high level explanation on classes over line by line paraphrase in comments.
 If it can be explained by naming a variable or a function, don't use comments.
 
 Prefer positiveness in your naming, to protect from double (or worse) negations.
