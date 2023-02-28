@@ -37,10 +37,11 @@ make
 
 The CMAKE reacts to these environment variables:
 
-* MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
+* You can override default warning settings by using the MICRAL_WARNINGS environment variable. Recommended value is:
     * For GCC: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
     * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
     * For other compilers: not tested yet
+* If not set, default settings are applied
 
 Reasons for exceptions:
 
@@ -76,9 +77,10 @@ make
 
 The CMAKE reacts to these environment variables:
 
-* MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
-    * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
-    * For other compilers: not tested yet
+* You can override default warning settings by using the MICRAL_WARNINGS environment variable. Recommended value is:
+  * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
+  * For other compilers: not tested yet
+* If not set, default settings are applied
 
 Reasons for exceptions:
 
@@ -127,9 +129,9 @@ emcmake cmake ../ # or cmake ../ -DCMAKE_BUILD_TYPE=Debug
 make
 ```
 
-* MICRAL_WARNINGS sets up the warnings for compilation. Recommended value is:
-    * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable **
-      -Wno-unused-command-line-argument**"
+* You can override default warning settings by using the MICRAL_WARNINGS environment variable. Recommended value is:
+  * For Clang: MICRAL_WARNINGS="-Wall -Werror -Wno-unknown-pragmas -Wno-unused-variable"
+* If not set, default settings are applied
 
 * To get the files to deploy, see Packaging further in this document.
     - Test in a web server : python -m http.server in Python 3 or python -m SimpleHTTPServer in Python 2
