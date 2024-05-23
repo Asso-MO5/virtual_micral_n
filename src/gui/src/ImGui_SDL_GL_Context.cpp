@@ -59,7 +59,7 @@ void ImGui_SDL_GL_Context::init_sdl()
 
 void ImGui_SDL_GL_Context::create_window(const SDL_WindowFlags& window_flags)
 {
-    window = SDL_CreateWindow("Dear ImGui Emscripten example", SDL_WINDOWPOS_CENTERED,
+    window = SDL_CreateWindow("Virtual MICRAL N", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     gl_context = SDL_GL_CreateContext(window);
     if (!gl_context)
