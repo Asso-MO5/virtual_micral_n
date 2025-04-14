@@ -2,6 +2,7 @@
 #define MICRALN_OUTPUTLINE_H
 
 #include <iostream>
+#include <cinttypes>
 
 class Disassemble8008;
 class MemoryView;
