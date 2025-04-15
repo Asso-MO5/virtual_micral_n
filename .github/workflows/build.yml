@@ -34,9 +34,9 @@ jobs:
           libsndio-dev \
           libudev-dev \
           libwayland-dev \
-          libwayland-client++0 \
+          libwayland-client++1 \
           wayland-scanner++ \
-          libwayland-cursor++0 \
+          libwayland-cursor++1 \
           libx11-dev \
           libxcursor-dev \
           libxext-dev \
