@@ -29,8 +29,9 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
                 simulator.get_processor_card().get_cpu().data_pins.get_value()); // Ouch...
 
     {
-        ImGui::BeginChild("ChildLeft-Internal",
-                          ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 160), true);
+        auto window_width =
+                ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
+        ImGui::BeginChild("ChildLeft-Internal", ImVec2(window_width * 0.5f, 160), true);
 
         auto state = static_cast<std::uint32_t>(*cpu.output_pins.state);
         ImGui::Text("State %1d%1d%1d (%s)", (state >> 2) & 1, (state >> 1) & 1, (state >> 0) & 1,
@@ -70,10 +71,11 @@ void display_8008_panel(const Simulator& simulator, uint64_t average_frequency)
         }
         ImGui::EndChild();
     }
-
     {
-        ImGui::BeginChild("ChildLeft-Stack",
-                          ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 180), true);
+        auto window_width =
+                ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
+
+        ImGui::BeginChild("ChildLeft-Stack", ImVec2(window_width * 0.5f, 180), true);
 
         ImGui::Text("Address Stack");
         size_t stack_index = 0;

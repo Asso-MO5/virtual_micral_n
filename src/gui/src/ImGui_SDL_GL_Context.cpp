@@ -1,7 +1,7 @@
 #include "ImGui_SDL_GL_Context.h"
 #include "imgui_impl_opengl2.h"
 
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_sdl2.h"
 
 #ifdef EMSCRIPTEN
 #include <SDL_opengles2.h>
@@ -97,7 +97,7 @@ void ImGui_SDL_GL_Context::start_imgui_frame()
 {
     start_frame();
 
-    ImGui_ImplSDL2_NewFrame(window);
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 }
 

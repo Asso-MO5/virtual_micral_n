@@ -14,14 +14,14 @@ set(GUI_TEST_EXE_NAME ${GUI_EXE_NAME}_tests)
 if(EMSCRIPTEN)
     set(GUI_FILES src/main.cpp
             ../../extern/imgui/backends/imgui_impl_opengl3.cpp
-            ../../extern/imgui/backends/imgui_impl_sdl.cpp
+            ../../extern/imgui/backends/imgui_impl_sdl2.cpp
             )
 
     set(IMGUI_ADAPTER src/ImGui_Emscripten_Context.cpp src/ImGui_Empscripten_Context.h)
 else()
     set(GUI_FILES src/main.cpp
             ../../extern/imgui/backends/imgui_impl_opengl2.cpp
-            ../../extern/imgui/backends/imgui_impl_sdl.cpp
+            ../../extern/imgui/backends/imgui_impl_sdl2.cpp
             )
 
     set(IMGUI_ADAPTER src/ImGui_SDL_GL2_Context.cpp src/ImGui_SDL_GL2_Context.h)

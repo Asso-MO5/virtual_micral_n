@@ -351,7 +351,7 @@ void PanelControl::hack_for_monitor(ConsoleCard& console_card)
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    if (io.KeyShift && ImGui::IsKeyPressed(0x30))
+    if (io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_0))
     {
         switch (step_for_hack)
         {

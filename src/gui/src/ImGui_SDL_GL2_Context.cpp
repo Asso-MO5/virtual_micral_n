@@ -3,7 +3,7 @@
 #include "ImGui_SDL_GL_Context.h"
 #include "imgui_impl_opengl2.h"
 
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdl2.h>
 
 ImGui_SDL_GL2_Context::ImGui_SDL_GL2_Context(const ImGui_SDL_GL_Context::Config& config)
     : ImGui_SDL_GL_Context(config)
